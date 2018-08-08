@@ -57,7 +57,7 @@ class TaskLogger:
     
     def loadLog(self):
 
-        print ( self.__str__(), ": Loading log" )
+        #print ( self.__str__(), ": Loading log" )
 
         self.logList.clear()
         cursor = self.conn.cursor()
@@ -81,7 +81,7 @@ class TaskLogger:
             
             self.logList.append( log )
         
-        print ( self.__str__(), " ", " {} log line loaded: " )
+        #print ( self.__str__(), " ", " {} log line loaded: " )
 
     def listLog(self):
         
