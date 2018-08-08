@@ -12,7 +12,7 @@ from database.Measure import *
 from database import BuildEventTrain3, BuildEventTrain4, BuildEventFollowZone, BuildEventRear5, BuildEventFloorSniffing,\
     BuildEventSocialApproach, BuildEventSocialEscape, BuildEventApproachContact,\
     BuildEventApproachRear, BuildEventGroup2, BuildEventGroup3, BuildEventGroup4,\
-    BuildEventStop, BuildEventWaterPoint, BuildEventSequentialRearing, BuildEventSequentialRearing2
+    BuildEventStop, BuildEventWaterPoint
 
 from tkinter.filedialog import askopenfilename
 

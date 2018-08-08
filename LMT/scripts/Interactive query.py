@@ -12,7 +12,7 @@ from database.Measure import *
 from database import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, BuildEventFollowZone, BuildEventRear5, BuildEventFloorSniffing,\
     BuildEventSocialApproach, BuildEventSocialEscape, BuildEventApproachContact,BuildEventOralOralContact,\
     BuildEventApproachRear, BuildEventGroup2, BuildEventGroup3, BuildEventGroup4, BuildEventOralGenitalContact, \
-    BuildEventStop, BuildEventWaterPoint, BuildEventSequentialRearing, BuildEventSequentialRearing2, \
+    BuildEventStop, BuildEventWaterPoint, \
     BuildEventMove, BuildEventGroup3MakeBreak, BuildEventGroup4MakeBreak,\
     BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
     BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
