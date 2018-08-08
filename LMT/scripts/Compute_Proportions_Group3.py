@@ -15,6 +15,7 @@ from database import BuildEventTrain3, BuildEventTrain4, BuildEventFollowZone, B
     BuildEventStop, BuildEventWaterPoint
 
 from tkinter.filedialog import askopenfilename
+from database.Util import getMinTMaxTAndFileNameInput
 
 
 if __name__ == '__main__':
@@ -22,6 +23,8 @@ if __name__ == '__main__':
     print("Code launched.")
 
     files = askopenfilename( title="Choose a set of file to process", multiple=1 )    
+    
+    tMin, tMax, text_file = getMinTMaxTAndFileNameInput()
     
     '''
     min_dur = 0*oneHour    
@@ -34,9 +37,11 @@ if __name__ == '__main__':
     text_file = open ("test_proportions_group3_shank3_23h.txt", "w")
     '''
     
+    '''
     min_dur = 0*oneHour    
     max_dur = 24*3*oneHour    
     text_file = open ("test_proportions_group3_shank3_all.txt", "w")
+    '''
     
 
     for file in files:
@@ -60,7 +65,7 @@ if __name__ == '__main__':
             if ( pool.animalDictionnary[idAnimalA].genotype == "KO" ):
                 animalKODictionary[idAnimalA] = pool.animalDictionnary[idAnimalA]
         
-            group3Dictionary[idAnimalA] = EventTimeLine( connection, "Group3", idAnimalA, minFrame=min_dur, maxFrame=max_dur )
+            group3Dictionary[idAnimalA] = EventTimeLine( connection, "Group3", idAnimalA, minFrame=tMin, maxFrame=tMax )
         
         ''' calculating how many groups of WKK and of KWW longer than one second were created '''
         Group3WKK = 0

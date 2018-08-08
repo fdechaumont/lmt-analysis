@@ -15,6 +15,7 @@ from database import BuildEventTrain3, BuildEventTrain4, BuildEventFollowZone, B
     BuildEventStop, BuildEventWaterPoint
 
 from tkinter.filedialog import askopenfilename
+from database.Util import getMinTMaxTAndFileNameInput
 
 
 
@@ -27,11 +28,13 @@ if __name__ == '__main__':
     
     files = askopenfilename( title="Choose a set of file to process", multiple=1 )
     
+    tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
 
+    '''
     setName = "night 1"
     min_dur = 0*oneDay
     max_dur = min_dur+ 23*oneHour
-    
+    '''
 
     '''
     setName = "night 2"
@@ -51,7 +54,9 @@ if __name__ == '__main__':
     max_dur = 2*oneDay + 23*oneHour
     '''
 
+    '''
     text_file = open ("test_link_make_break_group3_shank2_"+setName+".txt", "w")
+    '''
     
     for file in files:
         
@@ -76,9 +81,9 @@ if __name__ == '__main__':
             if ( pool.animalDictionnary[idAnimalA].genotype == "KO" ):
                 animalKODictionary[idAnimalA] = pool.animalDictionnary[idAnimalA]
         
-            animalMakeGroupDictionary[idAnimalA] = EventTimeLine( connection, "Group 3 make", idAnimalA, minFrame=min_dur, maxFrame=max_dur )
-            animalBreakGroupDictionary[idAnimalA] = EventTimeLine( connection, "Group 3 break", idAnimalA, minFrame=min_dur, maxFrame=max_dur )
-            group3Dictionary[idAnimalA] = EventTimeLine( connection, "Group3", idAnimalA, minFrame=min_dur, maxFrame=max_dur )
+            animalMakeGroupDictionary[idAnimalA] = EventTimeLine( connection, "Group 3 make", idAnimalA, minFrame=tmin, maxFrame=tmax )
+            animalBreakGroupDictionary[idAnimalA] = EventTimeLine( connection, "Group 3 break", idAnimalA, minFrame=tmin, maxFrame=tmax )
+            group3Dictionary[idAnimalA] = EventTimeLine( connection, "Group3", idAnimalA, minFrame=tmin, maxFrame=tmax )
         
         
         ''' calculating how many groups of 3 WKK were created by WT or by KO and broken by WT or KO'''

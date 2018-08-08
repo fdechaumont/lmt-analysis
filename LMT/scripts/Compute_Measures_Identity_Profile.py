@@ -15,6 +15,7 @@ from database import BuildEventTrain3, BuildEventTrain4, BuildEventFollowZone, B
     BuildEventStop, BuildEventWaterPoint
 
 from tkinter.filedialog import askopenfilename
+from database.Util import getMinTMaxTAndFileNameInput
 
 
 def getNumberOfEventWithList( connection, eventName, idAnimalA , animalList, minFrame=None, maxFrame=None ):
@@ -44,9 +45,12 @@ if __name__ == '__main__':
     
     print("Code launched.")
  
+   
+    '''
     setName = "night 1"
     min_dur = 0*oneDay
     max_dur = min_dur+ 23*oneHour
+    '''
     
     '''
     setName = "night 2"
@@ -71,11 +75,11 @@ if __name__ == '__main__':
     #behaviouralEventOneMouse = ["Group3", "Group 3 break", "Group 3 make", "Group4", "Group 4 break", "Group 4 make", "Huddling", "Move isolated", "Move in contact", "Nest3", "Rearing", "Rear isolated", "Rear in contact", "Stop isolated", "WallJump", "Water Zone"]
     behaviouralEventTwoMice = ["Approach contact", "Approach rear", "Break contact", "Contact", "FollowZone Isolated", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Social escape", "Train2"] 
     
-    text_file = open ("test_measures_individual_profile_shank2_true_"+setName+".txt", "w")
     #text_file = open ("test_measures_individual_profile_shank3_23h_7907.txt", "w")
     
     files = askopenfilename( title="Choose a set of file to process", multiple=1 )
-    
+    tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
+
     for file in files:
         
         print(file)
@@ -101,12 +105,12 @@ if __name__ == '__main__':
             behavEventTimeLine = {}
         
             for idAnimalA in pool.animalDictionnary.keys():
-                behavEventTimeLine[idAnimalA] = EventTimeLine( connection, behavEvent, idAnimalA, minFrame=min_dur, maxFrame=max_dur )
+                behavEventTimeLine[idAnimalA] = EventTimeLine( connection, behavEvent, idAnimalA, minFrame=tmin, maxFrame=tmax )
                 
                 event = behavEventTimeLine[idAnimalA]
                 
                 totalEventDuration = event.getTotalLength()
-                nbEvent = event.getNumberOfEvent(minFrame = min_dur, maxFrame = max_dur)
+                nbEvent = event.getNumberOfEvent(minFrame = tmin, maxFrame = tmax )
 
                 genoA = None
                 try:
@@ -140,10 +144,10 @@ if __name__ == '__main__':
                     else:
                         animalDiffGeno.append( pool.animalDictionnary[animal] )
                         
-                nbEventsSameGeno = getNumberOfEventWithList(connection, behavEvent, idAnimalA, animalSameGeno, minFrame=min_dur, maxFrame=max_dur)
-                durEventsSameGeno = getDurationOfEventWithList(connection, behavEvent, idAnimalA, animalSameGeno, minFrame=min_dur, maxFrame=max_dur)
-                nbEventsDiffGeno = getNumberOfEventWithList(connection, behavEvent, idAnimalA, animalDiffGeno, minFrame=min_dur, maxFrame=max_dur)
-                durEventsDiffGeno = getDurationOfEventWithList(connection, behavEvent, idAnimalA, animalDiffGeno, minFrame=min_dur, maxFrame=max_dur)
+                nbEventsSameGeno = getNumberOfEventWithList(connection, behavEvent, idAnimalA, animalSameGeno, minFrame=tmin, maxFrame=tmax)
+                durEventsSameGeno = getDurationOfEventWithList(connection, behavEvent, idAnimalA, animalSameGeno, minFrame=tmin, maxFrame=tmax)
+                nbEventsDiffGeno = getNumberOfEventWithList(connection, behavEvent, idAnimalA, animalDiffGeno, minFrame=tmin, maxFrame=tmax)
+                durEventsDiffGeno = getDurationOfEventWithList(connection, behavEvent, idAnimalA, animalDiffGeno, minFrame=tmin, maxFrame=tmax)
             
             
                         

@@ -16,6 +16,7 @@ from database import BuildEventTrain3, BuildEventTrain4, BuildEventFollowZone, B
     
 
 from tkinter.filedialog import askopenfilename
+from database.Util import getMinTMaxTAndFileNameInput
 
 
 if __name__ == '__main__':
@@ -24,10 +25,13 @@ if __name__ == '__main__':
 
     
     files = askopenfilename( title="Choose a set of file to process", multiple=1 )
-        
+    tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
+    
+    '''    
     setName = "night 1"
     min_dur = 0*oneDay
     max_dur = min_dur+ 23*oneHour
+    '''
     
     '''
     setName = "night 2"
@@ -53,10 +57,10 @@ if __name__ == '__main__':
     max_dur = 23*oneHour
     '''
     
-    files = askopenfilename( title="Choose a set of file to process", multiple=1 )
     
-
+    '''
     text_file = open ("test_link_make_break_group4_shank2_"+setName+".txt", "w")
+    '''
     
     for file in files:
         
@@ -72,7 +76,7 @@ if __name__ == '__main__':
         animalMakeGroupDictionary = {}
         animalBreakGroupDictionary = {}
         
-        group4Dictionary = EventTimeLine( connection, "Group4", None, minFrame=min_dur, maxFrame=max_dur )
+        group4Dictionary = EventTimeLine( connection, "Group4", None, minFrame=tmin, maxFrame=tmax )
         
         for idAnimalA in pool.animalDictionnary.keys():
             if ( pool.animalDictionnary[idAnimalA].genotype == "WT" ):
@@ -81,8 +85,8 @@ if __name__ == '__main__':
             if ( pool.animalDictionnary[idAnimalA].genotype == "KO" ):
                 animalKODictionary[idAnimalA] = pool.animalDictionnary[idAnimalA]
         
-            animalMakeGroupDictionary[idAnimalA] = EventTimeLine( connection, "Group 4 make", idAnimalA, minFrame=min_dur, maxFrame=max_dur )
-            animalBreakGroupDictionary[idAnimalA] = EventTimeLine( connection, "Group 4 break", idAnimalA, minFrame=min_dur, maxFrame=max_dur )
+            animalMakeGroupDictionary[idAnimalA] = EventTimeLine( connection, "Group 4 make", idAnimalA, minFrame=tmin, maxFrame=tmax )
+            animalBreakGroupDictionary[idAnimalA] = EventTimeLine( connection, "Group 4 break", idAnimalA, minFrame=tmin, maxFrame=tmax )
             
         
         ''' calculating how many groups of were created by WT or by KO and broken by WT or KO'''

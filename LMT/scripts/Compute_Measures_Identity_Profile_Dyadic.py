@@ -15,6 +15,7 @@ from database import BuildEventTrain3, BuildEventTrain4, BuildEventFollowZone, B
     BuildEventStop, BuildEventWaterPoint
 
 from tkinter.filedialog import askopenfilename
+from database.Util import getMinTMaxTAndFileNameInput
 
 
 
@@ -30,11 +31,13 @@ if __name__ == '__main__':
  
         
     files = askopenfilename( title="Choose a set of file to process", multiple=1 )
-    
+    tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
+
+    '''
     min_dur = 10*oneSecond
     max_dur = min_dur + 10*oneMinute
+    '''
     
-    #behaviouralEventOneMouse = ["Contact", "Group2"]
     behaviouralEventOneMouse = ["Contact", "Group2", "Huddling", "Move isolated", "Move in contact", "Rearing", "Rear isolated", "Rear in contact", "Stop isolated", "WallJump"]
     behaviouralEventTwoMice = ["Approach contact", "Approach rear", "Break contact", "Contact", "FollowZone Isolated", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Social escape", "Train2"] 
     
@@ -48,15 +51,15 @@ if __name__ == '__main__':
         pool = AnimalPool( )
         pool.loadAnimals( connection )
         
-        pool.loadDetection( start = min_dur, end = max_dur)
+        pool.loadDetection( start = tmin, end = tmax )
         
         for idAnimalA in pool.animalDictionnary.keys():
             
             print ( pool.animalDictionnary[idAnimalA].RFID )
             #total distance traveled
-            totalDistance = pool.animalDictionnary[idAnimalA].getDistance(tmin = min_dur, tmax = max_dur)
-            resTotalDistance = [file, pool.animalDictionnary[idAnimalA].RFID, min_dur, max_dur, totalDistance]
-            text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\n".format( file, pool.animalDictionnary[idAnimalA].RFID, pool.animalDictionnary[idAnimalA].genotype, min_dur, max_dur, totalDistance ) ) 
+            totalDistance = pool.animalDictionnary[idAnimalA].getDistance(tmin = tmin , tmax = tmax )
+            resTotalDistance = [file, pool.animalDictionnary[idAnimalA].RFID, tmin, tmax, totalDistance]
+            text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\n".format( file, pool.animalDictionnary[idAnimalA].RFID, pool.animalDictionnary[idAnimalA].genotype, tmin, tmax, totalDistance ) ) 
   
             
         for behavEvent in behaviouralEventOneMouse:
@@ -65,18 +68,18 @@ if __name__ == '__main__':
             behavEventTimeLine = {}
         
             for idAnimalA in pool.animalDictionnary.keys():
-                behavEventTimeLine[idAnimalA] = EventTimeLine( connection, behavEvent, idAnimalA, minFrame=min_dur, maxFrame=max_dur )
+                behavEventTimeLine[idAnimalA] = EventTimeLine( connection, behavEvent, idAnimalA, minFrame=tmin, maxFrame=tmax )
                 
                 event = behavEventTimeLine[idAnimalA]
                 
                 totalEventDuration = event.getTotalLength()
-                nbEvent = event.getNumberOfEvent(minFrame = min_dur, maxFrame = max_dur)
+                nbEvent = event.getNumberOfEvent(minFrame = tmin, maxFrame = tmax)
 
                 
                 print(event.eventName, event.idA, totalEventDuration, nbEvent)
                 
                 resOneMouse = [file, event.eventName, pool.animalDictionnary[idAnimalA].RFID, totalEventDuration, nbEvent]
-                text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, event.eventName, pool.animalDictionnary[idAnimalA].RFID, pool.animalDictionnary[idAnimalA].genotype, min_dur, max_dur, totalEventDuration, nbEvent ) ) 
+                text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, event.eventName, pool.animalDictionnary[idAnimalA].RFID, pool.animalDictionnary[idAnimalA].genotype, tmin, tmax, totalEventDuration, nbEvent ) ) 
                        
                 
 
@@ -89,19 +92,19 @@ if __name__ == '__main__':
                     if ( idAnimalA == idAnimalB ):
                         continue
                 
-                    behavEventTimeLine[idAnimalA, idAnimalB] = EventTimeLine( connection, behavEvent, idAnimalA, idAnimalB, minFrame=min_dur, maxFrame=max_dur )
+                    behavEventTimeLine[idAnimalA, idAnimalB] = EventTimeLine( connection, behavEvent, idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
                     
                     event = behavEventTimeLine[idAnimalA, idAnimalB]
                         
                     totalEventDuration = event.getTotalLength()
-                    nbEvent = event.getNumberOfEvent(minFrame = min_dur, maxFrame = max_dur)
+                    nbEvent = event.getNumberOfEvent(minFrame = tmin, maxFrame = tmax)
             
                         
                     print( behavEvent, pool.animalDictionnary[idAnimalA].RFID, pool.animalDictionnary[idAnimalB].RFID )
                 
-                    resSame = [file, behavEvent, pool.animalDictionnary[idAnimalA].RFID, pool.animalDictionnary[idAnimalB].RFID, min_dur, max_dur, totalEventDuration, nbEvent]
+                    resSame = [file, behavEvent, pool.animalDictionnary[idAnimalA].RFID, pool.animalDictionnary[idAnimalB].RFID, tmin, tmax, totalEventDuration, nbEvent]
                 
-                    text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, behavEvent, pool.animalDictionnary[idAnimalA].RFID, pool.animalDictionnary[idAnimalA].genotype, pool.animalDictionnary[idAnimalB].RFID, pool.animalDictionnary[idAnimalB].genotype, min_dur, max_dur, totalEventDuration, nbEvent ) ) 
+                    text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, behavEvent, pool.animalDictionnary[idAnimalA].RFID, pool.animalDictionnary[idAnimalA].genotype, pool.animalDictionnary[idAnimalB].RFID, pool.animalDictionnary[idAnimalB].genotype, tmin, tmax, totalEventDuration, nbEvent ) ) 
             
 
     text_file.write( "\n" )

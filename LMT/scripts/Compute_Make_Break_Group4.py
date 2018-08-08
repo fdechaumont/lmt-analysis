@@ -15,6 +15,7 @@ from database import BuildEventTrain3, BuildEventTrain4, BuildEventFollowZone, B
     BuildEventStop, BuildEventWaterPoint
 
 from tkinter.filedialog import askopenfile, askopenfilename
+from database.Util import getMinTMaxTAndFileNameInput
 
 
 
@@ -26,15 +27,18 @@ if __name__ == '__main__':
 
     
     files = askopenfilename( title="Choose a set of file to process", multiple=1 )
+    tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
 
     
     '''
     max_dur = 23*oneHour
     text_file = open ("test_make_break_group4_shank3_23h.txt", "w")
     '''
-
+    
+    '''
     max_dur = 3*oneDay
     text_file = open ("test_make_break_group4_shank3_all.txt", "w")
+    '''
 
     for file in files:
         
@@ -57,8 +61,8 @@ if __name__ == '__main__':
             if ( pool.animalDictionnary[idAnimalA].genotype == "KO" ):
                 animalKODictionary[idAnimalA] = pool.animalDictionnary[idAnimalA]
         
-            animalMakeGroupDictionary[idAnimalA] = EventTimeLine( connection, "Group 4 make", idAnimalA, minFrame=0, maxFrame=max_dur )
-            group4Dictionary[idAnimalA] = EventTimeLine( connection, "Group4", idAnimalA, minFrame=0, maxFrame=max_dur )
+            animalMakeGroupDictionary[idAnimalA] = EventTimeLine( connection, "Group 4 make", idAnimalA, minFrame=tmin, maxFrame=tmax )
+            group4Dictionary[idAnimalA] = EventTimeLine( connection, "Group4", idAnimalA, minFrame=tmin, maxFrame=tmax )
         
         ''' calculating how many groups of were created by WT and by KO '''
         wtMakeGroup4 = 0
@@ -107,10 +111,10 @@ if __name__ == '__main__':
                 animalWTDictionary[idAnimalA] = pool.animalDictionnary[idAnimalA]
             
             if ( pool.animalDictionnary[idAnimalA].genotype == "KO" ):
-                animalKODictionary[idAnimalA] = pool.animalDictionnary[idAnimalA]
+                animalKODictionary[idAnimalA] = pool.animalDictionnary[idAnimalA]                    
         
-            animalMakeGroupDictionary[idAnimalA] = EventTimeLine( connection, "Group 4 break", idAnimalA, minFrame=0, maxFrame=max_dur )
-            group4Dictionary[idAnimalA] = EventTimeLine( connection, "Group4", idAnimalA, minFrame=0, maxFrame=max_dur )
+            animalMakeGroupDictionary[idAnimalA] = EventTimeLine( connection, "Group 4 break", idAnimalA, minFrame=tmin, maxFrame=tmax )
+            group4Dictionary[idAnimalA] = EventTimeLine( connection, "Group4", idAnimalA, minFrame=tmin, maxFrame=tmax )
         
         ''' calculating how many groups of were created by WT and by KO '''
         wtBreakGroup4 = 0
