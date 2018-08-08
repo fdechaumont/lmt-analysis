@@ -1,6 +1,0 @@
-packages needed:
-
-numpy
-matplotlib
-affine
-tabulate
