@@ -20,10 +20,11 @@ def reBuildEvent( connection, tmin=None, tmax=None ):
     pool.loadAnimals( connection )
     pool.loadDetection( start = tmin, end = tmax )
     
+    nbAnimal = pool.getNbAnimals()
     
     escapeDico = {}
-    for idAnimalA in range( 1 , 5 ):
-        for idAnimalB in range( 1 , 5 ):
+    for idAnimalA in range( 1 , nbAnimal+1 ):
+        for idAnimalB in range( 1 , nbAnimal+1 ):
             if ( idAnimalA == idAnimalB ):
                 continue
             
@@ -31,13 +32,13 @@ def reBuildEvent( connection, tmin=None, tmax=None ):
 
     #cache mean body len
     twoMeanBodyLen = {}
-    for idAnimal in range( 1 , 5 ):
+    for idAnimal in range( 1 , nbAnimal+1 ):
         twoMeanBodyLen[idAnimal] = 2*pool.animalDictionnary[idAnimal].getMeanBodyLength()
         
     
-    for idAnimalA in range( 1 , 5 ):
+    for idAnimalA in range( 1 , nbAnimal+1 ):
         
-        for idAnimalB in range( 1 , 5 ):
+        for idAnimalB in range( 1 , nbAnimal+1 ):
             if( idAnimalA == idAnimalB ):
                 continue
             

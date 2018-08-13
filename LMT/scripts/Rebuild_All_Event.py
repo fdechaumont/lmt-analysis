@@ -16,7 +16,8 @@ from database import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Build
     BuildEventMove, BuildEventGroup3MakeBreak, BuildEventGroup4MakeBreak,\
     BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
     BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
-    BuildEventOralSideSequence
+    BuildEventOralSideSequence, CheckWrongAnimal,\
+    CorrectDetectionIntegrity
     
     
 from tkinter.filedialog import askopenfilename
@@ -38,8 +39,15 @@ def process( file ):
     #t.addLog( "Rebuild all event launch" )
                 
     try:
+
+        CheckWrongAnimal.check( connection, tmin=0, tmax=max_dur )
+        
+        # Warning: this process will alter the database
+        #CorrectDetectionIntegrity.correct( connection, tmin=0, tmax=max_dur )
                         
         BuildDataBaseIndex.buildDataBaseIndex( connection, force=False )
+        
+        
         BuildEventDetection.reBuildEvent( connection, tmin=0, tmax=max_dur )
     
         BuildEventOralOralContact.reBuildEvent( connection, tmin=0, tmax=max_dur )        

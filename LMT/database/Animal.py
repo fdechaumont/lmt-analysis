@@ -596,8 +596,21 @@ class AnimalPool():
     """
     
     def __init__(self):
-        ''' FIXME: should be renamed animalDisctionnary '''
+
         self.animalDictionnary = {}
+        
+    def getAnimalDictionnary(self):
+        return self.animalDictionnary
+    
+    def getAnimalList(self):
+        
+        animalList= []
+        
+        for k in self.animalDictionnary:
+            animal = self.animalDictionnary[k] 
+            animalList.append( animal )
+        
+        return animalList
         
     def loadAnimals( self, conn ):
         

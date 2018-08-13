@@ -660,6 +660,7 @@ def deleteEventTimeLineInBase( connection, eventName, idA=None, idB=None, idC=No
     #print(query)
     
     cursor.execute( query )
+    connection.commit()
     print ( "Number of event deleted: {} ".format ( cursor.rowcount ) )
 
 def plotMultipleTimeLine( timeLineList , colorList=None , show=True , minValue=0 ):
