@@ -41,8 +41,6 @@ if __name__ == '__main__':
     behaviouralEventOneMouse = ["Contact", "Group2", "Huddling", "Move isolated", "Move in contact", "Rearing", "Rear isolated", "Rear in contact", "Stop isolated", "WallJump"]
     behaviouralEventTwoMice = ["Approach contact", "Approach rear", "Break contact", "Contact", "FollowZone Isolated", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Social escape", "Train2"] 
     
-    text_file = open ("measures_individual_profile_dlx_dyadic.txt", "w")
-    
     for file in files:
         
         print(file)
@@ -110,6 +108,7 @@ if __name__ == '__main__':
     text_file.write( "\n" )
     text_file.close()
                 
+    print( "FINISHED" )
                 
             
             

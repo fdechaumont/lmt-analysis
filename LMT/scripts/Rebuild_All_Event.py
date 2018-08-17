@@ -26,6 +26,7 @@ import sys
 import traceback
 
 max_dur = 3*oneDay
+USE_CACHE_LOAD_DETECTION_CACHE = True
 
 class FileProcessException(Exception):
     pass
@@ -45,19 +46,19 @@ def process( file ):
         # Warning: this process will alter the database
         CorrectDetectionIntegrity.correct( connection, tmin=0, tmax=max_dur )
          
-        ''' now performed when creating database in java '''               
+        ''' now performed directly by LMT as it creates the database to store data (in java) '''               
         #BuildDataBaseIndex.buildDataBaseIndex( connection, force=False )
-        
-        
+            
         BuildEventDetection.reBuildEvent( connection, tmin=0, tmax=max_dur )
-    
-        ''' todo: send the detection set to the next treatments '''
+
+        animalPool = None
         
-        print("Caching load of animal detection...")
-        animalPool = AnimalPool( )
-        animalPool.loadAnimals( connection )
-        animalPool.loadDetection( start = 0, end = max_dur )
-        print("Caching load of animal detection done.")
+        if ( USE_CACHE_LOAD_DETECTION_CACHE ):
+            print("Caching load of animal detection...")
+            animalPool = AnimalPool( )
+            animalPool.loadAnimals( connection )
+            animalPool.loadDetection( start = 0, end = max_dur )
+            print("Caching load of animal detection done.")
 
         BuildEventOralOralContact.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )        
         BuildEventOralGenitalContact.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
