@@ -19,7 +19,14 @@ class Train2():
         self.idA = idA
         self.idB = idB
 
-def reBuildEvent( connection, tmin=None, tmax=None ): 
+def reBuildEvent( connection, tmin=None, tmax=None , pool = None ): 
+
+    ''' use pool cache if available '''
+    if ( pool == None ):
+        pool = AnimalPool( )
+        pool.loadAnimals( connection )
+        pool.loadDetection( start = tmin, end = tmax )    
+    
     '''
     three animals are following each others with nose-to-anogenital contacts
     animals are moving
@@ -28,10 +35,6 @@ def reBuildEvent( connection, tmin=None, tmax=None ):
     '''
 
     deleteEventTimeLineInBase(connection, "Train4" )
-
-    pool = AnimalPool( )
-    pool.loadAnimals( connection )
-    pool.loadDetection( start = tmin, end = tmax )
 
     ''' build a list of train 2 for each time point '''
     

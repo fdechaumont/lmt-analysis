@@ -13,7 +13,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from database.Event import *
 
-def reBuildEvent( connection, tmin=None, tmax=None ): 
+def reBuildEvent( connection, tmin=None, tmax=None , pool = None ): 
+
+    ''' use pool cache if available '''
+    if ( pool == None ):
+        pool = AnimalPool( )
+        pool.loadAnimals( connection )
+        pool.loadDetection( start = tmin, end = tmax )    
     
     '''
     two animals are following each others with nose-to-anogenital contacts
@@ -22,9 +28,7 @@ def reBuildEvent( connection, tmin=None, tmax=None ):
     
     deleteEventTimeLineInBase(connection, "Train2" )
     
-    pool = AnimalPool( )
-    pool.loadAnimals( connection )
-    pool.loadDetection( start = tmin, end = tmax )
+
                 
     contactHeadGenital = {}
     for idAnimalA in range( 1,5 ):
