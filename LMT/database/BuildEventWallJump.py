@@ -140,7 +140,7 @@ def reBuildEvent( connection, tmin=None, tmax=None, showGraph = False, pool = No
                 if ( showGraph ):
                     plt.plot( xList, yList, linestyle='-', linewidth=1 )            
                 
-                print( "jump found. dist={} and t={}".format( totalDistance,t+window/2 ) )
+                #print( "jump found. dist={} and t={}".format( totalDistance,t+window/2 ) )
                                        
             if ( jumpFound ):
                 ''' build the event on a thinner range to avoid event overlap and automatic continuity '''
