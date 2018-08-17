@@ -306,6 +306,7 @@ class Animal():
             bodySizeList.append(a.getBodySize())
             
         mean = np.nanmean(bodySizeList)
+        print( "mean animal bodysize: "  , mean )
         
         self.meanBodyLength = mean
         
