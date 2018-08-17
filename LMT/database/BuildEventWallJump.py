@@ -19,15 +19,13 @@ import sys
 import matplotlib.pyplot as plt
 
 
-def reBuildEvent( connection, tmin=None, tmax=None, showGraph=False ): 
-    '''
-    Event Jump
-    - the animal is jumping
-    '''
+def reBuildEvent( connection, tmin=None, tmax=None, showGraph = False, pool = None ): 
     
-    pool = AnimalPool( )
-    pool.loadAnimals( connection )
-    pool.loadDetection( start = tmin, end = tmax )
+    ''' use the pool provided or create it'''
+    if ( pool == None ):
+        pool = AnimalPool( )
+        pool.loadAnimals( connection )
+        pool.loadDetection( start = tmin, end = tmax )
     
     centerX = 512/2
     centerY = 424/2

@@ -18,17 +18,20 @@ import matplotlib.lines as mlines
 
 
 
-def reBuildEvent( connection, tmin=None, tmax=None ): 
+def reBuildEvent( connection, tmin=None, tmax=None, pool = None ): 
+    
+    ''' use the pool provided or create it'''
+    if ( pool == None ):
+        pool = AnimalPool( )
+        pool.loadAnimals( connection )
+        pool.loadDetection( start = tmin, end = tmax )
+    
     '''
     Event Rear5:
     - the animal is rearing
     - distinction between rearing in contact with one or several animals and rearing isolated from the others
     '''
-    
-    pool = AnimalPool( )
-    pool.loadAnimals( connection )
-    pool.loadDetection( start = tmin, end = tmax )
-    
+        
     contact = {}
     
     for idAnimalA in pool.animalDictionnary.keys():

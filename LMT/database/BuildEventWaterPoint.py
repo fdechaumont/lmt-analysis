@@ -18,15 +18,17 @@ import matplotlib.lines as mlines
 
 
 
-def reBuildEvent( connection, tmin, tmax ): 
+def reBuildEvent( connection, tmin=None, tmax=None, pool = None ): 
+    
+    ''' use the pool provided or create it'''
+    if ( pool == None ):
+        pool = AnimalPool( )
+        pool.loadAnimals( connection )
+        pool.loadDetection( start = tmin, end = tmax )
     '''
     Event Water Zone
     - the animal is in the zone around the water source
     '''
-    
-    pool = AnimalPool( )
-    pool.loadAnimals( connection )
-    pool.loadDetection( start = tmin, end = tmax )
     
     for idAnimalA in pool.animalDictionnary.keys():
         print(pool.animalDictionnary[idAnimalA])

@@ -17,14 +17,16 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 
 
-def reBuildEvent( connection, tmin=None, tmax=None ): 
+def reBuildEvent( connection, tmin=None, tmax=None, pool = None ): 
+    
+    ''' use the pool provided or create it'''
+    if ( pool == None ):
+        pool = AnimalPool( )
+        pool.loadAnimals( connection )
+        pool.loadDetection( start = tmin, end = tmax )
     '''
     Event OralSide Sequence
     '''
-    
-    pool = AnimalPool( )
-    pool.loadAnimals( connection )
-    pool.loadDetection( start = tmin, end = tmax )
     nbAnimal = pool.getNbAnimals()
     
     contact = {}
@@ -106,7 +108,7 @@ def reBuildEvent( connection, tmin=None, tmax=None ):
     window = 60
 
     '''    
-    tete A cul B suivi par oral oral
+    oral A genital B followed by oral oral
     '''
     eventName ="seq oral geni - oral oral"
     print ( eventName )                    

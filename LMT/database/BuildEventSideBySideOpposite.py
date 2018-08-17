@@ -86,11 +86,13 @@ def isSideBySide( detA, detB ):
     return True
 
     
-def reBuildEvent( connection, tmin=None, tmax=None ): 
+def reBuildEvent( connection, tmin=None, tmax=None, pool = None ): 
     
-    pool = AnimalPool( )
-    pool.loadAnimals( connection )
-    pool.loadDetection( start = tmin, end = tmax )
+    ''' use the pool provided or create it'''
+    if ( pool == None ):
+        pool = AnimalPool( )
+        pool.loadAnimals( connection )
+        pool.loadDetection( start = tmin, end = tmax )
     
     for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
         

@@ -44,17 +44,26 @@ def process( file ):
         
         # Warning: this process will alter the database
         #CorrectDetectionIntegrity.correct( connection, tmin=0, tmax=max_dur )
-                        
-        BuildDataBaseIndex.buildDataBaseIndex( connection, force=False )
+         
+        ''' now performed when creating database in java '''               
+        #BuildDataBaseIndex.buildDataBaseIndex( connection, force=False )
         
         
         BuildEventDetection.reBuildEvent( connection, tmin=0, tmax=max_dur )
     
-        BuildEventOralOralContact.reBuildEvent( connection, tmin=0, tmax=max_dur )        
-        BuildEventOralGenitalContact.reBuildEvent( connection, tmin=0, tmax=max_dur )
+        ''' todo: send the detection set to the next treatments '''
         
-        BuildEventSideBySide.reBuildEvent( connection, tmin=0, tmax=max_dur )        
-        BuildEventSideBySideOpposite.reBuildEvent( connection, tmin=0, tmax=max_dur )        
+        print("Caching load of animal detection...")
+        animalPool = AnimalPool( )
+        animalPool.loadAnimals( connection )
+        animalPool.loadDetection( start = 0, end = max_dur )
+        print("Caching load of animal detection done.")
+
+        BuildEventOralOralContact.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )        
+        BuildEventOralGenitalContact.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
+        
+        BuildEventSideBySide.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )        
+        BuildEventSideBySideOpposite.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )        
     
         BuildEventTrain2.reBuildEvent( connection, tmin=0, tmax=max_dur )
         BuildEventTrain3.reBuildEvent( connection, tmin=0, tmax=max_dur )   
@@ -62,11 +71,11 @@ def process( file ):
                  
         BuildEventMove.reBuildEvent( connection, tmin=0, tmax=max_dur )
            
-        BuildEventFollowZone.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        BuildEventRear5.reBuildEvent( connection, tmin=0, tmax=max_dur )
+        BuildEventFollowZone.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
+        BuildEventRear5.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
         
-        BuildEventSocialApproach.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        BuildEventSocialEscape.reBuildEvent( connection, tmin=0, tmax=max_dur )
+        BuildEventSocialApproach.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
+        BuildEventSocialEscape.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
         BuildEventApproachRear.reBuildEvent( connection, tmin=0, tmax=max_dur )
         BuildEventGroup2.reBuildEvent( connection, tmin=0, tmax=max_dur )
         BuildEventGroup3.reBuildEvent( connection, tmin=0, tmax=max_dur )
@@ -76,12 +85,12 @@ def process( file ):
         BuildEventGroup3MakeBreak.reBuildEvent( connection, tmin=0, tmax=max_dur )
     
         BuildEventStop.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        BuildEventWaterPoint.reBuildEvent(connection, tmin=0, tmax=max_dur)
+        BuildEventWaterPoint.reBuildEvent(connection, tmin=0, tmax=max_dur, pool = animalPool )
         BuildEventApproachContact.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        BuildEventWallJump.reBuildEvent(connection, tmin=0, tmax=max_dur)
-        BuildEventSAP.reBuildEvent(connection,  tmin=0, tmax=max_dur)
+        BuildEventWallJump.reBuildEvent(connection, tmin=0, tmax=max_dur , pool = animalPool )
+        BuildEventSAP.reBuildEvent(connection,  tmin=0, tmax=max_dur , pool = animalPool )
     
-        BuildEventOralSideSequence.reBuildEvent( connection, tmin=0, tmax=max_dur )
+        BuildEventOralSideSequence.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
         
     except:
         

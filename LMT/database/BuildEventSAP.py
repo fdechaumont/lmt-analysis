@@ -14,25 +14,27 @@ import numpy as np
 from database.Event import *
 from database.Measure import *
 
-def reBuildEvent( connection, tmin=None, tmax=None ):
+def reBuildEvent( connection, tmin=None, tmax=None, showGraph = False, pool = None ): 
+    
+    ''' use the pool provided or create it'''
+    if ( pool == None ):
+        pool = AnimalPool( )
+        pool.loadAnimals( connection )
+        pool.loadDetection( start = tmin, end = tmax )
+    
     
     ''' 
     Animal A is stopped (built-in event):
     Move social: animal A is stopped and in contact with any other animal.
     Move isolated: animal A is stopped and not in contact with any other animal.
     ''' 
-    
-    pool = AnimalPool( )
-    pool.loadAnimals( connection )
-    
+        
     
     for idAnimalA in pool.animalDictionnary:
         
         animal = pool.animalDictionnary[idAnimalA]
                 
         SAPTimeLine = EventTimeLine( connection, "SAP", idAnimalA, minFrame=tmin, maxFrame=tmax, loadEvent=False )
-
-        animal.loadDetection( )
 
         #f = animal.getCountFramesSpecZone( start , start+oneMinute*30 , xa=143, ya=190, xb=270, yb=317 )
         result = animal.getSapDictionnary( tmin , tmax )

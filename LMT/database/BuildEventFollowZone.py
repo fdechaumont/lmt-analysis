@@ -52,7 +52,14 @@ def transformPoint(angleB, massA_x, massA_y, massB_x, massB_y):
     return rotation[0], rotation[1]
 
 
-def reBuildEvent( connection, tmin=None, tmax=None ): 
+def reBuildEvent( connection, tmin=None, tmax=None, pool = None ): 
+    
+    ''' use the pool provided or create it'''
+    if ( pool == None ):
+        pool = AnimalPool( )
+        pool.loadAnimals( connection )
+        pool.loadDetection( start = tmin, end = tmax )
+
     '''
     Event FollowZone:
     - the two animals are moving at a speed >5 cm/s (SPEED_THRESHOLD_LOW)
@@ -63,10 +70,6 @@ def reBuildEvent( connection, tmin=None, tmax=None ):
     - update 17 may 2018: now works with n animals    
     
     '''
-    
-    pool = AnimalPool( )
-    pool.loadAnimals( connection )
-    pool.loadDetection( start = tmin, end = tmax )
     
     contact = {}
     
