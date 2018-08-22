@@ -34,6 +34,9 @@ class FileProcessException(Exception):
 def process( file ):
 
     print(file)
+    
+    chronoFullFile = Chronometer("File " + file )
+    
     connection = sqlite3.connect( file )        
         
     #t = TaskLogger( connection )
@@ -44,7 +47,7 @@ def process( file ):
         CheckWrongAnimal.check( connection, tmin=0, tmax=max_dur )
         
         # Warning: this process will alter the database
-        CorrectDetectionIntegrity.correct( connection, tmin=0, tmax=max_dur )
+        #CorrectDetectionIntegrity.correct( connection, tmin=0, tmax=max_dur )
          
         ''' now performed directly by LMT as it creates the database to store data (in java) '''               
         #BuildDataBaseIndex.buildDataBaseIndex( connection, force=False )
@@ -67,10 +70,10 @@ def process( file ):
         BuildEventSideBySideOpposite.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )        
     
         BuildEventTrain2.reBuildEvent( connection, tmin=0, tmax=max_dur , pool = animalPool )
-        '''
+        
         BuildEventTrain3.reBuildEvent( connection, tmin=0, tmax=max_dur , pool = animalPool )   
         BuildEventTrain4.reBuildEvent( connection, tmin=0, tmax=max_dur , pool = animalPool )    
-        '''      
+              
         BuildEventMove.reBuildEvent( connection, tmin=0, tmax=max_dur )
            
         BuildEventFollowZone.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
@@ -80,13 +83,13 @@ def process( file ):
         BuildEventSocialEscape.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
         BuildEventApproachRear.reBuildEvent( connection, tmin=0, tmax=max_dur )
         BuildEventGroup2.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        '''
+        
         BuildEventGroup3.reBuildEvent( connection, tmin=0, tmax=max_dur )
         BuildEventGroup4.reBuildEvent( connection, tmin=0, tmax=max_dur )
         
         BuildEventGroup4MakeBreak.reBuildEvent( connection, tmin=0, tmax=max_dur )
         BuildEventGroup3MakeBreak.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        '''
+        
     
         BuildEventStop.reBuildEvent( connection, tmin=0, tmax=max_dur )
         BuildEventWaterPoint.reBuildEvent(connection, tmin=0, tmax=max_dur, pool = animalPool )
@@ -95,6 +98,7 @@ def process( file ):
         BuildEventSAP.reBuildEvent(connection,  tmin=0, tmax=max_dur , pool = animalPool )
     
         BuildEventOralSideSequence.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
+        chronoFullFile.printTimeInS()
         
     except:
         
@@ -116,6 +120,8 @@ if __name__ == '__main__':
      
     files = askopenfilename( title="Choose a set of file to process", multiple=1 )
     
+    chronoFullBatch = Chronometer("Full batch" )    
+    
     for file in files:
         '''
         from multiprocessing.dummy import Pool as ThreadPool 
@@ -129,6 +135,7 @@ if __name__ == '__main__':
         except FileProcessException:
             print ( "STOP PROCESSING FILE " + file , file=sys.stderr  )
         
+    chronoFullBatch.printTimeInS()
     print( "*** ALL JOBS DONE ***")
         
         

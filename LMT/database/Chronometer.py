@@ -19,10 +19,10 @@ class Chronometer:
         self.name= name
         
     def printTimeInS(self):
-        print ( "[Chrono " , self.name , "] " , self.getTimeInS() )
+        print ( "[Chrono " , self.name , " ] " , self.getTimeInS() , " seconds")
         
     def printTimeInMS(self):
-        print ( "[Chrono " , self.name , "] " , self.getTimeInMS() )
+        print ( "[Chrono " , self.name , " ] " , self.getTimeInMS() , " milliseconds")
     
     def getTimeInS(self):
         return time()-self.t
