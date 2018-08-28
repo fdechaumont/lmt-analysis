@@ -66,7 +66,7 @@ def process( file ):
             
             badOrientationTimeLine = EventTimeLine( None, "bad orientation" , animal.baseId , None , None , None , loadEvent=False )
             print ("Processing", animal )
-            for t in range( 0, 10000 ):
+            for t in range( 0, max_dur ):
                 
                 orientation = animal.getOrientationVector( t )
                 speedVector = animal.getSpeedVector( t )
