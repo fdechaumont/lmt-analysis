@@ -64,7 +64,7 @@ def process( file ):
 
         for animal in animalPool.getAnimalList():
             
-            badOrientationTimeLine = EventTimeLine( None, "bad orientation" , animal.baseId , None , None , None , loadEvent=False )
+            badOrientationTimeLine = EventTimeLine( None, "bad orientation auto" , animal.baseId , None , None , None , loadEvent=False )
             print ("Processing", animal )
             for t in range( 0, max_dur ):
                 
