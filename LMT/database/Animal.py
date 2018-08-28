@@ -19,6 +19,7 @@ from scipy.spatial import distance
 from scipy.ndimage.measurements import standard_deviation
 from statistics import mean
 from database.Event import EventTimeLine
+from database.Point import Point
 
 idAnimalColor = [ None, "red","green","blue","orange"]
 
@@ -208,6 +209,38 @@ class Animal():
         totalDistance *= scaleFactor
             
         return totalDistance
+    
+    def getOrientationVector(self, t):
+        
+        d = self.detectionDictionnary.get( t )
+        
+        if d == None:
+            return None
+
+        if d.frontX == None:
+            return None
+        
+        if d.backX == None:
+            return None
+        
+        deltaX = d.frontX - d.backX
+        deltaY = d.frontY - d.backY
+        p = Point( deltaX, deltaY )
+        return p
+
+    def getSpeedVector(self, t):
+        
+        a = self.detectionDictionnary.get( t-1 )
+        b = self.detectionDictionnary.get( t+1 )
+        
+        if a == None or b == None:
+            return None
+            
+        speedVectorX = a.massX - b.massX
+        speedVectorY = a.massY - b.massY
+
+        p = Point( speedVectorX, speedVectorY )
+        return p
     
     
     def getDistanceSpecZone(self, tmin=0, tmax=None, xa=None, ya=None, xb=None, yb=None):
