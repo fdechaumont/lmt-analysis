@@ -80,11 +80,11 @@ def process( file ):
                         if ( scalar > 0 ):
                             badOrientationTimeLine.addPunctualEvent( t )
            
+            # we remove small durations event as we cannot be sure they are not artefact, so we keep only events longer than 1s
             badOrientationTimeLine.removeEventsBelowLength( 30 )
+            print ( "Total len in frame: " , badOrientationTimeLine.getTotalLength( ) )
+            
             badOrientationTimeLine.endRebuildEventTimeLine(connection)
-
-            # faire un event de tout ca
-            # faire un plot des erreur en histogramme binn de temps
 
         chronoFullFile.printTimeInS()
         
