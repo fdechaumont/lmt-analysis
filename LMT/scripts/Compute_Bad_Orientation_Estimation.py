@@ -19,12 +19,11 @@ from database import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Build
     BuildEventOralSideSequence, CheckWrongAnimal,\
     CorrectDetectionIntegrity
     
-    
-from tkinter.filedialog import askopenfilename, askdirectory
+
 from database.TaskLogger import TaskLogger
 import sys
 import traceback
-import glob
+from database.FileUtil import getFilesToProcess
 
 max_dur = 3*oneDay
 
@@ -106,18 +105,17 @@ def process( file ):
 if __name__ == '__main__':
     
     print("Code launched.")
-     
-    #files = askopenfilename( title="Choose a set of file to process", multiple=1, filetypes = (("sqlite files","*.sqlite"),("all files","*.*") )  )
-
-    folder = askdirectory( title= "Choose a directory to process")
-    print ("Folder: " , folder )
-    folder = folder+"/**/*.sqlite"
-    print( "Fetching files...")
-    for file in glob.glob( folder, recursive=True ):
-        try:
-            process( file )
-        except FileProcessException:
-            print ( "STOP PROCESSING FILE " + file , file=sys.stderr  )
+    
+    files = getFilesToProcess()
+        
+    if ( files != None ):
+    
+        for file in files:
+            try:
+                print ( "Processing file" , file )
+                process( file )
+            except FileProcessException:
+                print ( "STOP PROCESSING FILE " + file , file=sys.stderr  )
     
     chronoFullBatch = Chronometer("Full batch" )    
     

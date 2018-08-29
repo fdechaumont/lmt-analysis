@@ -24,6 +24,7 @@ from tkinter.filedialog import askopenfilename
 from database.TaskLogger import TaskLogger
 import sys
 import traceback
+from database.FileUtil import getFilesToProcess
 
 max_dur = 3*oneDay
 USE_CACHE_LOAD_DETECTION_CACHE = True
@@ -117,23 +118,19 @@ def process( file ):
 if __name__ == '__main__':
     
     print("Code launched.")
-     
-    files = askopenfilename( title="Choose a set of file to process", multiple=1 )
     
+    files = getFilesToProcess()
+
     chronoFullBatch = Chronometer("Full batch" )    
+        
+    if ( files != None ):
     
-    for file in files:
-        '''
-        from multiprocessing.dummy import Pool as ThreadPool 
-        pool = ThreadPool(4) 
-        results = pool.map( process, files )
-        pool.close()
-        pool.join()
-        '''
-        try:
-            process( file )
-        except FileProcessException:
-            print ( "STOP PROCESSING FILE " + file , file=sys.stderr  )
+        for file in files:
+            try:
+                print ( "Processing file" , file )
+                process( file )
+            except FileProcessException:
+                print ( "STOP PROCESSING FILE " + file , file=sys.stderr  )
         
     chronoFullBatch.printTimeInS()
     print( "*** ALL JOBS DONE ***")
