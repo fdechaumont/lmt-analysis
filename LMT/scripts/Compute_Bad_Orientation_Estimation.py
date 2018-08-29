@@ -107,6 +107,8 @@ if __name__ == '__main__':
     print("Code launched.")
     
     files = getFilesToProcess()
+
+    chronoFullBatch = Chronometer("Full batch" )    
         
     if ( files != None ):
     
@@ -117,7 +119,6 @@ if __name__ == '__main__':
             except FileProcessException:
                 print ( "STOP PROCESSING FILE " + file , file=sys.stderr  )
     
-    chronoFullBatch = Chronometer("Full batch" )    
     
     '''    
     for file in files:
