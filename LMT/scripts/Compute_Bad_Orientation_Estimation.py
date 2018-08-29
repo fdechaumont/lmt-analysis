@@ -62,6 +62,11 @@ def process( file ):
         animalPool.loadDetection( start = 0, end = max_dur )
         print("Caching load of animal detection done.")
 
+        text_file = open ( "bad orientation.txt", "a")
+  
+        nb = {}
+        totalLen = {}
+  
         for animal in animalPool.getAnimalList():
             
             badOrientationTimeLine = EventTimeLine( None, "bad orientation auto" , animal.baseId , None , None , None , loadEvent=False )
@@ -83,8 +88,16 @@ def process( file ):
             # we remove small durations event as we cannot be sure they are not artefact, so we keep only events longer than 1s
             badOrientationTimeLine.removeEventsBelowLength( 30 )
             print ( "Total len in frame: " , badOrientationTimeLine.getTotalLength( ) )
+            totalLen[animal] = badOrientationTimeLine.getTotalLength( )
+            nb[animal] = badOrientationTimeLine.getNbEvent()
             
             badOrientationTimeLine.endRebuildEventTimeLine(connection)
+
+        text_file.write( "{}\t".format( file ) )
+        for resKey in totalLen.keys():
+            text_file.write( "animal\t{}\tnb\t{}\ttotalLen\t{}\t".format( animal.RFID , nb[resKey], totalLen[resKey] ) )     
+        text_file.write( "\n" ) 
+        text_file.close()
 
         chronoFullFile.printTimeInS()
         
