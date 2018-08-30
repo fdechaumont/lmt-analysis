@@ -664,6 +664,16 @@ class AnimalPool():
         for animal in self.animalDictionnary.keys():
             self.animalDictionnary[animal].loadDetection( start = start, end = end )
         
+    def getGenotypeList(self):
+        
+        genotype = {}
+        
+        for k in self.animalDictionnary:
+            animal = self.animalDictionnary[k] 
+            genotype[animal.genotype] = True
+                
+        return genotype.keys()
+    
     def getAnimalsWithGenotype(self, genotype ):
         
         resultList= []
