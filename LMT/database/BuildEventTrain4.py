@@ -41,8 +41,8 @@ def reBuildEvent( connection, tmin=None, tmax=None , pool = None ):
     time = {}
     train4 = {}
     
-    for idAnimalA in range( 1, 5 ):
-        for idAnimalB in range( 1 , 5 ):
+    for idAnimalA in range( 1, pool.getNbAnimals()+1 ):
+        for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
             if ( idAnimalA == idAnimalB ):
                 continue
             train2TimeLine = EventTimeLine( connection, "Train2", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
@@ -92,13 +92,13 @@ def reBuildEvent( connection, tmin=None, tmax=None , pool = None ):
 
     ''' save data '''
             
-    for idAnimalA in range( 1 , 5 ):
+    for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
     
-        for idAnimalB in range( 1 , 5 ):
+        for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
             
-            for idAnimalC in range( 1 , 5 ):
+            for idAnimalC in range( 1 , pool.getNbAnimals()+1 ):
 
-                for idAnimalD in range( 1 , 5 ):
+                for idAnimalD in range( 1 , pool.getNbAnimals()+1 ):
 
                     if (idAnimalA, idAnimalB, idAnimalC, idAnimalD) in train4:
                         

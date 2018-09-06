@@ -31,21 +31,16 @@ def reBuildEvent( connection, tmin=None, tmax=None , pool = None ):
 
                 
     contactHeadGenital = {}
-    for idAnimalA in range( 1,5 ):
-        for idAnimalB in range( 1 , 5 ):
+    for idAnimalA in range( 1,pool.getNbAnimals()+1 ):
+        for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
             if ( idAnimalA == idAnimalB ):
                 continue
             contactHeadGenital[idAnimalA, idAnimalB] = EventTimeLine( connection, "Oral-genital Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
 
-    '''
-    contact = {}
-    for idAnimalA in range( 1, 5 ):
-        contact[idAnimalA] = EventTimeLine( connection, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax )
-    '''
-            
-    for idAnimalA in range( 1 , 5 ):
+
+    for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
         
-        for idAnimalB in range( 1 , 5 ):
+        for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
 
             if( idAnimalA == idAnimalB ):
                 continue

@@ -28,14 +28,14 @@ def reBuildEvent( connection, tmin=None, tmax=None ):
     isInContactSourceDictionnary = {}
     moveSourceTimeLine = {}
     
-    for idAnimalA in range( 1 , 5 ):
+    for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
         ''' Load source stop timeLine '''
         moveSourceTimeLine[idAnimalA] = EventTimeLine( connection, "Stop", idAnimalA, minFrame=tmin, maxFrame=tmax, inverseEvent=True )
         ''' load contact dictionnary with whatever animal '''
         isInContactSourceDictionnary[idAnimalA] = EventTimeLine( connection, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax ).getDictionnary()
                     
     
-    for idAnimalA in range( 1 , 5 ):
+    for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
 
         moveSocialResult = {}
         moveIsolatedResult = {}

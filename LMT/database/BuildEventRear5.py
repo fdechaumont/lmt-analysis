@@ -17,7 +17,6 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 
 
-
 def reBuildEvent( connection, tmin=None, tmax=None, pool = None ): 
     
     ''' use the pool provided or create it'''
