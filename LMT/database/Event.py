@@ -499,12 +499,13 @@ class EventTimeLine:
                 
             if ( event.duration() > longestEvent.duration() ):
                 longestEvent = event
-                    
-        plt.hlines( y, start, end, 'b', lw=4)
-        plt.text( 0 ,1.01,"TimeLine of {}".format( self.eventName ) ,fontsize=10,ha='left')
-        plt.annotate('Longest event ({})'.format( longestEvent.duration()), xy=( longestEvent.startFrame, 1), xytext=(longestEvent.startFrame, 0.95), arrowprops=dict(facecolor='black', shrink=0.05))
-        plt.show()
         
+        fig, ax = plt.subplots()            
+        ax.hlines( y, start, end, 'b', lw=4)
+        ax.text( 0 ,1.01,"TimeLine of {}".format( self.eventName ) ,fontsize=10,ha='left')
+        ax.annotate('Longest event ({})'.format( longestEvent.duration()), xy=( longestEvent.startFrame, 1), xytext=(longestEvent.startFrame, 0.95), arrowprops=dict(facecolor='black', shrink=0.05))
+        fig.show()
+        plt.show()
     
     def endRebuildEventTimeLine( self, connection ):
         '''
