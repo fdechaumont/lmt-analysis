@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from turtledemo.penrose import start
 from database.Measure import *
+import sys
 
 class Event:
     '''
@@ -217,6 +218,47 @@ class EventTimeLine:
             if ( event.contain( frameNumber ) ):
                 return event
         return None
+
+    '''
+    returns the closest event from framenumber, and the distance (in frame) to it.
+    assumes the eventList has been build by rebuildallevents, which makes them ordered.
+    '''
+    def getClosestEventFromFrame(self , frameNumber , optimizeAssumingOrderedList = False ):
+        
+        if ( self.hasEvent( frameNumber )):
+            # we do have an event for this frame so the distance is 0
+            return None, 0
+        
+        listToSearchIn = self.eventList
+        
+        # pre-fetch events.
+        if ( optimizeAssumingOrderedList == True ):
+            listToSearchIn=[]
+            for event in self.eventList:                
+                if ( event.startFrame < frameNumber ):
+                    continue
+                # we just overtook the best match.
+                # we put the current event and the previous one (if it exists) in the list
+                currentIndex = self.eventList.index( event )
+                listToSearchIn.append( event )
+                if ( currentIndex > 0 ):
+                    listToSearchIn.append( self.eventList[currentIndex-1] )
+                break
+        
+        closestEvent = None
+        bestDistance = sys.maxsize
+        
+        for event in listToSearchIn:
+            
+            distanceToStart = abs( frameNumber - event.startFrame )
+            distanceToEnd = abs( frameNumber - event.endFrame )
+            best = min( distanceToStart, distanceToEnd )
+            
+            if ( best < bestDistance ):
+                closestEvent = event
+                bestDistance = best
+            
+        return closestEvent , bestDistance
         
     def hasEvent(self , frameNumber):
         if ( self.getEventAt(frameNumber) != None ):
@@ -565,7 +607,7 @@ class EventTimeLine:
             event.shift( nbFrame )
     
     
-    def correlateWithTimeLine( self, timeLineCandidate ):
+    def correlateLengthDistanceWithTimeLine( self, timeLineCandidate ):
         
         ''' 
         provides correlation of current event considering overlap with candidate event.
@@ -574,7 +616,7 @@ class EventTimeLine:
         foundEventList = []
         
         print("correlation started")
-        chrono = Chronometer( "correlateWithTimeLine " + timeLineCandidate.eventName )
+        chrono = Chronometer( "correlateLengthDistanceWithTimeLine " + timeLineCandidate.eventName )
         
         maxT = self.getMaxT( )
         dico = self.getDictionnary( 0 , maxT )
@@ -622,7 +664,6 @@ class EventTimeLine:
                             except:
                                 pass
                             
-                    
                     break
         
         print ( "NB match with " + timeLineCandidate.eventName + " " + str(nbMatch) + " / " + str(nbEvent) + " time to compute: " + str(chrono.getTimeInMS()) )
@@ -631,11 +672,6 @@ class EventTimeLine:
         
         if nbMatch!=0:
             ratio = nbMatch / nbEvent
-            
-        
-        
-            
-        
             
         return [ratio, foundEventList,relativityDico]    
 

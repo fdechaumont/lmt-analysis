@@ -8,6 +8,8 @@ Created on 29 ao�t 2018
 import glob
 from tkinter.dialog import Dialog
 from tkinter.filedialog import askopenfilename, askdirectory
+from tkinter import *
+import unittest
 
 '''
 Provide a dialog to ask for either files or folder to process.
@@ -18,6 +20,10 @@ def getFilesToProcess():
     d = Dialog(
         title="Select input for processing", text="Select file(s) or folder for processing", bitmap = 'question',
         strings=('Files', 'Folder', 'Cancel'), default=0 )
+
+    root = Tk()
+    root.withdraw()
+    root.update()
 
     files = None    
     if(  d.num == 0 ):
@@ -33,5 +39,18 @@ def getFilesToProcess():
         for file in glob.glob( folder, recursive=True ):
             print( file , "found.")
             files.append( file )
-            
+    
+    d.destroy()
+    root.destroy()
+    
     return files
+
+class TestFileUtil ( unittest.TestCase ):
+    
+    def test_fillBetween(self):
+
+        files = getFilesToProcess()
+        for file in files:
+            print ( file )
+        
+        self.assertEqual( True, True )

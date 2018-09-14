@@ -24,3 +24,11 @@ def getMinTMaxTAndFileNameInput():
     
     return tmin,tmax,text_file
 
+def convert_to_d_h_m_s( frames ):
+    """Return the tuple of days, hours, minutes and seconds."""
+    seconds = frames / 30
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+
+    return days, hours, minutes, seconds    
