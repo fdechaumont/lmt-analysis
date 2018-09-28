@@ -42,15 +42,22 @@ class Animal():
         return "Animal Id:{id} Name:{name} RFID:{rfid} Genotype:{genotype} User1:{user1}"\
             .format( id=self.baseId, rfid=self.RFID, name=self.name, genotype=self.genotype, user1=self.user1 )
 
-    def loadDetection(self, start=None, end=None ):
+    def loadDetection(self, start=None, end=None, lightLoad = False ):
+        '''
+        lightLoad only loads massX and massY to speed up the load. Then one can only compute basic features such as global speed of the animals
+        '''
         print ( self.__str__(), ": Loading detection.")
         chrono = Chronometer("Load detection")
 
         self.detectionDictionnary.clear()
                 
         cursor = self.conn.cursor()
-        query = "SELECT FRAMENUMBER, MASS_X, MASS_Y, MASS_Z, FRONT_X, FRONT_Y, FRONT_Z, BACK_X, BACK_Y, BACK_Z,REARING,LOOK_UP,LOOK_DOWN FROM DETECTION WHERE ANIMALID={}".format( self.baseId )
-
+        query =""
+        if lightLoad == True :
+            query = "SELECT FRAMENUMBER, MASS_X, MASS_Y FROM DETECTION WHERE ANIMALID={}".format( self.baseId )
+        else:
+            query = "SELECT FRAMENUMBER, MASS_X, MASS_Y, MASS_Z, FRONT_X, FRONT_Y, FRONT_Z, BACK_X, BACK_Y, BACK_Z,REARING,LOOK_UP,LOOK_DOWN FROM DETECTION WHERE ANIMALID={}".format( self.baseId )
+            
         if ( start != None ):
             query += " AND FRAMENUMBER>={}".format(start )
         if ( end != None ):
@@ -66,26 +73,31 @@ class Animal():
             frameNumber = row[0]
             massX = row[1]
             massY = row[2]
-            massZ = row[3]
-            
-            frontX = row[4]
-            frontY = row[5]
-            frontZ = row[6]
-
-            backX = row[7]
-            backY = row[8]
-            backZ = row[9]
-
-            rearing = row[10]
-            lookUp = row[11]
-            lookDown = row[12]
             
             #filter detection at 0
+
             if ( massX < 10 ):
                 continue
+
+            if not lightLoad:
+                massZ = row[3]
+
+                frontX = row[4]
+                frontY = row[5]
+                frontZ = row[6]
+    
+                backX = row[7]
+                backY = row[8]
+                backZ = row[9]
+    
+                rearing = row[10]
+                lookUp = row[11]
+                lookDown = row[12]
             
-            detection = Detection( massX, massY, massZ, frontX, frontY, frontZ, backX, backY, backZ, rearing, lookUp, lookDown )
-            
+                detection = Detection( massX, massY, massZ, frontX, frontY, frontZ, backX, backY, backZ, rearing, lookUp, lookDown )
+            else:
+                detection = Detection( massX, massY )
+                
             self.detectionDictionnary[frameNumber] = detection
         
         print ( self.__str__(), " ", len( self.detectionDictionnary ) , " detections loaded in {} seconds.".format( chrono.getTimeInS( )) )
@@ -693,9 +705,9 @@ class AnimalPool():
             else:
                 print ( "Animal loader : error while loading animal.")
         
-    def loadDetection (self , start = None, end=None ):
+    def loadDetection (self , start = None, end=None , lightLoad = False ):
         for animal in self.animalDictionnary.keys():
-            self.animalDictionnary[animal].loadDetection( start = start, end = end )
+            self.animalDictionnary[animal].loadDetection( start = start, end = end , lightLoad=lightLoad )
         
     def getGenotypeList(self):
         

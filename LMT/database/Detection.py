@@ -9,7 +9,7 @@ from database.Measure import *
 
 class Detection():
 
-    def __init__(self, massX, massY, massZ, frontX, frontY, frontZ, backX, backY, backZ, rearing, lookUp, lookDown ):
+    def __init__(self, massX, massY, massZ=None, frontX=None, frontY=None, frontZ=None, backX=None, backY=None, backZ=None, rearing=None, lookUp=None, lookDown=None ):
         
         self.massX = massX
         self.massY = massY
