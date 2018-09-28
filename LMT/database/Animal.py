@@ -20,6 +20,8 @@ from scipy.ndimage.measurements import standard_deviation
 from statistics import mean
 from database.Event import EventTimeLine
 from database.Point import Point
+import matplotlib.patches as mpatches
+        
 
 idAnimalColor = [ None, "red","green","blue","orange"]
 
@@ -41,6 +43,9 @@ class Animal():
     def __str__(self):        
         return "Animal Id:{id} Name:{name} RFID:{rfid} Genotype:{genotype} User1:{user1}"\
             .format( id=self.baseId, rfid=self.RFID, name=self.name, genotype=self.genotype, user1=self.user1 )
+
+    def getColor(self):
+        return getAnimalColor( self.baseId )
 
     def loadDetection(self, start=None, end=None, lightLoad = False ):
         '''
@@ -112,10 +117,12 @@ class Animal():
         """
         return sorted(self.detectionDictionnary.keys())[-1]
     
-    
-    def plotTrajectory(self , show=True, color='k' ):
-        print ("Draw trajectory")
+    def getTrajectoryData( self , maskingEventTimeLine=None ):
+        
         keyList = sorted(self.detectionDictionnary.keys())
+        
+        if maskingEventTimeLine!=None:
+            keyList = maskingEventTimeLine.getDictionnary()
         
         xList = []
         yList = []
@@ -123,14 +130,24 @@ class Animal():
         for key in keyList:
             
             a = self.detectionDictionnary.get( key )
+            if ( a==None):
+                continue
             b = self.detectionDictionnary.get( key+1 )
             if ( b==None):
                 continue
             
             xList.append( [a.massX,b.massX] )
             yList.append( [a.massY,b.massY] )
+        
+        return xList, yList
+    
+    def plotTrajectory(self , show=True, color='k', maskingEventTimeLine=None ):
+        
+        print ("Draw trajectory of animal " + self.name )
+        
+        xList, yList = self.getTrajectoryData( maskingEventTimeLine )
             
-        plt.plot( xList, yList, color=color, linestyle='-', linewidth=1, alpha=0.5)
+        plt.plot( xList, yList, color=color, linestyle='-', linewidth=1, alpha=0.5, label= self.name )
         plt.title( "Trajectory of " + self.name )
         
         if ( show ):
@@ -743,4 +760,56 @@ class AnimalPool():
         for animal in self.animalDictionnary:
             maxFrame = max( maxFrame, animal.getMaxDetectionT() )
         
-        return maxFrame            
+        return maxFrame
+    
+    def plotTrajectory( self , show=True, maskingEventTimeLine=None , title = None, scatter = False, saveFile = None ):
+        
+        print( "AnimalPool: plot trajectory.")
+        nbCols = len( self.getAnimalList() )+1
+        fig, axes = plt.subplots( nrows = 1 , ncols = nbCols , figsize=( nbCols*4, 1*4 ) , sharex='all', sharey='all'  )
+        
+        if title==None:
+            title="Trajectory of animals"
+        
+        #draw all animals
+        axis = axes[0]
+        legendList=[]
+        for animal in self.getAnimalList():
+            
+            print ("Compute trajectory of animal " + animal.name )
+            xList, yList = animal.getTrajectoryData( maskingEventTimeLine )                        
+            print ("Draw trajectory of animal " + animal.name )
+            if scatter == True:
+                axis.scatter( xList, yList, color= animal.getColor() , s=1 , linewidth=1, alpha=0.05, label= animal.RFID )
+                legendList.append( mpatches.Patch(color=animal.getColor(), label=animal.RFID) )
+            else:
+                axis.plot( xList, yList, color= animal.getColor() , linestyle='-', linewidth=1, alpha=0.5, label= animal.RFID )
+                
+        axis.legend( handles = legendList , loc=1 )
+        
+        #draw separated animals
+        for animal in self.getAnimalList():
+            axis = axes[self.getAnimalList().index(animal)+1]
+            
+            legendList=[]
+            
+            print ("Compute trajectory of animal " + animal.name )
+            xList, yList = animal.getTrajectoryData( maskingEventTimeLine )                        
+            print ("Draw trajectory of animal " + animal.name )
+            if scatter == True:
+                axis.scatter( xList, yList, color= animal.getColor() , s=1 , linewidth=1, alpha=0.05, label= animal.RFID )
+                legendList.append( mpatches.Patch(color=animal.getColor(), label=animal.RFID) )
+            else:
+                axis.plot( xList, yList, color= animal.getColor() , linestyle='-', linewidth=1, alpha=0.5, label= animal.RFID )
+                
+            axis.legend( handles = legendList , loc=1 )
+        
+        fig.suptitle( title )
+        
+        if saveFile !=None:
+            print("Saving figure : " + saveFile )
+            fig.savefig( saveFile, dpi=100)
+            
+        if ( show ):
+            plt.show()
+        plt.close()
