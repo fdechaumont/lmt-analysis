@@ -104,7 +104,7 @@ class EventTimeLine:
         self.eventList = []
                 
         if ( loadEvent == False ):
-            print( "Event " + eventName + " created. eventNameWithId = " +  self.eventNameWithId )
+            print( "Event " + str( eventName ) + " created. eventNameWithId = " +  str( self.eventNameWithId ) )
             return;
                     
         chrono = Chronometer( "Load event " + self.eventName )
