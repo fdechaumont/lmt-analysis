@@ -81,6 +81,19 @@ class EventTimeLine:
             where t>=minFrame and t<=maxFrame if applicable
             inverseEvent: inverse all timeline (used to make stop becomes move for instance) 
         '''
+        
+        #check id at 0 to transform them as None ( id will not be considered in query ) (added for USV support).
+    
+        if ( idA == 0 ):
+            idA = None
+        if ( idB == 0 ):
+            idB = None
+        if ( idC == 0 ):
+            idC = None
+        if ( idD == 0 ):
+            idD = None
+        
+        #store parameters
         self.idA = idA
         self.idB = idB
         self.idC = idC
