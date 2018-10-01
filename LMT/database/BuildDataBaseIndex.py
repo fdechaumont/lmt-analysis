@@ -52,6 +52,9 @@ def buildDataBaseIndex( connection , force=False):
         
     executeLog( c , "CREATE INDEX `indexeventidIndex` ON `EVENT` (`ID` ASC);" )     
     
+    executeLog( c , "CREATE INDEX 'detectionFastLoadXYIndex' ON 'DETECTION' ('ANIMALID' ,'FRAMENUMBER' ASC,'MASS_X' ,'MASS_Y' );" )
+    
+    
     # log process
     from database.TaskLogger import TaskLogger
     t = TaskLogger( connection )
