@@ -15,6 +15,7 @@ from database.Measure import *
 from affine import Affine
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+from database.EventTimeLineCache import getEventTimeLineCached
 
 
 def line( x1, x2 , y1, y2 ):
@@ -81,7 +82,7 @@ def reBuildEvent( connection, tmin=None, tmax=None, pool = None ):
             if( idAnimalB == idAnimalA ):
                 continue
             
-            contact[idAnimalA, idAnimalB] = EventTimeLine( connection, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            contact[idAnimalA, idAnimalB] = getEventTimeLineCached( connection, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
             #contact[idAnimalB] = EventTimeLine( connection, "Contact", idAnimalB )
     
     for idAnimalB in pool.animalDictionnary.keys():

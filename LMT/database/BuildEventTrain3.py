@@ -12,6 +12,7 @@ from database.Measure import *
 import matplotlib.pyplot as plt
 import numpy as np
 from database.Event import *
+from database.EventTimeLineCache import getEventTimeLineCached
 
 class Train2():
     
@@ -46,7 +47,7 @@ def reBuildEvent( connection, tmin=None, tmax=None , pool = None ):
         for idAnimalB in range( 1 , 5 ):
             if ( idAnimalA == idAnimalB ):
                 continue
-            train2TimeLine = EventTimeLine( connection, "Train2", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            train2TimeLine = getEventTimeLineCached( connection, "Train2", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
             for t in train2TimeLine.getDictionnary():
                 train = Train2( idAnimalA, idAnimalB )
                 

@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from database.Event import *
 from database.Measure import *
+from database.EventTimeLineCache import getEventTimeLineCached
 
 def reBuildEvent( connection, tmin=None, tmax=None ):
     ''' 
@@ -37,7 +38,7 @@ def reBuildEvent( connection, tmin=None, tmax=None ):
             if ( idAnimalA == idAnimalB ):
                 continue
              
-            approachDico[idAnimalA, idAnimalB] = EventTimeLine( connection, "Social approach", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ) #fait une matrice de toutes les aproches à deux possibles
+            approachDico[idAnimalA, idAnimalB] = getEventTimeLineCached( connection, "Social approach", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ) #fait une matrice de toutes les aproches à deux possibles
 
     for idAnimalA in range( 1 , 5 ):
         

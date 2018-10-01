@@ -15,6 +15,7 @@ from database.Measure import *
 from affine import Affine
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+from database.EventTimeLineCache import getEventTimeLineCached
 
 
 def reBuildEvent( connection, tmin=None, tmax=None, pool = None ): 
@@ -48,8 +49,8 @@ def reBuildEvent( connection, tmin=None, tmax=None, pool = None ):
             '''
             contact[idAnimalA, idAnimalB] = EventTimeLine( connection, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
             '''
-            oralOral[idAnimalA, idAnimalB] = EventTimeLine( connection, "Oral-oral Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
-            oralGenital[idAnimalA, idAnimalB] = EventTimeLine( connection, "Oral-genital Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            oralOral[idAnimalA, idAnimalB] = getEventTimeLineCached( connection, "Oral-oral Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            oralGenital[idAnimalA, idAnimalB] = getEventTimeLineCached( connection, "Oral-genital Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
             
             oralOralDico[idAnimalA, idAnimalB] = oralOral[idAnimalA, idAnimalB].getDictionnary()
             oralGenitalDico[idAnimalA, idAnimalB] = oralGenital[idAnimalA, idAnimalB].getDictionnary()
