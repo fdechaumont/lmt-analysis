@@ -15,7 +15,7 @@ from database.Measure import *
 from affine import Affine
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
-from database.EventTimeLineCache import getEventTimeLineCached
+from database.EventTimeLineCache import EventTimeLineCached
 
 
 def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
@@ -37,7 +37,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     for idAnimalA in pool.animalDictionnary.keys():
         print(pool.animalDictionnary[idAnimalA])
         
-        contact[idAnimalA] = getEventTimeLineCached( connection, file, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax )
+        contact[idAnimalA] = EventTimeLineCached( connection, file, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax )
         contactDico = contact[idAnimalA].getDictionnary()
         
         eventName1 = "Rear isolated"

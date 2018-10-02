@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from database.Event import *
 from database.Measure import *
-from database.EventTimeLineCache import getEventTimeLineCached
+from database.EventTimeLineCache import EventTimeLineCached
 
 def reBuildEvent( connection, file, tmin=None, tmax=None ):
     
@@ -27,7 +27,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None ):
         for idAnimalB in range( 1 , 5 ):
             if ( idAnimalA == idAnimalB ):
                 continue
-            contact[idAnimalA, idAnimalB] = getEventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ) #fait une matrice de tous les contacts à deux possibles
+            contact[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ) #fait une matrice de tous les contacts à deux possibles
 
     for idAnimalA in range( 1 , 5 ):
         

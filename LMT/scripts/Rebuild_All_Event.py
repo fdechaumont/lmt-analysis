@@ -91,7 +91,6 @@ def process( file ):
         BuildEventGroup4MakeBreak.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
         BuildEventGroup3MakeBreak.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
         
-    
         BuildEventStop.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
         BuildEventWaterPoint.reBuildEvent(connection, file, tmin=0, tmax=max_dur, pool = animalPool )
         BuildEventApproachContact.reBuildEvent( connection, file, tmin=0, tmax=max_dur )

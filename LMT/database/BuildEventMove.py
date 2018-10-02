@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from database.Event import *
 from database.Measure import *
-from database.EventTimeLineCache import getEventTimeLineCached
+from database.EventTimeLineCache import EventTimeLineCached
 
 def reBuildEvent( connection, file, tmin=None, tmax=None ):
     
@@ -33,7 +33,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None ):
         ''' Load source stop timeLine '''
         moveSourceTimeLine[idAnimalA] = EventTimeLine( connection, "Stop", idAnimalA, minFrame=tmin, maxFrame=tmax, inverseEvent=True )
         ''' load contact dictionnary with whatever animal '''
-        isInContactSourceDictionnary[idAnimalA] = getEventTimeLineCached( connection, file, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+        isInContactSourceDictionnary[idAnimalA] = EventTimeLineCached( connection, file, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax ).getDictionnary()
                     
     
     for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):

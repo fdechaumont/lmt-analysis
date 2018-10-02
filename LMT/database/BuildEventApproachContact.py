@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from database.Event import *
 from database.Measure import *
-from database.EventTimeLineCache import getEventTimeLineCached
+from database.EventTimeLineCache import EventTimeLineCached
 
 def reBuildEvent( connection, file, tmin=None, tmax=None ): 
     
@@ -28,9 +28,9 @@ def reBuildEvent( connection, file, tmin=None, tmax=None ):
             if ( idAnimalA == idAnimalB ):
                 continue
             ''' I take the dictionnary of event of the contact event, that's why I put DicoDico '''
-            contactDicoDico[idAnimalA, idAnimalB] = getEventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+            contactDicoDico[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionnary()
             ''' This one is the dico of event '''
-            approachDico[idAnimalA, idAnimalB] = getEventTimeLineCached( connection, file, "Social approach", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ) #fait une matrice de toutes les aproches à deux possibles
+            approachDico[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Social approach", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ) #fait une matrice de toutes les aproches à deux possibles
 
     for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
         

@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from database.Event import *
 from database.Measure import *
-from database.EventTimeLineCache import getEventTimeLineCached
+from database.EventTimeLineCache import EventTimeLineCached
 
 def reBuildEvent( connection, file, tmin=None, tmax=None ):
     
@@ -29,7 +29,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None ):
     group3Out = {}
     
     for idAnimalA in range( 1 , 5 ):
-        contact[idAnimalA] = getEventTimeLineCached( connection, file, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax )
+        contact[idAnimalA] = EventTimeLineCached( connection, file, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax )
         group3In[idAnimalA] = EventTimeLine( connection, "Group 3 make", idAnimalA, loadEvent=False )
         group3Out[idAnimalA] = EventTimeLine( connection, "Group 3 break", idAnimalA, loadEvent=False )
         
@@ -51,7 +51,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None ):
 
                 ''' process group '''
 
-                group3 = getEventTimeLineCached( connection, file, "Group3", idAnimalA, idAnimalB, idAnimalC, minFrame=tmin, maxFrame=tmax )
+                group3 = EventTimeLineCached( connection, file, "Group3", idAnimalA, idAnimalB, idAnimalC, minFrame=tmin, maxFrame=tmax )
                 
                 eventList = group3.getEventList()
                 
