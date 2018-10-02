@@ -122,7 +122,7 @@ if __name__ == '__main__':
 
             COMPUTE_TOTAL_DISTANCE = True
             if ( COMPUTE_TOTAL_DISTANCE == True ):
-                animal[kAnimal]["animal"].loadDetection()
+                animal[kAnimal]["animal"].loadDetection( lightLoad = True )
                 text_file.write( "{}\t".format( animal[kAnimal]["animal"].getDistance( tmin=tmin,tmax=tmax) ) )
             else:
                 text_file.write( "{}\t".format( "totalDistance" ) )
