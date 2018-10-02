@@ -54,7 +54,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                 if ( not t in time ):
                     time[t] =[]
                     
-                print ( t , ":" , train.idA , " -> ", train.idB , "*" )
+                #print ( t , ":" , train.idA , " -> ", train.idB , "*" )
                 time[t].append( train )
     
 
@@ -84,7 +84,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                     train3[id1,id2,id3][t]=True
                     
                     isValid = ": validated train 3"
-                print ( t , ":" , trainSource.idA , " -> ", trainSource.idB, "--->", trainTarget.idA , " -> ", trainTarget.idB , isValid )
+                #print ( t , ":" , trainSource.idA , " -> ", trainSource.idB, "--->", trainTarget.idA , " -> ", trainTarget.idB , isValid )
 
 
     ''' save data '''
