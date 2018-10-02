@@ -20,7 +20,7 @@ class Train2():
         self.idA = idA
         self.idB = idB
 
-def reBuildEvent( connection, tmin=None, tmax=None , pool = None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ): 
 
     ''' use pool cache if available '''
     if ( pool == None ):
@@ -46,7 +46,7 @@ def reBuildEvent( connection, tmin=None, tmax=None , pool = None ):
         for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
             if ( idAnimalA == idAnimalB ):
                 continue
-            train2TimeLine = getEventTimeLineCached( connection, "Train2", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            train2TimeLine = getEventTimeLineCached( connection, file, "Train2", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
             for t in train2TimeLine.getDictionnary():
                 train = Train2( idAnimalA, idAnimalB )
                 

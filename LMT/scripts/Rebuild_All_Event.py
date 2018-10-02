@@ -25,6 +25,7 @@ from database.TaskLogger import TaskLogger
 import sys
 import traceback
 from database.FileUtil import getFilesToProcess
+from database.EventTimeLineCache import flushEventTimeLineCache
 
 max_dur = 3*oneDay
 USE_CACHE_LOAD_DETECTION_CACHE = True
@@ -49,11 +50,10 @@ def process( file ):
         
         # Warning: this process will alter the database
         #CorrectDetectionIntegrity.correct( connection, tmin=0, tmax=max_dur )
-         
-        ''' now performed directly by LMT as it creates the database to store data (in java) '''               
-        #BuildDataBaseIndex.buildDataBaseIndex( connection, force=False )
+                        
+        BuildDataBaseIndex.buildDataBaseIndex( connection, force=False )
             
-        BuildEventDetection.reBuildEvent( connection, tmin=0, tmax=max_dur )
+        BuildEventDetection.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
 
         animalPool = None
         
@@ -64,42 +64,43 @@ def process( file ):
             animalPool.loadDetection( start = 0, end = max_dur )
             print("Caching load of animal detection done.")
 
-        BuildEventOralOralContact.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )        
-        BuildEventOralGenitalContact.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
+        BuildEventOralOralContact.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )        
+        BuildEventOralGenitalContact.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )
         
-        BuildEventSideBySide.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )        
-        BuildEventSideBySideOpposite.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )        
+        BuildEventSideBySide.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )        
+        BuildEventSideBySideOpposite.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )        
     
-        BuildEventTrain2.reBuildEvent( connection, tmin=0, tmax=max_dur , pool = animalPool )
+        BuildEventTrain2.reBuildEvent( connection, file, tmin=0, tmax=max_dur , pool = animalPool )
         
-        BuildEventTrain3.reBuildEvent( connection, tmin=0, tmax=max_dur , pool = animalPool )   
-        BuildEventTrain4.reBuildEvent( connection, tmin=0, tmax=max_dur , pool = animalPool )    
+        BuildEventTrain3.reBuildEvent( connection, file, tmin=0, tmax=max_dur , pool = animalPool )   
+        BuildEventTrain4.reBuildEvent( connection, file, tmin=0, tmax=max_dur , pool = animalPool )    
               
-        BuildEventMove.reBuildEvent( connection, tmin=0, tmax=max_dur )
+        BuildEventMove.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
            
-        BuildEventFollowZone.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
-        BuildEventRear5.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
+        BuildEventFollowZone.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )
+        BuildEventRear5.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )
         
-        BuildEventSocialApproach.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
-        BuildEventSocialEscape.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
-        BuildEventApproachRear.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        BuildEventGroup2.reBuildEvent( connection, tmin=0, tmax=max_dur )
+        BuildEventSocialApproach.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )
+        BuildEventSocialEscape.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )
+        BuildEventApproachRear.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        BuildEventGroup2.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
         
-        BuildEventGroup3.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        BuildEventGroup4.reBuildEvent( connection, tmin=0, tmax=max_dur )
+        BuildEventGroup3.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        BuildEventGroup4.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
         
-        BuildEventGroup4MakeBreak.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        BuildEventGroup3MakeBreak.reBuildEvent( connection, tmin=0, tmax=max_dur )
+        BuildEventGroup4MakeBreak.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        BuildEventGroup3MakeBreak.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
         
     
-        BuildEventStop.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        BuildEventWaterPoint.reBuildEvent(connection, tmin=0, tmax=max_dur, pool = animalPool )
-        BuildEventApproachContact.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        BuildEventWallJump.reBuildEvent(connection, tmin=0, tmax=max_dur , pool = animalPool )
-        BuildEventSAP.reBuildEvent(connection,  tmin=0, tmax=max_dur , pool = animalPool )
+        BuildEventStop.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        BuildEventWaterPoint.reBuildEvent(connection, file, tmin=0, tmax=max_dur, pool = animalPool )
+        BuildEventApproachContact.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        BuildEventWallJump.reBuildEvent(connection, file, tmin=0, tmax=max_dur , pool = animalPool )
+        BuildEventSAP.reBuildEvent(connection,  file, tmin=0, tmax=max_dur , pool = animalPool )
     
-        BuildEventOralSideSequence.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
+        BuildEventOralSideSequence.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )
         chronoFullFile.printTimeInS()
+        
         
     except:
         
@@ -131,6 +132,8 @@ if __name__ == '__main__':
                 process( file )
             except FileProcessException:
                 print ( "STOP PROCESSING FILE " + file , file=sys.stderr  )
+        
+            flushEventTimeLineCache()
         
     chronoFullBatch.printTimeInS()
     print( "*** ALL JOBS DONE ***")

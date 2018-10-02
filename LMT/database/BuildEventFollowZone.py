@@ -53,7 +53,7 @@ def transformPoint(angleB, massA_x, massA_y, massB_x, massB_y):
     return rotation[0], rotation[1]
 
 
-def reBuildEvent( connection, tmin=None, tmax=None, pool = None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
     
     ''' use the pool provided or create it'''
     if ( pool == None ):
@@ -82,7 +82,7 @@ def reBuildEvent( connection, tmin=None, tmax=None, pool = None ):
             if( idAnimalB == idAnimalA ):
                 continue
             
-            contact[idAnimalA, idAnimalB] = getEventTimeLineCached( connection, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            contact[idAnimalA, idAnimalB] = getEventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
             #contact[idAnimalB] = EventTimeLine( connection, "Contact", idAnimalB )
     
     for idAnimalB in pool.animalDictionnary.keys():

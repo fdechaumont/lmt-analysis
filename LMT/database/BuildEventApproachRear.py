@@ -15,7 +15,7 @@ from database.Event import *
 from database.Measure import *
 from database.EventTimeLineCache import getEventTimeLineCached
 
-def reBuildEvent( connection, tmin=None, tmax=None ):
+def reBuildEvent( connection, file, tmin=None, tmax=None ):
     ''' 
     Animal A is approaching the animal B, that is in a reared posture at the end of the approach of animal A.
     Social approaches are considered, meaning that the two animals are within 2 body lengths of one another.
@@ -38,7 +38,7 @@ def reBuildEvent( connection, tmin=None, tmax=None ):
             if ( idAnimalA == idAnimalB ):
                 continue
              
-            approachDico[idAnimalA, idAnimalB] = getEventTimeLineCached( connection, "Social approach", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ) #fait une matrice de toutes les aproches à deux possibles
+            approachDico[idAnimalA, idAnimalB] = getEventTimeLineCached( connection, file, "Social approach", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ) #fait une matrice de toutes les aproches à deux possibles
 
     for idAnimalA in range( 1 , 5 ):
         

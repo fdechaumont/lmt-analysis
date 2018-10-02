@@ -15,7 +15,7 @@ from database.Event import *
 from database.Measure import *
 from database.EventTimeLineCache import getEventTimeLineCached
 
-def reBuildEvent( connection, tmin=None, tmax=None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None ): 
     
     pool = AnimalPool( )
     pool.loadAnimals( connection )
@@ -28,9 +28,9 @@ def reBuildEvent( connection, tmin=None, tmax=None ):
             if ( idAnimalA == idAnimalB ):
                 continue
             ''' I take the dictionnary of event of the contact event, that's why I put DicoDico '''
-            contactDicoDico[idAnimalA, idAnimalB] = getEventTimeLineCached( connection, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+            contactDicoDico[idAnimalA, idAnimalB] = getEventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionnary()
             ''' This one is the dico of event '''
-            approachDico[idAnimalA, idAnimalB] = getEventTimeLineCached( connection, "Social approach", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ) #fait une matrice de toutes les aproches à deux possibles
+            approachDico[idAnimalA, idAnimalB] = getEventTimeLineCached( connection, file, "Social approach", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ) #fait une matrice de toutes les aproches à deux possibles
 
     for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
         

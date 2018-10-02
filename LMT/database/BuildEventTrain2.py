@@ -14,7 +14,7 @@ import numpy as np
 from database.Event import *
 from database.EventTimeLineCache import getEventTimeLineCached
 
-def reBuildEvent( connection, tmin=None, tmax=None , pool = None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ): 
 
     ''' use pool cache if available '''
     if ( pool == None ):
@@ -36,7 +36,7 @@ def reBuildEvent( connection, tmin=None, tmax=None , pool = None ):
         for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
             if ( idAnimalA == idAnimalB ):
                 continue
-            contactHeadGenital[idAnimalA, idAnimalB] = getEventTimeLineCached( connection, "Oral-genital Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            contactHeadGenital[idAnimalA, idAnimalB] = getEventTimeLineCached( connection, file, "Oral-genital Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
 
 
     for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):

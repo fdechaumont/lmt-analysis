@@ -27,7 +27,7 @@ def distHeadBack( detA, detB ):
     
     return math.hypot( hx-bx, hy-by )
     
-def reBuildEvent( connection, tmin=None, tmax=None, pool = None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
     
     ''' use the pool provided or create it'''
     if ( pool == None ):

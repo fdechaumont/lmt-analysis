@@ -19,7 +19,7 @@ import sys
 import matplotlib.pyplot as plt
 
 
-def reBuildEvent( connection, tmin=None, tmax=None, showGraph = False, pool = None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None, showGraph = False, pool = None ): 
     
     ''' use the pool provided or create it'''
     if ( pool == None ):

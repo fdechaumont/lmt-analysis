@@ -11,15 +11,19 @@ def getEventTimeLineCached( connection, file, eventName, idA=None, idB=None, idC
     
     global eventCacheDico_
     
+    print ("Cache debug:", connection, file, eventName, "ids:" , idA, idB, idC, idD, "frames:", minFrame, maxFrame )
+    
+    
     if (file, eventName, idA, idB, idC, idD, minFrame, maxFrame) in eventCacheDico_: 
         eventTimeLine = eventCacheDico_[ file, eventName, idA, idB, idC, idD, minFrame, maxFrame ]
         print ( eventName , " Id(",idA ,",", idB, ",", idC, "," , idD , ") Loaded from cache (" , len( eventTimeLine.eventList ) , " records. )")
         return eventTimeLine
 
-    eventTimeLine = EventTimeLine( connection, eventName , idA, idB, idC, idD, minFrame, maxFrame )
-    eventCacheDico_[ file, eventName, idA, idB, idC, idD, minFrame, maxFrame ] = eventTimeLine
     print ( "Caching eventTimeLine")
+    eventTimeLine = EventTimeLine( connection, eventName , idA = idA, idB = idB, idC = idC, idD = idD, minFrame = minFrame, maxFrame = maxFrame )
+    eventCacheDico_[ file, eventName, idA, idB, idC, idD, minFrame, maxFrame ] = eventTimeLine
+    
     return eventTimeLine
         
-def flushEventTimeLineCache(self):
+def flushEventTimeLineCache():
     eventCacheDico_.clear()
