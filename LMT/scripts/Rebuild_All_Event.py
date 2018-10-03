@@ -64,41 +64,103 @@ def process( file ):
             animalPool.loadDetection( start = 0, end = max_dur )
             print("Caching load of animal detection done.")
 
+        chrono = Chronometer("Oral oral contact" )
         BuildEventOralOralContact.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )        
+        chrono.printTimeInS()
+
+        chrono = Chronometer("Oral genital contact" )
         BuildEventOralGenitalContact.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )
+        chrono.printTimeInS()
         
+        chrono = Chronometer("Side by side" )
         BuildEventSideBySide.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )        
+        chrono.printTimeInS()
+
+        chrono = Chronometer("Side by side opposite" )
         BuildEventSideBySideOpposite.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )        
+        chrono.printTimeInS()
     
 
+        chrono = Chronometer("Train 2" )
         BuildEventTrain2.reBuildEvent( connection, file, tmin=0, tmax=max_dur , pool = animalPool )
+        chrono.printTimeInS()
         
+        chrono = Chronometer("Train 3" )
         BuildEventTrain3.reBuildEvent( connection, file, tmin=0, tmax=max_dur , pool = animalPool )   
+        chrono.printTimeInS()
+
+        chrono = Chronometer("Train 4" )
         BuildEventTrain4.reBuildEvent( connection, file, tmin=0, tmax=max_dur , pool = animalPool )    
-              
+        chrono.printTimeInS()
+        
+        chrono = Chronometer("Move" )      
         BuildEventMove.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        chrono.printTimeInS()
            
+        chrono = Chronometer("FollowZone" )      
         BuildEventFollowZone.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )
+        chrono.printTimeInS()
+        
+        chrono = Chronometer("Rear" )      
         BuildEventRear5.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )
+        chrono.printTimeInS()
         
+        chrono = Chronometer("Social approach" )      
         BuildEventSocialApproach.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )
+        chrono.printTimeInS()
+        
+        chrono = Chronometer("Social escape" )      
         BuildEventSocialEscape.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )
+        chrono.printTimeInS()
+
+        chrono = Chronometer("Social approach rear" )      
         BuildEventApproachRear.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        chrono.printTimeInS()
+        
+        chrono = Chronometer("group2" )      
         BuildEventGroup2.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        chrono.printTimeInS()
         
+        chrono = Chronometer("group3" )      
         BuildEventGroup3.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        chrono.printTimeInS()
+
+        chrono = Chronometer("group4" )      
         BuildEventGroup4.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        chrono.printTimeInS()
         
+        chrono = Chronometer("group4 make break" )      
         BuildEventGroup4MakeBreak.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        chrono.printTimeInS()
+
+        chrono = Chronometer("group3 make break" )      
         BuildEventGroup3MakeBreak.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        chrono.printTimeInS()
         
+        chrono = Chronometer("stop" )      
         BuildEventStop.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        chrono.printTimeInS()
+
+        chrono = Chronometer("waterpoint" )      
         BuildEventWaterPoint.reBuildEvent(connection, file, tmin=0, tmax=max_dur, pool = animalPool )
+        chrono.printTimeInS()
+
+        chrono = Chronometer("approach contact" )      
         BuildEventApproachContact.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        chrono.printTimeInS()
+
+        chrono = Chronometer("wall jump" )      
         BuildEventWallJump.reBuildEvent(connection, file, tmin=0, tmax=max_dur , pool = animalPool )
+        chrono.printTimeInS()
+
+        chrono = Chronometer("sap" )      
         BuildEventSAP.reBuildEvent(connection,  file, tmin=0, tmax=max_dur , pool = animalPool )
+        chrono.printTimeInS()
     
+        chrono = Chronometer("oral side sequence" )
         BuildEventOralSideSequence.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )
+        chrono.printTimeInS()
+
         chronoFullFile.printTimeInS()
         
         
