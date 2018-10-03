@@ -20,23 +20,23 @@ from database.EventTimeLineCache import EventTimeLineCached
 
 
 
-def getNumberOfEventWithList( connection, eventName, idAnimalA , animalList, minFrame=None, maxFrame=None ):
+def getNumberOfEventWithList( connection, file, eventName, idAnimalA , animalList, minFrame=None, maxFrame=None ):
     
     sumOfEvent = 0
     for animalCandidate in animalList:
         
-        timeLine = EventTimeLineCached( connection , eventName , idAnimalA , animalCandidate.baseId, minFrame=minFrame, maxFrame=maxFrame )
+        timeLine = EventTimeLineCached( connection , file, eventName , idAnimalA , animalCandidate.baseId, minFrame=minFrame, maxFrame=maxFrame )
         sumOfEvent += timeLine.getNbEvent()
     
     return sumOfEvent
 
 
-def getDurationOfEventWithList( connection, eventName, idAnimalA , animalList, minFrame=None, maxFrame=None ):
+def getDurationOfEventWithList( connection, file, eventName, idAnimalA , animalList, minFrame=None, maxFrame=None ):
     
     durationOfEvent = 0
     for animalCandidate in animalList:
         
-        timeLine = EventTimeLineCached( connection , eventName , idAnimalA , animalCandidate.baseId, minFrame=minFrame, maxFrame=maxFrame )
+        timeLine = EventTimeLineCached( connection , file, eventName , idAnimalA , animalCandidate.baseId, minFrame=minFrame, maxFrame=maxFrame )
         durationOfEvent += timeLine.getTotalLength()
     
     return durationOfEvent
@@ -83,11 +83,11 @@ if __name__ == '__main__':
                 
                 print( "computing individual event: {}".format(behavEvent))    
                 
-                behavEventTimeLine = EventTimeLineCached( connection, behavEvent, idAnimalA, minFrame=tmin, maxFrame=tmax )
+                behavEventTimeLine = EventTimeLineCached( connection, file, behavEvent, idAnimalA, minFrame=tmin, maxFrame=tmax )
                 
                 totalEventDuration = behavEventTimeLine.getTotalLength()
                 nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame = tmin, maxFrame = tmax )
-                
+                print( "total event duration: " , totalEventDuration )                
                 animal[rfid][behavEventTimeLine.eventName+" TotalLen"] = totalEventDuration
                 animal[rfid][behavEventTimeLine.eventName+" Nb"] = nbEvent
                 
