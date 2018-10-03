@@ -13,8 +13,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from database.Event import *
 from database.Measure import *
+from database.EventTimeLineCache import EventTimeLineCached
 
-def reBuildEvent( connection, tmin=None, tmax=None ):
+def reBuildEvent( connection, file, tmin=None, tmax=None ):
     
 
     pool = AnimalPool( )
@@ -28,7 +29,7 @@ def reBuildEvent( connection, tmin=None, tmax=None ):
     group4Out = {}
     
     for idAnimalA in range( 1 , 5 ):
-        contact[idAnimalA] = EventTimeLine( connection, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax )
+        contact[idAnimalA] = EventTimeLineCached( connection, file, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax )
         group4In[idAnimalA] = EventTimeLine( connection, "Group 4 make", idAnimalA, loadEvent=False )
         group4Out[idAnimalA] = EventTimeLine( connection, "Group 4 break", idAnimalA, loadEvent=False )
         
@@ -52,7 +53,7 @@ def reBuildEvent( connection, tmin=None, tmax=None ):
                     
                     ''' process group '''
 
-                    group4 = EventTimeLine( connection, "Group4", idAnimalA, idAnimalB, idAnimalC, minFrame=tmin, maxFrame=tmax )
+                    group4 = EventTimeLineCached( connection, file, "Group4", idAnimalA, idAnimalB, idAnimalC, minFrame=tmin, maxFrame=tmax )
                     
                     eventList = group4.getEventList()
                     

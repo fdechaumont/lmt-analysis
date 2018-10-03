@@ -13,8 +13,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from database.Event import *
 from database.Measure import *
+from database.EventTimeLineCache import EventTimeLineCached
 
-def reBuildEvent( connection, tmin=None, tmax=None, pool = None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
     
     ''' use the pool provided or create it'''
     if ( pool == None ):
@@ -30,7 +31,7 @@ def reBuildEvent( connection, tmin=None, tmax=None, pool = None ):
             if ( idAnimalA == idAnimalB ):
                 continue
             
-            escapeDico[idAnimalA, idAnimalB] = EventTimeLine( connection, "Escape", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            escapeDico[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Escape", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
 
     #cache mean body len
     twoMeanBodyLen = {}

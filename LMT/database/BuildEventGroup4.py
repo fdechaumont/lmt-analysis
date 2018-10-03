@@ -13,8 +13,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from database.Event import *
 from database.Measure import *
+from database.EventTimeLineCache import EventTimeLineCached
 
-def reBuildEvent( connection, tmin=None, tmax=None ):
+def reBuildEvent( connection, file, tmin=None, tmax=None ):
     '''
     four animals are in contact. (equivalent to group2 and group3)
     ''' 
@@ -27,8 +28,8 @@ def reBuildEvent( connection, tmin=None, tmax=None ):
     contact = {}
     group2 = {}
     for idAnimalA in range( 1 , 5 ):    
-        contact[idAnimalA] = EventTimeLine( connection, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax ) #fait une matrice de tous les contacts à deux possibles
-        group2[idAnimalA] = EventTimeLine(connection, "Group2", idAnimalA, minFrame=tmin, maxFrame=tmax )
+        contact[idAnimalA] = EventTimeLineCached( connection, file, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax ) #fait une matrice de tous les contacts à deux possibles
+        group2[idAnimalA] = EventTimeLineCached(connection, file, "Group2", idAnimalA, minFrame=tmin, maxFrame=tmax )
         
     for idAnimalA in range( 1 , 5 ):
         

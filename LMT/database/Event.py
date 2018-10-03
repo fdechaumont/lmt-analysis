@@ -59,6 +59,17 @@ class Event:
         '''
         self.startFrame += nbFrame
         self.endFrame += nbFrame
+
+    def numberOfFrameToEvent(self , eventCandidate ):
+        ''' 
+        provides the distance (in frame) to another event 
+        if the events do overlap, return 0 
+        '''
+        
+        if ( self.overlapEvent( eventCandidate ) ):
+            return 0;
+        
+        return min( abs( self.startFrame - eventCandidate.endFrame ), abs( self.endFrame - eventCandidate.startFrame ) )
     
 class EventTimeLine:
     '''
@@ -70,6 +81,19 @@ class EventTimeLine:
             where t>=minFrame and t<=maxFrame if applicable
             inverseEvent: inverse all timeline (used to make stop becomes move for instance) 
         '''
+        
+        #check id at 0 to transform them as None ( id will not be considered in query ) (added for USV support).
+    
+        if ( idA == 0 ):
+            idA = None
+        if ( idB == 0 ):
+            idB = None
+        if ( idC == 0 ):
+            idC = None
+        if ( idD == 0 ):
+            idD = None
+        
+        #store parameters
         self.idA = idA
         self.idB = idB
         self.idC = idC
@@ -80,7 +104,7 @@ class EventTimeLine:
         self.eventList = []
                 
         if ( loadEvent == False ):
-            print( "Event " + eventName + " created. eventNameWithId = " +  self.eventNameWithId )
+            print( "Event " + str( eventName ) + " created. eventNameWithId = " +  str( self.eventNameWithId ) + " loadEvent: False" )
             return;
                     
         chrono = Chronometer( "Load event " + self.eventName )
@@ -219,11 +243,29 @@ class EventTimeLine:
                 return event
         return None
 
+    def checkIfEventListIsOrdered(self ):
+        '''
+        Checks if the eventlist is fully ordered
+        '''
+        cursor = -1
+        previousEvent = None
+        for event in self.eventList:
+            if ( event.startFrame > cursor ):
+                cursor = event.endFrame
+            else:
+                print( "Check ordered list: problem in list:")
+                print( "previous event : ", previousEvent )
+                print( "next (non ordered) event event : ", event )
+                return False
+            previousEvent = event
+        
+        return True
+
     '''
     returns the closest event from framenumber, and the distance (in frame) to it.
     assumes the eventList has been build by rebuildallevents, which makes them ordered.
     '''
-    def getClosestEventFromFrame(self , frameNumber , optimizeAssumingOrderedList = False ):
+    def  getClosestEventFromFrame(self , frameNumber , optimizeAssumingOrderedList = False , constraint = None ):
         
         if ( self.hasEvent( frameNumber )):
             # we do have an event for this frame so the distance is 0
@@ -245,6 +287,22 @@ class EventTimeLine:
                     listToSearchIn.append( self.eventList[currentIndex-1] )
                 break
         
+        if constraint=="after frame":
+            # creates a new list where only events in the future are kept
+            updatedList = []
+            for event in listToSearchIn:
+                if ( event.startFrame > frameNumber ):
+                    updatedList.append( event )
+            listToSearchIn = updatedList
+
+        if constraint=="before frame":
+            # creates a new list where only events in the past are kept
+            updatedList = []
+            for event in listToSearchIn:
+                if ( event.endFrame < frameNumber ):
+                    updatedList.append( event )
+            listToSearchIn = updatedList
+
         closestEvent = None
         bestDistance = sys.maxsize
         
@@ -607,7 +665,7 @@ class EventTimeLine:
             event.shift( nbFrame )
     
     
-    def correlateLengthDistanceWithTimeLine( self, timeLineCandidate ):
+    def getLengthDistanceWithTimeLine( self, timeLineCandidate ):
         
         ''' 
         provides correlation of current event considering overlap with candidate event.
@@ -616,7 +674,7 @@ class EventTimeLine:
         foundEventList = []
         
         print("correlation started")
-        chrono = Chronometer( "correlateLengthDistanceWithTimeLine " + timeLineCandidate.eventName )
+        chrono = Chronometer( "getLengthDistanceWithTimeLine " + timeLineCandidate.eventName )
         
         maxT = self.getMaxT( )
         dico = self.getDictionnary( 0 , maxT )

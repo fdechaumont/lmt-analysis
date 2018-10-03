@@ -12,8 +12,9 @@ from database.Measure import *
 import matplotlib.pyplot as plt
 import numpy as np
 from database.Event import *
+from database.EventTimeLineCache import EventTimeLineCached
 
-def reBuildEvent( connection, tmin=None, tmax=None , pool = None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ): 
 
     ''' use pool cache if available '''
     if ( pool == None ):
@@ -35,7 +36,7 @@ def reBuildEvent( connection, tmin=None, tmax=None , pool = None ):
         for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
             if ( idAnimalA == idAnimalB ):
                 continue
-            contactHeadGenital[idAnimalA, idAnimalB] = EventTimeLine( connection, "Oral-genital Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            contactHeadGenital[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Oral-genital Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
 
 
     for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):

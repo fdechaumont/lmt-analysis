@@ -13,8 +13,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from database.Event import *
 from database.Measure import *
+from database.EventTimeLineCache import EventTimeLineCached
 
-def reBuildEvent( connection, tmin=None, tmax=None ):
+def reBuildEvent( connection, file, tmin=None, tmax=None ):
     
     ''' 
     Animal A is stopped (built-in event):
@@ -31,9 +32,9 @@ def reBuildEvent( connection, tmin=None, tmax=None ):
     
     for idAnimalA in range( 1 , 5 ):
         ''' Load source stop timeLine '''
-        stopSourceTimeLine[idAnimalA] = EventTimeLine( connection, "Stop", idAnimalA, minFrame=tmin, maxFrame=tmax )
+        stopSourceTimeLine[idAnimalA] = EventTimeLineCached( connection, file, "Stop", idAnimalA, minFrame=tmin, maxFrame=tmax )
         ''' load contact dictionnary with whatever animal '''
-        isInContactSourceDictionnary[idAnimalA] = EventTimeLine( connection, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+        isInContactSourceDictionnary[idAnimalA] = EventTimeLineCached( connection, file, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax ).getDictionnary()
                     
     eventName2 = "Stop in contact"
     eventName1 = "Stop isolated"        

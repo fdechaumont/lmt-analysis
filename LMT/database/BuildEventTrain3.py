@@ -12,6 +12,7 @@ from database.Measure import *
 import matplotlib.pyplot as plt
 import numpy as np
 from database.Event import *
+from database.EventTimeLineCache import EventTimeLineCached
 
 class Train2():
     
@@ -19,7 +20,7 @@ class Train2():
         self.idA = idA
         self.idB = idB
 
-def reBuildEvent( connection, tmin=None, tmax=None , pool = None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ): 
 
     ''' use pool cache if available '''
     if ( pool == None ):
@@ -46,14 +47,14 @@ def reBuildEvent( connection, tmin=None, tmax=None , pool = None ):
         for idAnimalB in range( 1 , 5 ):
             if ( idAnimalA == idAnimalB ):
                 continue
-            train2TimeLine = EventTimeLine( connection, "Train2", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            train2TimeLine = EventTimeLineCached( connection, file, "Train2", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
             for t in train2TimeLine.getDictionnary():
                 train = Train2( idAnimalA, idAnimalB )
                 
                 if ( not t in time ):
                     time[t] =[]
                     
-                print ( t , ":" , train.idA , " -> ", train.idB , "*" )
+                #print ( t , ":" , train.idA , " -> ", train.idB , "*" )
                 time[t].append( train )
     
 
@@ -83,7 +84,7 @@ def reBuildEvent( connection, tmin=None, tmax=None , pool = None ):
                     train3[id1,id2,id3][t]=True
                     
                     isValid = ": validated train 3"
-                print ( t , ":" , trainSource.idA , " -> ", trainSource.idB, "--->", trainTarget.idA , " -> ", trainTarget.idB , isValid )
+                #print ( t , ":" , trainSource.idA , " -> ", trainSource.idB, "--->", trainTarget.idA , " -> ", trainTarget.idB , isValid )
 
 
     ''' save data '''

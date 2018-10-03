@@ -45,7 +45,7 @@ def loadDetectionMap( connection, idAnimalA, start=None, end=None ):
         return result
 
 
-def reBuildEvent( connection, tmin=None, tmax=None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None ): 
     
     pool = AnimalPool( )
     pool.loadAnimals( connection )

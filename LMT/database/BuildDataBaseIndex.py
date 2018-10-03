@@ -29,11 +29,13 @@ def buildDataBaseIndex( connection , force=False):
 
     c = connection.cursor()            
 
+    '''
     if ( force == False ):
         if( getNumberOfIndexOfDatabase( connection ) > 0 ):
             print( "Index already exists (maybe not all)... no re-indexing. Use buildDataBaseIndex force parameter to force index build.")
             return
-        
+    '''
+     
     executeLog( c , "CREATE INDEX `animalIndex` ON `ANIMAL` (`ID` );" )     
 
     executeLog( c , "CREATE INDEX `detectionIndex` ON `DETECTION` (`ID` ASC,`FRAMENUMBER` ASC);" )     
@@ -51,6 +53,9 @@ def buildDataBaseIndex( connection , force=False):
     executeLog( c , "CREATE INDEX `eventstartendIndex` ON `EVENT` (`STARTFRAME` ASC,`ENDFRAME` ASC);" )     
         
     executeLog( c , "CREATE INDEX `indexeventidIndex` ON `EVENT` (`ID` ASC);" )     
+    
+    executeLog( c , "CREATE INDEX 'detectionFastLoadXYIndex' ON 'DETECTION' ('ANIMALID' ,'FRAMENUMBER' ASC,'MASS_X' ,'MASS_Y' );" )
+    
     
     # log process
     from database.TaskLogger import TaskLogger

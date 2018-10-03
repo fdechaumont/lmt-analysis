@@ -17,6 +17,7 @@ from database import BuildEventTrain3, BuildEventTrain4, BuildEventFollowZone, B
 from tkinter.filedialog import askopenfilename
 from database.Util import getMinTMaxTAndFileNameInput
 from sqlalchemy.sql.expression import false
+from database.EventTimeLineCache import EventTimeLineCached
 
 
 
@@ -25,7 +26,7 @@ def getNumberOfEventWithList( connection, eventName, idAnimalA , animalList, min
     sumOfEvent = 0
     for animalCandidate in animalList:
         
-        timeLine = EventTimeLine( connection , eventName , idAnimalA , animalCandidate.baseId, minFrame=minFrame, maxFrame=maxFrame )
+        timeLine = EventTimeLineCached( connection , eventName , idAnimalA , animalCandidate.baseId, minFrame=minFrame, maxFrame=maxFrame )
         sumOfEvent += timeLine.getNbEvent()
     
     return sumOfEvent
@@ -36,7 +37,7 @@ def getDurationOfEventWithList( connection, eventName, idAnimalA , animalList, m
     durationOfEvent = 0
     for animalCandidate in animalList:
         
-        timeLine = EventTimeLine( connection , eventName , idAnimalA , animalCandidate.baseId, minFrame=minFrame, maxFrame=maxFrame )
+        timeLine = EventTimeLineCached( connection , eventName , idAnimalA , animalCandidate.baseId, minFrame=minFrame, maxFrame=maxFrame )
         durationOfEvent += timeLine.getTotalLength()
     
     return durationOfEvent
@@ -142,7 +143,7 @@ if __name__ == '__main__':
                     if ( idAnimalA == idAnimalB ):
                         continue
                 
-                    event = EventTimeLine( connection, behavEvent, idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+                    event = EventTimeLineCached( connection, behavEvent, idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
                     
                     totalEventDuration = event.getTotalLength()
                     nbEvent = event.getNumberOfEvent(minFrame = tmin, maxFrame = tmax)
