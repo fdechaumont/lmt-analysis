@@ -19,13 +19,15 @@ from database import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Build
     BuildEventOralSideSequence, CheckWrongAnimal,\
     CorrectDetectionIntegrity
     
-    
+from psutil import virtual_memory
+
 from tkinter.filedialog import askopenfilename
 from database.TaskLogger import TaskLogger
 import sys
 import traceback
 from database.FileUtil import getFilesToProcess
-from database.EventTimeLineCache import flushEventTimeLineCache
+from database.EventTimeLineCache import flushEventTimeLineCache,\
+    disableEventTimeLineCache
 
 max_dur = 5*oneDay
 USE_CACHE_LOAD_DETECTION_CACHE = True
@@ -181,6 +183,14 @@ def process( file ):
 if __name__ == '__main__':
     
     print("Code launched.")
+    
+    mem = virtual_memory()
+    availableMemoryGB = mem.total / 1000000000
+    print( "Total memory on computer: (GB)", availableMemoryGB ) 
+    
+    if availableMemoryGB < 16:
+        print( "Not enough memory to use cache load of events.")
+        disableEventTimeLineCache()
     
     files = getFilesToProcess()
 
