@@ -98,7 +98,7 @@ class EventTimeLine:
         self.idB = idB
         self.idC = idC
         self.idD = idD
-        self.eventName = eventName
+        self.eventName = str( eventName )
         self.eventNameWithId = "{} idA:{} idB:{} idC:{} idD:{}".format( eventName , idA , idB, idC, idD )
         # build events
         self.eventList = []
@@ -107,7 +107,7 @@ class EventTimeLine:
             print( "Event " + str( eventName ) + " created. eventNameWithId = " +  str( self.eventNameWithId ) + " loadEvent: False" )
             return;
                     
-        chrono = Chronometer( "Load event " + self.eventName )
+        chrono = Chronometer( "Load event " + str ( self.eventName ) )
         c = conn.cursor()        
         
         query = "SELECT * FROM EVENT WHERE NAME='{0}'".format( self.eventName );
