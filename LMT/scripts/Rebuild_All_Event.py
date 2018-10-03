@@ -26,7 +26,7 @@ import sys
 import traceback
 from database.FileUtil import getFilesToProcess
 
-max_dur = 3*oneDay
+max_dur = 5*oneDay
 USE_CACHE_LOAD_DETECTION_CACHE = True
 
 class FileProcessException(Exception):
@@ -71,10 +71,10 @@ def process( file ):
         BuildEventSideBySideOpposite.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )        
     
         BuildEventTrain2.reBuildEvent( connection, tmin=0, tmax=max_dur , pool = animalPool )
-        
+
         BuildEventTrain3.reBuildEvent( connection, tmin=0, tmax=max_dur , pool = animalPool )   
         BuildEventTrain4.reBuildEvent( connection, tmin=0, tmax=max_dur , pool = animalPool )    
-              
+     
         BuildEventMove.reBuildEvent( connection, tmin=0, tmax=max_dur )
            
         BuildEventFollowZone.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
@@ -84,13 +84,13 @@ def process( file ):
         BuildEventSocialEscape.reBuildEvent( connection, tmin=0, tmax=max_dur, pool = animalPool )
         BuildEventApproachRear.reBuildEvent( connection, tmin=0, tmax=max_dur )
         BuildEventGroup2.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        
+
         BuildEventGroup3.reBuildEvent( connection, tmin=0, tmax=max_dur )
         BuildEventGroup4.reBuildEvent( connection, tmin=0, tmax=max_dur )
         
         BuildEventGroup4MakeBreak.reBuildEvent( connection, tmin=0, tmax=max_dur )
         BuildEventGroup3MakeBreak.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        
+
     
         BuildEventStop.reBuildEvent( connection, tmin=0, tmax=max_dur )
         BuildEventWaterPoint.reBuildEvent(connection, tmin=0, tmax=max_dur, pool = animalPool )

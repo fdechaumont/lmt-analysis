@@ -29,7 +29,7 @@ if __name__ == '__main__':
     
     files = askopenfilename( title="Choose a set of file to process", multiple=1 )
     
-    max_dur = 15*oneMinute
+    max_dur = 3*oneDay
     
     '''oneMinute*240'''
     

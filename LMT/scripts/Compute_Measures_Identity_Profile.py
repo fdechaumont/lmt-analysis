@@ -74,8 +74,8 @@ if __name__ == '__main__':
     
     #behaviouralEventOneMouse = ["Group 4 break", "Group 4 make"]
     behaviouralEventOneMouse = ["Group3", "Group 3 break", "Group 3 make", "Group4", "Group 4 break", "Group 4 make", "Huddling", "Move isolated", "Move in contact", "Nest3", "Rearing", "Rear isolated", "Rear in contact", "Stop isolated", "WallJump", "Water Zone"]
-    behaviouralEventTwoMice = None
-    #behaviouralEventTwoMice = ["Approach contact", "Approach rear", "Break contact", "Contact", "FollowZone Isolated", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Social escape", "Train2"] 
+    #behaviouralEventTwoMice = None
+    behaviouralEventTwoMice = ["Approach contact", "Approach rear", "Break contact", "Contact", "FollowZone Isolated", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Social escape", "Train2"] 
     
     #text_file = open ("test_measures_individual_profile_shank3_23h_7907.txt", "w")
     
