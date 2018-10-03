@@ -20,28 +20,6 @@ from database.EventTimeLineCache import EventTimeLineCached
 
 
 
-def getNumberOfEventWithList( connection, file, eventName, idAnimalA , animalList, minFrame=None, maxFrame=None ):
-    
-    sumOfEvent = 0
-    for animalCandidate in animalList:
-        
-        timeLine = EventTimeLineCached( connection , file, eventName , idAnimalA , animalCandidate.baseId, minFrame=minFrame, maxFrame=maxFrame )
-        sumOfEvent += timeLine.getNbEvent()
-    
-    return sumOfEvent
-
-
-def getDurationOfEventWithList( connection, file, eventName, idAnimalA , animalList, minFrame=None, maxFrame=None ):
-    
-    durationOfEvent = 0
-    for animalCandidate in animalList:
-        
-        timeLine = EventTimeLineCached( connection , file, eventName , idAnimalA , animalCandidate.baseId, minFrame=minFrame, maxFrame=maxFrame )
-        durationOfEvent += timeLine.getTotalLength()
-    
-    return durationOfEvent
-
-
 
 if __name__ == '__main__':
     
