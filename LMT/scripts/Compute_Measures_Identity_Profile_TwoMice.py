@@ -43,7 +43,6 @@ def getDurationOfEventWithList( connection, file, eventName, idAnimalA , animalL
     return durationOfEvent
 
 
-
 if __name__ == '__main__':
     
     print("Code launched.")
