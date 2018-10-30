@@ -465,6 +465,11 @@ class EventTimeLine:
         for event in self.eventList[:]:
             if ( event.startFrame > maxT ):
                 self.eventList.remove( event )
+
+    def removeEventsBelowT(self , maxT ):
+        for event in self.eventList[:]:
+            if ( event.endFrame < maxT ):
+                self.eventList.remove( event )
     
     def removeEventOfTimeLine(self , timeLineToRemove ):
         '''
@@ -726,12 +731,12 @@ class EventTimeLine:
         
         print ( "NB match with " + timeLineCandidate.eventName + " " + str(nbMatch) + " / " + str(nbEvent) + " time to compute: " + str(chrono.getTimeInMS()) )
         
-        ratio=0
+        v=0
         
         if nbMatch!=0:
-            ratio = nbMatch / nbEvent
+            v = nbMatch / nbEvent
             
-        return [ratio, foundEventList,relativityDico]    
+        return [v, foundEventList,relativityDico]    
 
 def deleteEventTimeLineInBase( connection, eventName, idA=None, idB=None, idC=None, idD=None ):
     '''
