@@ -75,7 +75,7 @@ class EventTimeLine:
     '''
     classdocs
     ''' 
-    def __init__(self, conn, eventName, idA=None , idB=None ,idC=None , idD=None , loadEvent=True, minFrame = None, maxFrame=None, inverseEvent = False ):
+    def __init__(self, conn, eventName, idA=None , idB=None ,idC=None , idD=None , loadEvent=True, minFrame = None, maxFrame=None, inverseEvent = False , loadEventWithoutOverlapCheck = False ):
         '''
         load events 
             where t>=minFrame and t<=maxFrame if applicable
@@ -140,40 +140,62 @@ class EventTimeLine:
         ''' print( query ) '''
         c.execute( query )
         all_rows = c.fetchall()
-                
-        eventBool = {}
-
-        for row in all_rows:
-            start = row[3]
-            end = row[4]
-            for t in range( start, end+1 ):
-                
+            
+        if loadEventWithoutOverlapCheck == True:
+            
+            if inverseEvent == True:
+                print ( "Warning: inverseEvent option not compatible in loadEventWithoutOverlapCheck")
+            
+            for row in all_rows:
+            
+                start = row[3]
+                end = row[4]
+                    
                 if ( minFrame != None ):
-                    if ( t < minFrame ):
+                    if ( start < minFrame or end < minFrame ):                        
                         continue
                     
                 if ( maxFrame != None ):
-                    if ( t > maxFrame ):
+                    if ( start > maxFrame or end > maxFrame ):
                         continue
-                                
-                eventBool[t] = True
-
-        if ( inverseEvent == True ):
+                    
+                self.eventList.append( Event( start, end ) )
+                
+        else:
             
-            if ( minFrame == None ):
-                print("To inverse event, need a minFrame")
-                return
-            if ( maxFrame == None ):
-                print("To inverse event, need a maxFrame")
-                return
+            eventBool = {}
+    
+            for row in all_rows:
+                start = row[3]
+                end = row[4]
+                for t in range( start, end+1 ):
+                    
+                    if ( minFrame != None ):
+                        if ( t < minFrame ):
+                            continue
+                        
+                    if ( maxFrame != None ):
+                        if ( t > maxFrame ):
+                            continue
+                                    
+                    eventBool[t] = True
+                
+            if ( inverseEvent == True ):
+                
+                if ( minFrame == None ):
+                    print("To inverse event, need a minFrame")
+                    return
+                if ( maxFrame == None ):
+                    print("To inverse event, need a maxFrame")
+                    return
+                
+                for t in range( minFrame , maxFrame +1 ):
+                    if ( t in eventBool ):
+                        eventBool.pop( t )
+                    else:
+                        eventBool[t] = True 
             
-            for t in range( minFrame , maxFrame +1 ):
-                if ( t in eventBool ):
-                    eventBool.pop( t )
-                else:
-                    eventBool[t] = True 
-        
-        self.reBuildWithDictionnary(eventBool)
+            self.reBuildWithDictionnary(eventBool)
         
         #keyList = sorted(eventBool.keys())
         
