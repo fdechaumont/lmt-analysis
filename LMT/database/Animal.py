@@ -665,6 +665,9 @@ class AnimalPool():
     def getAnimalDictionnary(self):
         return self.animalDictionnary
     
+    def getAnimalWithId(self , id):
+        return self.animalDictionnary[id]
+    
     def getAnimalList(self):
         
         animalList= []
