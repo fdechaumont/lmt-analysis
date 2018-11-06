@@ -71,6 +71,9 @@ class Event:
         
         return min( abs( self.startFrame - eventCandidate.endFrame ), abs( self.endFrame - eventCandidate.startFrame ) )
     
+    def __str__(self):
+        return "Event\tstart:\t"+ str( self.startFrame) + "\tend:\t" + str( self.endFrame)
+    
 class EventTimeLine:
     '''
     classdocs
