@@ -21,13 +21,16 @@ def reBuildEvent( connection, file, tmin=None, tmax=None ):
     pool.loadAnimals( connection )
     #pool.loadDetection( start = tmin, end = tmax )
     
-    
+    if pool.getNbAnimals() <= 2:
+        print( "Not enough animals to process group 3")
+        return
+
     contact = {}
     for idAnimalA in range( 1 , 5 ):
         for idAnimalB in range( 1 , 5 ):
             if ( idAnimalA == idAnimalB ):
                 continue
-            contact[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ) #fait une matrice de tous les contacts à deux possibles
+            contact[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
 
     for idAnimalA in range( 1 , 5 ):
         
