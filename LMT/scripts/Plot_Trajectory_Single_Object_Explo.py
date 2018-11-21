@@ -44,6 +44,7 @@ if __name__ == '__main__':
     plt.figure( 2*nbFiles, figsize=(13,6*nbFiles) )
         
     n = 1
+    m = 1
         
     for file in files:
         connection = sqlite3.connect( file )
@@ -53,15 +54,16 @@ if __name__ == '__main__':
             
         #draw the trajectory in the first phase, without the object
         pool.loadDetection( start=0 , end= 28*oneMinute )
-        plt.subplot(n,2*n,1)
+        plt.subplot(n,2,m)
         pool.animalDictionnary[1].plotTrajectory( show = False, title = "First phase " )
             
             
         #draw the trajectory in the second phase, with the object
         pool.loadDetection( start=32*oneMinute , end= 60*oneMinute )
-        plt.subplot(n,2*n,2)
+        plt.subplot(n,2,m+1)
         pool.animalDictionnary[1].plotTrajectory( show = False, title = "Second phase " )
-            
+           
         n = n+1
+        m = m+2
      
     plt.show()    
