@@ -72,10 +72,11 @@ if __name__ == '__main__':
     '''
     
     
-    #behaviouralEventOneMouse = ["Group 4 break", "Group 4 make"]
-    behaviouralEventOneMouse = ["Group3", "Group 3 break", "Group 3 make", "Group4", "Group 4 break", "Group 4 make", "Huddling", "Move isolated", "Move in contact", "Nest3", "Rearing", "Rear isolated", "Rear in contact", "Stop isolated", "WallJump", "Water Zone"]
-    #behaviouralEventTwoMice = None
-    behaviouralEventTwoMice = ["Approach contact", "Approach rear", "Break contact", "Contact", "FollowZone Isolated", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Social escape", "Train2"] 
+    behaviouralEventOneMouse = ["Side by side Contact, opposite way"]
+    #behaviouralEventOneMouse = ["Look down", "Huddling", "WallJump", "SAP", "Move isolated", "Stop isolated", "Rear isolated", "Nest3", "Move in contact", "Rear in contact", "Contact",  "Side by side Contact", "Side by side Contact, opposite way", "Oral-oral Contact", "Oral-genital Contact", "Group2", "Group3", "Train2", "Train3", "Train4", "FollowZone Isolated", "Social approach", "Approach rear", "Approach contact", "Group 3 make", "Group 4 make", "Social escape", "Break contact", "Group 3 break", "Group 4 break", "seq oral oral - oral genital", "seq oral geni - oral oral"]
+    #behaviouralEventOneMouse = ["Group3", "Group 3 break", "Group 3 make", "Group4", "Group 4 break", "Group 4 make", "Huddling", "Move isolated", "Move in contact", "Nest3", "Rearing", "Rear isolated", "Rear in contact", "Stop isolated", "WallJump", "Water Zone"]
+    behaviouralEventTwoMice = None
+    #behaviouralEventTwoMice = ["Approach contact", "Approach rear", "Break contact", "Contact", "FollowZone Isolated", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Social escape", "Train2"] 
     
     #text_file = open ("test_measures_individual_profile_shank3_23h_7907.txt", "w")
     
