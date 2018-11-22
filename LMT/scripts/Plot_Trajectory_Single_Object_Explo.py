@@ -11,14 +11,32 @@ import sqlite3
 from database.Animal import *
 from tkinter.filedialog import askopenfilename
 
-def plot( ax , animal, title ):
+def plot( ax , animal, title , color = None ):
     xList, yList = animal.getTrajectoryData( )
-            
-    ax.plot( xList, yList, color=animal.getColor(), linestyle='-', linewidth=1, alpha=0.5, label= animal.name )
+
+    if ( color == None ):
+        color = animal.getColor()
+    ax.plot( xList, yList, color=color, linestyle='-', linewidth=1, alpha=0.5, label= animal.name )
     ax.set_title( title + " " + animal.RFID )
     ax.legend().set_visible(False)
-    #ax.xlim(90, 420)
-    #ax.ylim(-370, -40)
+    ax.set_xlim(90, 420)
+    ax.set_ylim(-370, -40)
+
+def plotSap( ax , animal ):
+
+    sapDico = animal.getSapDictionnary()
+        
+    xList = []
+    yList = []
+    
+    for t in sapDico.keys() :
+        #print( "SAP found")
+        detection = animal.detectionDictionnary.get( t )
+        xList.append( detection.massX )
+        yList.append( -detection.massY )    
+    color = "red"
+    ax.scatter( xList, yList,  color=color, alpha=0.5, label= "sap", s=20 )
+    
 
 if __name__ == '__main__':
     
@@ -94,13 +112,19 @@ if __name__ == '__main__':
         #draw the trajectory in the first phase, without the object
         pool.loadDetection( start=0 , end= 28*oneMinute )
         
-        plot ( axes[n,0], pool.animalDictionnary[1] , title = "First phase" )
+        animal = pool.animalDictionnary[1]
+        
+        plot ( axes[n,0], animal , title = "First phase" , color ="black")
         #pool.animalDictionnary[1].plotTrajectory( show = False, title = "First phase " )
         #axes[n,0].legend().set_visible(False)
         
         #add the frames where the animal is in SAP
-        sapDico = pool.animalDictionnary[1].getSapDictionnary()
-        print(sapDico)
+        
+        plotSap( axes[n,0], animal )
+        
+        #axes[n,0].scatter( 200, -300, color="red", s=200 )
+        
+        #print(sapDico)
         #for (i in sapDico.key()):
               
             
@@ -108,7 +132,8 @@ if __name__ == '__main__':
         pool.loadDetection( start=32*oneMinute , end= 60*oneMinute )
         #axes[n,1]
         #pool.animalDictionnary[1].plotTrajectory( show = False, title = "Second phase " )
-        plot ( axes[n,1], pool.animalDictionnary[1] , title = "Second phase" )
+        plot ( axes[n,1], animal, title = "Second phase", color ="black" )
+        plotSap( axes[n,1], animal )
         #axes[n,1].legend().set_visible(False)
            
         n = n+1
