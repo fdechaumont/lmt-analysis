@@ -3,6 +3,7 @@ Created on 13 sept. 2017
 
 @author: Fab
 '''
+from database.Point import Point
 
 ''' scale to convert distances from pixels to cm '''
 scaleFactor = 10/57
@@ -46,6 +47,16 @@ oneWeek = 30*60*60*24*7
 '''time window at the end of an event to test overlap with another event'''
 TIME_WINDOW_BEFORE_EVENT = 15*oneFrame
 
+''' Cage center in 50x50cm area'''
+cageCenterCoordinates50x50Area = Point( 256, 208 )
+
+''' Corner Coordinates in 50x50cm area '''
+cornerCoordinates50x50Area = [
+                        (114,63),
+                        (398,63),
+                        (398,353),
+                        (114,353)
+                        ]
 
 def second( second ):
     return second * oneSecond
