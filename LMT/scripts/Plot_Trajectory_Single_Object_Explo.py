@@ -87,17 +87,22 @@ if __name__ == '__main__':
         axes[n,0]
         pool.loadDetection( start=0 , end= 28*oneMinute )
         pool.animalDictionnary[1].plotTrajectory( show = False, title = "First phase " )
-        axes[n,0].legend()    
+        axes[n,0].legend().set_visible(False)
+        #add the frames where the animal is in SAP
+        sapDico = pool.animalDictionnary[1].getSapDictionnary()
+        print(sapDico)
+        #for (i in sapDico.key()):
+              
             
         #draw the trajectory in the second phase, with the object
         pool.loadDetection( start=32*oneMinute , end= 60*oneMinute )
         axes[n,1]
         pool.animalDictionnary[1].plotTrajectory( show = False, title = "Second phase " )
-        axes[n,1].legend()
+        axes[n,1].legend().set_visible(False)
            
         n = n+1
     
-    fig.suptitle('Single object exploration') 
-    fig.show()
-    fig.savefig('single_obj_explo.pdf', transparent=False, dpi=80, bbox_inches="tight")     
+    fig.suptitle('Single object exploration', fontsize=14, fontweight='bold') 
+    plt.show()
+    #fig.savefig('single_obj_explo.pdf', transparent=False, dpi=80, bbox_inches="tight")     
        
