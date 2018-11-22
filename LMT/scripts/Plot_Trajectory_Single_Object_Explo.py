@@ -11,6 +11,14 @@ import sqlite3
 from database.Animal import *
 from tkinter.filedialog import askopenfilename
 
+def plot( ax , animal, title ):
+    xList, yList = animal.getTrajectoryData( )
+            
+    ax.plot( xList, yList, color=animal.getColor(), linestyle='-', linewidth=1, alpha=0.5, label= animal.name )
+    ax.set_title( title + " " + animal.RFID )
+    ax.legend().set_visible(False)
+    #ax.xlim(90, 420)
+    #ax.ylim(-370, -40)
 
 if __name__ == '__main__':
     
@@ -84,10 +92,12 @@ if __name__ == '__main__':
         pool.loadAnimals( connection )
             
         #draw the trajectory in the first phase, without the object
-        axes[n,0]
         pool.loadDetection( start=0 , end= 28*oneMinute )
-        pool.animalDictionnary[1].plotTrajectory( show = False, title = "First phase " )
-        axes[n,0].legend().set_visible(False)
+        
+        plot ( axes[n,0], pool.animalDictionnary[1] , title = "First phase" )
+        #pool.animalDictionnary[1].plotTrajectory( show = False, title = "First phase " )
+        #axes[n,0].legend().set_visible(False)
+        
         #add the frames where the animal is in SAP
         sapDico = pool.animalDictionnary[1].getSapDictionnary()
         print(sapDico)
@@ -96,9 +106,10 @@ if __name__ == '__main__':
             
         #draw the trajectory in the second phase, with the object
         pool.loadDetection( start=32*oneMinute , end= 60*oneMinute )
-        axes[n,1]
-        pool.animalDictionnary[1].plotTrajectory( show = False, title = "Second phase " )
-        axes[n,1].legend().set_visible(False)
+        #axes[n,1]
+        #pool.animalDictionnary[1].plotTrajectory( show = False, title = "Second phase " )
+        plot ( axes[n,1], pool.animalDictionnary[1] , title = "Second phase" )
+        #axes[n,1].legend().set_visible(False)
            
         n = n+1
     
