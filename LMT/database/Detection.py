@@ -14,14 +14,17 @@ class Detection():
         self.massX = massX
         self.massY = massY
         self.massZ = massZ
+        self.massPoint = Point( massX , massY )
             
         self.frontX = frontX
         self.frontY = frontY
         self.frontZ = frontZ
+        self.frontPoint = Point( frontX , frontY )
 
         self.backX = backX
         self.backY = backY
         self.backZ = backZ
+        self.backPoint = Point( backX , backY )
 
         self.rearing = rearing
         self.lookUp = lookUp
