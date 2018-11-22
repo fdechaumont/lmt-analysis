@@ -270,6 +270,34 @@ class Animal():
 
         p = Point( speedVectorX, speedVectorY )
         return p
+
+    def getFrontSpeed(self, t):
+        
+        a = self.detectionDictionnary.get( t-1 )
+        b = self.detectionDictionnary.get( t+1 )
+        
+        if a == None or b == None:
+            return None
+            
+        speedVectorX = a.frontX - b.frontX
+        speedVectorY = a.frontY - b.frontY
+
+        p = Point( speedVectorX, speedVectorY )
+        return p
+    
+    def getBackSpeed(self, t):
+        
+        a = self.detectionDictionnary.get( t-1 )
+        b = self.detectionDictionnary.get( t+1 )
+        
+        if a == None or b == None:
+            return None
+            
+        speedVectorX = a.backX - b.backX
+        speedVectorY = a.backY - b.backY
+
+        p = Point( speedVectorX, speedVectorY )
+        return p
     
     
     def getDistanceSpecZone(self, tmin=0, tmax=None, xa=None, ya=None, xb=None, yb=None):
