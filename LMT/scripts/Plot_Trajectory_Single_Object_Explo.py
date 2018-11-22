@@ -10,6 +10,10 @@ import numpy as np; np.random.seed(0)
 import sqlite3
 from database.Animal import *
 from tkinter.filedialog import askopenfilename
+from matplotlib.patches import Circle, Wedge, Polygon
+from matplotlib.collections import PatchCollection
+from database.Util import *
+
 
 def plot( ax , animal, title , color = None ):
     xList, yList = animal.getTrajectoryData( )
@@ -21,7 +25,16 @@ def plot( ax , animal, title , color = None ):
     ax.legend().set_visible(False)
     ax.set_xlim(90, 420)
     ax.set_ylim(-370, -40)
-
+    ax.axis('off')
+    
+def plotZone( ax, color, xa=114, xb=398, ya=-353, yb=-63 ):
+    ax.plot( [xa, xb, xb, xa, xa], [ya, ya, yb, yb, ya], color=color, linestyle='-', linewidth=1.5 )
+    #ax.plot( [120, 250, 250, 120, 120], [-210, -210, -340, -340, -210], color=color, linestyle='-', linewidth=1.5 )
+    #polygon=Polygon( [(120,-210), (250,-210), (250,-340), (120,-340), (120,-210)] )
+    #polygonZone=PatchCollection(polygon)
+    #ax.add_patch(polygonZone)
+    
+    
 def plotSap( ax , animal ):
 
     sapDico = animal.getSapDictionnary()
@@ -35,7 +48,7 @@ def plotSap( ax , animal ):
         xList.append( detection.massX )
         yList.append( -detection.massY )    
     color = "red"
-    ax.scatter( xList, yList,  color=color, alpha=0.5, label= "sap", s=20 )
+    ax.scatter( xList, yList,  color=color, alpha=1, label= "sap", s=20 )
     
 
 if __name__ == '__main__':
@@ -43,102 +56,64 @@ if __name__ == '__main__':
     print("Code launched.")
     
     files = askopenfilename( title="Choose a set of file to process", multiple=1 )
-    '''
-    for file in files:
-        connection = sqlite3.connect( file )
-         
-        pool = AnimalPool()
-        pool.loadAnimals( connection )
+    text_file = getFileNameInput()
         
-        plt.figure( 2, figsize=(13,6) )
-        
-        #draw the trajectory in the first phase, without the object
-        pool.loadDetection( start=0 , end= 28*oneMinute )
-        plt.subplot(121)
-        pool.animalDictionnary[1].plotTrajectory( show = False, title = "First phase " )
-        
-        
-        #draw the trajectory in the second phase, with the object
-        pool.loadDetection( start=32*oneMinute , end= 60*oneMinute )
-        plt.subplot(122)
-        pool.animalDictionnary[1].plotTrajectory( title = "Second phase " )
-        
-        plt.show()
-    '''
-    
-    '''
     nbFiles = len(files)
     print(nbFiles)
-    plt.figure( 2*nbFiles, figsize=(13,6*nbFiles) )
-        
-    n = 1
-    m = 1
-        
-    for file in files:
-        connection = sqlite3.connect( file )
-             
-        pool = AnimalPool()
-        pool.loadAnimals( connection )
-            
-        #draw the trajectory in the first phase, without the object
-        pool.loadDetection( start=0 , end= 28*oneMinute )
-        plt.subplot(n,2,m)
-        pool.animalDictionnary[1].plotTrajectory( show = False, title = "First phase " )
-            
-            
-        #draw the trajectory in the second phase, with the object
-        pool.loadDetection( start=32*oneMinute , end= 60*oneMinute )
-        plt.subplot(n,2,m+1)
-        pool.animalDictionnary[1].plotTrajectory( show = False, title = "Second phase " )
-           
-        n = n+1
-        m = m+2
-     
-    plt.show() 
-    '''
-    
-    nbFiles = len(files)
-    print(nbFiles)
-    fig, axes = plt.subplots( nrows = nbFiles, ncols = 2, figsize = (13,6*nbFiles) )
+    fig, axes = plt.subplots( nrows = nbFiles, ncols = 2, figsize = (8,8*nbFiles) )
 
     n = 0
+    resultDistance= []
         
     for file in files:
         connection = sqlite3.connect( file )
              
         pool = AnimalPool()
         pool.loadAnimals( connection )
+        animal = pool.animalDictionnary[1]
             
         #draw the trajectory in the first phase, without the object
-        pool.loadDetection( start=0 , end= 28*oneMinute )
-        
-        animal = pool.animalDictionnary[1]
-        
+        pool.loadDetection( start=0 , end=28*oneMinute )
+        plotZone(axes[n,0], color='orange') #whole cage
+        plotZone(axes[n,0], color='blue', xa=120, xb=250, ya=-210, yb=-340) #object zone
         plot ( axes[n,0], animal , title = "First phase" , color ="black")
-        #pool.animalDictionnary[1].plotTrajectory( show = False, title = "First phase " )
-        #axes[n,0].legend().set_visible(False)
-        
         #add the frames where the animal is in SAP
-        
         plotSap( axes[n,0], animal )
-        
-        #axes[n,0].scatter( 200, -300, color="red", s=200 )
-        
-        #print(sapDico)
-        #for (i in sapDico.key()):
-              
+        dt1 = animal.getDistance( 0 , 28*oneMinute )
+        d1 = animal.getDistanceSpecZone( 0 , 28*oneMinute , xa=143, ya=190, xb=270, yb=317 )
+        t1 = animal.getCountFramesSpecZone( 0*oneMinute , 28*oneMinute , xa=143, ya=190, xb=270, yb=317)
+        sap1=len(animal.getSap(tmin=0, tmax=28*oneMinute, xa=143, ya=190, xb=270, yb=317))
+        print(sap1)
+                   
             
         #draw the trajectory in the second phase, with the object
-        pool.loadDetection( start=32*oneMinute , end= 60*oneMinute )
-        #axes[n,1]
-        #pool.animalDictionnary[1].plotTrajectory( show = False, title = "Second phase " )
+        pool.loadDetection( start=32*oneMinute , end=60*oneMinute )
+        plotZone(axes[n,1], color='orange') #whole cage
+        plotZone(axes[n,1], color='blue', xa=120, xb=250, ya=-210, yb=-340) #object zone
         plot ( axes[n,1], animal, title = "Second phase", color ="black" )
+        
+        #add the frames where the animal is in SAP
         plotSap( axes[n,1], animal )
-        #axes[n,1].legend().set_visible(False)
-           
+        dt2 = animal.getDistance( 32*oneMinute , 60*oneMinute )
+        d2 = animal.getDistanceSpecZone( 32*oneMinute , 60*oneMinute , xa=143, ya=190, xb=270, yb=317 )
+        t = animal.getCountFramesSpecZone( 32*oneMinute , 60*oneMinute , xa=143, ya=190, xb=270, yb=317)
+        t2 = animal.getCountFramesSpecZone( 32*oneMinute , 60*oneMinute , xa=143, ya=190, xb=270, yb=317)
+        sap2=len(animal.getSap(tmin=32*oneMinute, tmax=60*oneMinute, xa=143, ya=190, xb=270, yb=317))
+        print(sap2) 
+                  
         n = n+1
-    
+        
+        res = [animal.RFID, animal.genotype, animal.user1, d1*10/57, dt1*10/57, t1, sap1, d2*10/57, dt2*10/57, t2, sap2]
+        resultDistance.append(res)
+        text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, animal.RFID, animal.genotype, animal.user1, d1*10/57, dt1*10/57, t1, sap1, d2*10/57, dt2*10/57, t2, sap2 ) )
+        
     fig.suptitle('Single object exploration', fontsize=14, fontweight='bold') 
     plt.show()
-    #fig.savefig('single_obj_explo.pdf', transparent=False, dpi=80, bbox_inches="tight")     
+    fig.savefig('single_obj_explo.pdf', transparent=False, dpi=80, bbox_inches="tight")
+    
+    text_file.write( "\n" )
+    text_file.close()
+    
+
+   
        

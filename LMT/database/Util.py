@@ -27,6 +27,14 @@ def getMinTMaxTAndFileNameInput():
     
     return tmin,tmax,text_file
 
+def getFileNameInput():
+    
+    text_file_name = input("File name : ")
+    text_file_name = text_file_name+".txt"
+    text_file = open ( text_file_name, "w")
+    
+    return text_file
+
 def convert_to_d_h_m_s( frames ):
     """Return the tuple of days, hours, minutes and seconds."""
     seconds = frames / 30
