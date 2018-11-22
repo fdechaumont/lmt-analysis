@@ -39,6 +39,8 @@ if __name__ == '__main__':
         
         plt.show()
     '''
+    
+    '''
     nbFiles = len(files)
     print(nbFiles)
     plt.figure( 2*nbFiles, figsize=(13,6*nbFiles) )
@@ -66,4 +68,36 @@ if __name__ == '__main__':
         n = n+1
         m = m+2
      
-    plt.show()    
+    plt.show() 
+    '''
+    
+    nbFiles = len(files)
+    print(nbFiles)
+    fig, axes = plt.subplots( nrows = nbFiles, ncols = 2, figsize = (13,6*nbFiles) )
+
+    n = 0
+        
+    for file in files:
+        connection = sqlite3.connect( file )
+             
+        pool = AnimalPool()
+        pool.loadAnimals( connection )
+            
+        #draw the trajectory in the first phase, without the object
+        axes[n,0]
+        pool.loadDetection( start=0 , end= 28*oneMinute )
+        pool.animalDictionnary[1].plotTrajectory( show = False, title = "First phase " )
+        axes[n,0].legend()    
+            
+        #draw the trajectory in the second phase, with the object
+        pool.loadDetection( start=32*oneMinute , end= 60*oneMinute )
+        axes[n,1]
+        pool.animalDictionnary[1].plotTrajectory( show = False, title = "Second phase " )
+        axes[n,1].legend()
+           
+        n = n+1
+    
+    fig.suptitle('Single object exploration') 
+    fig.show()
+    fig.savefig('single_obj_explo.pdf', transparent=False, dpi=80, bbox_inches="tight")     
+       
