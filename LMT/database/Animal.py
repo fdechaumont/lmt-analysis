@@ -137,18 +137,20 @@ class Animal():
                 continue
             
             xList.append( [a.massX,b.massX] )
-            yList.append( [a.massY,b.massY] )
+            yList.append( [-a.massY,-b.massY] )
         
         return xList, yList
     
-    def plotTrajectory(self , show=True, color='k', maskingEventTimeLine=None ):
+    def plotTrajectory(self , show=True, color='k', maskingEventTimeLine=None, title = None ):
         
         print ("Draw trajectory of animal " + self.name )
         
         xList, yList = self.getTrajectoryData( maskingEventTimeLine )
             
         plt.plot( xList, yList, color=color, linestyle='-', linewidth=1, alpha=0.5, label= self.name )
-        plt.title( "Trajectory of " + self.name )
+        plt.title( title + self.RFID )
+        plt.xlim(90, 420)
+        plt.ylim(-370, -40)
         
         if ( show ):
             plt.show()    
