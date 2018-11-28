@@ -17,7 +17,7 @@ from database import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Build
     BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
     BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
     BuildEventOralSideSequence, CheckWrongAnimal,\
-    CorrectDetectionIntegrity
+    CorrectDetectionIntegrity, BuildEventRearCenterPeriphery
     
 from psutil import virtual_memory
 
@@ -79,9 +79,13 @@ def process( file ):
         chrono = Chronometer("Stop" )      
         BuildEventStop.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
         chrono.printTimeInS()
-        '''
+        
         chrono = Chronometer("Center/Periphery Zone" )      
         BuildEventCenterPeripheryLocation.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        chrono.printTimeInS()
+        '''
+        chrono = Chronometer("Rear Center/Periphery" )      
+        BuildEventRearCenterPeriphery.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
         chrono.printTimeInS()
         '''
         chrono = Chronometer("waterpoint" )      
