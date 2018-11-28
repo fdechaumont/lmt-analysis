@@ -21,7 +21,7 @@ def plot( ax , animal, title , color = None ):
 
     if ( color == None ):
         color = animal.getColor()
-    ax.plot( xList, yList, color=color, linestyle='-', linewidth=1, alpha=0.5, label= animal.name )
+    ax.plot( xList, yList, color=color, linestyle='-', linewidth=0.5, alpha=0.8, label= animal.name )
     ax.set_title( title + " " + animal.RFID )
     ax.legend().set_visible(False)
     ax.set_xlim(90, 420)
@@ -44,7 +44,7 @@ def plotSap( ax , animal ):
         xList.append( detection.massX )
         yList.append( -detection.massY )    
     color = "red"
-    ax.scatter( xList, yList,  color=color, alpha=1, label= "sap", s=20 )
+    ax.scatter( xList, yList,  color=color, alpha=1, label= "sap", s=10 )
     
 
 if __name__ == '__main__':
@@ -60,7 +60,9 @@ if __name__ == '__main__':
     text_file = getFileNameInput()
         
     nbFiles = len(files)
-    fig, axes = plt.subplots( nrows = nbFiles, ncols = 2, figsize = (13,8*nbFiles) )
+    fig, axes = plt.subplots( nrows = nbFiles, ncols = 2, figsize = (6,12*nbFiles) )
+    
+    plt.tight_layout(pad=2, h_pad=4, w_pad=0)
 
     n = 0
         
@@ -73,9 +75,10 @@ if __name__ == '__main__':
             
         #draw the trajectory in the first phase, without the object
         pool.loadDetection( start=0 , end=28*oneMinute )
-        plotZone(axes[n,0], colorEdge='yellow', colorFill='yellow') #whole cage
-        #plotZone(axes[n,0], colorEdge='blue', colorFill='blue', xa=120, xb=250, ya=-210, yb=-340) #object zone
+        plotZone(axes[n,1], colorEdge='lightgrey', colorFill='lightgrey' ) #whole cage
+        #plotZone(axes[n,0], colorEdge='dimgrey', colorFill='dimgrey', xa=120, xb=250, ya=-210, yb=-340) #object zone
         plot ( axes[n,0], animal , title = "First phase" , color ="black")
+        
         #add the frames where the animal is in SAP
         plotSap( axes[n,0], animal )
         dt1 = animal.getDistance( 0 , 28*oneMinute )
@@ -86,8 +89,8 @@ if __name__ == '__main__':
             
         #draw the trajectory in the second phase, with the object
         pool.loadDetection( start=32*oneMinute , end=60*oneMinute )
-        plotZone(axes[n,1], colorEdge='yellow', colorFill='yellow' ) #whole cage
-        plotZone(axes[n,1], colorEdge='blue', colorFill='blue', xa=120, xb=250, ya=-210, yb=-340) #object zone
+        plotZone(axes[n,1], colorEdge='lightgrey', colorFill='lightgrey' ) #whole cage
+        plotZone(axes[n,1], colorEdge='dimgrey', colorFill='dimgrey', xa=120, xb=250, ya=-210, yb=-340) #object zone
         plot ( axes[n,1], animal, title = "Second phase", color ="black" )
         #add the frames where the animal is in SAP
         plotSap( axes[n,1], animal )
