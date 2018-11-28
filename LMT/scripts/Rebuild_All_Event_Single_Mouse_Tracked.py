@@ -67,7 +67,7 @@ def process( file ):
             print("Caching load of animal detection done.")
 
         
-        '''
+        
         chrono = Chronometer("Move" )      
         BuildEventMove.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
         chrono.printTimeInS()
@@ -83,11 +83,11 @@ def process( file ):
         chrono = Chronometer("Center/Periphery Zone" )      
         BuildEventCenterPeripheryLocation.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
         chrono.printTimeInS()
-        '''
+        
         chrono = Chronometer("Rear Center/Periphery" )      
         BuildEventRearCenterPeriphery.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
         chrono.printTimeInS()
-        '''
+        
         chrono = Chronometer("waterpoint" )      
         BuildEventWaterPoint.reBuildEvent(connection, file, tmin=0, tmax=max_dur, pool = animalPool )
         chrono.printTimeInS()
@@ -99,7 +99,7 @@ def process( file ):
         chrono = Chronometer("sap" )      
         BuildEventSAP.reBuildEvent(connection,  file, tmin=0, tmax=max_dur , pool = animalPool )
         chrono.printTimeInS()
-        '''
+        
         chronoFullFile.printTimeInS()
         
         
