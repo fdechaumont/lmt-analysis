@@ -56,7 +56,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
             
         for t in dicA.keys():
             
-            if (dicA[t].checkPositionInZone(xa=149, xb=363, ya=318, yb=98) == True): 
+            if (dicA[t].isInZone(xa=149, xb=363, ya=318, yb=98) == True): 
                 resultCenter[t] = True
                 
             else:
