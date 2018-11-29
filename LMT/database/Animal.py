@@ -131,13 +131,13 @@ class Animal():
             
             a = self.detectionDictionnary.get( key )
             if ( a==None):
-                #xList.append( float('nan') )
-                #yList.append( float('nan') )
+                xList.append("NaN")
+                yList.append("NaN")
                 continue
             b = self.detectionDictionnary.get( key+1 )
             if ( b==None):
-                #xList.append( float('nan') )
-                #yList.append( float('nan') )
+                xList.append("NaN")
+                yList.append("NaN")
                 continue
             
             xList.append( [a.massX,b.massX] )
