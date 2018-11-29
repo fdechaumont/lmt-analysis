@@ -127,8 +127,13 @@ class Animal():
         xList = []
         yList = []
         
-        
+        previousKey = 0
         for key in keyList:
+            
+            if previousKey+1 != key:                
+                xList.append( [np.nan, np.nan] )
+                yList.append( [np.nan, np.nan] )
+                previousKey = key
             
             a = self.detectionDictionnary.get( key )
             if ( a==None):
@@ -145,6 +150,7 @@ class Animal():
             yList.append( [-a.massY,-b.massY] )
         
         return xList, yList
+    
     
     def plotTrajectory(self , show=True, color='k', maskingEventTimeLine=None, title = "" ):
         
