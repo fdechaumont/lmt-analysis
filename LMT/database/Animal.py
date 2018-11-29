@@ -128,6 +128,7 @@ class Animal():
         yList = []
         
         previousKey = 0
+
         for key in keyList:
             
             if previousKey+1 != key:                
