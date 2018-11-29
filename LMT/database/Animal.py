@@ -127,6 +127,7 @@ class Animal():
         xList = []
         yList = []
         
+        
         for key in keyList:
             
             a = self.detectionDictionnary.get( key )
