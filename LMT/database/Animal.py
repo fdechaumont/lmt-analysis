@@ -131,13 +131,13 @@ class Animal():
             
             a = self.detectionDictionnary.get( key )
             if ( a==None):
-                xList.append("NaN")
-                yList.append("NaN")
+                xList.append( [np.nan, np.nan] )
+                yList.append( [np.nan, np.nan] )
                 continue
             b = self.detectionDictionnary.get( key+1 )
             if ( b==None):
-                xList.append("NaN")
-                yList.append("NaN")
+                xList.append( [np.nan, np.nan] )
+                yList.append( [np.nan, np.nan] )
                 continue
             
             xList.append( [a.massX,b.massX] )
@@ -145,7 +145,7 @@ class Animal():
         
         return xList, yList
     
-    def plotTrajectory(self , show=True, color='k', maskingEventTimeLine=None, title = None ):
+    def plotTrajectory(self , show=True, color='k', maskingEventTimeLine=None, title = "" ):
         
         print ("Draw trajectory of animal " + self.name )
         
