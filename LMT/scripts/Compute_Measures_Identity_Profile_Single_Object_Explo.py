@@ -9,10 +9,7 @@ from database.Animal import *
 import matplotlib.pyplot as plt
 from database.Event import *
 from database.Measure import *
-from database import BuildEventTrain3, BuildEventTrain4, BuildEventFollowZone, BuildEventRear5, BuildEventFloorSniffing,\
-    BuildEventSocialApproach, BuildEventSocialEscape, BuildEventApproachContact,\
-    BuildEventApproachRear, BuildEventGroup2, BuildEventGroup3, BuildEventGroup4,\
-    BuildEventStop, BuildEventWaterPoint
+
 
 from tkinter.filedialog import askopenfilename
 from database.Util import getMinTMaxTAndFileNameInput
@@ -26,7 +23,7 @@ if __name__ == '__main__':
     print("Code launched.")
  
     
-    behaviouralEventOneMouse = ["Stop isolated", "Huddling", "Move isolated", "Rear isolated", "WallJump", "Look up", "Look down", "Water Zone"]
+    behaviouralEventOneMouse = ["Stop isolated", "Huddling", "Move isolated", "Rear isolated", "Rear in center", "Rear at periphery", "WallJump", "Look up", "Look down", "Water Zone", "Center Zone", "Periphery Zone"]
     
     files = askopenfilename( title="Choose a set of file to process", multiple=1 )
     tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
