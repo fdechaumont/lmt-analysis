@@ -110,6 +110,6 @@ if __name__ == '__main__':
     text_file.write( "\n" )
     text_file.close()
     
-
+    print("All jobs done")
    
        
