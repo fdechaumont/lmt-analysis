@@ -72,15 +72,27 @@ if __name__ == '__main__':
         pool = AnimalPool()
         pool.loadAnimals( connection )
         animal = pool.animalDictionnary[1]
+        
+        # set the axes. Check the number of file to get the dimension of axes and grab the correct ones. This makes it compatible with 1 or n files.
+        axLeft = None
+        axRight = None
+
+        if ( len(files) == 1 ):
+            axLeft = axes[0]
+            axRight = axes[1]
+        else:
+            axLeft = axes[n,0]
+            axRight = axes[n,1]
             
         #draw the trajectory in the first phase, without the object
         pool.loadDetection( start=0 , end=28*oneMinute )
-        plotZone(axes[n,1], colorEdge='lightgrey', colorFill='lightgrey' ) #whole cage
+        pool.filterDetectionByInstantSpeed( 0,70 );
+        plotZone(axRight, colorEdge='lightgrey', colorFill='lightgrey' ) #whole cage
         #plotZone(axes[n,0], colorEdge='dimgrey', colorFill='dimgrey', xa=120, xb=250, ya=-210, yb=-340) #object zone
-        plot ( axes[n,0], animal , title = "First phase" , color ="black")
+        plot ( axLeft, animal , title = "First phase" , color ="black")
         
         #add the frames where the animal is in SAP
-        plotSap( axes[n,0], animal )
+        plotSap( axLeft, animal )
         dt1 = animal.getDistance( 0 , 28*oneMinute )
         d1 = animal.getDistanceSpecZone( 0 , 28*oneMinute , xa=120, xb=250, ya=210, yb=340 )
         t1 = animal.getCountFramesSpecZone( 0*oneMinute , 28*oneMinute , xa=120, xb=250, ya=210, yb=340)
@@ -89,11 +101,12 @@ if __name__ == '__main__':
             
         #draw the trajectory in the second phase, with the object
         pool.loadDetection( start=32*oneMinute , end=60*oneMinute )
-        plotZone(axes[n,1], colorEdge='lightgrey', colorFill='lightgrey' ) #whole cage
-        plotZone(axes[n,1], colorEdge='dimgrey', colorFill='dimgrey', xa=120, xb=250, ya=-210, yb=-340) #object zone
-        plot ( axes[n,1], animal, title = "Second phase", color ="black" )
+        pool.filterDetectionByInstantSpeed( 0,70 );
+        plotZone(axRight, colorEdge='lightgrey', colorFill='lightgrey' ) #whole cage
+        plotZone(axRight, colorEdge='dimgrey', colorFill='dimgrey', xa=120, xb=250, ya=-210, yb=-340) #object zone
+        plot ( axRight, animal, title = "Second phase", color ="black" )
         #add the frames where the animal is in SAP
-        plotSap( axes[n,1], animal )
+        plotSap( axRight, animal )
         dt2 = animal.getDistance( 32*oneMinute , 60*oneMinute )
         d2 = animal.getDistanceSpecZone( 32*oneMinute , 60*oneMinute , xa=120, xb=250, ya=210, yb=340 )
         t2 = animal.getCountFramesSpecZone( 32*oneMinute , 60*oneMinute , xa=120, xb=250, ya=210, yb=340)

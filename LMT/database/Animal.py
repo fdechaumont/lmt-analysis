@@ -107,6 +107,29 @@ class Animal():
         
         print ( self.__str__(), " ", len( self.detectionDictionnary ) , " detections loaded in {} seconds.".format( chrono.getTimeInS( )) )
     
+    
+    def filterDetectionByInstantSpeed(self , minSpeed, maxSpeed ):
+        """
+        speed function in LMT use t-1 and t+1 detection to provide a result.
+        here we remove spurious tracking jump, so we check on t to t+1 frame.
+        speed is in cm per second
+        """
+        nbRemoved = 0
+        for key in sorted(self.detectionDictionnary.keys()):
+            a = self.detectionDictionnary.get( key )
+            b = self.detectionDictionnary.get( key+1 )
+                        
+            if ( b==None or a==None):
+                continue
+            
+            speed = math.hypot( a.massX - b.massX, a.massY - b.massY )*scaleFactor/(1/30)
+        
+            if ( speed > maxSpeed or speed < minSpeed ):
+                self.detectionDictionnary.pop( key )
+                nbRemoved+=1
+        
+        print( "Filtering Instant speed min:",minSpeed, "max:",maxSpeed, "number of detection removed:", nbRemoved )
+    
     def clearDetection(self):
         
         self.detectionDictionnary.clear()
@@ -128,22 +151,32 @@ class Animal():
         yList = []
         
         previousKey = 0
+        
+
         for key in keyList:
+            
+            #print ( "key:", key, "value", self.getSpeed( key ) , "previous:" , previousKey )
             
             if previousKey+1 != key:                
                 xList.append( [np.nan, np.nan] )
                 yList.append( [np.nan, np.nan] )
                 previousKey = key
+
+                #print("break previous")
+                continue
+            previousKey = key
             
             a = self.detectionDictionnary.get( key )
             if ( a==None):
                 xList.append( [np.nan, np.nan] )
                 yList.append( [np.nan, np.nan] )
+                #print("break none A")
                 continue
             b = self.detectionDictionnary.get( key+1 )
             if ( b==None):
                 xList.append( [np.nan, np.nan] )
                 yList.append( [np.nan, np.nan] )
+                #print("break none B")
                 continue
             
             xList.append( [a.massX,b.massX] )
@@ -769,7 +802,11 @@ class AnimalPool():
     def loadDetection (self , start = None, end=None , lightLoad = False ):
         for animal in self.animalDictionnary.keys():
             self.animalDictionnary[animal].loadDetection( start = start, end = end , lightLoad=lightLoad )
-        
+
+    def filterDetectionByInstantSpeed(self, minSpeed, maxSpeed):
+        for animal in self.animalDictionnary.keys():
+            self.animalDictionnary[animal].filterDetectionByInstantSpeed( minSpeed, maxSpeed )
+
     def getGenotypeList(self):
         
         genotype = {}
