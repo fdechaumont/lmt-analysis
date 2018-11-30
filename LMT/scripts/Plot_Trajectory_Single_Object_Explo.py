@@ -87,7 +87,7 @@ if __name__ == '__main__':
         #draw the trajectory in the first phase, without the object
         pool.loadDetection( start=0 , end=28*oneMinute )
         pool.filterDetectionByInstantSpeed( 0,70 );
-        plotZone(axRight, colorEdge='lightgrey', colorFill='lightgrey' ) #whole cage
+        plotZone(axLeft, colorEdge='lightgrey', colorFill='lightgrey' ) #whole cage
         #plotZone(axes[n,0], colorEdge='dimgrey', colorFill='dimgrey', xa=120, xb=250, ya=-210, yb=-340) #object zone
         plot ( axLeft, animal , title = "First phase" , color ="black")
         
