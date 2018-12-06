@@ -284,7 +284,7 @@ if __name__ == '__main__':
         ]
     '''
     
-    max_dur = oneMinute*240
+    maxT = oneMinute*240
     
     for file in files:
         graphIdentity( file )

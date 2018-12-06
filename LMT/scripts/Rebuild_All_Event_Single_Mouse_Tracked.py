@@ -29,7 +29,7 @@ from database.FileUtil import getFilesToProcess
 from database.EventTimeLineCache import flushEventTimeLineCache,\
     disableEventTimeLineCache
 
-max_dur = int ( 1.5*oneHour )
+maxT = int ( 1.5*oneHour )
 USE_CACHE_LOAD_DETECTION_CACHE = True
 
 class FileProcessException(Exception):
@@ -48,14 +48,14 @@ def process( file ):
                 
     try:
 
-        CheckWrongAnimal.check( connection, tmin=0, tmax=max_dur )
+        CheckWrongAnimal.check( connection, tmin=0, tmax=maxT )
         
         # Warning: this process will alter the database
-        #CorrectDetectionIntegrity.correct( connection, tmin=0, tmax=max_dur )
+        #CorrectDetectionIntegrity.correct( connection, tmin=0, tmax=maxT )
                         
         BuildDataBaseIndex.buildDataBaseIndex( connection, force=False )
             
-        BuildEventDetection.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        BuildEventDetection.reBuildEvent( connection, file, tmin=0, tmax=maxT )
 
         animalPool = None
         
@@ -63,41 +63,41 @@ def process( file ):
             print("Caching load of animal detection...")
             animalPool = AnimalPool( )
             animalPool.loadAnimals( connection )
-            animalPool.loadDetection( start = 0, end = max_dur )
+            animalPool.loadDetection( start = 0, end = maxT )
             print("Caching load of animal detection done.")
 
         
         
         chrono = Chronometer("Move" )      
-        BuildEventMove.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        BuildEventMove.reBuildEvent( connection, file, tmin=0, tmax=maxT )
         chrono.printTimeInS()
         
         chrono = Chronometer("Rear" )      
-        BuildEventRear5.reBuildEvent( connection, file, tmin=0, tmax=max_dur, pool = animalPool )
+        BuildEventRear5.reBuildEvent( connection, file, tmin=0, tmax=maxT, pool = animalPool )
         chrono.printTimeInS()
         
         chrono = Chronometer("Stop" )      
-        BuildEventStop.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        BuildEventStop.reBuildEvent( connection, file, tmin=0, tmax=maxT )
         chrono.printTimeInS()
         
         chrono = Chronometer("Center/Periphery Zone" )      
-        BuildEventCenterPeripheryLocation.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        BuildEventCenterPeripheryLocation.reBuildEvent( connection, file, tmin=0, tmax=maxT )
         chrono.printTimeInS()
         
         chrono = Chronometer("Rear Center/Periphery" )      
-        BuildEventRearCenterPeriphery.reBuildEvent( connection, file, tmin=0, tmax=max_dur )
+        BuildEventRearCenterPeriphery.reBuildEvent( connection, file, tmin=0, tmax=maxT )
         chrono.printTimeInS()
         
         chrono = Chronometer("waterpoint" )      
-        BuildEventWaterPoint.reBuildEvent(connection, file, tmin=0, tmax=max_dur, pool = animalPool )
+        BuildEventWaterPoint.reBuildEvent(connection, file, tmin=0, tmax=maxT, pool = animalPool )
         chrono.printTimeInS()
 
         chrono = Chronometer("wall jump" )      
-        BuildEventWallJump.reBuildEvent(connection, file, tmin=0, tmax=max_dur , pool = animalPool )
+        BuildEventWallJump.reBuildEvent(connection, file, tmin=0, tmax=maxT , pool = animalPool )
         chrono.printTimeInS()
 
         chrono = Chronometer("sap" )      
-        BuildEventSAP.reBuildEvent(connection,  file, tmin=0, tmax=max_dur , pool = animalPool )
+        BuildEventSAP.reBuildEvent(connection,  file, tmin=0, tmax=maxT , pool = animalPool )
         chrono.printTimeInS()
         
         chronoFullFile.printTimeInS()

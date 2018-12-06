@@ -25,7 +25,7 @@ import sys
 import traceback
 from database.FileUtil import getFilesToProcess
 
-max_dur = 3*oneDay
+maxT = 3*oneDay
 
 
 class FileProcessException(Exception):
@@ -59,7 +59,7 @@ def process( file ):
         print("Caching load of animal detection...")
         animalPool = AnimalPool( )
         animalPool.loadAnimals( connection )
-        animalPool.loadDetection( start = 0, end = max_dur )
+        animalPool.loadDetection( start = 0, end = maxT )
         print("Caching load of animal detection done.")
 
         text_file = open ( "bad orientation.txt", "a")
@@ -71,7 +71,7 @@ def process( file ):
             
             badOrientationTimeLine = EventTimeLine( None, "bad orientation auto" , animal.baseId , None , None , None , loadEvent=False )
             print ("Processing", animal )
-            for t in range( 0, max_dur ):
+            for t in range( 0, maxT ):
                 
                 orientation = animal.getOrientationVector( t )
                 speedVector = animal.getSpeedVector( t )
