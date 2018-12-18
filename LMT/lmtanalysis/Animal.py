@@ -130,6 +130,27 @@ class Animal():
         
         print( "Filtering Instant speed min:",minSpeed, "max:",maxSpeed, "number of detection removed:", nbRemoved )
     
+    def filterDetectionByArea(self, x1, y1, x2, y2 ):
+        '''
+        filter detection in the cage ( using centimeter, starting at top left of the cage )
+        '''
+        nbRemoved = 0
+        for key in sorted(self.detectionDictionnary.keys()):
+            a = self.detectionDictionnary.get( key )
+
+            if ( a==None):
+                continue
+            
+            x = (a.massX - cornerCoordinates50x50Area[0][0] )* scaleFactor
+            y = (a.massY - cornerCoordinates50x50Area[0][1] )* scaleFactor            
+        
+            if ( x < x1 or x > x2 or y < y1 or y > y2 ):
+                self.detectionDictionnary.pop( key )
+                nbRemoved+=1
+        
+        print( "Filtering area, number of detection removed:", nbRemoved )
+        
+        
     def clearDetection(self):
         
         self.detectionDictionnary.clear()
@@ -668,7 +689,9 @@ class Animal():
         
     
     def getCountFramesSpecZone(self, tmin=0, tmax=None, xa=None, ya=None, xb=None, yb=None):
-
+        '''
+        coordinates are in pixel
+        '''
         keyList = sorted(self.detectionDictionnary.keys())
         
         if ( tmax==None ):
@@ -807,6 +830,10 @@ class AnimalPool():
         for animal in self.animalDictionnary.keys():
             self.animalDictionnary[animal].filterDetectionByInstantSpeed( minSpeed, maxSpeed )
 
+    def filterDetectionByArea(self, x1, y1, x2, y2 ):
+        for animal in self.animalDictionnary.keys():
+            self.animalDictionnary[animal].filterDetectionByArea( x1, y1, x2, y2 )
+
     def getGenotypeList(self):
         
         genotype = {}
@@ -867,6 +894,8 @@ class AnimalPool():
                 axis.plot( xList, yList, color= animal.getColor() , linestyle='-', linewidth=1, alpha=0.5, label= animal.RFID )
                 
         axis.legend( handles = legendList , loc=1 )
+        axis.set_xlim(90, 420)
+        axis.set_ylim(-370, -40)
         
         #draw separated animals
         for animal in self.getAnimalList():
