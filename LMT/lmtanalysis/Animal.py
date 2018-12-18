@@ -257,7 +257,7 @@ class Animal():
             yList.append( a.massY )
             zList.append( a.massZ )
             
-        ax.plot(xList, yList, zList, label= "Trajectory of " )
+        ax.plot(xList, yList, zList, label= "3D Trajectory of " + self.RFID )
         ax.legend()
         
         plt.show()
