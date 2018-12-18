@@ -3,7 +3,7 @@ Created on 25 sept. 2018
 
 @author: Fab
 '''
-from database.Event import EventTimeLine
+from lmtanalysis.Event import EventTimeLine
 
 eventCacheDico_={}
 eventCacheEnable_ = True

@@ -5,13 +5,13 @@ Created on 13 sept. 2017
 '''
 
 import sqlite3
-from database.Animal import *
+from lmtanalysis.Animal import *
 import matplotlib.pyplot as plt
-from database.Event import *
-from database.Measure import *
+from lmtanalysis.Event import *
+from lmtanalysis.Measure import *
 import os
 from tkinter.filedialog import askopenfilename
-from database.Util import getMinTMaxTAndFileNameInput
+from lmtanalysis.Util import getMinTMaxTAndFileNameInput
 
 
 if __name__ == '__main__':

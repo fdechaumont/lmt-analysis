@@ -6,12 +6,12 @@ Created on 6 sept. 2017
 import sqlite3
 import unittest
 from time import *
-from database.Chronometer import Chronometer
+from lmtanalysis.Chronometer import Chronometer
 
 import matplotlib.pyplot as plt
 import numpy as np
 from turtledemo.penrose import start
-from database.Measure import *
+from lmtanalysis.Measure import *
 import sys
 
 class Event:

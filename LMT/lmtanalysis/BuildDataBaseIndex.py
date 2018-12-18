@@ -58,7 +58,7 @@ def buildDataBaseIndex( connection , force=False):
     
     
     # log process
-    from database.TaskLogger import TaskLogger
+    from lmtanalysis.TaskLogger import TaskLogger
     t = TaskLogger( connection )
     t.addLog( "Build DataBase Index" )
 

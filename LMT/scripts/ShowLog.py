@@ -7,7 +7,7 @@ Created on 13 sept. 2017
 import sqlite3
 
 from tkinter.filedialog import askopenfilename
-from database.TaskLogger import TaskLogger
+from lmtanalysis.TaskLogger import TaskLogger
 
 def process( file ):
 

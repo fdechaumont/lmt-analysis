@@ -3,7 +3,7 @@ Created on 13 sept. 2017
 
 @author: Fab
 '''
-from database.Point import Point
+from lmtanalysis.Point import Point
 
 ''' scale to convert distances from pixels to cm '''
 scaleFactor = 10/57

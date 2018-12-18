@@ -10,14 +10,14 @@ This script should be used to detect those animal in databases.
 import sqlite3
 from time import *
 
-from database.Animal import *
-from database.Detection import *
-from database.Measure import *
+from lmtanalysis.Animal import *
+from lmtanalysis.Detection import *
+from lmtanalysis.Measure import *
 import matplotlib.pyplot as plt
 import numpy as np
-from database.Event import *
-from database.Measure import *
-from database.Chronometer import Chronometer
+from lmtanalysis.Event import *
+from lmtanalysis.Measure import *
+from lmtanalysis.Chronometer import Chronometer
 
 
 def check( connection, tmin=None, tmax=None ): 
@@ -36,7 +36,7 @@ def check( connection, tmin=None, tmax=None ):
             print( "!!!! None animal detected with lmtanalysis id: " , animal.baseId ) 
     
     # log process
-    from database.TaskLogger import TaskLogger
+    from lmtanalysis.TaskLogger import TaskLogger
     t = TaskLogger( connection )
     t.addLog( "Correct wrong animal" , tmin=tmin, tmax=tmax )
 

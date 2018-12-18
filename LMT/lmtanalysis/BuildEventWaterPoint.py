@@ -5,13 +5,13 @@ Created on 6 sept. 2017
 '''
 import sqlite3
 from time import *
-from database.Chronometer import Chronometer
-from database.Animal import *
-from database.Detection import *
-from database.Measure import *
+from lmtanalysis.Chronometer import Chronometer
+from lmtanalysis.Animal import *
+from lmtanalysis.Detection import *
+from lmtanalysis.Measure import *
 import numpy as np
-from database.Event import *
-from database.Measure import *
+from lmtanalysis.Event import *
+from lmtanalysis.Measure import *
 from affine import Affine
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
@@ -59,7 +59,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     
         
     # log process
-    from database.TaskLogger import TaskLogger
+    from lmtanalysis.TaskLogger import TaskLogger
     t = TaskLogger( connection )
     t.addLog( "Build Event Water Point" , tmin=tmin, tmax=tmax )
 

@@ -17,14 +17,14 @@ After running this script detection at t without all identity recognized will be
 import sqlite3
 from time import *
 
-from database.Animal import *
-from database.Detection import *
-from database.Measure import *
+from lmtanalysis.Animal import *
+from lmtanalysis.Detection import *
+from lmtanalysis.Measure import *
 import matplotlib.pyplot as plt
 import numpy as np
-from database.Event import *
-from database.Measure import *
-from database.Chronometer import Chronometer
+from lmtanalysis.Event import *
+from lmtanalysis.Measure import *
+from lmtanalysis.Chronometer import Chronometer
 
 def loadDetectionMap( connection, idAnimalA, start=None, end=None ):
     
@@ -105,7 +105,7 @@ def correct( connection, tmin=None, tmax=None ):
     
     
     # log process
-    from database.TaskLogger import TaskLogger
+    from lmtanalysis.TaskLogger import TaskLogger
     t = TaskLogger( connection )
     t.addLog( "Correct detection integrity" , tmin=tmin, tmax=tmax )
 

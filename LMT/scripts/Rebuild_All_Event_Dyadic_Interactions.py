@@ -5,11 +5,11 @@ Created on 13 sept. 2017
 '''
 
 import sqlite3
-from database.Animal import *
+from lmtanalysis.Animal import *
 import matplotlib.pyplot as plt
-from database.Event import *
-from database.Measure import *
-from database import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, BuildEventFollowZone, BuildEventRear5, BuildEventFloorSniffing,\
+from lmtanalysis.Event import *
+from lmtanalysis.Measure import *
+from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, BuildEventFollowZone, BuildEventRear5, BuildEventFloorSniffing,\
     BuildEventSocialApproach, BuildEventSocialEscape, BuildEventApproachContact,BuildEventOralOralContact,\
     BuildEventApproachRear, BuildEventGroup2, BuildEventGroup3, BuildEventGroup4, BuildEventOralGenitalContact, \
     BuildEventStop, BuildEventWaterPoint, \

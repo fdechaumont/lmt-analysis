@@ -5,7 +5,7 @@ Created on 12 sept. 2017
 '''
 
 import math
-from database.Measure import *
+from lmtanalysis.Measure import *
 
 class Detection():
 

@@ -4,22 +4,22 @@ Created on 7 sept. 2017
 @author: Fab
 '''
 
-from database.Detection import *
+from lmtanalysis.Detection import *
 import matplotlib.pyplot as plt
-from database.Chronometer import *
+from lmtanalysis.Chronometer import *
 import matplotlib as mpl
 import numpy as np
 from mpl_toolkits.mplot3d import *
 import matplotlib.ticker
 import math
 import time
-from database.Measure import *
+from lmtanalysis.Measure import *
 from statistics import *
 from scipy.spatial import distance
 from scipy.ndimage.measurements import standard_deviation
 from statistics import mean
-from database.Event import EventTimeLine
-from database.Point import Point
+from lmtanalysis.Event import EventTimeLine
+from lmtanalysis.Point import Point
 import matplotlib.patches as mpatches
         
 

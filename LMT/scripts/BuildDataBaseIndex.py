@@ -6,7 +6,7 @@ Created on 13 sept. 2017
 
 import sqlite3
 
-from database.BuildDataBaseIndex import buildDataBaseIndex
+from lmtanalysis.BuildDataBaseIndex import buildDataBaseIndex
 from tkinter.filedialog import askopenfilename
 
 if __name__ == '__main__':
