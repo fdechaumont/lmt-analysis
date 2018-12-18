@@ -46,8 +46,8 @@ def process( file ):
     
     connection = sqlite3.connect( file )        
         
-    #t = TaskLogger( connection )
-    #t.addLog( "Rebuild all event launch" )
+    # TODO: flush events,
+    # recompute per segment of 24h.
 
     try:
 
