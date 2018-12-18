@@ -10,7 +10,7 @@ The purpose of this code is to remove those faulty situation by switching the id
 This script should not be ran if there is occlusion in the scene. This script assumes all animals could be watched all the time.
 
 WARNING: 
-This script alters the database:
+This script alters the lmtanalysis:
 After running this script detection at t without all identity recognized will be all switched to anonymous !
 
 '''

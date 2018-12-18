@@ -639,7 +639,7 @@ class EventTimeLine:
     
     def endRebuildEventTimeLine( self, connection ):
         '''
-        delete the old event timeline and save the new calculated one in the database
+        delete the old event timeline and save the new calculated one in the lmtanalysis
         '''
         if (len( self.eventList) == 0):
             print("no event")

@@ -12,7 +12,7 @@ def getNumberOfIndexOfDatabase( connection ):
     c.execute( query )
     rows = c.fetchall()
     nbIndex = len( rows )
-    print( "Number of index in database: ", nbIndex )
+    print( "Number of index in lmtanalysis: ", nbIndex )
     return nbIndex
 
 def executeLog( cursor, query):
@@ -25,7 +25,7 @@ def executeLog( cursor, query):
 
 def buildDataBaseIndex( connection , force=False):
 
-    print( "Creating database indexes...")
+    print( "Creating lmtanalysis indexes...")
 
     c = connection.cursor()            
 

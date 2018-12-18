@@ -2,7 +2,7 @@
 
 @author: Fab
 
-Loads log of process performed on a database
+Loads log of process performed on a lmtanalysis
 
 CREATE TABLE "LOG" (
     `id`    INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,

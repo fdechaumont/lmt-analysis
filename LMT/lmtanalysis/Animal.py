@@ -762,7 +762,7 @@ class AnimalPool():
         query = "SELECT * FROM ANIMAL"
         cursor.execute( query )
         field_names = [i[0] for i in cursor.description]
-        print ( "Fields available in database: " , field_names )
+        print ( "Fields available in lmtanalysis: " , field_names )
         
         #build query
         query = "SELECT "

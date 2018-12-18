@@ -53,7 +53,7 @@ def process( file ):
 
         CheckWrongAnimal.check( connection, tmin=0, tmax=maxT )
         
-        # Warning: this process will alter the database
+        # Warning: this process will alter the lmtanalysis
         #CorrectDetectionIntegrity.correct( connection, tmin=0, tmax=maxT )
                         
         BuildDataBaseIndex.buildDataBaseIndex( connection, force=False )

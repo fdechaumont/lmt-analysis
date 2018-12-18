@@ -33,7 +33,7 @@ def check( connection, tmin=None, tmax=None ):
     print("nb animals: " , nbAnimals )
     for animal in pool.getAnimalList():
         if ( animal.name == None ):
-            print( "!!!! None animal detected with database id: " , animal.baseId ) 
+            print( "!!!! None animal detected with lmtanalysis id: " , animal.baseId ) 
     
     # log process
     from database.TaskLogger import TaskLogger
