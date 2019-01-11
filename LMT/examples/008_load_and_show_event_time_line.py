@@ -29,9 +29,9 @@ if __name__ == '__main__':
         # load all detection (positions) of all animals for the first hour
         animalPool.loadDetection( start = 0, end = oneHour )
         
-        event = EventTimeLine( connection, "Oral-genital Contact", minFrame = 0, maxFrame = oneHour )
+        eventTimeLine = EventTimeLine( connection, "Oral-genital Contact", minFrame = 0, maxFrame = oneHour )
 
-        event.plotTimeLine()
+        eventTimeLine.plotTimeLine()
         
             
             
