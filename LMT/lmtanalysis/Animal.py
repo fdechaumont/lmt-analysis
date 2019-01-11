@@ -271,7 +271,7 @@ class Animal():
         t = 0
         while ( t < maxFrame ):
             distanceBin = self.getDistance( t , t+binFrameSize )
-            print( "Distance bin n:{} valeur:{}".format ( t , distanceBin ) )
+            print( "Distance bin n:{} value:{}".format ( t , distanceBin ) )
             distanceList.append( distanceBin )
             t=t+binFrameSize
         
@@ -279,6 +279,10 @@ class Animal():
      
         
     def getDistance(self , tmin=0, tmax= None ):
+        '''
+        Returns the distance traveled by the animal (in cm)        
+        '''
+        
         print("Compute total distance min:{} max:{} ".format( tmin , tmax ))
         keyList = sorted(self.detectionDictionnary.keys())
         
