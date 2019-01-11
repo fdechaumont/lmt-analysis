@@ -632,12 +632,13 @@ class EventTimeLine:
         
         fig, ax = plt.subplots()            
         ax.hlines( y, start, end, 'b', lw=4)
-        ax.text( 0 ,1.01,"TimeLine of {}".format( self.eventName ) ,fontsize=10,ha='left')
-        ax.annotate('Longest event ({})'.format( longestEvent.duration()), xy=( longestEvent.startFrame, 1), xytext=(longestEvent.startFrame, 0.95), arrowprops=dict(facecolor='black', shrink=0.05))
+        ax.text( 0 ,1.01,"TimeLine of {}".format( self.eventNameWithId ) ,fontsize=10,ha='left')
+        if ( longestEvent != None ):
+            ax.annotate('Longest event ({})'.format( longestEvent.duration()), xy=( longestEvent.startFrame, 1), xytext=(longestEvent.startFrame, 0.95), arrowprops=dict(facecolor='black', shrink=0.05))
         fig.show()
         plt.show()
     
-    def endRebuildEventTimeLine( self, connection ):
+    def endRebuildEventTimeLine( self, connection , deleteExistingEvent = False ):
         '''
         delete the old event timeline and save the new calculated one in the lmtanalysis
         '''
@@ -650,12 +651,15 @@ class EventTimeLine:
         
 
         print ( "Delete old entry in base: " + self.eventName )
-        deleteEventTimeLineInBase(connection, self.eventName, self.idA, self.idB, self.idC, self.idD )
+        
+        if deleteExistingEvent:
+            deleteEventTimeLineInBase(connection, self.eventName, self.idA, self.idB, self.idC, self.idD )
+        
         print ( "Saving timeLine: " + self.eventName + " ( " + str(len( self.eventList)) + " events )")
         self.saveTimeLine(connection)
-        #trainTimeLine.plotEventDurationDistributionBar(0, 2*oneHour)
-        #trainTimeLine.plotTimeLine()
     
+    def deleteEventTimeLineInBase( self , connection ):
+         deleteEventTimeLineInBase(connection, self.eventName, self.idA, self.idB, self.idC, self.idD )
         
     def getDensityEventInTimeBin(self, tmin=0, tmax=None, binSize=1*oneMinute):
         '''
@@ -816,7 +820,7 @@ def plotMultipleTimeLine( timeLineList , colorList=None , show=True , minValue=0
                 color = colorList[ timeLineList.index( timeLine ) ]
                 
             plt.hlines( y, start, end, color, lw=20)
-            plt.text( minValue ,1.0 + yOffset,"{}   ".format( timeLine.eventName ) ,fontsize=9,ha='right',va='center',label='test')
+            plt.text( minValue ,1.0 + yOffset,"{}   ".format( timeLine.eventNameWithId ) ,fontsize=9,ha='right',va='center',label='test')
         
         yOffset-=1
 
