@@ -103,7 +103,7 @@ class TaskLogger:
         cursor = self.conn.cursor()
         query = "INSERT INTO LOG( process,version,date,tmin,tmax) VALUES ( '{process}','{version}','{date}','{tmin}','{tmax}' );".format( process=process, version=version, date=date, tmin=tmin, tmax=tmax )
                     
-        #print( query )
+        print( query )
         cursor.execute( query )
         self.conn.commit()
         cursor.close()    
