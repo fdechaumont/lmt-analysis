@@ -16,9 +16,12 @@ from affine import Affine
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "Floor sniffing" )
 
 
-def reBuildEvent( connection, tmin, tmax ): 
+def reBuildEvent( connection, tmin, tmax , pool = None ): 
     '''
     Event Floor sniffing:
     - the animal is sniffing the floor

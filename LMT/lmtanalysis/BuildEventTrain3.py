@@ -14,11 +14,17 @@ import numpy as np
 from lmtanalysis.Event import *
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
+
 class Train2():
     
     def __init__(self, idA, idB ):
         self.idA = idA
         self.idB = idB
+
+
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "Train3" )
 
 def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ): 
 

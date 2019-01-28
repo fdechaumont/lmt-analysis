@@ -26,7 +26,12 @@ def distHeadHead( detA, detB ):
         return 100000
     
     return math.hypot( hx-bx, hy-by )
-    
+
+
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "Oral-oral Contact" )
+
 def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
     
     ''' use the pool provided or create it'''

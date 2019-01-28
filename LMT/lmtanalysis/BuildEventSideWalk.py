@@ -16,7 +16,10 @@ from affine import Affine
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
     
-    
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "SideWalk" )
+
 def projectVector( x1, y1, x2, y2 ):
     '''
     Project vector 1 on vector 2
@@ -64,7 +67,7 @@ def reBuildEvent( connection ):
     for idAnimalA in pool.animalDictionnary.keys():
         print(pool.animalDictionnary[idAnimalA])
                     
-        eventName = "SideWalk [{}]".format( idAnimalA )
+        eventName = "SideWalk".format( idAnimalA )
                 
         print ( eventName )
                 

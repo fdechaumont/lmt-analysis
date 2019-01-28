@@ -15,6 +15,11 @@ from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 from lmtanalysis.Chronometer import Chronometer
 
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "Detection" )
+    
+    
 def loadDetectionMap( connection, idAnimalA, start=None, end=None ):
     
         chrono = Chronometer("Build event detection: Load detection map")
@@ -45,7 +50,7 @@ def loadDetectionMap( connection, idAnimalA, start=None, end=None ):
         return result
 
 
-def reBuildEvent( connection, file, tmin=None, tmax=None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ): 
     
     pool = AnimalPool( )
     pool.loadAnimals( connection )

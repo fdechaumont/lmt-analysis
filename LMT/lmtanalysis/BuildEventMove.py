@@ -15,7 +15,14 @@ from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
-def reBuildEvent( connection, file, tmin=None, tmax=None ):
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "Move" )
+    deleteEventTimeLineInBase(connection, "Move isolated" )
+    deleteEventTimeLineInBase(connection, "Move in contact" )
+
+
+def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None  ):
     
     ''' 
     Animal A is stopped (built-in event):

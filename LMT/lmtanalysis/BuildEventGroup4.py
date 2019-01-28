@@ -15,7 +15,12 @@ from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
-def reBuildEvent( connection, file, tmin=None, tmax=None ):
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "Group4" )
+
+
+def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     '''
     four animals are in contact. (equivalent to group2 and group3)
     ''' 

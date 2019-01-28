@@ -16,6 +16,11 @@ from affine import Affine
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "Center Zone" )
+    deleteEventTimeLineInBase(connection, "Periphery Zone" )
+    
 
 def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
     

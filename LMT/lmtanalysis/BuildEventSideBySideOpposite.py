@@ -14,6 +14,11 @@ import numpy as np
 from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "Side by side Contact, opposite way" )
+
+
 def distHeadBack( detA, detB ):
     
     hx = detA.frontX

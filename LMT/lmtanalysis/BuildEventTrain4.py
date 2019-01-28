@@ -20,6 +20,10 @@ class Train2():
         self.idA = idA
         self.idB = idB
 
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "Train4" )
+
 def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ): 
 
     ''' use pool cache if available '''

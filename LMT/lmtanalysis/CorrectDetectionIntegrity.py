@@ -101,7 +101,7 @@ def correct( connection, tmin=None, tmax=None ):
     connection.commit()
     cursor.close()
     validDetectionTimeLine.reBuildWithDictionnary( validDetectionTimeLineDictionnary )
-    validDetectionTimeLine.endRebuildEventTimeLine(connection)
+    validDetectionTimeLine.endRebuildEventTimeLine(connection )
     
     
     # log process

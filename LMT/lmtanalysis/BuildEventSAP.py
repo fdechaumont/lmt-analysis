@@ -14,7 +14,11 @@ import numpy as np
 from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 
-def reBuildEvent( connection, file, tmin=None, tmax=None, showGraph = False, pool = None ): 
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "SAP" )
+
+def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , showGraph = False ): 
     
     ''' use the pool provided or create it'''
     if ( pool == None ):

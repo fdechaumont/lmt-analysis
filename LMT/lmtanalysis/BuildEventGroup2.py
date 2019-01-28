@@ -15,7 +15,12 @@ from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
-def reBuildEvent( connection, file, tmin=None, tmax=None ):
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "Group2" )
+
+
+def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None  ):
  
 
     pool = AnimalPool( )

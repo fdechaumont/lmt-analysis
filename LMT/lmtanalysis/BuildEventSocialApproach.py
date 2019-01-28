@@ -15,6 +15,11 @@ from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "Social approach" )
+
+
 def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
     
     ''' use the pool provided or create it'''

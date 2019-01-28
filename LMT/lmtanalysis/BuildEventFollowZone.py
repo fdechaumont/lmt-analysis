@@ -17,6 +17,10 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "FollowZone Isolated" )
+
 
 def line( x1, x2 , y1, y2 ):
     x1, y1 = [x1, y1], [x2, y2]    

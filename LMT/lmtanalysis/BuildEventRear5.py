@@ -17,6 +17,11 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "Rear isolated" )
+    deleteEventTimeLineInBase(connection, "Rear in contact" )
+
 
 def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
     

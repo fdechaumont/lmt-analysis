@@ -17,6 +17,10 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "seq oral oral - oral genital" )
+    deleteEventTimeLineInBase(connection, "seq oral geni - oral oral" )
 
 def reBuildEvent( connection, file,  tmin=None, tmax=None, pool = None ): 
     

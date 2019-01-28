@@ -15,6 +15,11 @@ from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "Social Escape" )
+
+
 def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
     
     ''' use the pool provided or create it'''
@@ -24,7 +29,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
         pool.loadDetection( start = tmin, end = tmax )
     
     nbAnimal = pool.getNbAnimals()
-    
+
+    # loading all the escape of animals    
     escapeDico = {}
     for idAnimalA in range( 1 , nbAnimal+1 ):
         for idAnimalB in range( 1 , nbAnimal+1 ):
@@ -69,7 +75,6 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
             socEscTimeLine.reBuildWithDictionnary( result )
             
             socEscTimeLine.endRebuildEventTimeLine(connection)
-    
         
     # log process
     from lmtanalysis.TaskLogger import TaskLogger

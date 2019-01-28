@@ -16,6 +16,9 @@ from affine import Affine
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 
+def flush( connection ):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "Water Zone" )
 
 
 def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
