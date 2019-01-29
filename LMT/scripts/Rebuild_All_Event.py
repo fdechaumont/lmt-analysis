@@ -33,11 +33,10 @@ from lmtanalysis.EventTimeLineCache import flushEventTimeLineCache,\
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
 ''' minT and maxT to process the analysis (in frame '''
-maxT = 15*oneMinute
 minT = 0
+maxT = 1*oneDay
 ''' time window to compute the events. '''
-
-windowT = 15*oneMinute #int (0.5*oneDay)
+windowT = 1*oneDay #int (0.5*oneDay)
 
 #windowT = 15*oneMinute
 
@@ -48,8 +47,7 @@ class FileProcessException(Exception):
 
 eventClassList = [
 
-                  BuildEventDetection,
-                  BuildEventNest4,
+                  BuildEventDetection,                  
                   BuildEventOralOralContact,
                   BuildEventOralGenitalContact,
                   BuildEventSideBySide,
@@ -73,10 +71,12 @@ eventClassList = [
                   BuildEventApproachContact,
                   BuildEventWallJump,
                   BuildEventSAP,
-                  BuildEventOralSideSequence
+                  BuildEventOralSideSequence,
+                  BuildEventNest3,
+                  BuildEventNest4
                    ]
 
-eventClassList = [ BuildEventNest4, BuildEventNest3 ]
+#eventClassList = [ BuildEventNest4, BuildEventNest3 ]
 
 
 def flushEvents( connection ):
