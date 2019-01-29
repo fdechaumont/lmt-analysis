@@ -34,9 +34,9 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
 ''' minT and maxT to process the analysis (in frame '''
 minT = 0
-maxT = 15*oneMinute
+maxT = 1*oneHour
 ''' time window to compute the events. '''
-windowT = 5*oneMinute #int (0.5*oneDay)
+windowT = 1*oneHour #int (0.5*oneDay)
 
 #windowT = 15*oneMinute
 
@@ -75,6 +75,8 @@ eventClassList = [
                   BuildEventNest3,
                   BuildEventNest4
                    ]
+
+
 
 #eventClassList = [ BuildEventApproachContact ]
 
