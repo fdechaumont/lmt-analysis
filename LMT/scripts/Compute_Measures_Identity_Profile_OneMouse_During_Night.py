@@ -5,18 +5,18 @@ Created on 13 sept. 2017
 '''
 
 import sqlite3
-from database.Animal import *
+from lmtanalysis.Animal import *
 import matplotlib.pyplot as plt
-from database.Event import *
-from database.Measure import *
-from database import BuildEventTrain3, BuildEventTrain4, BuildEventFollowZone, BuildEventRear5, BuildEventFloorSniffing,\
+from lmtanalysis.Event import *
+from lmtanalysis.Measure import *
+from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventFollowZone, BuildEventRear5, BuildEventFloorSniffing,\
     BuildEventSocialApproach, BuildEventSocialEscape, BuildEventApproachContact,\
     BuildEventApproachRear, BuildEventGroup2, BuildEventGroup3, BuildEventGroup4,\
     BuildEventStop, BuildEventWaterPoint
 
 from tkinter.filedialog import askopenfilename
-from database.Util import getMinTMaxTAndFileNameInput
-from database.EventTimeLineCache import EventTimeLineCached
+from lmtanalysis.Util import getMinTMaxTAndFileNameInput
+from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
 
 

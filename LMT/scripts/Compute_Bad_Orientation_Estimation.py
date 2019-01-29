@@ -5,11 +5,11 @@ Created on 13 sept. 2017
 '''
 
 import sqlite3
-from database.Animal import *
+from lmtanalysis.Animal import *
 import matplotlib.pyplot as plt
-from database.Event import *
-from database.Measure import *
-from database import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, BuildEventFollowZone, BuildEventRear5, BuildEventFloorSniffing,\
+from lmtanalysis.Event import *
+from lmtanalysis.Measure import *
+from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, BuildEventFollowZone, BuildEventRear5, BuildEventFloorSniffing,\
     BuildEventSocialApproach, BuildEventSocialEscape, BuildEventApproachContact,BuildEventOralOralContact,\
     BuildEventApproachRear, BuildEventGroup2, BuildEventGroup3, BuildEventGroup4, BuildEventOralGenitalContact, \
     BuildEventStop, BuildEventWaterPoint, \
@@ -20,12 +20,12 @@ from database import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Build
     CorrectDetectionIntegrity
     
 
-from database.TaskLogger import TaskLogger
+from lmtanalysis.TaskLogger import TaskLogger
 import sys
 import traceback
-from database.FileUtil import getFilesToProcess
+from lmtanalysis.FileUtil import getFilesToProcess
 
-max_dur = 3*oneDay
+maxT = 3*oneDay
 
 
 class FileProcessException(Exception):
@@ -59,7 +59,7 @@ def process( file ):
         print("Caching load of animal detection...")
         animalPool = AnimalPool( )
         animalPool.loadAnimals( connection )
-        animalPool.loadDetection( start = 0, end = max_dur )
+        animalPool.loadDetection( start = 0, end = maxT )
         print("Caching load of animal detection done.")
 
         text_file = open ( "bad orientation.txt", "a")
@@ -71,7 +71,7 @@ def process( file ):
             
             badOrientationTimeLine = EventTimeLine( None, "bad orientation auto" , animal.baseId , None , None , None , loadEvent=False )
             print ("Processing", animal )
-            for t in range( 0, max_dur ):
+            for t in range( 0, maxT ):
                 
                 orientation = animal.getOrientationVector( t )
                 speedVector = animal.getSpeedVector( t )

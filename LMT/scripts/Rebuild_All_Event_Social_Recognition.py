@@ -5,11 +5,11 @@ Created on 13 sept. 2017
 '''
 
 import sqlite3
-from database.Animal import *
+from lmtanalysis.Animal import *
 import matplotlib.pyplot as plt
-from database.Event import *
-from database.Measure import *
-from database import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, BuildEventFollowZone, BuildEventRear5, BuildEventFloorSniffing,\
+from lmtanalysis.Event import *
+from lmtanalysis.Measure import *
+from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, BuildEventFollowZone, BuildEventRear5, BuildEventFloorSniffing,\
     BuildEventSocialApproach, BuildEventSocialEscape, BuildEventApproachContact,BuildEventOralOralContact,\
     BuildEventApproachRear, BuildEventGroup2, BuildEventGroup3, BuildEventGroup4, BuildEventOralGenitalContact, \
     BuildEventStop, BuildEventWaterPoint, \
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     files = askopenfilename( title="Choose a set of file to process", multiple=1 )
     #files = [ "c:/testbase/valid4.sqlite" ]    
     
-    max_dur = 3*oneMinute
+    maxT = 3*oneMinute
     
     '''oneMinute*240'''
     
@@ -48,38 +48,38 @@ if __name__ == '__main__':
 
         BuildDataBaseIndex.buildDataBaseIndex( connection )
     
-        BuildEventDetection.reBuildEvent( connection, tmin=0, tmax=max_dur )
+        BuildEventDetection.reBuildEvent( connection, tmin=0, tmax=maxT )
 
-        BuildEventOralOralContact.reBuildEvent( connection, tmin=0, tmax=max_dur )        
-        BuildEventOralGenitalContact.reBuildEvent( connection, tmin=0, tmax=max_dur )
+        BuildEventOralOralContact.reBuildEvent( connection, tmin=0, tmax=maxT )        
+        BuildEventOralGenitalContact.reBuildEvent( connection, tmin=0, tmax=maxT )
         
-        BuildEventSideBySide.reBuildEvent( connection, tmin=0, tmax=max_dur )        
-        BuildEventSideBySideOpposite.reBuildEvent( connection, tmin=0, tmax=max_dur )        
+        BuildEventSideBySide.reBuildEvent( connection, tmin=0, tmax=maxT )        
+        BuildEventSideBySideOpposite.reBuildEvent( connection, tmin=0, tmax=maxT )        
 
-        BuildEventTrain2.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        BuildEventTrain3.reBuildEvent( connection, tmin=0, tmax=max_dur )   
+        BuildEventTrain2.reBuildEvent( connection, tmin=0, tmax=maxT )
+        BuildEventTrain3.reBuildEvent( connection, tmin=0, tmax=maxT )   
 
                  
-        BuildEventMove.reBuildEvent( connection, tmin=0, tmax=max_dur )
+        BuildEventMove.reBuildEvent( connection, tmin=0, tmax=maxT )
            
 
-        BuildEventRear5.reBuildEvent( connection, tmin=0, tmax=max_dur )
+        BuildEventRear5.reBuildEvent( connection, tmin=0, tmax=maxT )
         
-        BuildEventSocialApproach.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        BuildEventSocialEscape.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        BuildEventApproachRear.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        BuildEventGroup2.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        BuildEventGroup3.reBuildEvent( connection, tmin=0, tmax=max_dur )
+        BuildEventSocialApproach.reBuildEvent( connection, tmin=0, tmax=maxT )
+        BuildEventSocialEscape.reBuildEvent( connection, tmin=0, tmax=maxT )
+        BuildEventApproachRear.reBuildEvent( connection, tmin=0, tmax=maxT )
+        BuildEventGroup2.reBuildEvent( connection, tmin=0, tmax=maxT )
+        BuildEventGroup3.reBuildEvent( connection, tmin=0, tmax=maxT )
 
-        BuildEventGroup3MakeBreak.reBuildEvent( connection, tmin=0, tmax=max_dur )
+        BuildEventGroup3MakeBreak.reBuildEvent( connection, tmin=0, tmax=maxT )
 
-        BuildEventStop.reBuildEvent( connection, tmin=0, tmax=max_dur )
+        BuildEventStop.reBuildEvent( connection, tmin=0, tmax=maxT )
 
-        BuildEventApproachContact.reBuildEvent( connection, tmin=0, tmax=max_dur )
-        BuildEventWallJump.reBuildEvent(connection, tmin=0, tmax=max_dur)
-        BuildEventSAP.reBuildEvent(connection,  tmin=0, tmax=max_dur)
+        BuildEventApproachContact.reBuildEvent( connection, tmin=0, tmax=maxT )
+        BuildEventWallJump.reBuildEvent(connection, tmin=0, tmax=maxT)
+        BuildEventSAP.reBuildEvent(connection,  tmin=0, tmax=maxT)
 
-        BuildEventOralSideSequence.reBuildEvent( connection, tmin=0, tmax=max_dur )
+        BuildEventOralSideSequence.reBuildEvent( connection, tmin=0, tmax=maxT )
 
              
     print( "*** ALL JOBS DONE ***")

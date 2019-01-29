@@ -8,11 +8,12 @@ Created on 21 nov. 2018
 import matplotlib.pyplot as plt
 import numpy as np; np.random.seed(0)
 import sqlite3
-from database.Animal import *
+from lmtanalysis.Animal import *
 from tkinter.filedialog import askopenfilename
 from matplotlib.patches import *
 from matplotlib.collections import PatchCollection
-from database.Util import *
+from lmtanalysis.Util import *
+from lmtanalysis.Measure import *
 from matplotlib import patches
 
 
