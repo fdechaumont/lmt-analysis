@@ -1,10 +1,11 @@
-'''
+﻿'''
 Created on 6 sept. 2017
 
 @author: Fab
 '''
 import sqlite3
 from time import *
+
 from lmtanalysis.Chronometer import Chronometer
 from lmtanalysis.Animal import *
 from lmtanalysis.Detection import *
@@ -124,6 +125,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     t.addLog( "Build Event Nest3" , tmin=tmin, tmax=tmax )
           
     
+
     print( "Rebuild event finished." )
         
     
