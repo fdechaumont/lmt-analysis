@@ -21,10 +21,14 @@ def flush( connection ):
 
 def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ): 
     
-    pool = AnimalPool( )
-    pool.loadAnimals( connection )
+    #pool = AnimalPool( )
+    #pool.loadAnimals( connection )
     #pool.loadDetection( start = tmin, end = tmax )
-    
+    if ( pool == None ):
+        pool = AnimalPool( )
+        pool.loadAnimals( connection )
+        pool.loadDetection( start = tmin, end = tmax , lightLoad=True )
+        
     contactDicoDico = {}
     approachDico = {}
     for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):

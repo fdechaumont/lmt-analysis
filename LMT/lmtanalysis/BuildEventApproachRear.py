@@ -26,9 +26,15 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     Rearings are considered "in contact" given that the computation is done on the last second of an approach.
     ''' 
     
-    pool = AnimalPool( )
-    pool.loadAnimals( connection )
+    #pool = AnimalPool( )
+    #pool.loadAnimals( connection )
     #pool.loadDetection( start = tmin, end = tmax )
+    
+    if ( pool == None ):
+        pool = AnimalPool( )
+        pool.loadAnimals( connection )
+        pool.loadDetection( start = tmin, end = tmax , lightLoad=True )
+        
     
     rearDico = {}
     approachDico = {}

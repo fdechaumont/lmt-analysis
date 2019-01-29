@@ -45,7 +45,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , showGrap
             
         SAPTimeLine.reBuildWithDictionnary( result )
         SAPTimeLine.endRebuildEventTimeLine(connection)
-        animal.clearDetection()
+        #animal.clearDetection()
     
         
     # log process
