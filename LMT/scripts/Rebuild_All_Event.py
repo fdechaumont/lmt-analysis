@@ -36,7 +36,7 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 maxT = 1*oneDay
 minT = 0
 ''' time window to compute the events. '''
-windowT = 1*oneDay #int (0.5*oneDay)
+windowT = 6*oneHour #int (0.5*oneDay)
 #windowT = 15*oneMinute
 
 USE_CACHE_LOAD_DETECTION_CACHE = True
