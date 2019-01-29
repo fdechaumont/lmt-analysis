@@ -931,7 +931,7 @@ class AnimalPool():
         returns the timepoint of the last detection of all animals
         """
         maxFrame = 0
-        for animal in self.animalDictionnary:
+        for animal in self.getAnimalList():
             maxFrame = max( maxFrame, animal.getMaxDetectionT() )
         
         return maxFrame
