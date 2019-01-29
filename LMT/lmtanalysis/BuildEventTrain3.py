@@ -42,7 +42,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     this is a combination of Train2 events (train2 events must be calculated before this event)
     '''
     
-    deleteEventTimeLineInBase(connection, "Train3" )
+    #deleteEventTimeLineInBase(connection, "Train3" )
 
     ''' build a list of train 2 for each time point '''
     

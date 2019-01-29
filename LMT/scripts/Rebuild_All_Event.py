@@ -34,9 +34,9 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
 ''' minT and maxT to process the analysis (in frame '''
 minT = 0
-maxT = 1*oneDay
+maxT = 15*oneMinute
 ''' time window to compute the events. '''
-windowT = 1*oneDay #int (0.5*oneDay)
+windowT = 5*oneMinute #int (0.5*oneDay)
 
 #windowT = 15*oneMinute
 
@@ -76,7 +76,7 @@ eventClassList = [
                   BuildEventNest4
                    ]
 
-#eventClassList = [ BuildEventNest4, BuildEventNest3 ]
+#eventClassList = [ BuildEventApproachContact ]
 
 
 def flushEvents( connection ):
@@ -253,36 +253,37 @@ def process( file ):
         print("Full file process time: ")
         chronoFullFile.printTimeInS()
         
-        '''
+        TEST_WINDOWING_COMPUTATION = True
+        
+        if ( TEST_WINDOWING_COMPUTATION ):
                 
-        print("*************")
-        print("************* TEST START SECTION")
-        print("************* Test if results are the same with or without the windowing.")
+            print("*************")
+            print("************* TEST START SECTION")
+            print("************* Test if results are the same with or without the windowing.")
+            
+            # display and record to a file all events found, checking with rolling idA from None to 4. Save nbEvent and total len
+            
+            eventTimeLineList = []
+            
+            eventList = getAllEvents( connection )
+            file = open("outEvent"+str(windowT)+".txt","w")  
+            file.write( "Event name\nnb event\ntotal duration" )
+            
+            for eventName in eventList:
+                for idAnimalA in range( 0,5 ):                
+                        idA = idAnimalA 
+                        if idA == 0:
+                            idA = None
+                        timeLine = EventTimeLineCached( connection, file, eventName, idA,  minFrame=minT, maxFrame=maxT )
+                        eventTimeLineList.append( timeLine )
+                        file.write( timeLine.eventNameWithId+"\t"+str(len(timeLine.eventList))+"\t"+str(timeLine.getTotalLength())+"\n" )            
+            
+            file.close() 
+    
+            #plotMultipleTimeLine( eventTimeLineList )
+            
+            print("************* END TEST")
         
-        # display and record to a file all events found, checking with rolling idA from None to 4. Save nbEvent and total len
-        
-        eventTimeLineList = []
-        
-        eventList = getAllEvents( connection )
-        file = open("outEvent"+str(windowT)+".txt","w")  
-        file.write( "Event name\nnb event\ntotal duration" )
-        
-        for eventName in eventList:
-            for idAnimalA in range( 0,5 ):                
-                    idA = idAnimalA 
-                    if idA == 0:
-                        idA = None
-                    timeLine = EventTimeLineCached( connection, file, eventName, idA,  minFrame=minT, maxFrame=maxT )
-                    eventTimeLineList.append( timeLine )
-                    file.write( timeLine.eventNameWithId+"\t"+str(len(timeLine.eventList))+"\t"+str(timeLine.getTotalLength())+"\n" )            
-        
-        file.close() 
-
-        #plotMultipleTimeLine( eventTimeLineList )
-        
-        print("************* END TEST")
-        
-        '''
         
     except:
         
