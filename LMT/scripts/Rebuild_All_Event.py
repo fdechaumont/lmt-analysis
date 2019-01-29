@@ -17,7 +17,7 @@ from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Bu
     BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
     BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
     BuildEventOralSideSequence, CheckWrongAnimal,\
-    CorrectDetectionIntegrity
+    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3
     
 from psutil import virtual_memory
 
@@ -33,10 +33,12 @@ from lmtanalysis.EventTimeLineCache import flushEventTimeLineCache,\
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
 ''' minT and maxT to process the analysis (in frame '''
-maxT = 1*oneDay
+maxT = 15*oneMinute
 minT = 0
 ''' time window to compute the events. '''
-windowT = 6*oneHour #int (0.5*oneDay)
+
+windowT = 15*oneMinute #int (0.5*oneDay)
+
 #windowT = 15*oneMinute
 
 USE_CACHE_LOAD_DETECTION_CACHE = True
@@ -44,8 +46,10 @@ USE_CACHE_LOAD_DETECTION_CACHE = True
 class FileProcessException(Exception):
     pass
 
-eventClassList = [ 
+eventClassList = [
+
                   BuildEventDetection,
+                  BuildEventNest4,
                   BuildEventOralOralContact,
                   BuildEventOralGenitalContact,
                   BuildEventSideBySide,
@@ -70,8 +74,9 @@ eventClassList = [
                   BuildEventWallJump,
                   BuildEventSAP,
                   BuildEventOralSideSequence
-                  
                    ]
+
+eventClassList = [ BuildEventNest4, BuildEventNest3 ]
 
 
 def flushEvents( connection ):
@@ -248,12 +253,13 @@ def process( file ):
         print("Full file process time: ")
         chronoFullFile.printTimeInS()
         
-        print("*************")
+        '''
+                
         print("*************")
         print("************* TEST START SECTION")
-        print("*************")
+        print("************* Test if results are the same with or without the windowing.")
         
-        # display and record to a file all events found, cheching with rolling idA from None to 4. Save nbEvent and total len
+        # display and record to a file all events found, checking with rolling idA from None to 4. Save nbEvent and total len
         
         eventTimeLineList = []
         
@@ -275,6 +281,8 @@ def process( file ):
         #plotMultipleTimeLine( eventTimeLineList )
         
         print("************* END TEST")
+        
+        '''
         
     except:
         
