@@ -63,6 +63,13 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
         for idAnimalB in range( 1 , 5 ):
             if idAnimalA != idAnimalB:    
                 contact[idAnimalA,idAnimalB] = EventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionnary() #fait une matrice de tous les contacts à deux possibles
+    
+    stopDictionnary = {}
+        
+    for idAnimalA in range( 1 , 5 ):
+        stopDictionnary[idAnimalA] = EventTimeLineCached( connection, file, "Stop", idAnimalA, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+    
+    
     '''
     nest3TimeLine = {}
     
@@ -133,8 +140,16 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
             print( str( t ) + " : " + str ( largestCC ) + " / " + str( nbAnimalAtT ) )
             
             if largestCC == nbAnimalAtT :
-                isNest= True         
-            
+                
+                # check if animals in the nest are stopped.
+                allStoppedInBiggestGroup = True
+                for animal in animalDetectedList:
+                    if not ( t in stopDictionnary[animal.baseId] ):
+                        allStoppedInBiggestGroup = False
+                    break
+
+                if allStoppedInBiggestGroup:
+                    isNest= True                     
                      
         if isNest == True:
             print( "ADD PUNCTUAL")

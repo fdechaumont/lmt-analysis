@@ -42,7 +42,12 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     for idAnimalA in range( 1 , 5 ):
         for idAnimalB in range( 1 , 5 ):
             if idAnimalA != idAnimalB:    
-                contact[idAnimalA,idAnimalB] = EventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionnary() #fait une matrice de tous les contacts à deux possibles
+                contact[idAnimalA,idAnimalB] = EventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+
+    stopDictionnary = {}
+        
+    for idAnimalA in range( 1 , 5 ):
+        stopDictionnary[idAnimalA] = EventTimeLineCached( connection, file, "Stop", idAnimalA, minFrame=tmin, maxFrame=tmax ).getDictionnary()
     
     nest3TimeLine = {}
     
@@ -88,9 +93,18 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
         listCC = sorted(nx.connected_components( graph ), key=len, reverse=True)
         
         if ( len( listCC ) == 2 ): # we have 2 groups
-            if ( len( listCC[1] ) == 1 ): # the 2nd group (and the smallest) has only one mouse
-                animal = list(listCC[1])[0]                
-                result[ animal.baseId ][ t ] = True
+            
+            # check if animals in the biggest group are stopped.
+            allStoppedInBiggestGroup = True
+            for animal in list( listCC[0] ):
+                if not ( t in stopDictionnary[animal.baseId] ):
+                    allStoppedInBiggestGroup = False
+                    break
+                
+            if allStoppedInBiggestGroup:
+                if ( len( listCC[1] ) == 1 ): # the 2nd group (and the smallest) has only one mouse
+                    animal = list(listCC[1])[0]                
+                    result[ animal.baseId ][ t ] = True
                  
         
         '''
