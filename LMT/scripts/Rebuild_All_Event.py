@@ -74,7 +74,7 @@ eventClassList = [
                   BuildEventOralSideSequence
                    ]
 
-eventClassList = [ BuildEventDetection, BuildEventNest4, BuildEventNest3 ]
+eventClassList = [ BuildEventNest4, BuildEventNest3 ]
 
 
 def flushEvents( connection ):
@@ -252,11 +252,10 @@ def process( file ):
         chronoFullFile.printTimeInS()
         
         '''
-        
-        print("*************")
+                
         print("*************")
         print("************* TEST START SECTION")
-        print("*************")
+        print("************* Test if results are the same with or without the windowing.")
         
         # display and record to a file all events found, checking with rolling idA from None to 4. Save nbEvent and total len
         
