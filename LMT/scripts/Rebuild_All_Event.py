@@ -29,7 +29,7 @@ from database.FileUtil import getFilesToProcess
 from database.EventTimeLineCache import flushEventTimeLineCache,\
     disableEventTimeLineCache
 
-max_dur = 5*oneDay
+max_dur = 3*oneDay
 USE_CACHE_LOAD_DETECTION_CACHE = True
 
 class FileProcessException(Exception):
@@ -188,7 +188,7 @@ if __name__ == '__main__':
     availableMemoryGB = mem.total / 1000000000
     print( "Total memory on computer: (GB)", availableMemoryGB ) 
     
-    if availableMemoryGB < 16:
+    if availableMemoryGB < 24:
         print( "Not enough memory to use cache load of events.")
         disableEventTimeLineCache()
     
