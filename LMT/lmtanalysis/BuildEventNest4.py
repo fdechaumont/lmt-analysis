@@ -158,7 +158,10 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
             
             
     nest4TimeLine.reBuildWithDictionnary( result )
-    
+    # remove very small events
+    nest4TimeLine.removeEventsBelowLength( 2 )
+    # merge flashing events
+    nest4TimeLine.mergeCloseEvents( 3 )
     nest4TimeLine.endRebuildEventTimeLine(connection)
         
     
