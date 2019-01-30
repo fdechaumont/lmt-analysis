@@ -32,10 +32,10 @@ from lmtanalysis.EventTimeLineCache import flushEventTimeLineCache,\
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
 ''' minT and maxT to process the analysis (in frame '''
-maxT = 1*oneDay
+maxT = 3*oneDay
 minT = 0
 ''' time window to compute the events. '''
-windowT = 1*oneDay #int (0.5*oneDay)
+windowT = 3*oneDay #int (0.5*oneDay)
 #windowT = 15*oneMinute
 
 USE_CACHE_LOAD_DETECTION_CACHE = True

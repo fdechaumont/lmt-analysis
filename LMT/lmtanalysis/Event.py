@@ -556,6 +556,15 @@ class EventTimeLine:
             return NaN
         else:
             return sum/nb
+    
+    def getStandardDEviationEventLength(self):
+        sd=0
+        durationList=[]
+        for event in self.eventList:
+            durationList.append( event.duration() )
+        
+        sd = np.std( durationList )
+        return sd
         
     def getMaxEventLength(self):
         maxi=0
