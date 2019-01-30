@@ -32,7 +32,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     animals are moving    
     '''
     
-    deleteEventTimeLineInBase(connection, "Train2" )
+    #deleteEventTimeLineInBase(connection, "Train2" )
     
 
                 

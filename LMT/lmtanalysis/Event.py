@@ -795,7 +795,7 @@ def deleteEventTimeLineInBase( connection, eventName, idA=None, idB=None, idC=No
     if ( idD != None ):
         query += " AND IDANIMALD={0}".format( idD )
     
-    #print(query)
+    print(query)
     
     cursor.execute( query )
     connection.commit()

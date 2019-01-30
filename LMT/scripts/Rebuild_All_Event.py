@@ -17,7 +17,7 @@ from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Bu
     BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
     BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
     BuildEventOralSideSequence, CheckWrongAnimal,\
-    CorrectDetectionIntegrity
+    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3
     
 from psutil import virtual_memory
 
@@ -29,11 +29,12 @@ from lmtanalysis.FileUtil import getFilesToProcess
 from lmtanalysis.EventTimeLineCache import flushEventTimeLineCache,\
     disableEventTimeLineCache
 
+
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
 ''' minT and maxT to process the analysis (in frame '''
-maxT = 3*oneDay
 minT = 0
+maxT = 1*oneHour
 ''' time window to compute the events. '''
 windowT = 3*oneDay #int (0.5*oneDay)
 #windowT = 15*oneMinute
@@ -43,8 +44,9 @@ USE_CACHE_LOAD_DETECTION_CACHE = True
 class FileProcessException(Exception):
     pass
 
-eventClassList = [ 
-                  BuildEventDetection,
+eventClassList = [
+
+                  BuildEventDetection,                  
                   BuildEventOralOralContact,
                   BuildEventOralGenitalContact,
                   BuildEventSideBySide,
@@ -68,9 +70,14 @@ eventClassList = [
                   BuildEventApproachContact,
                   BuildEventWallJump,
                   BuildEventSAP,
-                  BuildEventOralSideSequence
-                  
+                  BuildEventOralSideSequence,
+                  BuildEventNest3,
+                  BuildEventNest4
                    ]
+
+
+
+#eventClassList = [ BuildEventApproachContact ]
 
 
 def flushEvents( connection ):
@@ -247,33 +254,37 @@ def process( file ):
         print("Full file process time: ")
         chronoFullFile.printTimeInS()
         
-        print("*************")
-        print("*************")
-        print("************* TEST START SECTION")
-        print("*************")
+        TEST_WINDOWING_COMPUTATION = True
         
-        # display and record to a file all events found, cheching with rolling idA from None to 4. Save nbEvent and total len
+        if ( TEST_WINDOWING_COMPUTATION ):
+                
+            print("*************")
+            print("************* TEST START SECTION")
+            print("************* Test if results are the same with or without the windowing.")
+            
+            # display and record to a file all events found, checking with rolling idA from None to 4. Save nbEvent and total len
+            
+            eventTimeLineList = []
+            
+            eventList = getAllEvents( connection )
+            file = open("outEvent"+str(windowT)+".txt","w")  
+            file.write( "Event name\nnb event\ntotal duration" )
+            
+            for eventName in eventList:
+                for idAnimalA in range( 0,5 ):                
+                        idA = idAnimalA 
+                        if idA == 0:
+                            idA = None
+                        timeLine = EventTimeLineCached( connection, file, eventName, idA,  minFrame=minT, maxFrame=maxT )
+                        eventTimeLineList.append( timeLine )
+                        file.write( timeLine.eventNameWithId+"\t"+str(len(timeLine.eventList))+"\t"+str(timeLine.getTotalLength())+"\n" )            
+            
+            file.close() 
+    
+            #plotMultipleTimeLine( eventTimeLineList )
+            
+            print("************* END TEST")
         
-        eventTimeLineList = []
-        
-        eventList = getAllEvents( connection )
-        file = open("outEvent"+str(windowT)+".txt","w")  
-        file.write( "Event name\nnb event\ntotal duration" )
-        
-        for eventName in eventList:
-            for idAnimalA in range( 0,5 ):                
-                    idA = idAnimalA 
-                    if idA == 0:
-                        idA = None
-                    timeLine = EventTimeLineCached( connection, file, eventName, idA,  minFrame=minT, maxFrame=maxT )
-                    eventTimeLineList.append( timeLine )
-                    file.write( timeLine.eventNameWithId+"\t"+str(len(timeLine.eventList))+"\t"+str(timeLine.getTotalLength())+"\n" )            
-        
-        file.close() 
-
-        #plotMultipleTimeLine( eventTimeLineList )
-        
-        print("************* END TEST")
         
     except:
         
