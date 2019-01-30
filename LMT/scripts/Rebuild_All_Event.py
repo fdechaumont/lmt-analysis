@@ -38,8 +38,6 @@ maxT = 1*oneDay
 ''' time window to compute the events. '''
 windowT = 1*oneDay #int (0.5*oneDay)
 
-#windowT = 15*oneMinute
-
 USE_CACHE_LOAD_DETECTION_CACHE = True
 
 class FileProcessException(Exception):
