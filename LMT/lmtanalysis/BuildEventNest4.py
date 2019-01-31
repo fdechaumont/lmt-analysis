@@ -137,7 +137,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
             
             #print( str( t ) + " : " + str ( len( largestCC ) ) )
             
-            print( str( t ) + " : " + str ( largestCC ) + " / " + str( nbAnimalAtT ) )
+            #print( str( t ) + " : " + str ( largestCC ) + " / " + str( nbAnimalAtT ) )
             
             if largestCC == nbAnimalAtT :
                 
@@ -152,7 +152,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                     isNest= True                     
                      
         if isNest == True:
-            print( "ADD PUNCTUAL")
+            #print( "ADD PUNCTUAL")
             result[t] = True;
             
             
