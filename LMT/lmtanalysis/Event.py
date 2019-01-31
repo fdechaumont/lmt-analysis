@@ -446,6 +446,40 @@ class EventTimeLine:
             return
         if ( eventA != eventB ):
             self.mergeEvent( eventA, eventB )
+
+    def mergeCloseEvents( self, numberOfFrameBetweenEvent ):
+        '''
+        Merges events if they are distant of less or equal than numberOfFrame
+        '''
+        minT = self.getMinT()
+        maxT = self.getMaxT( )
+        
+        if ( self.getNbEvent() == 0 ):
+            print("No event in timeLine")
+            return
+        
+        eventDictionnary = self.getDictionnary( minT, maxT )
+
+        nbFrameOutOfEvent = 0        
+        lastEventEndFrame = minT
+        for t in range( minT , maxT+1 ):
+            #print( "t: " + str(t) )
+            if t in eventDictionnary:
+                
+                if nbFrameOutOfEvent > 0:
+                    if nbFrameOutOfEvent <= numberOfFrameBetweenEvent:
+                        # fill
+                        for tt in range ( lastEventEndFrame , t ):
+                            #print( "filling " + str( tt ))
+                            eventDictionnary[tt] = True
+                                
+                nbFrameOutOfEvent = 0
+                lastEventEndFrame = t
+            else:
+                nbFrameOutOfEvent += 1
+        
+        self.reBuildWithDictionnary( eventDictionnary )
+            
         
     def mergeEvent( self , eventA, eventB ):
         '''
@@ -556,6 +590,15 @@ class EventTimeLine:
             return NaN
         else:
             return sum/nb
+    
+    def getStandardDEviationEventLength(self):
+        sd=0
+        durationList=[]
+        for event in self.eventList:
+            durationList.append( event.duration() )
+        
+        sd = np.std( durationList )
+        return sd
         
     def getMaxEventLength(self):
         maxi=0
@@ -842,6 +885,27 @@ def plotMultipleTimeLine( timeLineList , colorList=None , show=True , minValue=0
 
 
 class TestEventTimeLine ( unittest.TestCase ):
+
+    def test_MergeCloseEvents(self):
+                
+        myEventTimeLine = EventTimeLine( None, "testEvent" , 1 , 2 , loadEvent=False )
+        myEventTimeLine.addEvent( Event( 50,55 ) )
+        myEventTimeLine.addEvent( Event( 60,65 ) )
+        
+        myEventTimeLine.addEvent( Event( 150,155 ) )
+        myEventTimeLine.addEvent( Event( 160,165 ) )
+        
+        myEventTimeLine.addEvent( Event( 250,255 ) )
+        myEventTimeLine.addEvent( Event( 261,265 ) )
+        # xxxxxXooooX
+        # 5    5    6
+        # 0    5    0
+        myEventTimeLine.mergeCloseEvents( 4 )
+        myEventTimeLine.printEventList()
+        print("---")
+                
+        result = ( myEventTimeLine.getNbEvent() == 4 ) 
+        self.assertEqual( result, True )
     
     def test_PuntualEvent(self):
                 
