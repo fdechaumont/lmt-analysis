@@ -137,7 +137,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
             
             #print( str( t ) + " : " + str ( len( largestCC ) ) )
             
-            print( str( t ) + " : " + str ( largestCC ) + " / " + str( nbAnimalAtT ) )
+            #print( str( t ) + " : " + str ( largestCC ) + " / " + str( nbAnimalAtT ) )
             
             if largestCC == nbAnimalAtT :
                 
@@ -152,13 +152,16 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                     isNest= True                     
                      
         if isNest == True:
-            print( "ADD PUNCTUAL")
+            #print( "ADD PUNCTUAL")
             result[t] = True;
             
             
             
     nest4TimeLine.reBuildWithDictionnary( result )
-    
+    # remove very small events
+    nest4TimeLine.removeEventsBelowLength( 2 )
+    # merge flashing events
+    nest4TimeLine.mergeCloseEvents( 3 )
     nest4TimeLine.endRebuildEventTimeLine(connection)
         
     

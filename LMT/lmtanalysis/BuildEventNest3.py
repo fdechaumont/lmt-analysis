@@ -126,6 +126,11 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     for idAnimalA in range( 1 , 5 ):
         # the id will be the one excluded from nest.
         nest3TimeLine[idAnimalA].reBuildWithDictionnary( result[idAnimalA] )
+        
+        # remove very small events
+        nest3TimeLine[idAnimalA].removeEventsBelowLength( 2 )
+        nest3TimeLine[idAnimalA].mergeCloseEvents( 3 )
+        
         nest3TimeLine[idAnimalA].endRebuildEventTimeLine(connection)
             
     #nest4TimeLine.reBuildWithDictionnary( result )

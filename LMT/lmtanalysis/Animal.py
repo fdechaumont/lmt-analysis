@@ -161,6 +161,10 @@ class Animal():
         """
         returns the timepoint of the last detection.
         """
+        '''
+        if len ( self.detectionDictionnary.keys() ) == 0:
+            return None
+        '''
         return sorted(self.detectionDictionnary.keys())[-1]
     
     def getTrajectoryData( self , maskingEventTimeLine=None ):
@@ -496,9 +500,9 @@ class Animal():
             bodySizeList.append(a.getBodySize())
             
         #verifier si ce calcul tourne bien:
-        mean = np.nanmean(bodySizeList) + np.nanstd(bodySizeList)
+        threshold = np.nanmean(bodySizeList) + np.nanstd(bodySizeList)
         
-        self.bodyThreshold = mean
+        self.bodyThreshold = threshold
         
         return self.bodyThreshold
     
