@@ -22,6 +22,8 @@ def flush( connection ):
 
 def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
     
+    print("STARTING SOCIAL ESCAPE")
+    
     ''' use the pool provided or create it'''
     if ( pool == None ):
         pool = AnimalPool( )
