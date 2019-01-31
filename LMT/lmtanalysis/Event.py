@@ -454,6 +454,10 @@ class EventTimeLine:
         minT = self.getMinT()
         maxT = self.getMaxT( )
         
+        if ( self.getNbEvent() == 0 ):
+            print("No event in timeLine")
+            return
+        
         eventDictionnary = self.getDictionnary( minT, maxT )
 
         nbFrameOutOfEvent = 0        
