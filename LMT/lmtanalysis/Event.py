@@ -529,6 +529,21 @@ class EventTimeLine:
         for event in self.eventList[:]:
             if ( event.endFrame < maxT ):
                 self.eventList.remove( event )
+
+    def keepOnlyEventCommonWithTimeLine(self , timeLineAnd ):
+        '''
+        perform a AND logic with timeLineAnd
+        '''
+        dico = self.getDictionnary()
+        andDico = timeLineAnd.getDictionnary()
+        andResult = {}
+        
+        for k in dico:
+            if k in andDico:
+                andResult[k] = True
+            
+        self.reBuildWithDictionnary( andResult )
+
     
     def removeEventOfTimeLine(self , timeLineToRemove ):
         '''
