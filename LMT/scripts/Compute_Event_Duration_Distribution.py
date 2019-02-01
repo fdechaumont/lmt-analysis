@@ -34,7 +34,7 @@ if __name__ == '__main__':
     tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
 
     
-    behaviouralEventOneMouse = ["Nest3"]
+    behaviouralEventOneMouse = ["Nest4"]
     
     
     for file in files:
@@ -54,7 +54,7 @@ if __name__ == '__main__':
             data =[]        
             for event in behavEventTimeLine.eventList:
                 data.append( event.duration() )
-            #behavEventTimeLine.plotEventDurationDistributionHist(nbBin=3000)
+            behavEventTimeLine.plotEventDurationDistributionHist(nbBin=3000)
             text_file.write( "{}\t{}\n".format ( file, data ) )
             
     text_file.write( "\n" )
