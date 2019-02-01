@@ -37,8 +37,13 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None  ):
     moveSourceTimeLine = {}
     
     for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
-        ''' Load source stop timeLine '''
+        ''' Load source stop timeLine and revert it to get the move timeline
+        If the animal is not detected, this will result in a move. To avoid this we mask with the detection.
+        '''
         moveSourceTimeLine[idAnimalA] = EventTimeLine( connection, "Stop", idAnimalA, minFrame=tmin, maxFrame=tmax, inverseEvent=True )
+        detectionTimeLine = EventTimeLine( connection, "Detection", idAnimalA, minFrame=tmin, maxFrame=tmax )
+        moveSourceTimeLine[idAnimalA].keepOnlyEventCommonWithTimeLine( detectionTimeLine )
+        
         ''' load contact dictionnary with whatever animal '''
         isInContactSourceDictionnary[idAnimalA] = EventTimeLineCached( connection, file, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax ).getDictionnary()
                     
