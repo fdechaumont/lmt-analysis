@@ -1,5 +1,5 @@
 '''
-Created on 13 sept. 2017
+Created on 08 fevrier 2019
 
 @author: Fab
 '''
@@ -35,36 +35,7 @@ from conda._vendor.toolz.itertoolz import diff
 
 class FileProcessException(Exception):
     pass
-
    
-def process( file ):
-    
-    connection = sqlite3.connect( file )     
-
-    print( "--------------")
-    print( "Current file: ", file )
-    print( "Loading existing events...")
-    nightTimeLine = EventTimeLine( connection, "night" , None, None, None , None )        
-    
-    print( "--------------")    
-    print( "Event list:" )
-    for event in nightTimeLine.eventList:
-        print( event )
-    print( "--------------")
-    
-    while True:
-        print( "Manually add night event:")
-        startFrame = input( "Start Frame (return to cancel):" )
-        if not startFrame.isdigit():
-            return
-        
-        endFrame = input( "End Frame (return to cancel):" )
-        if not endFrame.isdigit():
-            return
-        
-        nightTimeLine.addEvent( Event( int(startFrame), int(endFrame) ) )
-        nightTimeLine.endRebuildEventTimeLine(connection)
-
 if __name__ == '__main__':
     
     print("Code launched.")
@@ -149,24 +120,6 @@ if __name__ == '__main__':
     
     
     
-    # 1322697600.0
-
-    
-    
-    '''
-    files = getFilesToProcess()
-
-    chronoFullBatch = Chronometer("Full batch" )    
-        
-    if ( files != None ):
-    
-        for file in files:
-            try:
-                print ( "Processing file" , file )
-                process( file )
-            except FileProcessException:
-                print ( "STOP PROCESSING FILE " + file , file=sys.stderr  )
-    '''       
     print( "*** ALL JOBS DONE ***")
         
         
