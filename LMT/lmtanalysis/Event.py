@@ -367,6 +367,19 @@ class EventTimeLine:
                 
         return nbEvent
             
+            
+    def getTotalDurationEvent( self, tmin, tmax ):
+        '''
+        return total duration between min and max t value.
+        '''        
+        duration = 0
+        dicEvent = self.getDictionnary()
+        for t in range( tmin, tmax + 1):
+            if t in dicEvent:
+                duration+=1
+        
+        return duration
+    
     def getDurationEventInTimeBin(self, tmin=0, tmax=None, binSize=1*oneMinute):
         '''
         compute the proportion of frames within an event within a given time bin, to calculate the density
