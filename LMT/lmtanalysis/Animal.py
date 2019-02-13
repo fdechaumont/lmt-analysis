@@ -849,7 +849,8 @@ class AnimalPool():
         
         print ("Loading animals.")
         
-        cursor = conn.cursor()        
+        cursor = conn.cursor()
+        self.conn = conn        
     
         # Check the number of row available in base
         query = "SELECT * FROM ANIMAL"
@@ -1007,9 +1008,29 @@ class AnimalPool():
             mask = animal.getBinaryDetectionMask( t )
             mask.showMask( ax=ax )
         
-        plt.show()  
-            
+        plt.show()
         
+    def getParticleDictionnary(self , start, end ):
+        '''
+        return the number of particle per frame
+        '''  
+        
+        query = "SELECT * FROM FRAME WHERE FRAMENUMBER>={} AND FRAMENUMBER<={}".format( start, end )
+        
+        print ( "SQL Query: " + query )
+
+        cursor = self.conn.cursor()        
+        cursor.execute( query )
+        rows = cursor.fetchall()
+        cursor.close()
+        
+        particleDictionnary = {}    
+                        
+        for row in rows:
+            
+            particleDictionnary[ row[0] ] = row[2]
+            
+        return particleDictionnary
         
 
 
