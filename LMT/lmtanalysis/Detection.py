@@ -60,7 +60,7 @@ class Detection():
         '''
         angleDir = math.atan2(self.frontY-self.massY, self.frontX-self.massX)
         return angleDir
-    
+            
     
     def getDistanceTo (self, detectionB):
         '''
