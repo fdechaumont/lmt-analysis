@@ -8,7 +8,7 @@ Created on 29 ao�t 2018
 import glob
 from tkinter.dialog import Dialog
 from tkinter.filedialog import askopenfilename, askdirectory
-from tkinter import *
+import tkinter as tk
 import unittest
 
 '''
@@ -17,13 +17,14 @@ In case of folder, this use glob to recursively get all .sqlite files in sub fol
 '''
 def getFilesToProcess():
 
+
+    root = tk.Tk()
+    root.withdraw()
+    root.update()
+
     d = Dialog(
         title="Select input for processing", text="Select file(s) or folder for processing", bitmap = 'question',
         strings=('Files', 'Folder', 'Cancel'), default=0 )
-
-    root = Tk()
-    root.withdraw()
-    root.update()
 
     files = None    
     if(  d.num == 0 ):
