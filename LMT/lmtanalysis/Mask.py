@@ -54,7 +54,7 @@ class Mask():
         #print("uncompressed: ")
         uncompressed= zlib.decompress( b )
         
-        print ( uncompressed )
+        #print ( uncompressed )
                     
         self.pointsX= []
         self.pointsY= []

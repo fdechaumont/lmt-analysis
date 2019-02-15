@@ -243,10 +243,12 @@ class Animal():
         x = r * np.sin(theta)
         y = r * np.cos(theta)
         
+        '''
         print ( z )
         print ( r )
         print ( x )
         print ( y )
+        '''
         
         xList = []
         yList = []
@@ -767,6 +769,8 @@ class Animal():
         '''
         query = "SELECT DATA FROM DETECTION WHERE ANIMALID={} AND FRAMENUMBER={}".format( self.baseId , t )
 
+        print( "TEST")
+
         print( query )
         cursor = self.conn.cursor()
         cursor.execute( query )
@@ -783,7 +787,7 @@ class Animal():
         row = rows[0]        
         data = row[0]
         
-        print( data )
+        #print( data )        
         
         x = 0
         y = 0
