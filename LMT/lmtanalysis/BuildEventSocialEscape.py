@@ -33,13 +33,13 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     nbAnimal = pool.getNbAnimals()
 
     # loading all the escape of animals    
-    escapeDico = {}
+    getAwayDico = {}
     for idAnimalA in range( 1 , nbAnimal+1 ):
         for idAnimalB in range( 1 , nbAnimal+1 ):
             if ( idAnimalA == idAnimalB ):
                 continue
             
-            escapeDico[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Escape", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            getAwayDico[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Get away", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
 
     #cache mean body len
     twoMeanBodyLen = {}
@@ -60,7 +60,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
                            
             result={}
             
-            dicA = escapeDico[ idAnimalA , idAnimalB ].getDictionnary()
+            dicA = getAwayDico[ idAnimalA , idAnimalB ].getDictionnary()
             
             twoMeanBodyLengthB = twoMeanBodyLen[ idAnimalB ]
             
