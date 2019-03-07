@@ -37,12 +37,17 @@ def getFileNameInput():
 
 def convert_to_d_h_m_s( frames ):
     """Return the tuple of days, hours, minutes and seconds."""
-    seconds = frames / 30
+    #seconds = frames / 30
+    seconds, f = divmod( frames, 30)
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
+     
+    return days, hours, minutes, seconds, f    
 
-    return days, hours, minutes, seconds    
+def d_h_m_s_toText( t ):
+    """Return the d h m s f as text"""    
+    return "{} days {} hours {} minutes {} seconds {} frames".format( t[0],t[1],t[2],t[3],t[4] )
 
 def getDistanceBetweenPointInPx( x1 , y1, x2, y2 ):
     ''' return the distance between two points in pixel '''
