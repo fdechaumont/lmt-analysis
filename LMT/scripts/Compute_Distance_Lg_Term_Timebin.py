@@ -28,7 +28,7 @@ if __name__ == '__main__':
     '''
 
     
-    resultDistance= []
+    
     
     for file in files:
 
@@ -46,13 +46,13 @@ if __name__ == '__main__':
             
             print ( pool.animalDictionnary[animal].RFID )
 
-            dt = pool.animalDictionnary[animal].getDistancePerBin(binFrameSize = 20*oneMinute, maxFrame = tmax )
+            dt = pool.animalDictionnary[animal].getDistancePerBin(binFrameSize = 2*oneMinute, maxFrame = tmax )
             
             res = [file, pool.animalDictionnary[animal].RFID, pool.animalDictionnary[animal].genotype, pool.animalDictionnary[animal].user1, *dt]
-            resultDistance.append(res)
+            
             text_file.write( "{}\n".format( res ) ) 
         
-        #print(resultDistance)   
+           
     
     text_file.write( "\n" )
     text_file.close()
