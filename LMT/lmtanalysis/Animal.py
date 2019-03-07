@@ -5,6 +5,12 @@ Created on 7 sept. 2017
 '''
 
 from lmtanalysis.Detection import *
+
+#matplotlib fix for mac
+import matplotlib
+matplotlib.use('TkAgg')
+
+
 import matplotlib.pyplot as plt
 from lmtanalysis.Chronometer import *
 import matplotlib as mpl
@@ -151,7 +157,24 @@ class Animal():
                 nbRemoved+=1
         
         print( "Filtering area, number of detection removed:", nbRemoved )
+    
+    def filterDetectionByEventTimeLine( self, eventTimeLine ):
+        '''
+        filter detection using an event. Keep only what matches the event
+        '''
+        eventDic = eventTimeLine.getDictionnary()
+        nbRemoved = 0
+        for key in sorted( self.detectionDictionnary.keys() ):
+            a = self.detectionDictionnary.get( key )
+
+            if ( a==None):
+                continue
+
+            if not ( key in eventDic ):
+                self.detectionDictionnary.pop( key )        
+                nbRemoved+=1
         
+        print( "Filtering area, number of detection removed:", nbRemoved )
         
     def clearDetection(self):
         
@@ -908,6 +931,10 @@ class AnimalPool():
     def filterDetectionByArea(self, x1, y1, x2, y2 ):
         for animal in self.animalDictionnary.keys():
             self.animalDictionnary[animal].filterDetectionByArea( x1, y1, x2, y2 )
+
+    def filterDetectionByEventTimeLine(self, eventTimeLine ):
+        for animal in self.animalDictionnary.keys():
+            self.animalDictionnary[animal].filterDetectionByEventTimeLine( eventTimeLine )
 
     def getGenotypeList(self):
         

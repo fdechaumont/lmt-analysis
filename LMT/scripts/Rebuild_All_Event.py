@@ -17,7 +17,7 @@ from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Bu
     BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
     BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
     BuildEventOralSideSequence, CheckWrongAnimal,\
-    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3
+    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventFight, BuildEventGetAway
     
 from psutil import virtual_memory
 
@@ -57,6 +57,7 @@ eventClassList = [
                   BuildEventFollowZone,
                   BuildEventRear5,
                   BuildEventSocialApproach,
+                  BuildEventGetAway,
                   BuildEventSocialEscape,
                   BuildEventApproachRear,
                   BuildEventGroup2,
@@ -76,7 +77,7 @@ eventClassList = [
 
 
 
-#eventClassList = [ BuildEventApproachContact ]
+eventClassList = [ BuildEventGetAway, BuildEventSocialEscape ]
 
 
 def flushEvents( connection ):
@@ -97,7 +98,7 @@ def processTimeWindow( connection, currentMinT , currentMaxT ):
     # Warning: enabling this process (CorrectDetectionIntegrity) will alter the database permanently
     # CorrectDetectionIntegrity.correct( connection, tmin=0, tmax=maxT )
                             
-    BuildEventDetection.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT )
+    # BuildEventDetection.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT )
 
     animalPool = None
     
@@ -253,7 +254,7 @@ def process( file ):
         print("Full file process time: ")
         chronoFullFile.printTimeInS()
         
-        TEST_WINDOWING_COMPUTATION = True
+        TEST_WINDOWING_COMPUTATION = False
         
         if ( TEST_WINDOWING_COMPUTATION ):
                 
