@@ -76,6 +76,7 @@ class Detection():
             return None
         
         if (math.hypot( self.massX - detectionB.massX, self.massY - detectionB.massY ) > MAX_DISTANCE_THRESHOLD): #if the distance calculated between the two individuals is too large, discard
+            print("WARNING: Detection.getDistanceTo : Distance Max reached. returning None")
             return None
         
         else:

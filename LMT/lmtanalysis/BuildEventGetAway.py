@@ -82,6 +82,9 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
                     distStart = dAStart.getDistanceTo( dBStart )
                     distEnd = dAEnd.getDistanceTo( dBEnd )
                     
+                    if ( distStart == None or distEnd == None ):
+                        continue
+                    
                     if( distStart < distEnd ):
                         result[t] = True
             
