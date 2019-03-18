@@ -5,6 +5,12 @@ Created on 7 sept. 2017
 '''
 
 from lmtanalysis.Detection import *
+
+#matplotlib fix for mac
+import matplotlib
+matplotlib.use('TkAgg')
+
+
 import matplotlib.pyplot as plt
 from lmtanalysis.Chronometer import *
 import matplotlib as mpl
@@ -151,7 +157,24 @@ class Animal():
                 nbRemoved+=1
         
         print( "Filtering area, number of detection removed:", nbRemoved )
+    
+    def filterDetectionByEventTimeLine( self, eventTimeLine ):
+        '''
+        filter detection using an event. Keep only what matches the event
+        '''
+        eventDic = eventTimeLine.getDictionnary()
+        nbRemoved = 0
+        for key in sorted( self.detectionDictionnary.keys() ):
+            a = self.detectionDictionnary.get( key )
+
+            if ( a==None):
+                continue
+
+            if not ( key in eventDic ):
+                self.detectionDictionnary.pop( key )        
+                nbRemoved+=1
         
+        print( "Filtering area, number of detection removed:", nbRemoved )
         
     def clearDetection(self):
         
@@ -243,10 +266,12 @@ class Animal():
         x = r * np.sin(theta)
         y = r * np.cos(theta)
         
+        '''
         print ( z )
         print ( r )
         print ( x )
         print ( y )
+        '''
         
         xList = []
         yList = []
@@ -767,6 +792,8 @@ class Animal():
         '''
         query = "SELECT DATA FROM DETECTION WHERE ANIMALID={} AND FRAMENUMBER={}".format( self.baseId , t )
 
+        print( "TEST")
+
         print( query )
         cursor = self.conn.cursor()
         cursor.execute( query )
@@ -783,7 +810,7 @@ class Animal():
         row = rows[0]        
         data = row[0]
         
-        print( data )
+        #print( data )        
         
         x = 0
         y = 0
@@ -849,7 +876,8 @@ class AnimalPool():
         
         print ("Loading animals.")
         
-        cursor = conn.cursor()        
+        cursor = conn.cursor()
+        self.conn = conn        
     
         # Check the number of row available in base
         query = "SELECT * FROM ANIMAL"
@@ -903,6 +931,10 @@ class AnimalPool():
     def filterDetectionByArea(self, x1, y1, x2, y2 ):
         for animal in self.animalDictionnary.keys():
             self.animalDictionnary[animal].filterDetectionByArea( x1, y1, x2, y2 )
+
+    def filterDetectionByEventTimeLine(self, eventTimeLine ):
+        for animal in self.animalDictionnary.keys():
+            self.animalDictionnary[animal].filterDetectionByEventTimeLine( eventTimeLine )
 
     def getGenotypeList(self):
         
@@ -1007,9 +1039,29 @@ class AnimalPool():
             mask = animal.getBinaryDetectionMask( t )
             mask.showMask( ax=ax )
         
-        plt.show()  
-            
+        plt.show()
         
+    def getParticleDictionnary(self , start, end ):
+        '''
+        return the number of particle per frame
+        '''  
+        
+        query = "SELECT * FROM FRAME WHERE FRAMENUMBER>={} AND FRAMENUMBER<={}".format( start, end )
+        
+        print ( "SQL Query: " + query )
+
+        cursor = self.conn.cursor()        
+        cursor.execute( query )
+        rows = cursor.fetchall()
+        cursor.close()
+        
+        particleDictionnary = {}    
+                        
+        for row in rows:
+            
+            particleDictionnary[ row[0] ] = row[2]
+            
+        return particleDictionnary
         
 
 

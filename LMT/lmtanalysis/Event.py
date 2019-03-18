@@ -8,6 +8,10 @@ import unittest
 from time import *
 from lmtanalysis.Chronometer import Chronometer
 
+#matplotlib fix for mac
+import matplotlib
+matplotlib.use('TkAgg')
+
 import matplotlib.pyplot as plt
 import numpy as np
 from turtledemo.penrose import start
@@ -214,6 +218,9 @@ class EventTimeLine:
         
         print ( eventName , " Id(",idA ,",", idB, ",", idC, "," , idD , ") Loaded (" , len( self.eventList ) , " records loaded in ", chrono.getTimeInS() , "S )")
 
+    def __str__(self):
+        return self.eventName + " Id(" + str(self.idA) + ","+  str(self.idB)+ ","+ str(self.idC)+ "," + str(self.idD) + ")"
+    
     def saveTimeLine(self , conn ):
         c = conn.cursor()   
         for event in self.eventList:
@@ -367,6 +374,19 @@ class EventTimeLine:
                 
         return nbEvent
             
+            
+    def getTotalDurationEvent( self, tmin, tmax ):
+        '''
+        return total duration between min and max t value.
+        '''        
+        duration = 0
+        dicEvent = self.getDictionnary()
+        for t in range( tmin, tmax + 1):
+            if t in dicEvent:
+                duration+=1
+        
+        return duration
+    
     def getDurationEventInTimeBin(self, tmin=0, tmax=None, binSize=1*oneMinute):
         '''
         compute the proportion of frames within an event within a given time bin, to calculate the density
@@ -693,7 +713,7 @@ class EventTimeLine:
         ax.text( 0 ,1.01,"TimeLine of {}".format( self.eventNameWithId ) ,fontsize=10,ha='left')
         if ( longestEvent != None ):
             ax.annotate('Longest event ({})'.format( longestEvent.duration()), xy=( longestEvent.startFrame, 1), xytext=(longestEvent.startFrame, 0.95), arrowprops=dict(facecolor='black', shrink=0.05))
-        fig.show()
+        #fig.show()
         plt.show()
     
     def endRebuildEventTimeLine( self, connection , deleteExistingEvent = False ):

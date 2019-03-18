@@ -7,6 +7,11 @@ Created on 12 sept. 2017
 import math
 from lmtanalysis.Measure import *
 import zlib
+
+#matplotlib fix for mac
+import matplotlib
+matplotlib.use('TkAgg')
+
 import matplotlib.pyplot as plt
 
 class Mask():
@@ -54,7 +59,7 @@ class Mask():
         #print("uncompressed: ")
         uncompressed= zlib.decompress( b )
         
-        print ( uncompressed )
+        #print ( uncompressed )
                     
         self.pointsX= []
         self.pointsY= []
