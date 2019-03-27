@@ -294,12 +294,12 @@ class Animal():
         plt.show()
     
     
-    def getDistancePerBin(self , binFrameSize , maxFrame=None ):
+    def getDistancePerBin(self , binFrameSize , minFrame=0, maxFrame=None ):
         if ( maxFrame==None ):
             maxFrame= self.getMaxDetectionT()
         
         distanceList = []
-        t = 0
+        t = minFrame
         while ( t < maxFrame ):
             distanceBin = self.getDistance( t , t+binFrameSize )
             print( "Distance bin n:{} value:{}".format ( t , distanceBin ) )
