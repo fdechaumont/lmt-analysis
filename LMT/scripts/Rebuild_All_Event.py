@@ -77,7 +77,7 @@ eventClassList = [
 
 
 
-eventClassList = [ BuildEventGetAway, BuildEventSocialEscape ]
+#eventClassList = [ BuildEventGetAway, BuildEventSocialEscape ]
 
 
 def flushEvents( connection ):

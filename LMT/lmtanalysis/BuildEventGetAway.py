@@ -82,8 +82,9 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
                     distStart = dAStart.getDistanceTo( dBStart )
                     distEnd = dAEnd.getDistanceTo( dBEnd )
                     
-                    if( distStart < distEnd ):
-                        result[t] = True
+                    if distStart != None and distEnd != None:
+                        if( distStart < distEnd ):
+                            result[t] = True
             
             
             getAwayTimeLine.reBuildWithDictionnary( result )
