@@ -34,50 +34,43 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
 ''' minT and maxT to process the analysis (in frame '''
 minT = 0
-maxT = 1*oneHour
+maxT = 6*oneDay
 ''' time window to compute the events. '''
-windowT = 1*oneHour #int (0.5*oneDay)
+windowT = 1*oneDay #int (0.5*oneDay)
 
 USE_CACHE_LOAD_DETECTION_CACHE = True
 
 class FileProcessException(Exception):
     pass
 
-eventClassList = [
-
-                  BuildEventDetection,                  
-                  BuildEventOralOralContact,
-                  BuildEventOralGenitalContact,
-                  BuildEventSideBySide,
-                  BuildEventSideBySideOpposite,
-                  BuildEventTrain2,                  
-                  #BuildEventTrain3,
-                  #BuildEventTrain4,
-                  BuildEventMove,
-                  BuildEventFollowZone,
-                  BuildEventRear5,
-                  BuildEventSocialApproach,
-                  BuildEventGetAway,
-                  BuildEventSocialEscape,
-                  BuildEventApproachRear,
-                  BuildEventGroup2,
-                  #BuildEventGroup3,
-                  #BuildEventGroup4,
-                  #BuildEventGroup3MakeBreak,
-                  #BuildEventGroup4MakeBreak,
-                  BuildEventStop,
-                  BuildEventWaterPoint,
-                  BuildEventApproachContact,
-                  BuildEventWallJump,
-                  BuildEventSAP,
-                  BuildEventOralSideSequence,
-                  #BuildEventNest3,
-                  #BuildEventNest4
-                   ]
-
-
-
-eventClassList = [ BuildEventGetAway, BuildEventSocialEscape ]
+eventClassList = [ BuildEventDetection,                  
+BuildEventOralOralContact,
+BuildEventOralGenitalContact,
+BuildEventSideBySide,
+BuildEventSideBySideOpposite,
+BuildEventTrain2,                  
+BuildEventTrain3,
+BuildEventTrain4,
+BuildEventMove,
+BuildEventFollowZone,
+BuildEventRear5,
+BuildEventSocialApproach,
+BuildEventGetAway,
+BuildEventSocialEscape,
+BuildEventApproachRear,
+BuildEventGroup2,
+BuildEventGroup3,
+BuildEventGroup4,
+BuildEventGroup3MakeBreak,
+BuildEventGroup4MakeBreak,
+BuildEventStop,
+BuildEventWaterPoint,
+BuildEventApproachContact,
+BuildEventWallJump,
+BuildEventSAP,
+BuildEventOralSideSequence,
+BuildEventNest3,
+BuildEventNest4 ]
 
 
 def flushEvents( connection ):
