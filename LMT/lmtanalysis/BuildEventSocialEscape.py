@@ -44,7 +44,13 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     #cache mean body len
     twoMeanBodyLen = {}
     for idAnimal in range( 1 , nbAnimal+1 ):
-        twoMeanBodyLen[idAnimal] = 2*pool.animalDictionnary[idAnimal].getMeanBodyLength()
+        
+        meanBodyLength = pool.animalDictionnary[idAnimal].getMeanBodyLength()
+        # init value
+        twoMeanBodyLen[idAnimal] = None
+        # set value
+        if meanBodyLength != None:
+            twoMeanBodyLen[idAnimal] = 2*meanBodyLength
         
     
     for idAnimalA in range( 1 , nbAnimal+1 ):

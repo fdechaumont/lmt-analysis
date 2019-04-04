@@ -184,10 +184,10 @@ class Animal():
         """
         returns the timepoint of the last detection.
         """
-        '''
+        
         if len ( self.detectionDictionnary.keys() ) == 0:
             return None
-        '''
+        
         return sorted(self.detectionDictionnary.keys())[-1]
     
     def getTrajectoryData( self , maskingEventTimeLine=None ):
@@ -487,6 +487,10 @@ class Animal():
         if ( tmax==None ):
             tmax= self.getMaxDetectionT()
     
+        if ( tmax==None ):
+            self.meanBodyLength = None
+            return self.meanBodyLength
+
         bodySizeList = []
 
         for key in keyList:

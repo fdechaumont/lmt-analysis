@@ -39,12 +39,21 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     #cache mean body len
     twoMeanBodyLen = {}
     for idAnimal in range( 1 , pool.getNbAnimals()+1 ):
-        twoMeanBodyLen[idAnimal] = 2*pool.animalDictionnary[idAnimal].getMeanBodyLength()
-
+        meanBodyLength = pool.animalDictionnary[idAnimal].getMeanBodyLength()
+        # init value
+        twoMeanBodyLen[idAnimal] = None
+        #set body length
+        if meanBodyLength != None:
+            twoMeanBodyLen[idAnimal] = 2*meanBodyLength
+        
     for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
         
         for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
             if( idAnimalA == idAnimalB ):
+                continue
+            
+            if twoMeanBodyLen[idAnimalB] == None:
+                print("Social Approach: can't compute mean bodyLen. Skip animal." )
                 continue
             
             eventName = "Social approach"        

@@ -728,10 +728,12 @@ class EventTimeLine:
             print ( "first event frame: " , self.eventList[0].startFrame )
         
 
-        print ( "Delete old entry in base: " + self.eventName )
         
         if deleteExistingEvent:
+            print ( "Delete old entry in base: " + self.eventName )
             deleteEventTimeLineInBase(connection, self.eventName, self.idA, self.idB, self.idC, self.idD )
+        else:
+            print( "Keep previous entry.")
         
         print ( "Saving timeLine: " + self.eventName + " ( " + str(len( self.eventList)) + " events )")
         self.saveTimeLine(connection)
