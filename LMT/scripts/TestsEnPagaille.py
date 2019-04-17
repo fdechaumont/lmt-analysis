@@ -108,7 +108,6 @@ if __name__ == '__main__':
     
     
     
-    
     #FDT = '%Y-%m-%d %H:%M:%S'
     #testDate = datetime.strptime('2019-03-13 19:00:00', FDT)
     #print(testDate)
