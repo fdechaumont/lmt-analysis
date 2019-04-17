@@ -155,8 +155,8 @@ def insertNightEvent( file ):
     currentNight = Night(startHour=startNight, endHour=endNight, cycle=cycle)
     
     '''Beginning and end of the experiment'''
-    startExperimentDate = getStartInDatetime(file)
-    endExperimentDate = getEndInDatetime(file)
+    startExperimentDate = getStartInDatetime(connection)
+    endExperimentDate = getEndInDatetime(connection)
     
     currentDay = datetime.datetime.strftime(startExperimentDate, "%Y-%m-%d")
     currentDay = datetime.datetime(int(currentDay.split("-")[0]),  int(currentDay.split("-")[1]), int(currentDay.split("-")[2]))
@@ -164,7 +164,7 @@ def insertNightEvent( file ):
     previousDay = datetime.datetime.strftime(previousDay, "%Y-%m-%d")
     currentStartNightDate = datetime.datetime.strptime("%s %s" % (previousDay, startNight), "%Y-%m-%d %H:%M:%S")
     
-    lastFrame = getNumberOfFrames(file)
+    lastFrame = getNumberOfFrames(connection)
     
     currentNight.setStartEndDate(currentStartNightDate)
     
@@ -172,8 +172,8 @@ def insertNightEvent( file ):
         if(currentNight.startDate > endExperimentDate):
             break
         
-        tmpStartFrame = recoverFrame(file, str(currentNight.startDate))
-        tmpEndFrame = recoverFrame(file, str(currentNight.endDate))
+        tmpStartFrame = recoverFrame(connection, str(currentNight.startDate))
+        tmpEndFrame = recoverFrame(connection, str(currentNight.endDate))
         
         if ((tmpStartFrame == 0) & (tmpEndFrame == 0)):
             if((currentNight.startDate < startExperimentDate) & (currentNight.endDate > endExperimentDate)):
@@ -196,6 +196,15 @@ def insertNightEvent( file ):
         
         '''next day'''
         currentNight.nextDay()
+        
+        # log process
+        from lmtanalysis.TaskLogger import TaskLogger
+        t = TaskLogger( connection )
+        t.addLog( "Build Event night" , tmin=tmpStartFrame, tmax=tmpEndFrame )
+    
+          
+    connection.close()
+    print( "Rebuild event finished." )
   
 
 

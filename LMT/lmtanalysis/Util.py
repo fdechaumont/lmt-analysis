@@ -57,9 +57,9 @@ def getDistanceBetweenPointInPx( x1 , y1, x2, y2 ):
     distance = math.hypot( x1 - x2, y1 - y2 )    
     return distance
 
-def getNumberOfFrames(file):
+
+def getNumberOfFrames(connection):
     """Return the number of frame for a given experiment"""
-    connection = sqlite3.connect( file )
     c = connection.cursor() 
     query = "SELECT MAX(FRAMENUMBER) FROM FRAME";
     c.execute( query )
@@ -67,9 +67,8 @@ def getNumberOfFrames(file):
     
     return int(numberOfFrames[0][0])
 
-def getStartInDatetime(file):
+def getStartInDatetime(connection):
     """Return the start of a given experiment in a datetime format"""
-    connection = sqlite3.connect( file )
     c = connection.cursor() 
     query = "SELECT MIN(TIMESTAMP) FROM FRAME";
     c.execute( query )
@@ -79,9 +78,8 @@ def getStartInDatetime(file):
         
     return start
     
-def getEndInDatetime(file):
+def getEndInDatetime(connection):
     """Return the end of a given experiment in a datetime format"""
-    connection = sqlite3.connect( file )
     c = connection.cursor() 
     query = "SELECT MAX(TIMESTAMP) FROM FRAME";
     c.execute( query )
@@ -91,9 +89,8 @@ def getEndInDatetime(file):
         
     return end
 
-def getDatetimeFromFrame(file, frame):
+def getDatetimeFromFrame(connection, frame):
     """Return a datetime from a given frame"""
-    connection = sqlite3.connect( file )
     c = connection.cursor() 
     query = "SELECT TIMESTAMP FROM FRAME WHERE FRAMENUMBER = {}".format(frame);
     #print(query)
@@ -111,12 +108,11 @@ def getDatetimeFromFrame(file, frame):
     return targetDate
 
 
-def recoverFrame(file, MyDatetime):
+def recoverFrame(connection, MyDatetime):
     """
     Return the clothest FRAMENUMBER from a given datetime
     The datetime must have this format: dd-mm-YYYY hh:mm:ss
     """
-    connection = sqlite3.connect( file )
     c = connection.cursor()
     
     # get timedate of 1st and last frame
