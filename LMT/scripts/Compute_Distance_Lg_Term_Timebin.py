@@ -40,7 +40,7 @@ if __name__ == '__main__':
         pool = AnimalPool( )
         pool.loadAnimals( connection )
 
-        pool.loadDetection( start = tmin, end = tmax)
+        pool.loadDetection( start = tmin, end = tmax, lightLoad=True)
 
         for animal in pool.animalDictionnary.keys():
             
