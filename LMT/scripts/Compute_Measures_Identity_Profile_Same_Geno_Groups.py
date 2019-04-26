@@ -40,9 +40,9 @@ if __name__ == '__main__':
     
     
     #behaviouralEventOneMouse = ["Approach contact", "Approach rear", "Break contact", "Contact", "FollowZone Isolated", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Social escape", "Train2"]
-    behaviouralEventOneMouse = ["Contact", "Group2", "Group3", "Group 3 break", "Group 3 make", "Group4", "Group 4 break", "Group 4 make", "Huddling", "Move isolated", "Move in contact", "Nest3", "Rearing", "Rear isolated", "Rear in contact", "Stop isolated", "WallJump", "Water Zone", "Approach contact", "Approach rear", "Break contact", "FollowZone Isolated", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Social escape", "Train2"]
+    behaviouralEventOneMouse = ["Contact", "Group2", "Group3", "Group 3 break", "Group 3 make", "Group4", "Group 4 break", "Group 4 make", "Huddling", "Move isolated", "Move in contact", "Nest3", "Rearing", "Rear isolated", "Rear in contact", "Stop isolated", "WallJump", "Water Zone", "Approach contact", "Approach rear", "Break contact", "FollowZone Isolated", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Get away", "Train2"]
     behaviouralEventTwoMice = None
-    behaviouralEventTwoMice = ["Approach contact", "Approach rear", "Break contact", "Contact", "FollowZone Isolated", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Social escape", "Train2"] 
+    behaviouralEventTwoMice = ["Approach contact", "Approach rear", "Break contact", "Contact", "FollowZone Isolated", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Get away", "Train2"] 
     '''
     behaviouralEventOneMouse = ["Group3", "Water Zone"]
     behaviouralEventTwoMice = ["Contact", "Oral-genital Contact"] 
@@ -71,28 +71,7 @@ if __name__ == '__main__':
             text_file.write( "{}\t{}\t{}\t{}\t{}\n".format( file, pool.animalDictionnary[idAnimalA].RFID, min_dur, max_dur, totalDistance ) ) 
         
         '''
-        
-        ''' 
-        #old output
-        for behavEvent in behaviouralEventOneMouse:
-            
-            print( "computing individual event: {}".format(behavEvent))    
-            behavEventTimeLine = {}
-        
-            for idAnimalA in pool.animalDictionnary.keys():
-                behavEventTimeLine[idAnimalA] = EventTimeLine( connection, behavEvent, idAnimalA, minFrame=tmin, maxFrame=tmax )
-                
-                event = behavEventTimeLine[idAnimalA]
-                
-                totalEventDuration = event.getTotalLength()
-                nbEvent = event.getNumberOfEvent(minFrame = tmin, maxFrame = tmax )
 
-                
-                print(event.eventName, event.idA, totalEventDuration, nbEvent)
-                
-                resOneMouse = [file, event.eventName, pool.animalDictionnary[idAnimalA].RFID, totalEventDuration, nbEvent]
-                text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, event.eventName, pool.animalDictionnary[idAnimalA].RFID, tmin, tmax, totalEventDuration, nbEvent ) ) 
-        '''            
         
         animal ={}
         
