@@ -47,6 +47,7 @@ USE_CACHE_LOAD_DETECTION_CACHE = True
 class FileProcessException(Exception):
     pass
 
+
 eventClassList = [
 
                   BuildEventDetection,                  
@@ -85,6 +86,7 @@ eventClassList = [
                   BuildEventNest3,
                   BuildEventNest4
                    ]
+
 
 
 def flushEvents( connection ):

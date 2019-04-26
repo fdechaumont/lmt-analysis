@@ -216,7 +216,7 @@ class EventTimeLine:
         #        self.eventList.append( Event( start, key ) )
         #        start = -1
         
-        print ( eventName , " Id(",idA ,",", idB, ",", idC, "," , idD , ") Loaded (" , len( self.eventList ) , " records loaded in ", chrono.getTimeInS() , "S )")
+        print ( eventName , " Id(",idA ,",", idB, ",", idC, "," , idD , ") Min/maxFrame: (",minFrame,"/",maxFrame ,") Loaded (" , len( self.eventList ) , " records loaded in ", chrono.getTimeInS() , "S )")
 
     def __str__(self):
         return self.eventName + " Id(" + str(self.idA) + ","+  str(self.idB)+ ","+ str(self.idC)+ "," + str(self.idD) + ")"
@@ -622,7 +622,7 @@ class EventTimeLine:
             sum+= event.duration()
             
         if (nb == 0):
-            return NaN
+            return None
         else:
             return sum/nb
     
@@ -728,10 +728,12 @@ class EventTimeLine:
             print ( "first event frame: " , self.eventList[0].startFrame )
         
 
-        print ( "Delete old entry in base: " + self.eventName )
         
         if deleteExistingEvent:
+            print ( "Delete old entry in base: " + self.eventName )
             deleteEventTimeLineInBase(connection, self.eventName, self.idA, self.idB, self.idC, self.idD )
+        else:
+            print( "Keep previous entry.")
         
         print ( "Saving timeLine: " + self.eventName + " ( " + str(len( self.eventList)) + " events )")
         self.saveTimeLine(connection)

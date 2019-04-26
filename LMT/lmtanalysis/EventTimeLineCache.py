@@ -22,7 +22,7 @@ def EventTimeLineCached( connection, file, eventName, idA=None, idB=None, idC=No
     
     if eventCacheEnable_ == True:
     
-        print ("Cache debug:", connection, file, eventName, "ids:" , idA, idB, idC, idD, "frames:", minFrame, maxFrame , loadEventWithoutOverlapCheck )
+        #print ("Cache debug:", connection, file, eventName, "ids:" , idA, idB, idC, idD, "frames:", minFrame, maxFrame , loadEventWithoutOverlapCheck )
         
         
         if (file, eventName, idA, idB, idC, idD, minFrame, maxFrame, loadEventWithoutOverlapCheck ) in eventCacheDico_: 

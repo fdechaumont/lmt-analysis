@@ -1,0 +1,11 @@
+file	event	RFID_A	geno_A	RFID_B	geno_B	minTime	maxTime	dur	nb	night
+night 1
+C:/Users/Elodie/Documents/2018_04_spontaneous_usv_behav/2018_08_exp_in_pairs/20181207_usv_lmt_pair_F17_F18_5we.sqlite	Contact	000004612605	None	000004612400	None	469800	1657800	175637	2871
+C:/Users/Elodie/Documents/2018_04_spontaneous_usv_behav/2018_08_exp_in_pairs/20181207_usv_lmt_pair_F17_F18_5we.sqlite	Contact	000004612400	None	000004612605	None	469800	1657800	175637	2871
+night 2
+C:/Users/Elodie/Documents/2018_04_spontaneous_usv_behav/2018_08_exp_in_pairs/20181207_usv_lmt_pair_F17_F18_5we.sqlite	Contact	000004612605	None	000004612400	None	3061800	4249800	180721	2468
+C:/Users/Elodie/Documents/2018_04_spontaneous_usv_behav/2018_08_exp_in_pairs/20181207_usv_lmt_pair_F17_F18_5we.sqlite	Contact	000004612400	None	000004612605	None	3061800	4249800	180721	2468
+night 3
+C:/Users/Elodie/Documents/2018_04_spontaneous_usv_behav/2018_08_exp_in_pairs/20181207_usv_lmt_pair_F17_F18_5we.sqlite	Contact	000004612605	None	000004612400	None	5653800	6841800	219038	2384
+C:/Users/Elodie/Documents/2018_04_spontaneous_usv_behav/2018_08_exp_in_pairs/20181207_usv_lmt_pair_F17_F18_5we.sqlite	Contact	000004612400	None	000004612605	None	5653800	6841800	219038	2384
+

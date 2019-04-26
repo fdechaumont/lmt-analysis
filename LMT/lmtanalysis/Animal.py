@@ -184,10 +184,10 @@ class Animal():
         """
         returns the timepoint of the last detection.
         """
-        '''
+        
         if len ( self.detectionDictionnary.keys() ) == 0:
             return None
-        '''
+        
         return sorted(self.detectionDictionnary.keys())[-1]
     
     def getTrajectoryData( self , maskingEventTimeLine=None ):
@@ -294,12 +294,12 @@ class Animal():
         plt.show()
     
     
-    def getDistancePerBin(self , binFrameSize , maxFrame=None ):
+    def getDistancePerBin(self , binFrameSize , minFrame=0, maxFrame=None ):
         if ( maxFrame==None ):
             maxFrame= self.getMaxDetectionT()
         
         distanceList = []
-        t = 0
+        t = minFrame
         while ( t < maxFrame ):
             distanceBin = self.getDistance( t , t+binFrameSize )
             print( "Distance bin n:{} value:{}".format ( t , distanceBin ) )
@@ -487,6 +487,10 @@ class Animal():
         if ( tmax==None ):
             tmax= self.getMaxDetectionT()
     
+        if ( tmax==None ):
+            self.meanBodyLength = None
+            return self.meanBodyLength
+
         bodySizeList = []
 
         for key in keyList:

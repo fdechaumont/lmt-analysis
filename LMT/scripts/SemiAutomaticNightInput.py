@@ -1,5 +1,6 @@
 '''
 Created on 07 mar. 2019
+This code is based on the script ManualNightInput.py
 
 @author: Nicolas
 '''
