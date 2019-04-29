@@ -34,43 +34,58 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
 ''' minT and maxT to process the analysis (in frame '''
 minT = 0
-maxT = 6*oneDay
+
+maxT = 6       *oneDay
+#maxT = (6+1)*oneHour
 ''' time window to compute the events. '''
-windowT = 1*oneDay #int (0.5*oneDay)
+windowT = 1*oneDay
+#windowT = 3*oneDay #int (0.5*oneDay)
+
 
 USE_CACHE_LOAD_DETECTION_CACHE = True
 
 class FileProcessException(Exception):
     pass
 
-eventClassList = [ BuildEventDetection,                  
-BuildEventOralOralContact,
-BuildEventOralGenitalContact,
-BuildEventSideBySide,
-BuildEventSideBySideOpposite,
-BuildEventTrain2,                  
-BuildEventTrain3,
-BuildEventTrain4,
-BuildEventMove,
-BuildEventFollowZone,
-BuildEventRear5,
-BuildEventSocialApproach,
-BuildEventGetAway,
-BuildEventSocialEscape,
-BuildEventApproachRear,
-BuildEventGroup2,
-BuildEventGroup3,
-BuildEventGroup4,
-BuildEventGroup3MakeBreak,
-BuildEventGroup4MakeBreak,
-BuildEventStop,
-BuildEventWaterPoint,
-BuildEventApproachContact,
-BuildEventWallJump,
-BuildEventSAP,
-BuildEventOralSideSequence,
-BuildEventNest3,
-BuildEventNest4 ]
+
+eventClassList = [
+
+                  BuildEventDetection,                  
+                  BuildEventOralOralContact,
+                  BuildEventOralGenitalContact,
+                  BuildEventSideBySide,
+                  BuildEventSideBySideOpposite,
+                  BuildEventTrain2,                  
+                  BuildEventTrain3,
+                  BuildEventTrain4,
+                  BuildEventMove,
+                  BuildEventFollowZone,
+                  BuildEventRear5,
+                  BuildEventSocialApproach,
+                  BuildEventGetAway,
+                  BuildEventSocialEscape,
+                  BuildEventApproachRear,
+                  BuildEventGroup2,
+                  BuildEventGroup3,
+                  BuildEventGroup4,
+                  BuildEventGroup3MakeBreak,
+                  BuildEventGroup4MakeBreak,
+                  BuildEventStop,
+                  BuildEventWaterPoint,
+                  BuildEventApproachContact,
+                  BuildEventWallJump,
+                  BuildEventSAP,
+                  BuildEventOralSideSequence,
+                  BuildEventNest3,
+                  BuildEventNest4
+                   ]
+
+eventClassList = [
+                  BuildEventGetAway,
+                  BuildEventSocialEscape,
+                  BuildEventNest3,
+                  BuildEventNest4
+                   ]
 
 
 
