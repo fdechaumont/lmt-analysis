@@ -116,6 +116,12 @@ class Animal():
         print ( self.__str__(), " ", len( self.detectionDictionnary ) , " detections loaded in {} seconds.".format( chrono.getTimeInS( )) )
     
     
+    def getNumberOfDetection(self, tmin, tmax):
+        
+        
+        return len ( self.detectionDictionnary.keys() )
+    
+    
     def filterDetectionByInstantSpeed(self , minSpeed, maxSpeed ):
         """
         speed function in LMT use t-1 and t+1 detection to provide a result.
