@@ -216,7 +216,7 @@ class EventTimeLine:
         #        self.eventList.append( Event( start, key ) )
         #        start = -1
         
-        print ( eventName , " Id(",idA ,",", idB, ",", idC, "," , idD , ") Loaded (" , len( self.eventList ) , " records loaded in ", chrono.getTimeInS() , "S )")
+        print ( eventName , " Id(",idA ,",", idB, ",", idC, "," , idD , ") Min/maxFrame: (",minFrame,"/",maxFrame ,") Loaded (" , len( self.eventList ) , " records loaded in ", chrono.getTimeInS() , "S )")
 
     def __str__(self):
         return self.eventName + " Id(" + str(self.idA) + ","+  str(self.idB)+ ","+ str(self.idC)+ "," + str(self.idD) + ")"
@@ -622,7 +622,7 @@ class EventTimeLine:
             sum+= event.duration()
             
         if (nb == 0):
-            return NaN
+            return None
         else:
             return sum/nb
     
