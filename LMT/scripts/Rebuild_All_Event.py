@@ -225,7 +225,11 @@ def process( file ):
     connection = sqlite3.connect( file )
     
     BuildDataBaseIndex.buildDataBaseIndex( connection, force=False )
-        
+    
+    # build sensor data
+    animalPool = AnimalPool( )
+    animalPool.loadAnimals( connection )
+    animalPool.buildSensorData(file)
         
     # TODO: flush events,
     # TODO: recompute per segment of windowT.
