@@ -91,25 +91,22 @@ def getEndInDatetime(file):
         
     return end
 
-def getDatetimeFromFrame(file, frame):
-    """Return a datetime from a given frame"""
-    connection = sqlite3.connect( file )
+def getDatetimeFromFrame(connection, frame):
     c = connection.cursor() 
     query = "SELECT TIMESTAMP FROM FRAME WHERE FRAMENUMBER = {}".format(frame);
-    #print(query)
+
     c.execute( query )
     rows = c.fetchall()
-    #print(len(rows))
+
     if (len(rows) <= 0):
         print ("The entered framenumber is out of range")
-        targetDate = 0
+        return None
     
     else:
         for row in rows:
             targetDate = datetime.datetime.fromtimestamp(row[0]/1000)
         
     return targetDate
-
 
 def recoverFrame(file, MyDatetime):
     """
