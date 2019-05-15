@@ -8,7 +8,7 @@ from lmtanalysis.Detection import *
 
 #matplotlib fix for mac
 import matplotlib
-matplotlib.use('TkAgg')
+matplotlib.use('TkAgg' )
 
 
 import matplotlib.pyplot as plt
@@ -29,7 +29,9 @@ from lmtanalysis.Point import Point
 from lmtanalysis.Mask import Mask
 import matplotlib.patches as mpatches
 from lxml import etree
-
+import matplotlib.ticker as ticker
+from lmtanalysis.Util import convert_to_d_h_m_s
+from lmtanalysis.Util import getDatetimeFromFrame
 
 idAnimalColor = [ None, "red","green","blue","orange"]
 
@@ -796,9 +798,8 @@ class Animal():
         '''
         query = "SELECT DATA FROM DETECTION WHERE ANIMALID={} AND FRAMENUMBER={}".format( self.baseId , t )
 
-        print( "TEST")
-
-        print( query )
+        #print( "TEST")
+        #print( query )
         cursor = self.conn.cursor()
         cursor.execute( query )
         
@@ -976,6 +977,163 @@ class AnimalPool():
         
         return maxFrame
     
+    def frameToTimeTicker(self, x, pos):
+        vals= convert_to_d_h_m_s( x )
+        experimentTime = "D{0} - {1:02d}:{2:02d}".format( int(vals[0])+1, int(vals[1]), int(vals[2]) )
+       
+        realTime = ""
+        if x > 0:
+            datetime = getDatetimeFromFrame( self.conn , x )
+            if datetime != None:
+                realTime = "\n" + getDatetimeFromFrame( self.conn , x ).strftime('%d-%m (%b)-%Y %H:%M:%S')
+        
+        return experimentTime + realTime
+
+    def plotSensorData( self , sensor="TEMPERATURE", show = True , saveFile = None , minValue=0 ):
+        """
+        plots data for temperature
+        """
+        print( "plotting sensor data. " , sensor )
+        cursor = self.conn.cursor()
+    
+        # Check the number of row available in base
+        query = "SELECT FRAMENUMBER,"+sensor+" FROM FRAME"
+        try:
+            cursor.execute( query )
+        except:
+            print("plot sensor data: can't access data for ", sensor )
+            return
+            
+        rows = cursor.fetchall()
+        cursor.close()    
+        
+        frameNumberList = []
+        sensorValueList = []        
+        for row in rows:
+            
+            sensorValue = row[1]
+            if ( sensorValue > minValue ):
+                frameNumberList.append( row[0] )
+                sensorValueList.append( sensorValue )
+
+        fig, ax = plt.subplots( nrows = 1 , ncols = 1 , figsize=( 12, 4 ) )
+        
+        ''' set x axis '''
+        formatter = ticker.FuncFormatter( self.frameToTimeTicker )
+        ax.xaxis.set_major_formatter(formatter)
+        ax.tick_params(labelsize=6 )
+        ax.xaxis.set_major_locator(ticker.MultipleLocator( 30 * 60 * 60 * 12 ))
+        ax.xaxis.set_minor_locator(ticker.MultipleLocator( 30 * 60 * 60 ))
+        
+        ax.plot( frameNumberList, sensorValueList, color= "black" , linestyle='-', linewidth=1, label= sensor )
+        ax.legend( loc=1 )
+        
+        # plot night
+        nightTimeLine = EventTimeLine( self.conn, "night" , None, None, None , None )        
+        for nightEvent in nightTimeLine.eventList:
+            
+            ax.axvspan( nightEvent.startFrame, nightEvent.endFrame, alpha=0.1, color='black')
+            ax.text( (nightEvent.startFrame+ nightEvent.endFrame)/2 , 0.5 , "dark phase" ,fontsize=8,ha='center')
+
+        if saveFile !=None:
+            print("Saving figure : " + saveFile )
+            fig.savefig( saveFile, dpi=100)
+            
+        if ( show ):
+            plt.show()
+        plt.close()
+    
+    def createAutomaticDayNightEvent( self ):
+        """
+        Automatically creates night event with light sensor.
+        """
+        
+        # threshold for light is 115
+        lightThreshold= 115
+        
+        cursor = self.conn.cursor()
+    
+        # Check the number of row available in base
+        query = "SELECT FRAMENUMBER,LIGHTVISIBLE FROM FRAME"
+        try:
+            cursor.execute( query )
+        except:
+            print("Can't access lightVisible data")
+            return
+        
+        rows = cursor.fetchall()
+        cursor.close()    
+        
+        frameNumberList = []
+        sensorValueList = []        
+        allValuesAreZero = True
+        
+        nightTimeLine = EventTimeLine( None, "night", loadEvent=False )
+        dayTimeLine = EventTimeLine( None, "day", loadEvent=False )
+        
+        resultNight = {}
+        resultDay = {}
+        
+        for row in rows:
+            
+            sensorValue = row[1]
+            frameNumberList.append( row[0] )
+            sensorValueList.append( sensorValue )
+            if sensorValue != 0:
+                allValuesAreZero = False
+                
+            isNight = sensorValue < lightThreshold
+            if isNight:
+                resultNight[ row[0] ] = True
+            else:
+                resultDay[ row[0] ] = True
+            
+        if allValuesAreZero:
+            print("AutoDay/Night: Failed. No sensor record (all values are 0).")
+            return
+        
+        nightTimeLine.reBuildWithDictionnary( resultNight )
+        dayTimeLine.reBuildWithDictionnary( resultDay )
+                
+        nightTimeLine.endRebuildEventTimeLine( self.conn , deleteExistingEvent=True )
+        dayTimeLine.endRebuildEventTimeLine( self.conn, deleteExistingEvent=True )
+        
+    def plotNight(self, show = True , saveFile = None ):
+        
+        fig, ax = plt.subplots( nrows = 1 , ncols = 1 , figsize=( 12, 4 ) )
+
+        nightTimeLine = EventTimeLine( self.conn, "night" , None, None, None , None )        
+        for nightEvent in nightTimeLine.eventList:
+            
+            ax.axvspan( nightEvent.startFrame, nightEvent.endFrame, alpha=0.1, color='black')
+            ax.text( (nightEvent.startFrame+ nightEvent.endFrame)/2 , 0.5 , "dark phase" ,fontsize=8,ha='center')
+        
+        ''' set x axis '''
+        formatter = ticker.FuncFormatter( self.frameToTimeTicker )
+        ax.xaxis.set_major_formatter(formatter)
+        ax.tick_params(labelsize=6 )
+        ax.xaxis.set_major_locator(ticker.MultipleLocator( 30 * 60 * 60 * 12 ))
+        ax.xaxis.set_minor_locator(ticker.MultipleLocator( 30 * 60 * 60 ))
+
+        if saveFile !=None:
+            print("Saving figure : " + saveFile )
+            fig.savefig( saveFile, dpi=100)
+            
+        if ( show ):
+            plt.show()
+        plt.close()
+        
+    def buildSensorData(self, file ):
+        print("Build sensor data")
+        self.createAutomaticDayNightEvent( )        
+        self.plotNight( False , saveFile = file+"_auto day night.pdf" )
+        self.plotSensorData( sensor = "TEMPERATURE" , minValue = 10, saveFile = file+"_log_temperature.pdf", show = False )
+        self.plotSensorData( sensor = "SOUND" , saveFile = file+"_log_sound level.pdf" , show = False )
+        self.plotSensorData( sensor = "HUMIDITY" , minValue = 5 , saveFile = file+"_log_humidity.pdf" ,show = False )        
+        self.plotSensorData( sensor = "LIGHTVISIBLE" , minValue = 40 , saveFile = file+"_log_light visible.pdf", show = False  )
+        self.plotSensorData( sensor = "LIGHTVISIBLEANDIR" , minValue = 50 , saveFile = file+"_log_light visible and infra.pdf", show = False  )
+
+ 
     def plotTrajectory( self , show=True, maskingEventTimeLine=None , title = None, scatter = False, saveFile = None ):
         
         print( "AnimalPool: plot trajectory.")
