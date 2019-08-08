@@ -18,6 +18,7 @@ from tkinter.filedialog import askopenfilename
 from lmtanalysis.Util import getMinTMaxTAndFileNameInput
 from sqlalchemy.sql.expression import false
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
+from lmtanalysis.FileUtil import getFilesToProcess
 
 
 
@@ -49,13 +50,13 @@ if __name__ == '__main__':
     print("Code launched.")
  
  
-    files = askopenfilename( title="Choose a set of file to process", multiple=1 )
+    files = getFilesToProcess()
     tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
 
-   
     #behaviouralEventTwoMice = ["Approach contact", "Approach rear", "Break contact", "Contact", "FollowZone Isolated", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Get away", "Train2"] 
     behaviouralEventTwoMice = ["Get away"]
     
+
     for file in files:
         
         print(file)

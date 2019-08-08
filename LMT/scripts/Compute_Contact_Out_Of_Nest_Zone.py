@@ -168,7 +168,9 @@ if __name__ == '__main__':
                     contactOutOfNestDuration = ContactOutOfNestZoneTimeLine[animalA, animalB].getTotalDurationEvent(tmin=night.startFrame, tmax=night.endFrame)
                     text_file.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, pool.animalDictionnary[animalA].RFID, pool.animalDictionnary[animalA].genotype, pool.animalDictionnary[animalB].RFID, pool.animalDictionnary[animalB].genotype, nightIndex, contactOutOfNestDuration ) )
             
+
             nightIndex+=1
+
                      
     text_file.write( "\n" )
     
