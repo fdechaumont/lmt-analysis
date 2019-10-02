@@ -28,6 +28,13 @@ class Mask():
         self.unzip( maskDataZipped )
         self.color = color
         
+    def getCircularity(self):
+        
+        area = len( self.pointsX )
+        circularity = 4.0 * area / ( perimeter * longAxis);
+
+        return circularity;
+        
     def showMask(self , color = None , ax = None ):
         '''
         show the mask in a figure
