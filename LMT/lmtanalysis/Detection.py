@@ -9,10 +9,16 @@ from lmtanalysis.Measure import *
 
 class Detection():
 
-    def __init__(self, massX, massY, massZ=None, frontX=None, frontY=None, frontZ=None, backX=None, backY=None, backZ=None, rearing=None, lookUp=None, lookDown=None ):
+    __slots__ = ('massX', 'massY','massZ','massPoint','frontX','frontY','frontZ','frontPoint','backX','backY','backZ','backPoint','rearing','lookUp','lookDown' )
+
+    def __init__(self, massX, massY, massZ=None, frontX=None, frontY=None, frontZ=None, backX=None, backY=None, backZ=None, rearing=None, lookUp=None, lookDown=None , lightLoad = False ):
         
         self.massX = massX
         self.massY = massY
+        
+        if lightLoad:
+            return
+        
         self.massZ = massZ
         self.massPoint = Point( massX , massY )
             
