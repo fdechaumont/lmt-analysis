@@ -57,6 +57,11 @@ class Animal():
     def getColor(self):
         return getAnimalColor( self.baseId )
 
+    def getDetectionAt(self, t):
+        if t in self.detectionDictionnary:
+            return self.detectionDictionnary[t]
+        return None
+
     def loadDetection(self, start=None, end=None, lightLoad = False ):
         '''
         lightLoad only loads massX and massY to speed up the load. Then one can only compute basic features such as global speed of the animals
@@ -88,7 +93,7 @@ class Animal():
             frameNumber = row[0]
             massX = row[1]
             massY = row[2]
-            
+            detection = None
             #filter detection at 0
 
             if ( massX < 10 ):
@@ -111,10 +116,10 @@ class Animal():
             
                 detection = Detection( massX, massY, massZ, frontX, frontY, frontZ, backX, backY, backZ, rearing, lookUp, lookDown )
             else:
-                detection = Detection( massX, massY )
-                
+                detection = Detection( massX, massY , lightLoad = True )
+            
             self.detectionDictionnary[frameNumber] = detection
-        
+
         print ( self.__str__(), " ", len( self.detectionDictionnary ) , " detections loaded in {} seconds.".format( chrono.getTimeInS( )) )
     
     
