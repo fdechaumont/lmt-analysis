@@ -6,9 +6,9 @@ Created on 7 sept. 2017
 
 from lmtanalysis.Detection import *
 
-#matplotlib fix for mac
 import matplotlib
-matplotlib.use('TkAgg' )
+#matplotlib fix for mac (uncomment if needed)
+#matplotlib.use('TkAgg' )
 
 
 import matplotlib.pyplot as plt
