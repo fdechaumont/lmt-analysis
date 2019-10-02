@@ -8,9 +8,9 @@ import math
 from lmtanalysis.Measure import *
 import zlib
 
-#matplotlib fix for mac
 import matplotlib
-matplotlib.use('TkAgg')
+#matplotlib fix for mac
+#matplotlib.use('TkAgg')
 
 import matplotlib.pyplot as plt
 
