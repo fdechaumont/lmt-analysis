@@ -35,7 +35,7 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 ''' minT and maxT to process the analysis (in frame '''
 minT = 0
 
-maxT = 6       *oneDay
+maxT = 3       *oneDay
 #maxT = (6+1)*oneHour
 ''' time window to compute the events. '''
 windowT = 1*oneDay
@@ -63,7 +63,7 @@ eventClassList = [
                   BuildEventRear5,
                   BuildEventSocialApproach,
                   BuildEventGetAway,
-                  BuildEventSocialEscape,
+                  #BuildEventSocialEscape,
                   BuildEventApproachRear,
                   BuildEventGroup2,
                   BuildEventGroup3,
@@ -76,17 +76,15 @@ eventClassList = [
                   BuildEventWallJump,
                   BuildEventSAP,
                   BuildEventOralSideSequence,
-                  BuildEventNest3,
-                  BuildEventNest4
+                  #BuildEventNest3,
+                  #BuildEventNest4
                    ]
-
+'''
 eventClassList = [
-                  BuildEventGetAway,
-                  BuildEventSocialEscape,
-                  BuildEventNest3,
-                  BuildEventNest4
+                  BuildEventGetAway
+                  
                    ]
-
+'''
 
 
 def flushEvents( connection ):

@@ -99,13 +99,17 @@ class Detection():
         return distanceToPoint
     
     
-    def isInZone (self, xa=149, xb=363, ya=318, yb=98):
+    def isInZone (self, xa=149, xb=363, ya=98, yb=318):
         '''
         check whether a detection of animal A is located in the specified zone of the cage
         Default zone is the center xa=149, xb=363, ya=318, yb=98
         '''
+        x1 = min( xa, xb )
+        x2 = max( xa, xb )
+        y1 = min( ya, yb )
+        y2 = max( ya, yb )
         
-        if ( self.massX > xa and self.massX < xb and self.massY < ya and self.massY > yb ):
+        if ( self.massX > x1 and self.massX < x2 and self.massY > y1 and self.massY < y2 ):
             return True
         
         return False

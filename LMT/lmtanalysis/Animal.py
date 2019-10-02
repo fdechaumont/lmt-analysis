@@ -746,6 +746,11 @@ class Animal():
         '''
         keyList = sorted(self.detectionDictionnary.keys())
         
+        x1=min( xa, xb )
+        x2=max( xa, xb )
+        y1=min( ya, yb )
+        y2=max( ya, yb )
+        
         if ( tmax==None ):
             tmax = self.getMaxDetectionT()
     
@@ -758,14 +763,14 @@ class Animal():
                 continue
             
             detection = self.detectionDictionnary.get(key);
-            if (detection.massX<xa or detection.massX>xb or detection.massY<ya or detection.massY>yb):
+            if (detection.massX<x1 or detection.massX>x2 or detection.massY<y1 or detection.massY>y2):
                 #print ( 2 )
                 continue
 
             count+=1
             
         return count
-        
+    
     
     def plotDistance(self, color='k' , show=True ):
         print ("Plot distance")

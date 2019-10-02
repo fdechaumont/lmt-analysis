@@ -42,11 +42,14 @@ def process( file ):
     print( "Loading existing events...")
     nightTimeLine = EventTimeLine( connection, "night" , None, None, None , None )        
     
+    
     print( "--------------")    
     print( "Event list:" )
     for event in nightTimeLine.eventList:
         print( event )
     print( "--------------")
+    
+    nightTimeLine.removeEventsOverT(maxT=1050000)
     
     while True:
         print( "Manually add night event:")
