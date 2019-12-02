@@ -7,6 +7,8 @@ Created on 7 sept. 2017
 from lmtanalysis.Detection import *
 
 import matplotlib
+
+
 #matplotlib fix for mac (uncomment if needed)
 #matplotlib.use('TkAgg' )
 
@@ -48,7 +50,14 @@ class Animal():
         self.user1 = user1
         self.conn = conn
         self.detectionDictionnary = {}
-        
+
+    def setGenotype(self, genotype ):
+        self.genotype = genotype    
+        cursor = self.conn.cursor()                    
+        query = "UPDATE `ANIMAL` SET `GENOTYPE`='{}' WHERE `ID`='{}';".format( genotype, self.baseId )
+        cursor.execute( query )            
+        self.conn.commit()
+        cursor.close()
 
     def __str__(self):        
         return "Animal Id:{id} Name:{name} RFID:{rfid} Genotype:{genotype} User1:{user1}"\
@@ -1054,6 +1063,13 @@ class AnimalPool():
         if saveFile !=None:
             print("Saving figure : " + saveFile )
             fig.savefig( saveFile, dpi=100)
+        
+        '''
+        print("TEST 1")
+        import os
+        os.startfile( saveFile, 'open')
+        print( "TEST 2")
+        '''
             
         if ( show ):
             plt.show()
@@ -1139,15 +1155,15 @@ class AnimalPool():
             plt.show()
         plt.close()
         
-    def buildSensorData(self, file ):
+    def buildSensorData(self, file , show=False ):
         print("Build sensor data")
         self.createAutomaticDayNightEvent( )        
-        self.plotNight( False , saveFile = file+"_auto day night.pdf" )
-        self.plotSensorData( sensor = "TEMPERATURE" , minValue = 10, saveFile = file+"_log_temperature.pdf", show = False )
-        self.plotSensorData( sensor = "SOUND" , saveFile = file+"_log_sound level.pdf" , show = False )
-        self.plotSensorData( sensor = "HUMIDITY" , minValue = 5 , saveFile = file+"_log_humidity.pdf" ,show = False )        
-        self.plotSensorData( sensor = "LIGHTVISIBLE" , minValue = 40 , saveFile = file+"_log_light visible.pdf", show = False  )
-        self.plotSensorData( sensor = "LIGHTVISIBLEANDIR" , minValue = 50 , saveFile = file+"_log_light visible and infra.pdf", show = False  )
+        self.plotNight( show = show, saveFile = file+"_auto day night.pdf" )
+        self.plotSensorData( sensor = "TEMPERATURE" , minValue = 10, saveFile = file+"_log_temperature.pdf", show = show )
+        self.plotSensorData( sensor = "SOUND" , saveFile = file+"_log_sound level.pdf" , show = show )
+        self.plotSensorData( sensor = "HUMIDITY" , minValue = 5 , saveFile = file+"_log_humidity.pdf" ,show = show )        
+        self.plotSensorData( sensor = "LIGHTVISIBLE" , minValue = 40 , saveFile = file+"_log_light visible.pdf", show = show  )
+        self.plotSensorData( sensor = "LIGHTVISIBLEANDIR" , minValue = 50 , saveFile = file+"_log_light visible and infra.pdf", show = show  )
 
  
     def plotTrajectory( self , show=True, maskingEventTimeLine=None , title = None, scatter = False, saveFile = None ):
