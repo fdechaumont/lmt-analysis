@@ -315,7 +315,7 @@ class Animal():
         
         plt.show()
     
-    
+   
     def getDistancePerBin(self , binFrameSize , minFrame=0, maxFrame=None ):
         if ( maxFrame==None ):
             maxFrame= self.getMaxDetectionT()
@@ -334,30 +334,25 @@ class Animal():
     def getDistance(self , tmin=0, tmax= None ):
         '''
         Returns the distance traveled by the animal (in cm)        
-        '''
-        
+        '''        
         print("Compute total distance min:{} max:{} ".format( tmin , tmax ))
-        keyList = sorted(self.detectionDictionnary.keys())
-        
+                        
         if ( tmax==None ):
             tmax= self.getMaxDetectionT()
-    
+            
         totalDistance = 0
-        for key in keyList:
-            
-            if ( key <= tmin or key >= tmax ):
-                continue
-            
-            a = self.detectionDictionnary.get( key )
-            b = self.detectionDictionnary.get( key+1 )
+        for t in range( tmin , tmax ):
+
+            a = self.detectionDictionnary.get( t )
+            b = self.detectionDictionnary.get( t+1 )
                         
-            if ( b==None):
+            if b==None or a==None:
+                continue
+            distance = math.hypot( a.massX - b.massX, a.massY - b.massY )
+            if ( distance >85.5): #if the distance calculated between two frames is too large, discard
                 continue
             
-            if (math.hypot( a.massX - b.massX, a.massY - b.massY )>85.5): #if the distance calculated between two frames is too large, discard
-                continue
-            
-            totalDistance += math.hypot( a.massX - b.massX, a.massY - b.massY )
+            totalDistance += distance
         
         totalDistance *= scaleFactor
             
@@ -1010,11 +1005,11 @@ class AnimalPool():
         if x > 0:
             datetime = getDatetimeFromFrame( self.conn , x )
             if datetime != None:
-                realTime = "\n" + getDatetimeFromFrame( self.conn , x ).strftime('%d-%m (%b)-%Y %H:%M:%S')
+                realTime = "\n" + getDatetimeFromFrame( self.conn , x ).strftime('%d-%b-%Y %H:%M:%S')
         
         return experimentTime + realTime
 
-    def plotSensorData( self , sensor="TEMPERATURE", show = True , saveFile = None , minValue=0 ):
+    def plotSensorData( self , sensor="TEMPERATURE", show = True , saveFile = None , minValue=0 , autoNight= False):
         """
         plots data for temperature
         """
@@ -1038,15 +1033,17 @@ class AnimalPool():
             
             sensorValue = row[1]
             if ( sensorValue > minValue ):
-                frameNumberList.append( row[0] )
-                sensorValueList.append( sensorValue )
+                if sensorValue != None and minValue !=None:
+                    frameNumberList.append( row[0] )
+                    sensorValueList.append( sensorValue )
 
-        fig, ax = plt.subplots( nrows = 1 , ncols = 1 , figsize=( 12, 4 ) )
+        fig, ax = plt.subplots( nrows = 1 , ncols = 1 , figsize=( 24, 8 ) )
         
         ''' set x axis '''
         formatter = ticker.FuncFormatter( self.frameToTimeTicker )
         ax.xaxis.set_major_formatter(formatter)
-        ax.tick_params(labelsize=6 )
+        
+        ax.tick_params(labelsize=20 )
         ax.xaxis.set_major_locator(ticker.MultipleLocator( 30 * 60 * 60 * 12 ))
         ax.xaxis.set_minor_locator(ticker.MultipleLocator( 30 * 60 * 60 ))
         
@@ -1055,10 +1052,72 @@ class AnimalPool():
         
         # plot night
         nightTimeLine = EventTimeLine( self.conn, "night" , None, None, None , None )        
+        
+        mean = 0
+        std = 0
+        
+        if len( sensorValueList ) > 1 :
+            mean = np.mean( sensorValueList )
+            std = np.std( sensorValueList )
+        
         for nightEvent in nightTimeLine.eventList:
             
-            ax.axvspan( nightEvent.startFrame, nightEvent.endFrame, alpha=0.1, color='black')
-            ax.text( (nightEvent.startFrame+ nightEvent.endFrame)/2 , 0.5 , "dark phase" ,fontsize=8,ha='center')
+            ax.axvspan( nightEvent.startFrame, nightEvent.endFrame, alpha=0.1, color='black', ymin= 0, ymax = 1 )
+            ax.text( (nightEvent.startFrame+ nightEvent.endFrame)/2 , mean+std , "dark phase" ,fontsize=20,ha='center')
+
+        autoNightList = []
+        if autoNight:
+            # compute mean value:
+            plt.axhline(y=mean, color='r', linestyle='--' )
+            ax.text( 0 , mean , "auto night threshold" ,fontsize=20, ha='left' , va='bottom')
+            
+            inNight=False
+            start = None
+            end = None
+            for i in range(len(frameNumberList)):
+                frame = frameNumberList[i]
+                value = sensorValueList[i]
+                if value < mean: # night
+                    if inNight:
+                        continue
+                    else:
+                        inNight = True
+                        start=frame
+                else:
+                    if inNight:
+                        end = frame
+                        inNight = False
+                        if end-start > 300:
+                            autoNightList.append( ( start, end ) )
+                        else:    
+                            print("Skipping very short night phase. (less than 10 seconds)")
+                        start = None
+                        end = None
+            
+            for autoNight in autoNightList:
+                
+                ax.axvspan( autoNight[0], autoNight[1], alpha=0.1, color='red', ymin= 0.2, ymax = 0.8 )
+                ax.text( (autoNight[0]+autoNight[1])/2 , mean , "auto dark phase" ,fontsize=20,ha='center', color='red')
+        
+        plt.xlabel('time')
+        
+        if sensor == "TEMPERATURE":
+            plt.ylabel('Temperature (C)')
+            plt.ylim( 17, 28 )
+            
+        
+        if sensor == "SOUND":
+            plt.ylabel('Sound level (indice)')
+
+        if sensor == "HUMIDITY":
+            plt.ylabel('Humidity %')
+            plt.ylim( 0, 100 )
+
+        if sensor == "LIGHTVISIBLE":
+            plt.ylabel('Visible light (indice)')
+
+        if sensor == "LIGHTVISIBLEANDIR":
+            plt.ylabel('Visible and infrared light (indice)')
 
         if saveFile !=None:
             print("Saving figure : " + saveFile )
@@ -1074,61 +1133,10 @@ class AnimalPool():
         if ( show ):
             plt.show()
         plt.close()
-    
-    def createAutomaticDayNightEvent( self ):
-        """
-        Automatically creates night event with light sensor.
-        """
         
-        # threshold for light is 115
-        lightThreshold= 115
-        
-        cursor = self.conn.cursor()
-    
-        # Check the number of row available in base
-        query = "SELECT FRAMENUMBER,LIGHTVISIBLE FROM FRAME"
-        try:
-            cursor.execute( query )
-        except:
-            print("Can't access lightVisible data")
-            return
-        
-        rows = cursor.fetchall()
-        cursor.close()    
-        
-        frameNumberList = []
-        sensorValueList = []        
-        allValuesAreZero = True
-        
-        nightTimeLine = EventTimeLine( None, "night", loadEvent=False )
-        dayTimeLine = EventTimeLine( None, "day", loadEvent=False )
-        
-        resultNight = {}
-        resultDay = {}
-        
-        for row in rows:
-            
-            sensorValue = row[1]
-            frameNumberList.append( row[0] )
-            sensorValueList.append( sensorValue )
-            if sensorValue != 0:
-                allValuesAreZero = False
-                
-            isNight = sensorValue < lightThreshold
-            if isNight:
-                resultNight[ row[0] ] = True
-            else:
-                resultDay[ row[0] ] = True
-            
-        if allValuesAreZero:
-            print("AutoDay/Night: Failed. No sensor record (all values are 0).")
-            return
-        
-        nightTimeLine.reBuildWithDictionnary( resultNight )
-        dayTimeLine.reBuildWithDictionnary( resultDay )
-                
-        nightTimeLine.endRebuildEventTimeLine( self.conn , deleteExistingEvent=True )
-        dayTimeLine.endRebuildEventTimeLine( self.conn, deleteExistingEvent=True )
+        if autoNight:
+            return autoNightList
+
         
     def plotNight(self, show = True , saveFile = None ):
         
@@ -1157,8 +1165,7 @@ class AnimalPool():
         
     def buildSensorData(self, file , show=False ):
         print("Build sensor data")
-        self.createAutomaticDayNightEvent( )        
-        self.plotNight( show = show, saveFile = file+"_auto day night.pdf" )
+        #self.plotNight( show = show, saveFile = file+"_day night.pdf" )
         self.plotSensorData( sensor = "TEMPERATURE" , minValue = 10, saveFile = file+"_log_temperature.pdf", show = show )
         self.plotSensorData( sensor = "SOUND" , saveFile = file+"_log_sound level.pdf" , show = show )
         self.plotSensorData( sensor = "HUMIDITY" , minValue = 5 , saveFile = file+"_log_humidity.pdf" ,show = show )        
