@@ -15,6 +15,7 @@ from lmtanalysis.Measure import *
 from affine import Affine
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
 def flush( connection ):
     ''' flush event in database '''
@@ -27,24 +28,32 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     if ( pool == None ):
         pool = AnimalPool( )
         pool.loadAnimals( connection )
-        pool.loadDetection( start = tmin, end = tmax )
+        pool.loadDetection( start = tmin, end = tmax, lightLoad=True )
     '''
     Event Water Zone
     - the animal is in the zone around the water source
+    - the animal is stopped in this zone for 
     '''
     
-    for idAnimalA in pool.animalDictionnary.keys():
-        print(pool.animalDictionnary[idAnimalA])
+    for animal in pool.animalDictionnary.keys():
+        print(pool.animalDictionnary[animal])
         
-        eventName = "Water Zone"
+        eventName1 = "Water Zone"
+        eventName2 = "Water Stop"
         print ( "A is in the zone around the water source")        
-        print ( eventName )
+        print ( eventName1 )
                 
-        waterZoneTimeLine = EventTimeLine( None, eventName , idAnimalA , None , None , None , loadEvent=False )
-                
-        result={}
+        waterZoneTimeLine = EventTimeLine( None, eventName1 , animal , None , None , None , loadEvent=False )
+        waterStopTimeLine = EventTimeLine( None, eventName2 , animal , None , None , None , loadEvent=False )
         
-        animalA = pool.animalDictionnary[idAnimalA]
+        
+        stopTimeLine = EventTimeLineCached( connection, file, "Stop", animal, minFrame=None, maxFrame=None )
+        stopTimeLineDictionary = stopTimeLine.getDictionary()
+                
+        resultWaterZone={}
+        resultWaterStop={}
+        
+        animalA = pool.animalDictionnary[animal]
         #print ( animalA )
         dicA = animalA.detectionDictionnary
             
@@ -52,13 +61,22 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
             if (dicA[t].getDistanceToPoint(xPoint = 398, yPoint = 353) == None):
                 continue
             
-            if (dicA[t].getDistanceToPoint(xPoint = 398, yPoint = 353) <= MAX_DISTANCE_TO_POINT): 
-                result[t] = True
+            #Check if the animal is entering the zone around the water point:
+            if (dicA[t].getDistanceToPoint(xPoint = 398, yPoint = 353) <= MAX_DISTANCE_TO_POINT*2):
+                resultWaterZone[t] = True
+            
+            #Check if the animal is drinking (the animal should be in a tight zone around the water point and be stopped):      
+            if (dicA[t].getDistanceToPoint(xPoint = 398, yPoint = 353) <= MAX_DISTANCE_TO_POINT):
+                if t in stopTimeLineDictionary.keys():
+                    resultWaterStop[t] = True
                 
         
-        waterZoneTimeLine.reBuildWithDictionnary( result )
-                
+        waterZoneTimeLine.reBuildWithDictionnary( resultWaterZone )
         waterZoneTimeLine.endRebuildEventTimeLine(connection)
+        
+        waterStopTimeLine.reBuildWithDictionnary( resultWaterStop )
+        waterStopTimeLine.removeEventsBelowLength( maxLen = MIN_WATER_STOP_DURATION )    
+        waterStopTimeLine.endRebuildEventTimeLine(connection)
     
         
     # log process
