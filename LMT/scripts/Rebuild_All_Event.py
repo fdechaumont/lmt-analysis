@@ -17,7 +17,8 @@ from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Bu
     BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
     BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
     BuildEventOralSideSequence, CheckWrongAnimal,\
-    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventFight, BuildEventGetAway
+    CorrectDetectionIntegrity, BuildEventFight, BuildEventGetAway
+    #BuildEventNest4, BuildEventNest3, 
     
 from psutil import virtual_memory
 
@@ -35,7 +36,7 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 ''' minT and maxT to process the analysis (in frame '''
 minT = 0
 
-maxT = 6       *oneDay
+maxT = 3       *oneDay
 #maxT = (6+1)*oneHour
 ''' time window to compute the events. '''
 windowT = 1*oneDay
@@ -56,8 +57,8 @@ eventClassList = [
                   BuildEventSideBySide,
                   BuildEventSideBySideOpposite,
                   BuildEventTrain2,                  
-                  BuildEventTrain3,
-                  BuildEventTrain4,
+                  #BuildEventTrain3,
+                  #BuildEventTrain4,
                   BuildEventMove,
                   BuildEventFollowZone,
                   BuildEventRear5,
@@ -66,27 +67,19 @@ eventClassList = [
                   BuildEventSocialEscape,
                   BuildEventApproachRear,
                   BuildEventGroup2,
-                  BuildEventGroup3,
-                  BuildEventGroup4,
-                  BuildEventGroup3MakeBreak,
-                  BuildEventGroup4MakeBreak,
+                  #BuildEventGroup3,
+                  #BuildEventGroup4,
+                  #BuildEventGroup3MakeBreak,
+                  #BuildEventGroup4MakeBreak,
                   BuildEventStop,
                   BuildEventWaterPoint,
                   BuildEventApproachContact,
                   BuildEventWallJump,
                   BuildEventSAP,
                   BuildEventOralSideSequence,
-                  BuildEventNest3,
-                  BuildEventNest4
+                  #BuildEventNest3,
+                  #BuildEventNest4
                    ]
-
-eventClassList = [
-                  BuildEventGetAway,
-                  BuildEventSocialEscape,
-                  BuildEventNest3,
-                  BuildEventNest4
-                   ]
-
 
 
 def flushEvents( connection ):
@@ -280,8 +273,8 @@ def process( file ):
             file.write( "Event name\nnb event\ntotal duration" )
             
             for eventName in eventList:
-                for idAnimalA in range( 0,5 ):                
-                        idA = idAnimalA 
+                for animal in range( 0,5 ):                
+                        idA = animal 
                         if idA == 0:
                             idA = None
                         timeLine = EventTimeLineCached( connection, file, eventName, idA,  minFrame=minT, maxFrame=maxT )
