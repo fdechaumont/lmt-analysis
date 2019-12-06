@@ -37,16 +37,16 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     isInContactSourceDictionnary = {}
     stopSourceTimeLine = {}
     
-    for idAnimalA in range( 1 , 5 ):
+    for animal in range( 1 , 5 ):
         ''' Load source stop timeLine '''
-        stopSourceTimeLine[idAnimalA] = EventTimeLineCached( connection, file, "Stop", idAnimalA, minFrame=tmin, maxFrame=tmax )
+        stopSourceTimeLine[animal] = EventTimeLineCached( connection, file, "Stop", animal, minFrame=tmin, maxFrame=tmax )
         ''' load contact dictionnary with whatever animal '''
-        isInContactSourceDictionnary[idAnimalA] = EventTimeLineCached( connection, file, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+        isInContactSourceDictionnary[animal] = EventTimeLineCached( connection, file, "Contact", animal, minFrame=tmin, maxFrame=tmax ).getDictionnary()
                     
     eventName2 = "Stop in contact"
     eventName1 = "Stop isolated"        
     
-    for idAnimalA in range( 1 , 5 ):
+    for animal in range( 1 , 5 ):
 
         print ( eventName1, eventName2 )
                 
@@ -54,22 +54,22 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
         stopIsolatedResult = {}
         
         ''' loop over eventlist'''
-        for stopEvent in stopSourceTimeLine[idAnimalA].eventList:
+        for stopEvent in stopSourceTimeLine[animal].eventList:
         
             ''' for each event we seek in t and search a match in isInContactDictionnary '''
             for t in range ( stopEvent.startFrame, stopEvent.endFrame+1 ) :
-                if t in isInContactSourceDictionnary[idAnimalA]:
+                if t in isInContactSourceDictionnary[animal]:
                     stopSocialResult[t] = True
                 else:
                     stopIsolatedResult[t] = True
         
         ''' save stop social '''
-        stopSocialResultTimeLine = EventTimeLine( None, eventName2 , idAnimalA , None , None , None , loadEvent=False )
+        stopSocialResultTimeLine = EventTimeLine( None, eventName2 , animal , None , None , None , loadEvent=False )
         stopSocialResultTimeLine.reBuildWithDictionnary( stopSocialResult )
         stopSocialResultTimeLine.endRebuildEventTimeLine(connection)
 
         ''' save stop isolated '''
-        stopIsolatedResultTimeLine = EventTimeLine( None, eventName1 , idAnimalA , None , None , None , loadEvent=False )
+        stopIsolatedResultTimeLine = EventTimeLine( None, eventName1 , animal , None , None , None , loadEvent=False )
         stopIsolatedResultTimeLine.reBuildWithDictionnary( stopIsolatedResult )
         stopIsolatedResultTimeLine.endRebuildEventTimeLine(connection)
 

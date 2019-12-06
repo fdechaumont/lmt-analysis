@@ -321,27 +321,34 @@ class Animal():
         '''
         
         print("Compute total distance min:{} max:{} ".format( tmin , tmax ))
-        keyList = sorted(self.detectionDictionnary.keys())
         
+        '''
+        keyList = list( self.detectionDictionnary.keys() )
+        if not alreadySorted:
+            keyList = sorted(self.detectionDictionnary.keys())
+        '''         
         if ( tmax==None ):
             tmax= self.getMaxDetectionT()
-    
-        totalDistance = 0
-        for key in keyList:
             
+        totalDistance = 0
+        for t in range( tmin , tmax ):
+        #for key in keyList:
+            
+            '''
             if ( key <= tmin or key >= tmax ):
                 continue
+            '''
             
-            a = self.detectionDictionnary.get( key )
-            b = self.detectionDictionnary.get( key+1 )
+            a = self.detectionDictionnary.get( t )
+            b = self.detectionDictionnary.get( t+1 )
                         
-            if ( b==None):
+            if b==None or a==None:
+                continue
+            distance = math.hypot( a.massX - b.massX, a.massY - b.massY )
+            if ( distance >85.5): #if the distance calculated between two frames is too large, discard
                 continue
             
-            if (math.hypot( a.massX - b.massX, a.massY - b.massY )>85.5): #if the distance calculated between two frames is too large, discard
-                continue
-            
-            totalDistance += math.hypot( a.massX - b.massX, a.massY - b.massY )
+            totalDistance += distance
         
         totalDistance *= scaleFactor
             

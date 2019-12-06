@@ -37,31 +37,31 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
 
                 
     contactHeadGenital = {}
-    for idAnimalA in range( 1,pool.getNbAnimals()+1 ):
+    for animal in range( 1,pool.getNbAnimals()+1 ):
         for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
-            if ( idAnimalA == idAnimalB ):
+            if ( animal == idAnimalB ):
                 continue
-            contactHeadGenital[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Oral-genital Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            contactHeadGenital[animal, idAnimalB] = EventTimeLineCached( connection, file, "Oral-genital Contact", animal, idAnimalB, minFrame=tmin, maxFrame=tmax )
 
 
-    for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
+    for animal in range( 1 , pool.getNbAnimals()+1 ):
         
         for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
 
-            if( idAnimalA == idAnimalB ):
+            if( animal == idAnimalB ):
                 continue
                             
             eventName = "Train2"        
             print ( eventName )
             
-            trainTimeLine = EventTimeLine( None, eventName , idAnimalA , idAnimalB, loadEvent=False )
+            trainTimeLine = EventTimeLine( None, eventName , animal , idAnimalB, loadEvent=False )
             
             result={}
             
-            dicAB = contactHeadGenital[ idAnimalA , idAnimalB ].getDictionnary()
+            dicAB = contactHeadGenital[ animal , idAnimalB ].getDictionnary()
             
             for t in dicAB.keys():
-                speedA = pool.animalDictionnary[idAnimalA].getSpeed(t)
+                speedA = pool.animalDictionnary[animal].getSpeed(t)
                 speedB = pool.animalDictionnary[idAnimalB].getSpeed(t)
                         
                 if ( speedA != None and speedB != None ):

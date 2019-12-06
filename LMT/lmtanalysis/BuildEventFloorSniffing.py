@@ -31,18 +31,18 @@ def reBuildEvent( connection, tmin, tmax , pool = None ):
     pool.loadAnimals( connection )
     pool.loadDetection( start = tmin, end = tmax )
     
-    for idAnimalA in pool.animalDictionnary.keys():
-        print(pool.animalDictionnary[idAnimalA])
+    for animal in pool.animalDictionnary.keys():
+        print(pool.animalDictionnary[animal])
         
         eventName = "Floor sniffing"
         print ( "A sniffs the floor")        
         print ( eventName )
                 
-        trainTimeLine = EventTimeLine( None, eventName , idAnimalA , None , None , None , loadEvent=False )
+        trainTimeLine = EventTimeLine( None, eventName , animal , None , None , None , loadEvent=False )
                 
         result={}
         
-        animalA = pool.animalDictionnary[idAnimalA]
+        animalA = pool.animalDictionnary[animal]
         #print ( animalA )
         dicA = animalA.detectionDictionnary
             

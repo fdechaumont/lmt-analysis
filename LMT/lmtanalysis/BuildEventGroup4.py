@@ -32,24 +32,24 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     
     contact = {}
     group2 = {}
-    for idAnimalA in range( 1 , 5 ):    
-        contact[idAnimalA] = EventTimeLineCached( connection, file, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax ) #fait une matrice de tous les contacts à deux possibles
-        group2[idAnimalA] = EventTimeLineCached(connection, file, "Group2", idAnimalA, minFrame=tmin, maxFrame=tmax )
+    for animal in range( 1 , 5 ):    
+        contact[animal] = EventTimeLineCached( connection, file, "Contact", animal, minFrame=tmin, maxFrame=tmax ) #fait une matrice de tous les contacts à deux possibles
+        group2[animal] = EventTimeLineCached(connection, file, "Group2", animal, minFrame=tmin, maxFrame=tmax )
         
-    for idAnimalA in range( 1 , 5 ):
+    for animal in range( 1 , 5 ):
         
         for idAnimalB in range( 1 , 5 ):
-            if( idAnimalA == idAnimalB ):
+            if( animal == idAnimalB ):
                 continue
             
             for idAnimalC in range( 1 , 5 ):
-                if( idAnimalA == idAnimalC ):
+                if( animal == idAnimalC ):
                     continue
                 if( idAnimalB == idAnimalC ):
                     continue
                 
                 for idAnimalD in range( 1 , 5 ):
-                    if( idAnimalA == idAnimalD ):
+                    if( animal == idAnimalD ):
                         continue
                     if( idAnimalB == idAnimalD ):
                         continue
@@ -59,16 +59,16 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                     eventName = "Group4"        
                     print ( eventName )
                     
-                    groupTimeLine = EventTimeLine( None, eventName , idAnimalA , idAnimalB , idAnimalC , idAnimalD , loadEvent=False )
+                    groupTimeLine = EventTimeLine( None, eventName , animal , idAnimalB , idAnimalC , idAnimalD , loadEvent=False )
                     
                     result={}
                     
-                    dicA = contact[ idAnimalA ].getDictionnary()
+                    dicA = contact[ animal ].getDictionnary()
                     dicB = contact[ idAnimalB ].getDictionnary()
                     dicC = contact[ idAnimalC ].getDictionnary()
                     dicD = contact[ idAnimalD ].getDictionnary()
                     
-                    dicGroup2A = group2[ idAnimalA ].getDictionnary()
+                    dicGroup2A = group2[ animal ].getDictionnary()
                     dicGroup2B = group2[ idAnimalB ].getDictionnary()
                     dicGroup2C = group2[ idAnimalC ].getDictionnary()
                     dicGroup2D = group2[ idAnimalD ].getDictionnary()

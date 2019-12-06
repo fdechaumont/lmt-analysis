@@ -33,7 +33,7 @@ def fuseTimeLine( timeLineDico, animalA ):
 
 def inZone( detection ):
     return detection.isInZone( xa=114, ya=353, xb=256, yb=208 ) #Danger: the y-axis is reversed!
-
+    
        
 if __name__ == '__main__':
     

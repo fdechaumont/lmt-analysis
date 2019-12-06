@@ -39,28 +39,28 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     
     contact = {}
         
-    for idAnimalA in range( 1 , 5 ):
+    for idAanimal in range( 1 , 5 ):
         for idAnimalB in range( 1 , 5 ):
-            if idAnimalA != idAnimalB:    
-                contact[idAnimalA,idAnimalB] = EventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+            if idAanimal != idAnimalB:    
+                contact[idAanimal, idAnimalB] = EventTimeLineCached( connection, file, "Contact", idAanimal, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionnary()
 
     stopDictionnary = {}
         
-    for idAnimalA in range( 1 , 5 ):
-        stopDictionnary[idAnimalA] = EventTimeLineCached( connection, file, "Stop", idAnimalA, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+    for idAanimal in range( 1 , 5 ):
+        stopDictionnary[idAanimal] = EventTimeLineCached( connection, file, "Stop", idAanimalinFrame=tmin, maxFrame=tmax ).getDictionnary()
     
     nest3TimeLine = {}
     
-    for idAnimalA in range( 1 , 5 ):
+    for idAanimal in range( 1 , 5 ):
         # the id will be the one excluded from nest.
-        nest3TimeLine[idAnimalA] = EventTimeLine( None, "Nest3" , idAnimalA, loadEvent=False )
+        nest3TimeLine[idAanimal] = EventTimeLine( None, "Nest3" , idAanimaloadEvent=False )
     
     
     animalList = pool.getAnimalList() 
     
     result = {}
-    for idAnimalA in range( 1 , 5 ):
-        result[idAnimalA] = {}
+    for idAanimal in range( 1 , 5 ):
+        result[idAanimal] = {}
     
     for t in range( tmin, tmax+1 ):
                 
@@ -123,15 +123,15 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
             result[t] = True;
         ''' 
     
-    for idAnimalA in range( 1 , 5 ):
+    for idAanimal range( 1 , 5 ):
         # the id will be the one excluded from nest.
-        nest3TimeLine[idAnimalA].reBuildWithDictionnary( result[idAnimalA] )
+        nest3TimeLine[idAanimaleBuildWithDictionnary( result[idAanimal
         
         # remove very small events
-        nest3TimeLine[idAnimalA].removeEventsBelowLength( 2 )
-        nest3TimeLine[idAnimalA].mergeCloseEvents( 3 )
+        nest3TimeLine[idAanimalemoveEventsBelowLength( 2 )
+        nest3TimeLine[idAanimalergeCloseEvents( 3 )
         
-        nest3TimeLine[idAnimalA].endRebuildEventTimeLine(connection)
+        nest3TimeLine[idAanimalndRebuildEventTimeLine(connection)
             
     #nest4TimeLine.reBuildWithDictionnary( result )
     

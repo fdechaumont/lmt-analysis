@@ -99,20 +99,20 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
         pool.loadAnimals( connection )
         pool.loadDetection( start = tmin, end = tmax )
     
-    for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
+    for animal in range( 1 , pool.getNbAnimals()+1 ):
         
         for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
-            if( idAnimalA == idAnimalB ):
+            if( animal == idAnimalB ):
                 continue
             
             eventName = "Side by side Contact, opposite way"        
             print ( eventName )
             
             result ={}
-            animalA = pool.animalDictionnary.get( idAnimalA )
+            animalA = pool.animalDictionnary.get( animal )
             animalB = pool.animalDictionnary.get( idAnimalB )            
             
-            SideBySideTimeLine = EventTimeLine( None, eventName , idAnimalA , idAnimalB , loadEvent=False )
+            SideBySideTimeLine = EventTimeLine( None, eventName , animal , idAnimalB , loadEvent=False )
 
             for t in animalA.detectionDictionnary.keys() :
                 

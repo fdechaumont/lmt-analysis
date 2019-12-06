@@ -38,8 +38,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     - the animal is at the periphery of the cage (opposite event from Center)
     '''
     
-    for idAnimalA in pool.animalDictionnary.keys():
-        print(pool.animalDictionnary[idAnimalA])
+    for animal in pool.animalDictionnary.keys():
+        print(pool.animalDictionnary[animal])
         
         eventNameCenter = "Center Zone"
         print ( "A is in the center zone")        
@@ -49,13 +49,13 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
         print ( "A is in the periphery zone")        
         print ( eventNamePeriphery )
                 
-        centerZoneTimeLine = EventTimeLine( None, eventNameCenter , idAnimalA , None , None , None , loadEvent=False )
-        peripheryZoneTimeLine = EventTimeLine( None, eventNamePeriphery , idAnimalA , None , None , None , loadEvent=False )
+        centerZoneTimeLine = EventTimeLine( None, eventNameCenter , animal , None , None , None , loadEvent=False )
+        peripheryZoneTimeLine = EventTimeLine( None, eventNamePeriphery , animal , None , None , None , loadEvent=False )
                 
         resultCenter={}
         resultPeriphery={}
         
-        animalA = pool.animalDictionnary[idAnimalA]
+        animalA = pool.animalDictionnary[animal]
         #print ( animalA )
         dicA = animalA.detectionDictionnary
             

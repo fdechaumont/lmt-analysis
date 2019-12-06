@@ -64,27 +64,27 @@ def reBuildEvent( connection ):
     pool.loadAnimals( connection )
     pool.loadDetection( start = 0, end = timeWindow )
     
-    for idAnimalA in pool.animalDictionnary.keys():
-        print(pool.animalDictionnary[idAnimalA])
+    for animal in pool.animalDictionnary.keys():
+        print(pool.animalDictionnary[animal])
                     
-        eventName = "SideWalk".format( idAnimalA )
+        eventName = "SideWalk".format( animal )
                 
         print ( eventName )
                 
-        sideWalkTimeLine = EventTimeLine( None, eventName, idAnimalA , None, None, None, loadEvent=False )
+        sideWalkTimeLine = EventTimeLine( None, eventName, animal , None, None, None, loadEvent=False )
                 
         result={}
         
-        animalA = pool.animalDictionnary[idAnimalA]
+        animalA = pool.animalDictionnary[animal]
         dicA = animalA.detectionDictionnary
             
         for t in dicA.keys():
-            speedX, speedY = pool.animalDictionnary[idAnimalA].getSpeedVector(t)
+            speedX, speedY = pool.animalDictionnary[animal].getSpeedVector(t)
             
             if ( speedX == None or speedY == None ):
                 continue
             
-            angleA = pool.animalDictionnary[idAnimalA].getDirection(t)
+            angleA = pool.animalDictionnary[animal].getDirection(t)
             
             vectorSideX, vectorSideY = getVectorFromAngle( angleA + math.pi / 2 )
             
@@ -119,7 +119,7 @@ def reBuildEvent( connection ):
             print ( "first event frame: " , sideWalkTimeLine.timeLineList[0].startFrame )
         
         print ( "Delete old entry in base: " + eventName )
-        deleteEventTimeLineInBase(connection, eventName, idAnimalA, None, None, None ) #None is assumed as the name of the event contains the id description
+        deleteEventTimeLineInBase(connection, eventName, animal, None, None, None ) #None is assumed as the name of the event contains the id description
         print ( "Saving timeLine: " + eventName )
         sideWalkTimeLine.saveTimeLine(connection)
     

@@ -46,13 +46,13 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     time = {}
     train4 = {}
     
-    for idAnimalA in range( 1, pool.getNbAnimals()+1 ):
+    for animal in range( 1, pool.getNbAnimals()+1 ):
         for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
-            if ( idAnimalA == idAnimalB ):
+            if ( animal == idAnimalB ):
                 continue
-            train2TimeLine = EventTimeLineCached( connection, file, "Train2", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            train2TimeLine = EventTimeLineCached( connection, file, "Train2", animal, idAnimalB, minFrame=tmin, maxFrame=tmax )
             for t in train2TimeLine.getDictionnary():
-                train = Train2( idAnimalA, idAnimalB )
+                train = Train2( animal, idAnimalB )
                 
                 if ( not t in time ):
                     time[t] =[]
@@ -97,7 +97,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
 
     ''' save data '''
             
-    for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
+    for animal in range( 1 , pool.getNbAnimals()+1 ):
     
         for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
             
@@ -105,11 +105,11 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
 
                 for idAnimalD in range( 1 , pool.getNbAnimals()+1 ):
 
-                    if (idAnimalA, idAnimalB, idAnimalC, idAnimalD) in train4:
+                    if (animal, idAnimalB, idAnimalC, idAnimalD) in train4:
                         
-                        trainTimeLine = EventTimeLine( None, "Train4" , idAnimalA , idAnimalB, idAnimalC, idAnimalD, loadEvent=False )
+                        trainTimeLine = EventTimeLine( None, "Train4" , animal , idAnimalB, idAnimalC, idAnimalD, loadEvent=False )
                         
-                        trainTimeLine.reBuildWithDictionnary( train4[idAnimalA,idAnimalB,idAnimalC,idAnimalD] )
+                        trainTimeLine.reBuildWithDictionnary( train4[animal,idAnimalB,idAnimalC,idAnimalD] )
                         #trainTimeLine.removeEventsBelowLength( 5 )            
                         trainTimeLine.endRebuildEventTimeLine(connection)
                     

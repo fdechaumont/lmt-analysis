@@ -46,18 +46,18 @@ def reBuildEvent( connection, file,  tmin=None, tmax=None, pool = None ):
         print(pool.animalDictionnary[idAnimalB])
         meanSizeB = pool.animalDictionnary[idAnimalB].getMeanBodyLength( tmax = tmax )
         
-        for idAnimalA in pool.animalDictionnary.keys():
-            if( idAnimalB == idAnimalA ):
+        for animal in pool.animalDictionnary.keys():
+            if( idAnimalB == animal ):
                 continue
             
             '''
-            contact[idAnimalA, idAnimalB] = EventTimeLine( connection, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            contact[animal, idAnimalB] = EventTimeLine( connection, "Contact", animal, idAnimalB, minFrame=tmin, maxFrame=tmax )
             '''
-            oralOral[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Oral-oral Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
-            oralGenital[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Oral-genital Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            oralOral[animal, idAnimalB] = EventTimeLineCached( connection, file, "Oral-oral Contact", animal, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            oralGenital[animal, idAnimalB] = EventTimeLineCached( connection, file, "Oral-genital Contact", animal, idAnimalB, minFrame=tmin, maxFrame=tmax )
             
-            oralOralDico[idAnimalA, idAnimalB] = oralOral[idAnimalA, idAnimalB].getDictionnary()
-            oralGenitalDico[idAnimalA, idAnimalB] = oralGenital[idAnimalA, idAnimalB].getDictionnary()
+            oralOralDico[animal, idAnimalB] = oralOral[animal, idAnimalB].getDictionnary()
+            oralGenitalDico[animal, idAnimalB] = oralGenital[animal, idAnimalB].getDictionnary()
         
     
     
@@ -70,21 +70,21 @@ def reBuildEvent( connection, file,  tmin=None, tmax=None, pool = None ):
     eventName ="seq oral oral - oral genital"
     print ( eventName )                    
     
-    for idAnimalA in range( 1 , nbAnimal+1 ):
+    for animal in range( 1 , nbAnimal+1 ):
         
         for idAnimalB in range( 1 , nbAnimal+1 ):
-            if( idAnimalA == idAnimalB ):
+            if( animal == idAnimalB ):
                 continue
         
                     
-            selOO_OG_TimeLine = EventTimeLine( None, eventName , idAnimalA , idAnimalB , None , None , loadEvent=False )
+            selOO_OG_TimeLine = EventTimeLine( None, eventName , animal , idAnimalB , None , None , loadEvent=False )
             
             print( selOO_OG_TimeLine.eventNameWithId ) 
                     
-            oralOralTimeLine = oralOral[ idAnimalA , idAnimalB ]
+            oralOralTimeLine = oralOral[ animal , idAnimalB ]
             
-            oralGeniDico = oralGenitalDico[ idAnimalA , idAnimalB ]         
-            oralGeniTimeLine = oralGenital[ idAnimalA , idAnimalB ]
+            oralGeniDico = oralGenitalDico[ animal , idAnimalB ]         
+            oralGeniTimeLine = oralGenital[ animal , idAnimalB ]
             
             for event in oralOralTimeLine.eventList:
                 
@@ -118,21 +118,21 @@ def reBuildEvent( connection, file,  tmin=None, tmax=None, pool = None ):
     eventName ="seq oral geni - oral oral"
     print ( eventName )                    
     
-    for idAnimalA in range( 1 , nbAnimal+1 ):
+    for animal in range( 1 , nbAnimal+1 ):
         
         for idAnimalB in range( 1 , nbAnimal+1 ):
-            if( idAnimalA == idAnimalB ):
+            if( animal == idAnimalB ):
                 continue
         
                     
-            selOG_OO_TimeLine = EventTimeLine( None, eventName , idAnimalA , idAnimalB , None , None , loadEvent=False )
+            selOG_OO_TimeLine = EventTimeLine( None, eventName , animal , idAnimalB , None , None , loadEvent=False )
             
             print( selOG_OO_TimeLine.eventNameWithId ) 
                     
-            oralGenitalTimeLine = oralGenital[ idAnimalA , idAnimalB ]
+            oralGenitalTimeLine = oralGenital[ animal , idAnimalB ]
             
-            ooDico = oralOralDico[ idAnimalA , idAnimalB ]         
-            oralOralTimeLine = oralOral[ idAnimalA , idAnimalB ]
+            ooDico = oralOralDico[ animal , idAnimalB ]         
+            oralOralTimeLine = oralOral[ animal , idAnimalB ]
             
             for event in oralGenitalTimeLine.eventList:
                 

@@ -54,18 +54,18 @@ if __name__ == '__main__':
             maxT = eventNight.endFrame
             print("Night: ", n)
 
-            for idAnimalA in pool.animalDictionnary.keys():
+            for animal in pool.animalDictionnary.keys():
             
-                print( "computing individual animal: {}".format( idAnimalA ))
-                rfid = pool.animalDictionnary[idAnimalA].RFID
+                print( "computing individual animal: {}".format( animal ))
+                rfid = pool.animalDictionnary[animal].RFID
                 print( "RFID: ".format( rfid ) )
                 animal[rfid] = {}
                 ''' store the animal '''
-                animal[rfid]["animal"] = pool.animalDictionnary[idAnimalA]
+                animal[rfid]["animal"] = pool.animalDictionnary[animal]
                 
                 genoA = None
                 try:
-                    genoA=pool.animalDictionnary[idAnimalA].genotype
+                    genoA=pool.animalDictionnary[animal].genotype
                 except:
                     pass
                             
@@ -73,7 +73,7 @@ if __name__ == '__main__':
                     
                     print( "computing individual event: {}".format(behavEvent))    
                     
-                    behavEventTimeLine = EventTimeLineCached( connection, file, behavEvent, idAnimalA, minFrame=minT, maxFrame=maxT )
+                    behavEventTimeLine = EventTimeLineCached( connection, file, behavEvent, animal, minFrame=minT, maxFrame=maxT )
                     
                     totalEventDuration = behavEventTimeLine.getTotalLength()
                     nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame = minT, maxFrame = maxT )

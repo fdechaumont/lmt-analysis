@@ -30,6 +30,15 @@ def getMinTMaxTAndFileNameInput():
     
     return tmin,tmax,text_file
 
+
+def getMinTMaxTInput():
+    
+    tmin = int ( input("tMin : ") )
+    tmax = int ( input("tMax : ") )
+    
+    return tmin,tmax
+
+
 def getFileNameInput():
     
     text_file_name = input("File name : ")

@@ -34,15 +34,15 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     group4In = {}
     group4Out = {}
     
-    for idAnimalA in range( 1 , 5 ):
-        contact[idAnimalA] = EventTimeLineCached( connection, file, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax )
-        group4In[idAnimalA] = EventTimeLine( connection, "Group 4 make", idAnimalA, loadEvent=False )
-        group4Out[idAnimalA] = EventTimeLine( connection, "Group 4 break", idAnimalA, loadEvent=False )
+    for animal in range( 1 , 5 ):
+        contact[animal] = EventTimeLineCached( connection, file, "Contact", animal, minFrame=tmin, maxFrame=tmax )
+        group4In[animal] = EventTimeLine( connection, "Group 4 make", animal, loadEvent=False )
+        group4Out[animal] = EventTimeLine( connection, "Group 4 break", animal, loadEvent=False )
         
 
     ''' process group '''
     
-    for idAnimalA in range( 1 , 5 ):
+    for animal in range( 1 , 5 ):
         for idAnimalB in range( 1 , 5 ):
             for idAnimalC in range( 1 , 5 ):
                 for idAnimalD in range( 1 , 5 ):
@@ -50,7 +50,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                     ''' check impossible combination (avoid 2 animals with same id) '''
                     
                     test = {}
-                    test[idAnimalA] = True
+                    test[animal] = True
                     test[idAnimalB] = True
                     test[idAnimalC] = True
                     test[idAnimalD] = True
@@ -59,7 +59,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                     
                     ''' process group '''
 
-                    group4 = EventTimeLineCached( connection, file, "Group4", idAnimalA, idAnimalB, idAnimalC, minFrame=tmin, maxFrame=tmax )
+                    group4 = EventTimeLineCached( connection, file, "Group4", animal, idAnimalB, idAnimalC, minFrame=tmin, maxFrame=tmax )
                     
                     eventList = group4.getEventList()
                     
@@ -67,8 +67,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                         
                         t = event.startFrame-1
     
-                        if ( not contact[idAnimalA].hasEvent( t ) ):                        
-                            group4In[idAnimalA].addPunctualEvent( t )
+                        if ( not contact[animal].hasEvent( t ) ):                        
+                            group4In[animal].addPunctualEvent( t )
     
                         if ( not contact[idAnimalB].hasEvent( t ) ):                        
                             group4In[idAnimalB].addPunctualEvent( t )
@@ -81,8 +81,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                             
                         t = event.endFrame+1
     
-                        if ( not contact[idAnimalA].hasEvent( t ) ):                        
-                            group4Out[idAnimalA].addPunctualEvent( t )
+                        if ( not contact[animal].hasEvent( t ) ):                        
+                            group4Out[animal].addPunctualEvent( t )
     
                         if ( not contact[idAnimalB].hasEvent( t ) ):                        
                             group4Out[idAnimalB].addPunctualEvent( t )

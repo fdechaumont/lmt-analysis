@@ -71,27 +71,27 @@ def reBuildEvent( connection, tmin=None, tmax=None ):
         print(pool.animalDictionnary[idAnimalB])
         meanSizeB = pool.animalDictionnary[idAnimalB].getMeanBodyLength( tmax = tmax )
         
-        for idAnimalA in pool.animalDictionnary.keys():
-            if( idAnimalB == idAnimalA ):
+        for animal in pool.animalDictionnary.keys():
+            if( idAnimalB == animal ):
                 continue
             
-            contact[idAnimalA, idAnimalB] = EventTimeLine( connection, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            contact[animal, idAnimalB] = EventTimeLine( connection, "Contact", animal, idAnimalB, minFrame=tmin, maxFrame=tmax )
             #contact[idAnimalB] = EventTimeLine( connection, "Contact", idAnimalB )
     
     for idAnimalB in range( 1 , 5 ):
         
-        for idAnimalA in range( 1 , 5 ):
-            if( idAnimalA == idAnimalB ):
+        for animal in range( 1 , 5 ):
+            if( animal == idAnimalB ):
                 continue
             
             for idAnimalC in range( 1 , 5 ):
-                if( idAnimalA == idAnimalC ):
+                if( animal == idAnimalC ):
                     continue
                 if( idAnimalB == idAnimalC ):
                     continue
                 
                 for idAnimalD in range( 1 , 5 ):
-                    if( idAnimalA == idAnimalD ):
+                    if( animal == idAnimalD ):
                         continue
                     if( idAnimalB == idAnimalD ):
                         continue
@@ -104,12 +104,12 @@ def reBuildEvent( connection, tmin=None, tmax=None ):
                     print ( "A follow B")        
                     print ( eventName )
                             
-                    followIsolatedTimeLine = EventTimeLine( None, eventName , idAnimalA , idAnimalB , None , None , loadEvent=False )
+                    followIsolatedTimeLine = EventTimeLine( None, eventName , animal , idAnimalB , None , None , loadEvent=False )
                     print( followIsolatedTimeLine.eventNameWithId ) 
                             
                     resultIso={}
                     
-                    animalA = pool.animalDictionnary[idAnimalA]
+                    animalA = pool.animalDictionnary[animal]
                     animalB = pool.animalDictionnary[idAnimalB]
         
                     dicA = animalA.detectionDictionnary
@@ -126,10 +126,10 @@ def reBuildEvent( connection, tmin=None, tmax=None ):
                         if ( t in dicA.keys() ):
                         
                             
-                            speedA = pool.animalDictionnary[idAnimalA].getSpeed(t)
+                            speedA = pool.animalDictionnary[animal].getSpeed(t)
                             speedB = pool.animalDictionnary[idAnimalB].getSpeed(t)
                             #angleB = pool.animalList[idAnimalB].getDirection(t)
-                            angleA = pool.animalDictionnary[idAnimalA].getDirection(t)
+                            angleA = pool.animalDictionnary[animal].getDirection(t)
                             
                             if (speedA == None or speedB == None):
                                 continue

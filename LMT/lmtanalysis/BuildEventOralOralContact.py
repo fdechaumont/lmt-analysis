@@ -45,19 +45,19 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     '''
     contactDico = {}
     approachDico = {}
-    for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
+    for animal in range( 1 , pool.getNbAnimals()+1 ):
         for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
-            if ( idAnimalA == idAnimalB ):
+            if ( animal == idAnimalB ):
                 continue
             
-            contactDico[idAnimalA, idAnimalB] = EventTimeLine( connection, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
-            approachDico[idAnimalA, idAnimalB] = EventTimeLine( connection, "Social approach", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ) #fait une matrice de toutes les aproches à deux possibles
+            contactDico[animal, idAnimalB] = EventTimeLine( connection, "Contact", animal, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            approachDico[animal, idAnimalB] = EventTimeLine( connection, "Social approach", animal, idAnimalB, minFrame=tmin, maxFrame=tmax ) #fait une matrice de toutes les aproches à deux possibles
     '''
 
-    for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
+    for animal in range( 1 , pool.getNbAnimals()+1 ):
         
         for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
-            if( idAnimalA == idAnimalB ):
+            if( animal == idAnimalB ):
                 continue
             
             ''' MAX_DISTANCE_HEAD_HEAD_GENITAL_THRESHOLD '''
@@ -66,10 +66,10 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
             print ( eventName )
             
             result ={}
-            animalA = pool.animalDictionnary.get( idAnimalA )
+            animalA = pool.animalDictionnary.get( animal )
             animalB = pool.animalDictionnary.get( idAnimalB )            
             
-            OralOralTimeLine = EventTimeLine( None, eventName , idAnimalA , idAnimalB , loadEvent=False )
+            OralOralTimeLine = EventTimeLine( None, eventName , animal , idAnimalB , loadEvent=False )
 
             for t in animalA.detectionDictionnary.keys() :
                 

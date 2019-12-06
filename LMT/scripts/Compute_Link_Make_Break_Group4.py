@@ -78,15 +78,15 @@ if __name__ == '__main__':
         
         group4Dictionary = EventTimeLine( connection, "Group4", None, minFrame=tmin, maxFrame=tmax )
         
-        for idAnimalA in pool.animalDictionnary.keys():
-            if ( pool.animalDictionnary[idAnimalA].genotype == "WT" ):
-                animalWTDictionary[idAnimalA] = pool.animalDictionnary[idAnimalA]
+        for animal in pool.animalDictionnary.keys():
+            if ( pool.animalDictionnary[animal].genotype == "WT" ):
+                animalWTDictionary[animal] = pool.animalDictionnary[animal]
             
-            if ( pool.animalDictionnary[idAnimalA].genotype == "KO" ):
-                animalKODictionary[idAnimalA] = pool.animalDictionnary[idAnimalA]
+            if ( pool.animalDictionnary[animal].genotype == "KO" ):
+                animalKODictionary[animal] = pool.animalDictionnary[animal]
         
-            animalMakeGroupDictionary[idAnimalA] = EventTimeLine( connection, "Group 4 make", idAnimalA, minFrame=tmin, maxFrame=tmax )
-            animalBreakGroupDictionary[idAnimalA] = EventTimeLine( connection, "Group 4 break", idAnimalA, minFrame=tmin, maxFrame=tmax )
+            animalMakeGroupDictionary[animal] = EventTimeLine( connection, "Group 4 make", animal, minFrame=tmin, maxFrame=tmax )
+            animalBreakGroupDictionary[animal] = EventTimeLine( connection, "Group 4 break", animal, minFrame=tmin, maxFrame=tmax )
             
         
         ''' calculating how many groups of were created by WT or by KO and broken by WT or KO'''
@@ -104,40 +104,40 @@ if __name__ == '__main__':
             frameToCkeckBreak = event.endFrame+1    #enlever le +1 pour les bases "processed"
         
             inner = "" 
-            for idAnimalA in pool.animalDictionnary.keys():
-                if ( animalMakeGroupDictionary[idAnimalA].hasEvent( frameToCkeckMake ) ):
-                    #print ( "ok", idAnimalA )
-                    inner = idAnimalA
+            for animal in pool.animalDictionnary.keys():
+                if ( animalMakeGroupDictionary[animal].hasEvent( frameToCkeckMake ) ):
+                    #print ( "ok", animal )
+                    inner = animal
 
             outer = "" 
-            for idAnimalA in pool.animalDictionnary.keys():
-                if ( animalBreakGroupDictionary[idAnimalA].hasEvent( frameToCkeckBreak) ):
-                    print ( "outer:", idAnimalA )
-                    outer = idAnimalA
+            for animal in pool.animalDictionnary.keys():
+                if ( animalBreakGroupDictionary[animal].hasEvent( frameToCkeckBreak) ):
+                    print ( "outer:", animal )
+                    outer = animal
                     
             print ( "in:", inner, " out:", outer)
                 
-            for idAnimalA in animalWTDictionary.keys():
+            for animal in animalWTDictionary.keys():
                 for idAnimalB in animalWTDictionary.keys(): 
-                    if ( animalMakeGroupDictionary[idAnimalA].hasEvent( frameToCkeckMake ) and animalBreakGroupDictionary[idAnimalB].hasEvent( frameToCkeckBreak) ):
+                    if ( animalMakeGroupDictionary[animal].hasEvent( frameToCkeckMake ) and animalBreakGroupDictionary[idAnimalB].hasEvent( frameToCkeckBreak) ):
                         print("Add 1")
                         wtMakeWtBreakGroup4.addEvent( event)
                         
-            for idAnimalA in animalWTDictionary.keys():
+            for animal in animalWTDictionary.keys():
                 for idAnimalB in animalKODictionary.keys(): 
-                    if ( animalMakeGroupDictionary[idAnimalA].hasEvent( frameToCkeckMake ) and animalBreakGroupDictionary[idAnimalB].hasEvent( frameToCkeckBreak) ):
+                    if ( animalMakeGroupDictionary[animal].hasEvent( frameToCkeckMake ) and animalBreakGroupDictionary[idAnimalB].hasEvent( frameToCkeckBreak) ):
                         print("Add 2")
                         wtMakeKoBreakGroup4.addEvent( event)
                         
-            for idAnimalA in animalKODictionary.keys():
+            for animal in animalKODictionary.keys():
                 for idAnimalB in animalWTDictionary.keys(): 
-                    if ( animalMakeGroupDictionary[idAnimalA].hasEvent( frameToCkeckMake ) and animalBreakGroupDictionary[idAnimalB].hasEvent( frameToCkeckBreak) ):
+                    if ( animalMakeGroupDictionary[animal].hasEvent( frameToCkeckMake ) and animalBreakGroupDictionary[idAnimalB].hasEvent( frameToCkeckBreak) ):
                         print("Add 3")
                         koMakeWtBreakGroup4.addEvent( event)
                         
-            for idAnimalA in animalKODictionary.keys():
+            for animal in animalKODictionary.keys():
                 for idAnimalB in animalKODictionary.keys(): 
-                    if ( animalMakeGroupDictionary[idAnimalA].hasEvent( frameToCkeckMake ) and animalBreakGroupDictionary[idAnimalB].hasEvent( frameToCkeckBreak) ):
+                    if ( animalMakeGroupDictionary[animal].hasEvent( frameToCkeckMake ) and animalBreakGroupDictionary[idAnimalB].hasEvent( frameToCkeckBreak) ):
                         print("Add 4")
                         koMakeKoBreakGroup4.addEvent( event)
                         
