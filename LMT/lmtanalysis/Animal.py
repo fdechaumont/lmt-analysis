@@ -131,6 +131,11 @@ class Animal():
 
         print ( self.__str__(), " ", len( self.detectionDictionnary ) , " detections loaded in {} seconds.".format( chrono.getTimeInS( )) )
     
+    def loadMask(self , frame ):
+        self.setMask( self.getBinaryDetectionMask() )
+        
+    def clearMask(self):
+        self.setMask( None )
     
     def getNumberOfDetection(self, tmin, tmax):
         
@@ -835,8 +840,9 @@ class Animal():
         row = rows[0]        
         data = row[0]
         
-        #print( data )        
+        mask = Mask( data, self.getColor( ) )
         
+        '''
         x = 0
         y = 0
         w = 0
@@ -856,6 +862,7 @@ class Animal():
             boolMaskData = user.text
 
         mask = Mask( x , y , w , h , boolMaskData, self.getColor() )
+        '''
 
         '''
         <boundsX>119</boundsX><boundsY>248</boundsY><boundsW>37</boundsW><boundsH>29</boundsH>
@@ -927,7 +934,7 @@ class AnimalPool():
         rows = cursor.fetchall()
         cursor.close()    
         
-        self.animalDictionnary.clear()
+        self.animalDictionnary.clear()        
                 
         for row in rows:
             
@@ -944,7 +951,59 @@ class AnimalPool():
                 print ( animal )
             else:
                 print ( "Animal loader : error while loading animal.")
+    
+    def getAnonymousDetection(self, frame ):
+        if frame not in self.anonymousDetection:
+            return None
         
+        return self.anonymousDetection[frame] 
+            
+    def loadAnonymousDetection(self, start = None, end=None ):
+        '''
+        Load the dictionary of anonymous detection.
+        each entry get a list of detection
+        clear previous anonymous detection dictionary
+        '''
+        self.anonymousDetection = {}
+        
+        chrono = Chronometer("Load anonymous detection")                
+        cursor = self.conn.cursor()
+        
+        #query = "SELECT FRAMENUMBER, MASS_X, MASS_Y FROM DETECTION WHERE ANIMALID IS NULL"
+        query = "SELECT FRAMENUMBER, MASS_X, MASS_Y FROM DETECTION WHERE ANIMALID IS NULL"
+        
+        if ( start != None ):
+            query += " AND FRAMENUMBER>={}".format(start )
+        if ( end != None ):
+            query += " AND FRAMENUMBER<={}".format(end )
+            
+        print( query )
+        cursor.execute( query )
+        
+        rows = cursor.fetchall()
+        cursor.close()    
+        
+        for row in rows:
+            frameNumber = row[0]
+            massX = row[1]
+            massY = row[2]
+            #data = row[3]
+            detection = None
+            #filter detection at 0
+            if ( massX < 10 ):
+                continue
+
+            detection = Detection( massX, massY , lightLoad = True )
+            #detection.setMask( Mask( data ) )
+            
+            if frameNumber not in self.anonymousDetection:
+                self.anonymousDetection[frameNumber] = []
+                
+            self.anonymousDetection[frameNumber].append( detection )
+                            
+        print ( len( self.anonymousDetection ) , " frames containing anonymous detections loaded in {} seconds.".format( chrono.getTimeInS( )) )
+    
+      
     def loadDetection (self , start = None, end=None , lightLoad = False ):
         for animal in self.animalDictionnary.keys():
             self.animalDictionnary[animal].loadDetection( start = start, end = end , lightLoad=lightLoad )
