@@ -15,6 +15,9 @@ SPEED_THRESHOLD_HIGH = 10
 ''' slope of the body between the nose and the tail basis '''
 BODY_SLOPE_THRESHOLD = 40
 
+''' threshold for the distance contact using mass center between two detection '''
+DISTANCE_CONTACT_MASS_CENTER = 8/scaleFactor
+
 ''' threshold for the maximum distance allowed between two points '''
 MAX_DISTANCE_THRESHOLD = 71/scaleFactor
 
