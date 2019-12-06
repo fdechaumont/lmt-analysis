@@ -17,8 +17,9 @@ from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Bu
     BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
     BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
     BuildEventOralSideSequence, CheckWrongAnimal,\
-    CorrectDetectionIntegrity, BuildEventFight, BuildEventGetAway
-    #BuildEventNest4, BuildEventNest3, 
+
+    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventGetAway
+
     
 from psutil import virtual_memory
 
@@ -64,7 +65,7 @@ eventClassList = [
                   BuildEventRear5,
                   BuildEventSocialApproach,
                   BuildEventGetAway,
-                  BuildEventSocialEscape,
+                  #BuildEventSocialEscape,
                   BuildEventApproachRear,
                   BuildEventGroup2,
                   #BuildEventGroup3,
@@ -82,6 +83,7 @@ eventClassList = [
                    ]
 
 
+
 def flushEvents( connection ):
     
     print("Flushing events...")
@@ -93,7 +95,7 @@ def flushEvents( connection ):
         chrono.printTimeInS()
     
 
-def processTimeWindow( connection, currentMinT , currentMaxT ):
+def processTimeWindow( connection, file, currentMinT , currentMaxT ):
     
     CheckWrongAnimal.check( connection, tmin=currentMinT, tmax=currentMaxT )
     
@@ -221,13 +223,26 @@ def processTimeWindow( connection, currentMinT , currentMaxT ):
 def process( file ):
 
     print(file)
+        
+    mem = virtual_memory()
+    availableMemoryGB = mem.total / 1000000000
+    print( "Total memory on computer: (GB)", availableMemoryGB ) 
+    
+    if availableMemoryGB < 10:
+        print( "Not enough memory to use cache load of events.")
+        disableEventTimeLineCache()
+
     
     chronoFullFile = Chronometer("File " + file )
     
     connection = sqlite3.connect( file )
     
     BuildDataBaseIndex.buildDataBaseIndex( connection, force=False )
-        
+    
+    # build sensor data
+    animalPool = AnimalPool( )
+    animalPool.loadAnimals( connection )
+    #animalPool.buildSensorData(file)
         
     # TODO: flush events,
     # TODO: recompute per segment of windowT.
@@ -246,7 +261,7 @@ def process( file ):
                 currentMaxT = maxT
                 
             chronoTimeWindowFile = Chronometer("File "+ file+ " currentMinT: "+ str(currentMinT)+ " currentMaxT: " + str(currentMaxT) );
-            processTimeWindow( connection, currentMinT, currentMaxT )    
+            processTimeWindow( connection, file, currentMinT, currentMaxT )    
             chronoTimeWindowFile.printTimeInS()
             
             currentT += windowT
@@ -255,6 +270,7 @@ def process( file ):
 
         print("Full file process time: ")
         chronoFullFile.printTimeInS()
+    
         
         TEST_WINDOWING_COMPUTATION = False
         
@@ -286,7 +302,8 @@ def process( file ):
             #plotMultipleTimeLine( eventTimeLineList )
             
             print("************* END TEST")
-        
+            
+        flushEventTimeLineCache()        
         
     except:
         
@@ -296,10 +313,13 @@ def process( file ):
         
         t = TaskLogger( connection )
         t.addLog( error )
+        flushEventTimeLineCache()
         
         print( error, file=sys.stderr ) 
         
         raise FileProcessException()
+    
+    
             
 def getAllEvents( connection ):
     
@@ -313,17 +333,8 @@ def getAllEvents( connection ):
         data.append( row[0] )
     return data
 
-if __name__ == '__main__':
+def processAll():
     
-    print("Code launched.")
-    
-    mem = virtual_memory()
-    availableMemoryGB = mem.total / 1000000000
-    print( "Total memory on computer: (GB)", availableMemoryGB ) 
-    
-    if availableMemoryGB < 10:
-        print( "Not enough memory to use cache load of events.")
-        disableEventTimeLineCache()
     
     files = getFilesToProcess()
 
@@ -338,9 +349,13 @@ if __name__ == '__main__':
             except FileProcessException:
                 print ( "STOP PROCESSING FILE " + file , file=sys.stderr  )
         
-            flushEventTimeLineCache()
-        
     chronoFullBatch.printTimeInS()
     print( "*** ALL JOBS DONE ***")
+
+if __name__ == '__main__':
+    
+    print("Code launched.")
+    processAll()
+    
         
         

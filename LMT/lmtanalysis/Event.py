@@ -8,13 +8,12 @@ import unittest
 from time import *
 from lmtanalysis.Chronometer import Chronometer
 
-#matplotlib fix for mac
 import matplotlib
-matplotlib.use('TkAgg')
+#matplotlib fix for mac
+#matplotlib.use('TkAgg')
 
 import matplotlib.pyplot as plt
 import numpy as np
-from turtledemo.penrose import start
 from lmtanalysis.Measure import *
 import sys
 

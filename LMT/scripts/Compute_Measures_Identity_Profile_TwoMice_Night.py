@@ -53,9 +53,10 @@ if __name__ == '__main__':
     files = getFilesToProcess()
     tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
 
-   
-    behaviouralEventTwoMice = ["Approach contact", "Approach rear", "Break contact", "Contact", "FollowZone Isolated", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Get away", "Train2"] 
-    #behaviouralEventTwoMice = ["Contact"]
+    #behaviouralEventTwoMice = ["Approach contact", "Approach rear", "Break contact", "Contact", "FollowZone Isolated", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Get away", "Train2"] 
+    behaviouralEventTwoMice = ["Get away"]
+    
+
     for file in files:
         
         print(file)

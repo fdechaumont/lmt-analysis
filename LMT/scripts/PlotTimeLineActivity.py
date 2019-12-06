@@ -51,7 +51,9 @@ def plotNightTimeLine ( file ):
     
     for nightEvent in nightTimeLine.getEventList():
         ax.axvspan( nightEvent.startFrame, nightEvent.endFrame, alpha=0.1, color='black')
+
         ax.text( nightEvent.startFrame+(nightEvent.endFrame-nightEvent.startFrame)/2 , 100 , "dark phase" ,fontsize=8,ha='center')
+
     
     
 if __name__ == '__main__':
@@ -72,7 +74,9 @@ if __name__ == '__main__':
     
     for file in files:
         print(file)
-        expName = file[-30:-23]
+
+        expName = file[-40:-23]
+
         print( expName )
         
         connection = sqlite3.connect( file )
@@ -90,7 +94,9 @@ if __name__ == '__main__':
         ax = plt.gca() # get current axis
         ax.set_xlabel("time")
         ax.set_xlim([0, 7776000])
+
         ax.set_ylim([0, 250])
+
         
         ''' set x axis '''
         formatter = matplotlib.ticker.FuncFormatter( frameToTimeTicker )
@@ -102,7 +108,9 @@ if __name__ == '__main__':
         ''' draw the rectangles for the nights '''
         for nightEvent in nightTimeLine.getEventList():
             ax.axvspan( nightEvent.startFrame, nightEvent.endFrame, alpha=0.1, color='black')
+
             ax.text( nightEvent.startFrame+(nightEvent.endFrame-nightEvent.startFrame)/2 , 240 , "dark phase" ,fontsize=6,ha='center')
+
         
         ''' plot the distance traveled per timeBin and compute the total distance traveled and store it in a file '''
         timeBin = 20   
@@ -158,7 +166,9 @@ if __name__ == '__main__':
        
     
            
+
         yLab=[0, 50, 100, 150, 200, 250]
+
         for i in yLab:
             yTickList.append(i)    
             yLabels.append(i)

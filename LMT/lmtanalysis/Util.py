@@ -19,12 +19,58 @@ def level( data ):
 
 def pixelToCm( nbPixel ):
     return nbPixel * 10 / 57        
+
+def getFrameInput( text ):
+    
+    entryOk = False
+    t = 0
+    while not entryOk:
+        try:
+            t = 0
+            r = input( text + " : ")
+            
+            if ( len( r ) == 0 ):
+                return None
+            answers  = r.split( sep=" ")
+            
+            for answer in answers:
+                if answer.isdigit():
+                    t+= float( answer )
+                
+                if answer.endswith("d"):
+                    t+= float( answer[:-1] ) * 30 * 60 * 60 * 24
+                
+                if answer.endswith("h"):
+                    t+= float( answer[:-1] ) * 30 * 60 * 60
+    
+                if answer.endswith("m"):
+                    t+= float( answer[:-1] ) * 30 * 60
+                    
+                if answer.endswith("s"):
+                    t+= float( answer[:-1] ) * 30
+                    
+                if answer.endswith("f"):
+                    t+= float( answer[:-1] )                                    
+        except:
+            print("Error in entry.")
+            continue
+        entryOk = True
+        
+    t = int(t)
+    print("Entry (in frame) : " + str( t ) )
+    return t
+    
         
 def getMinTMaxTAndFileNameInput():
     
-    tmin = int ( input("tMin : ") )
-    tmax = int ( input("tMax : ") )
-    text_file_name = input("File name : ")
+    print ("Enter time information in frame. You can also set in days, hour, minutes")
+    print ("valid entries: 100, 1d, 1.5d, 23.5h, 1d 2h 3m 4s 5f")
+    
+    
+    tmin = getFrameInput("Starting t")
+    tmax = getFrameInput("Ending t")
+    
+    text_file_name = input("Enter file name to save data (.txt will be added) : ")
     text_file_name = text_file_name+".txt"
     text_file = open ( text_file_name, "w")
     
@@ -100,25 +146,22 @@ def getEndInDatetime(file):
         
     return end
 
-def getDatetimeFromFrame(file, frame):
-    """Return a datetime from a given frame"""
-    connection = sqlite3.connect( file )
+def getDatetimeFromFrame(connection, frame):
     c = connection.cursor() 
     query = "SELECT TIMESTAMP FROM FRAME WHERE FRAMENUMBER = {}".format(frame);
-    #print(query)
+
     c.execute( query )
     rows = c.fetchall()
-    #print(len(rows))
+
     if (len(rows) <= 0):
         print ("The entered framenumber is out of range")
-        targetDate = 0
+        return None
     
     else:
         for row in rows:
             targetDate = datetime.datetime.fromtimestamp(row[0]/1000)
         
     return targetDate
-
 
 def recoverFrame(file, MyDatetime):
     """

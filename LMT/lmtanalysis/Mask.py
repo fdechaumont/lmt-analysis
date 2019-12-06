@@ -8,9 +8,9 @@ import math
 from lmtanalysis.Measure import *
 import zlib
 
-#matplotlib fix for mac
 import matplotlib
-matplotlib.use('TkAgg')
+#matplotlib fix for mac
+#matplotlib.use('TkAgg')
 
 import matplotlib.pyplot as plt
 
@@ -27,6 +27,13 @@ class Mask():
         self.height = h
         self.unzip( maskDataZipped )
         self.color = color
+        
+    def getCircularity(self):
+        
+        area = len( self.pointsX )
+        circularity = 4.0 * area / ( perimeter * longAxis);
+
+        return circularity;
         
     def showMask(self , color = None , ax = None ):
         '''

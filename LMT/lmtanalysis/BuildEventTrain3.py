@@ -32,8 +32,10 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     if ( pool == None ):
         pool = AnimalPool( )
         pool.loadAnimals( connection )
+        if ( len ( pool.getAnimalList( ) ) < 3 ):
+            print("Train 3 cannot be computed on an experiment with less than 3 animals")
+            return
         pool.loadDetection( start = tmin, end = tmax )    
-    
     
     '''
     three animals are following each others with nose-to-anogenital contacts

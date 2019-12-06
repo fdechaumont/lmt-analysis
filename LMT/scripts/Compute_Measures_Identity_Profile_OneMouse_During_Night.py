@@ -27,11 +27,11 @@ if __name__ == '__main__':
     print("Code launched.")
  
     
-
     behaviouralEventOneMouse = ["Contact", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Social escape", "Get away", "Approach contact", "Approach rear", "Break contact", "FollowZone Isolated", "Train2", "Group2", "Group3", "Group 3 break", "Group 3 make", "Group4", "Group 4 break", "Group 4 make", "Huddling", "Move isolated", "Move in contact", "Nest3", "Nest4", "Rearing", "Rear isolated", "Rear in contact", "Stop isolated", "WallJump", "Water Zone"]
     #behaviouralEventOneMouse = ["Nest3", "Nest4"]
 
     files = getFilesToProcess()
+
     tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
 
 
@@ -110,7 +110,7 @@ if __name__ == '__main__':
                 text_file.write( "{}\t".format( minT ) )
                 text_file.write( "{}\t".format( maxT ) )
     
-                COMPUTE_TOTAL_DISTANCE = True
+                COMPUTE_TOTAL_DISTANCE = False
                 if ( COMPUTE_TOTAL_DISTANCE == True ):
                     animal[kAnimal]["animal"].loadDetection( lightLoad = True )
                     text_file.write( "{}\t".format( animal[kAnimal]["animal"].getDistance( tmin=minT,tmax=maxT) ) )
