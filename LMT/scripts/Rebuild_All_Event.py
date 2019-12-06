@@ -35,7 +35,8 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 ''' minT and maxT to process the analysis (in frame '''
 minT = 0
 
-maxT = 3       *oneDay
+#maxT = 3       *oneDay
+maxT = 1*oneDay
 #maxT = (6+1)*oneHour
 ''' time window to compute the events. '''
 windowT = 1*oneDay
@@ -49,42 +50,42 @@ class FileProcessException(Exception):
 
 
 eventClassList = [
-
-                  BuildEventDetection,                  
-                  BuildEventOralOralContact,
-                  BuildEventOralGenitalContact,
-                  BuildEventSideBySide,
-                  BuildEventSideBySideOpposite,
-                  BuildEventTrain2,                  
-                  BuildEventTrain3,
-                  BuildEventTrain4,
-                  BuildEventMove,
-                  BuildEventFollowZone,
-                  BuildEventRear5,
-                  BuildEventSocialApproach,
-                  BuildEventGetAway,
-                  #BuildEventSocialEscape,
-                  BuildEventApproachRear,
-                  BuildEventGroup2,
-                  BuildEventGroup3,
-                  BuildEventGroup4,
-                  BuildEventGroup3MakeBreak,
-                  BuildEventGroup4MakeBreak,
-                  BuildEventStop,
-                  BuildEventWaterPoint,
-                  BuildEventApproachContact,
-                  BuildEventWallJump,
-                  BuildEventSAP,
-                  BuildEventOralSideSequence,
-                  #BuildEventNest3,
-                  #BuildEventNest4
+                
+                BuildEventDetection,                  
+                BuildEventOralOralContact,
+                BuildEventOralGenitalContact,
+                BuildEventSideBySide,
+                BuildEventSideBySideOpposite,
+                BuildEventTrain2,                  
+                BuildEventTrain3,
+                BuildEventTrain4,
+                BuildEventMove,
+                BuildEventFollowZone,
+                BuildEventRear5,
+                BuildEventSocialApproach,
+                BuildEventGetAway,
+                #BuildEventSocialEscape,
+                BuildEventApproachRear,
+                BuildEventGroup2,
+                BuildEventGroup3,
+                BuildEventGroup4,
+                BuildEventGroup3MakeBreak,
+                BuildEventGroup4MakeBreak,
+                BuildEventStop,
+                BuildEventWaterPoint,
+                BuildEventApproachContact,
+                BuildEventWallJump,
+                BuildEventSAP,
+                BuildEventOralSideSequence,                
+                BuildEventNest3,
+                BuildEventNest4
                    ]
-'''
+
 eventClassList = [
-                  BuildEventGetAway
+                  BuildEventNest4
                   
                    ]
-'''
+
 
 
 def flushEvents( connection ):
@@ -246,10 +247,7 @@ def process( file ):
     animalPool = AnimalPool( )
     animalPool.loadAnimals( connection )
     #animalPool.buildSensorData(file)
-        
-    # TODO: flush events,
-    # TODO: recompute per segment of windowT.
-
+    
     currentT = minT
 
     try:
