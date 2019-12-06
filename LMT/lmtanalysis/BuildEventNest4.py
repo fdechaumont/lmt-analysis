@@ -36,7 +36,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     Group 3
     Group 4
     ''' 
-    print("[NEST 4] : Assume that there is no occlusion, does not work with anonymous animals")
+    print("[NEST 4] : Assume that there is no occlusion")
     
     if ( pool == None ):
         pool = AnimalPool( )
@@ -70,6 +70,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
         stopDictionnary[idAnimalA] = EventTimeLineCached( connection, file, "Stop", idAnimalA, minFrame=tmin, maxFrame=tmax ).getDictionnary()
     
     
+    
     '''
     nest3TimeLine = {}
     
@@ -77,6 +78,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
         nest3TimeLine = EventTimeLine( None, "Nest3" , idAnimalA, loadEvent=False )
     '''
     nest4TimeLine = EventTimeLine( None, "Nest4" , loadEvent=False )
+    
+    pool.loadAnonymousDetection()
     
     '''
     group2TimeLine = {}
@@ -109,6 +112,74 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
         nbAnimalAtT = 0
         animalDetectedList = []
         
+        
+        anonymousDetectionList = pool.getAnonymousDetection( t )
+        
+        for animal in animalList:
+            if t in animal.detectionDictionnary:                
+                animalDetectedList.append( animal )
+        
+        #print( str(t) + " : " + str( nbAnimalAtT ) )
+                    
+    
+        #print("TEST")
+        graph = nx.Graph()
+        # add nodes
+        
+        for animal in animalDetectedList:
+            graph.add_node( animal )
+            nbAnimalAtT+=1
+            
+        for animalA in animalDetectedList:
+            for animalB in animalDetectedList:
+                if animalA != animalB:
+                    # add an edge
+                    if t in contact[animalA.baseId,animalB.baseId]:
+                        graph.add_edge( animalA, animalB )
+        
+        # check with anonymous detection. Check contact
+        if anonymousDetectionList!= None:
+            
+            nbAnimalAtT+=len(anonymousDetectionList)
+            
+            # manage anonymous
+            #print( t , "manage anonymous")
+            '''
+            # load all masks
+            for animal in animalDetectedList:
+                animal.loadMask( t )
+            '''
+            
+            for detectionA in anonymousDetectionList: # anonymous with anonymous
+                for detectionB in anonymousDetectionList: # anonymous with anonymous
+                    if detectionA != detectionB:
+                        distance = detectionA.getDistanceTo( detectionB )
+                        if distance != None:
+                            if distance < DISTANCE_CONTACT_MASS_CENTER:
+                                graph.add_edge( detectionA, detectionB )
+                                #print("Adding edge with mask (det anonymous to det anonymous)")
+                    
+            for detection in anonymousDetectionList:
+                for animal in animalDetectedList:
+                    distance = detection.getDistanceTo(animal.getDetectionAt( t ) )
+                    if distance != None:
+                        if distance < DISTANCE_CONTACT_MASS_CENTER:
+                            #if detection.getMask().isInContactWithMask( animal.getDetectionAt ( t ).getMask() ):
+                            graph.add_edge( animal, detection )
+                            #print("Adding edge with mask")
+        
+        # list of CC from the biggest to the smallest
+        #listCC = sorted(nx.connected_components( graph ), key=len, reverse=True)
+        
+        if nbAnimalAtT == 0:            
+            isNest = True
+        
+        # list of CC from the biggest to the smallest
+        listCC = sorted(nx.connected_components( graph ), key=len, reverse=True)
+        
+        #largestCC = len ( max(nx.connected_components( graph ), key=len) )
+
+        '''
         for animal in animalList:
             if t in animal.detectionDictionnary:
                 nbAnimalAtT+=1
@@ -132,24 +203,35 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                         if t in contact[animalA.baseId,animalB.baseId]:
                             graph.add_edge( animalA, animalB )
             
+            
+            
+            
             # check connected components. If the biggest group gets all animal, we got a nest4
             largestCC = len ( max(nx.connected_components( graph ), key=len) )
             
             #print( str( t ) + " : " + str ( len( largestCC ) ) )
             
             #print( str( t ) + " : " + str ( largestCC ) + " / " + str( nbAnimalAtT ) )
+        '''    
+        if len ( listCC ) == 0 :
+            continue
+        
+        #print( t , len ( listCC[0] ) , nbAnimalAtT )
+        
+        if len ( listCC[0] ) == nbAnimalAtT:
+        
+        #if largestCC == nbAnimalAtT :
             
-            if largestCC == nbAnimalAtT :
-                
-                # check if animals in the nest are stopped.
-                allStoppedInBiggestGroup = True
-                for animal in animalDetectedList:
+            # check if animals in the nest are stopped.
+            allStoppedInBiggestGroup = True
+            for animal in animalDetectedList:
+                if isinstance( animal , Animal ):
                     if not ( t in stopDictionnary[animal.baseId] ):
                         allStoppedInBiggestGroup = False
-                    break
+                break
 
-                if allStoppedInBiggestGroup:
-                    isNest= True                     
+            if allStoppedInBiggestGroup:
+                isNest= True                     
                      
         if isNest == True:
             #print( "ADD PUNCTUAL")

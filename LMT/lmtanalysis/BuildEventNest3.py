@@ -55,6 +55,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
         # the id will be the one excluded from nest.
         nest3TimeLine[idAnimalA] = EventTimeLine( None, "Nest3" , idAnimalA, loadEvent=False )
     
+    pool.loadAnonymousDetection()
     
     animalList = pool.getAnimalList() 
     
@@ -69,6 +70,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
         nbAnimalAtT = 0
         animalDetectedList = []
         
+        anonymousDetectionList = pool.getAnonymousDetection( t )
+        
         for animal in animalList:
             if t in animal.detectionDictionnary:
                 nbAnimalAtT+=1
@@ -78,7 +81,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                     
     
         #print("TEST")
-        graph = nx.Graph();
+        graph = nx.Graph()
         # add nodes
         for animal in animalDetectedList:
             graph.add_node( animal )
@@ -89,6 +92,34 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                     if t in contact[animalA.baseId,animalB.baseId]:
                         graph.add_edge( animalA, animalB )
         
+        # check with anonymous detection. Check contact
+        if anonymousDetectionList!= None:
+            # manage anonymous
+            print( t , "manage anonymous")
+            '''
+            # load all masks
+            for animal in animalDetectedList:
+                animal.loadMask( t )
+            '''
+            
+            for detectionA in anonymousDetectionList: # anonymous with anonymous
+                for detectionB in anonymousDetectionList: # anonymous with anonymous
+                    if detectionA != detectionB:
+                        distance = detectionA.getDistanceTo( detectionB )
+                        if distance != None:
+                            if distance < DISTANCE_CONTACT_MASS_CENTER:
+                                graph.add_edge( detectionA, detectionB )
+                                print("Adding edge with mask (det anonymous to det anonymous)")
+                    
+            for detection in anonymousDetectionList:
+                for animal in animalDetectedList:
+                    distance = detection.getDistanceTo(animal.getDetectionAt( t ) )
+                    if distance != None:
+                        if distance < DISTANCE_CONTACT_MASS_CENTER:
+                            #if detection.getMask().isInContactWithMask( animal.getDetectionAt ( t ).getMask() ):
+                            graph.add_edge( animal, detection )
+                            print("Adding edge with mask")
+        
         # list of CC from the biggest to the smallest
         listCC = sorted(nx.connected_components( graph ), key=len, reverse=True)
         
@@ -97,14 +128,16 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
             # check if animals in the biggest group are stopped.
             allStoppedInBiggestGroup = True
             for animal in list( listCC[0] ):
-                if not ( t in stopDictionnary[animal.baseId] ):
-                    allStoppedInBiggestGroup = False
-                    break
+                if isinstance( animal , Animal ):
+                    if not ( t in stopDictionnary[animal.baseId] ):
+                        allStoppedInBiggestGroup = False
+                        break
                 
             if allStoppedInBiggestGroup:
                 if ( len( listCC[1] ) == 1 ): # the 2nd group (and the smallest) has only one mouse
-                    animal = list(listCC[1])[0]                
-                    result[ animal.baseId ][ t ] = True
+                    animal = list(listCC[1])[0]
+                    if isinstance( animal , Animal ):                
+                        result[ animal.baseId ][ t ] = True
                  
         
         '''
