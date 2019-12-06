@@ -20,6 +20,7 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 def flush( connection ):
     ''' flush event in database '''
     deleteEventTimeLineInBase(connection, "Water Zone" )
+    deleteEventTimeLineInBase(connection, "Water Stop" )
 
 
 def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
