@@ -30,6 +30,9 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     if ( pool == None ):
         pool = AnimalPool( )
         pool.loadAnimals( connection )
+        if ( len ( pool.getAnimalList( ) ) < 4 ):
+            print("Train 4 cannot be computed on an experiment with less than 4 animals")
+            return
         pool.loadDetection( start = tmin, end = tmax )    
     
     '''
