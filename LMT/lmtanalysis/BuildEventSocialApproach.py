@@ -30,11 +30,11 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     
     
     approachDico = {}
-    for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
+    for animal in range( 1 , pool.getNbAnimals()+1 ):
         for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
-            if ( idAnimalA == idAnimalB ):
+            if ( animal == idAnimalB ):
                 continue
-            approachDico[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Approach", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ) 
+            approachDico[animal, idAnimalB] = EventTimeLineCached( connection, file, "Approach", animal, idAnimalB, minFrame=tmin, maxFrame=tmax ) 
             
     #cache mean body len
     twoMeanBodyLen = {}
@@ -46,10 +46,10 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
         if meanBodyLength != None:
             twoMeanBodyLen[idAnimal] = 2*meanBodyLength
         
-    for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
+    for animal in range( 1 , pool.getNbAnimals()+1 ):
         
         for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
-            if( idAnimalA == idAnimalB ):
+            if( animal == idAnimalB ):
                 continue
             
             if twoMeanBodyLen[idAnimalB] == None:
@@ -59,17 +59,17 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
             eventName = "Social approach"        
             print ( eventName )
             
-            socAppTimeLine = EventTimeLine( None, eventName , idAnimalA , idAnimalB , None , None , loadEvent=False )
+            socAppTimeLine = EventTimeLine( None, eventName , animal , idAnimalB , None , None , loadEvent=False )
                            
             result={}
             
-            dicA = approachDico[ idAnimalA , idAnimalB ].getDictionnary()
+            dicA = approachDico[ animal , idAnimalB ].getDictionnary()
             
             twoMeanBodyLengthB = twoMeanBodyLen[ idAnimalB ]
             
             for t in dicA.keys():
                 
-                dist = pool.animalDictionnary[idAnimalA].getDistanceTo(t, pool.animalDictionnary[idAnimalB])
+                dist = pool.animalDictionnary[animal].getDistanceTo(t, pool.animalDictionnary[idAnimalB])
                 
                 if ( dist == None ):
                     continue

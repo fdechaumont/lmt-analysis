@@ -20,15 +20,15 @@ def flush( connection ):
     deleteEventTimeLineInBase(connection, "Detection" )
     
     
-def loadDetectionMap( connection, idAnimalA, start=None, end=None ):
+def loadDetectionMap( connection, animal, start=None, end=None ):
     
         chrono = Chronometer("Build event detection: Load detection map")
-        print( "processing animal ID: {}".format( idAnimalA ))
+        print( "processing animal ID: {}".format( animal ))
 
         result = {}
                 
         cursor = connection.cursor()
-        query = "SELECT FRAMENUMBER FROM DETECTION WHERE ANIMALID={}".format( idAnimalA )
+        query = "SELECT FRAMENUMBER FROM DETECTION WHERE ANIMALID={}".format( animal )
 
         if ( start != None ):
             query += " AND FRAMENUMBER>={}".format(start )
@@ -56,16 +56,16 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     pool.loadAnimals( connection )
     #pool.loadDetection( start = tmin, end = tmax )
     
-    for idAnimalA in range( 1 , 5 ):
+    for animal in range( 1 , 5 ):
         
         eventName = "Detection"        
         print ( eventName )
             
-        detectionTimeLine = EventTimeLine( None, eventName , idAnimalA , None , None , None , loadEvent=False )
+        detectionTimeLine = EventTimeLine( None, eventName , animal , None , None , None , loadEvent=False )
          
-        result = loadDetectionMap( connection , idAnimalA, tmin, tmax )
+        result = loadDetectionMap( connection , animal, tmin, tmax )
                                        
-        #animal = pool.animalDictionnary[idAnimalA]
+        #animal = pool.animalDictionnary[animal]
         #animal.loadDetection()
                     
         detectionTimeLine.reBuildWithDictionnary( result );

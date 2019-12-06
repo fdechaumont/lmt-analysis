@@ -1,5 +1,5 @@
 '''
-Created on 29 Aug. 2019
+Created on 6 sept. 2019
 
 @author: Elodie
 '''
@@ -24,43 +24,23 @@ import os
 from lmtanalysis.FileUtil import getFilesToProcess
 
 from lmtanalysis.Util import convert_to_d_h_m_s, getMinTMaxTAndFileNameInput
+from scripts.PlotTimeLineActivity import frameToTimeTicker
 
 
 
-def frameToTimeTicker(x, pos):
-   
-    vals= convert_to_d_h_m_s( x )
-    return "D{0} - {1:02d}:{2:02d}".format( int(vals[0])+1, int(vals[1]), int(vals[2]) )
-
-
-def plotNightTimeLine ( file ):
+class Mouse:
     
-    print(file)
-    connection = sqlite3.connect( file )
-    
-    nightTimeLineList = []
-    
-    pool = AnimalPool( )
-    pool.loadAnimals( connection )
-    #print( "Event: " + event)
-    print( "Loading event for file " + file )
-    
-    nightTimeLine = EventTimeLine( connection, "night" )
-   
-    nightTimeLineList.append( nightTimeLine )
-    
-    for nightEvent in nightTimeLine.getEventList():
-        ax.axvspan( nightEvent.startFrame, nightEvent.endFrame, alpha=0.1, color='black')
-
-        ax.text( nightEvent.startFrame+(nightEvent.endFrame-nightEvent.startFrame)/2 , 100 , "dark phase" ,fontsize=8,ha='center')
-
-    
-    
+    def __init__(self, rfid, genotype, group ):
+        self.rfid = rfid        
+        self.genotype = genotype
+        self.group = group
+        self.event = {}
+        self.result = {}       
+        
 if __name__ == '__main__':
     '''
-    This script allows to plot the activity of individual mice within a group containing two different genotypes. The output is a pdf file.
-    Genotypes should be entered without typos.
-    It also computes the total distance traveled and stores the value in a text file.
+    This script allows to plot the activity of the mice from the interlab study over the first four hours
+    of the experiment (bins: 4min).
     '''
     
     print("Code launched.")
@@ -74,9 +54,7 @@ if __name__ == '__main__':
     
     for file in files:
         print(file)
-
-        expName = file[-40:-23]
-
+        expName = file[-30:-23]
         print( expName )
         
         connection = sqlite3.connect( file )
@@ -85,35 +63,24 @@ if __name__ == '__main__':
         pool.loadAnimals( connection )
         
         pool.loadDetection( start = tmin, end = tmax, lightLoad=True)
-
-        print("loading night events for file " + file)
-        nightTimeLine = EventTimeLine( connection, "night" , minFrame=tmin, maxFrame=tmax )
         
         ''' build the plot '''
         fig, ax = plt.subplots( 1,1 , figsize=(8, 2 ) )
         ax = plt.gca() # get current axis
         ax.set_xlabel("time")
-        ax.set_xlim([0, 7776000])
-
-        ax.set_ylim([0, 250])
-
+        ax.set_xlim([0, 432000])
+        ax.set_ylim([0, 50])
         
         ''' set x axis '''
         formatter = matplotlib.ticker.FuncFormatter( frameToTimeTicker )
         ax.xaxis.set_major_formatter(formatter)
         ax.tick_params(labelsize=6 )
-        ax.xaxis.set_major_locator(ticker.MultipleLocator( 30 * 60 * 60 * 12 ))
-        ax.xaxis.set_minor_locator(ticker.MultipleLocator( 30 * 60 * 60 ))
+        ax.xaxis.set_major_locator(ticker.MultipleLocator( 30 * 60 * 60 * 1 ))
+        ax.xaxis.set_minor_locator(ticker.MultipleLocator( 30 * 60 * 15 ))
         
-        ''' draw the rectangles for the nights '''
-        for nightEvent in nightTimeLine.getEventList():
-            ax.axvspan( nightEvent.startFrame, nightEvent.endFrame, alpha=0.1, color='black')
-
-            ax.text( nightEvent.startFrame+(nightEvent.endFrame-nightEvent.startFrame)/2 , 240 , "dark phase" ,fontsize=6,ha='center')
-
         
         ''' plot the distance traveled per timeBin and compute the total distance traveled and store it in a file '''
-        timeBin = 20   
+        timeBin = 4  
         
         dt = {}
         totalDistance = {}
@@ -131,7 +98,7 @@ if __name__ == '__main__':
         
         
         
-        abs = [10*oneMinute]
+        abs = [1*oneMinute]
         for t in range(1, nTimeBins):
             x = abs[t-1] + timeBin*oneMinute
             abs.append(x)
@@ -166,9 +133,7 @@ if __name__ == '__main__':
        
     
            
-
-        yLab=[0, 50, 100, 150, 200, 250]
-
+        yLab=[0, 10, 20, 30, 40, 50]
         for i in yLab:
             yTickList.append(i)    
             yLabels.append(i)

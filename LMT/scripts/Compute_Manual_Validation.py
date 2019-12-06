@@ -49,11 +49,11 @@ if __name__ == '__main__':
             
             print( "estimating {} for validation".format(behavEvent))
             behavEventTimeLine = {}
-            for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
+            for animal in range( 1 , pool.getNbAnimals()+1 ):
             
-                behavEventTimeLine[idAnimalA] = EventTimeLine( connection, behavEvent, idAnimalA, minFrame=tmin, maxFrame=tmax )
+                behavEventTimeLine[animal] = EventTimeLine( connection, behavEvent, animal, minFrame=tmin, maxFrame=tmax )
                 
-                event = behavEventTimeLine[idAnimalA]
+                event = behavEventTimeLine[animal]
                 
                 totalEventDuration = event.getTotalLength()
                 meanEventDuration = event.getMeanEventLength()
@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
                 genoA = None
                 try:
-                    genoA=pool.animalList[idAnimalA].genotype
+                    genoA=pool.animalList[animal].genotype
                 except:
                     pass
                 

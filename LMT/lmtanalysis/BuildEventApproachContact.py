@@ -31,33 +31,33 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
         
     contactDicoDico = {}
     approachDico = {}
-    for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
+    for animal in range( 1 , pool.getNbAnimals()+1 ):
         for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
-            if ( idAnimalA == idAnimalB ):
+            if ( animal == idAnimalB ):
                 continue
             ''' I take the dictionnary of event of the contact event, that's why I put DicoDico '''
-            contactDicoDico[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+            contactDicoDico[animal, idAnimalB] = EventTimeLineCached( connection, file, "Contact", animal, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionnary()
             ''' This one is the dico of event '''
-            approachDico[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Social approach", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ) #fait une matrice de toutes les aproches à deux possibles
+            approachDico[animal, idAnimalB] = EventTimeLineCached( connection, file, "Social approach", animal, idAnimalB, minFrame=tmin, maxFrame=tmax ) #fait une matrice de toutes les approches à deux possibles
 
-    for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
+    for animal in range( 1 , pool.getNbAnimals()+1 ):
         
         for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
-            if( idAnimalA == idAnimalB ):
+            if( animal == idAnimalB ):
                 continue
             
             eventName = "Approach contact"        
             print ( eventName )
             
-            appContactTimeLine = EventTimeLine( None, eventName , idAnimalA , idAnimalB , None , None , loadEvent=False )
+            appContactTimeLine = EventTimeLine( None, eventName , animal , idAnimalB , None , None , loadEvent=False )
                                        
-            for eventApp in approachDico[idAnimalA, idAnimalB].eventList:
+            for eventApp in approachDico[animal, idAnimalB].eventList:
                 
                 ''' new code: '''
                 
                 for t in range( eventApp.endFrame - TIME_WINDOW_BEFORE_EVENT, eventApp.endFrame + TIME_WINDOW_BEFORE_EVENT + 1 ):
                     
-                    if ( t in contactDicoDico[idAnimalA, idAnimalB] ):
+                    if ( t in contactDicoDico[animal, idAnimalB] ):
                         appContactTimeLine.eventList.append(eventApp)
                         break
                    
@@ -66,7 +66,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                 
                 bug: est ce que ca n aurait pas du etre eventContact.startFrame ? ou eventApp.endFrame-TIME_WINDOW_BEFORE_EVENT, eventApp.endFrame+TIME_WINDOW_BEFORE_EVENT ?
                 
-                for eventContact in contactDicoDico[idAnimalA, idAnimalB].eventList:
+                for eventContact in contactDicoDico[animal, idAnimalB].eventList:
                     if (eventApp.overlapInT(eventContact.endFrame-TIME_WINDOW_BEFORE_EVENT, eventContact.endFrame+TIME_WINDOW_BEFORE_EVENT) == True):
                         appContactTimeLine.eventList.append(eventApp)
                 '''

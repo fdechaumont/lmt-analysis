@@ -76,14 +76,14 @@ if __name__ == '__main__':
         
         # set the axes. Check the number of file to get the dimension of axes and grab the correct ones. This makes it compatible with 1 or n files.
         axLeft = None
-        axRight = None
+        axMiddle2 = None
 
         if ( len(files) == 1 ):
             axLeft = axes[0]
-            axRight = axes[1]
+            axMiddle2 = axes[1]
         else:
             axLeft = axes[n,0]
-            axRight = axes[n,1]
+            axMiddle2 = axes[n,1]
             
         #draw the trajectory in the first phase, without the object
         pool.loadDetection( start=0 , end=28*oneMinute )
@@ -103,11 +103,11 @@ if __name__ == '__main__':
         #draw the trajectory in the second phase, with the object
         pool.loadDetection( start=32*oneMinute , end=60*oneMinute )
         pool.filterDetectionByInstantSpeed( 0,70 );
-        plotZone(axRight, colorEdge='lightgrey', colorFill='lightgrey' ) #whole cage
-        plotZone(axRight, colorEdge='dimgrey', colorFill='dimgrey', xa=120, xb=250, ya=-210, yb=-340) #object zone
-        plot ( axRight, animal, title = "Second phase", color ="black" )
+        plotZone(axMiddle2, colorEdge='lightgrey', colorFill='lightgrey' ) #whole cage
+        plotZone(axMiddle2, colorEdge='dimgrey', colorFill='dimgrey', xa=120, xb=250, ya=-210, yb=-340) #object zone
+        plot ( axMiddle2, animal, title = "Second phase", color ="black" )
         #add the frames where the animal is in SAP
-        plotSap( axRight, animal )
+        plotSap( axMiddle2, animal )
         dt2 = animal.getDistance( 32*oneMinute , 60*oneMinute )
         d2 = animal.getDistanceSpecZone( 32*oneMinute , 60*oneMinute , xa=120, xb=250, ya=210, yb=340 )
         t2 = animal.getCountFramesSpecZone( 32*oneMinute , 60*oneMinute , xa=120, xb=250, ya=210, yb=340)

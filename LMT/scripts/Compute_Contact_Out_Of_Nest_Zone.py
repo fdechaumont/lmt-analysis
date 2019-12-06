@@ -31,6 +31,12 @@ def fuseTimeLine( timeLineDico, animalA ):
     fusedTimeLine.reBuildWithDictionnary( fusedTimeLineDico )
     return fusedTimeLine
 
+
+def inZone( detection ):
+    return detection.isInZone( xa=114, ya=353, xb=256, yb=208 ) #Danger: the y-axis is reversed!
+    
+       
+
 if __name__ == '__main__':
     
     '''

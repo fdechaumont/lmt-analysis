@@ -34,12 +34,12 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
 
     # loading all the escape of animals    
     getAwayDico = {}
-    for idAnimalA in range( 1 , nbAnimal+1 ):
+    for animal in range( 1 , nbAnimal+1 ):
         for idAnimalB in range( 1 , nbAnimal+1 ):
-            if ( idAnimalA == idAnimalB ):
+            if ( animal == idAnimalB ):
                 continue
             
-            getAwayDico[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Get away", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            getAwayDico[animal, idAnimalB] = EventTimeLineCached( connection, file, "Get away", animal, idAnimalB, minFrame=tmin, maxFrame=tmax )
 
     #cache mean body len
     twoMeanBodyLen = {}
@@ -53,25 +53,25 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
             twoMeanBodyLen[idAnimal] = 2*meanBodyLength
         
     
-    for idAnimalA in range( 1 , nbAnimal+1 ):
+    for animal in range( 1 , nbAnimal+1 ):
         
         for idAnimalB in range( 1 , nbAnimal+1 ):
-            if( idAnimalA == idAnimalB ):
+            if( animal == idAnimalB ):
                 continue
             
             eventName = "Social escape"        
             print ( eventName )
             
-            socEscTimeLine = EventTimeLine( None, eventName , idAnimalA , idAnimalB , None , None , loadEvent=False )
+            socEscTimeLine = EventTimeLine( None, eventName , animal , idAnimalB , None , None , loadEvent=False )
                            
             result={}
             
-            dicA = getAwayDico[ idAnimalA , idAnimalB ].getDictionnary()
+            dicA = getAwayDico[ animal , idAnimalB ].getDictionnary()
             
             twoMeanBodyLengthB = twoMeanBodyLen[ idAnimalB ]
             
             for t in dicA.keys():
-                dist = pool.animalDictionnary[idAnimalA].getDistanceTo(t, pool.animalDictionnary[idAnimalB])
+                dist = pool.animalDictionnary[animal].getDistanceTo(t, pool.animalDictionnary[idAnimalB])
                 
                 if ( dist == None ):
                     continue

@@ -17,7 +17,9 @@ from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Bu
     BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
     BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
     BuildEventOralSideSequence, CheckWrongAnimal,\
+
     CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventGetAway
+
     
 from psutil import virtual_memory
 
@@ -85,6 +87,7 @@ eventClassList = [
                   BuildEventNest4
                   
                    ]
+
 
 
 
@@ -290,8 +293,8 @@ def process( file ):
             file.write( "Event name\nnb event\ntotal duration" )
             
             for eventName in eventList:
-                for idAnimalA in range( 0,5 ):                
-                        idA = idAnimalA 
+                for animal in range( 0,5 ):                
+                        idA = animal 
                         if idA == 0:
                             idA = None
                         timeLine = EventTimeLineCached( connection, file, eventName, idA,  minFrame=minT, maxFrame=maxT )

@@ -28,19 +28,19 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None  ):
     #pool.loadDetection( start = tmin, end = tmax )
     
     rear = {}
-    for idAnimalA in range( 1 , 5 ):
-        rear[idAnimalA] = EventTimeLineCached( connection, file, "Rear isolated", idAnimalA, minFrame=tmin, maxFrame=tmax )
+    for animal in range( 1 , 5 ):
+        rear[animal] = EventTimeLineCached( connection, file, "Rear isolated", animal, minFrame=tmin, maxFrame=tmax )
     
     center = {}
-    for idAnimalA in range( 1 , 5 ):
-        center[idAnimalA] = EventTimeLineCached(connection, file, "Center Zone", idAnimalA, minFrame=tmin, maxFrame=tmax )
+    for animal in range( 1 , 5 ):
+        center[animal] = EventTimeLineCached(connection, file, "Center Zone", animal, minFrame=tmin, maxFrame=tmax )
     
     periphery = {}
-    for idAnimalA in range( 1 , 5 ):
-        periphery[idAnimalA] = EventTimeLineCached(connection, file, "Periphery Zone", idAnimalA, minFrame=tmin, maxFrame=tmax )
+    for animal in range( 1 , 5 ):
+        periphery[animal] = EventTimeLineCached(connection, file, "Periphery Zone", animal, minFrame=tmin, maxFrame=tmax )
     
     
-    for idAnimalA in range( 1 , 5 ):
+    for animal in range( 1 , 5 ):
         
         eventName1 = "Rear in center"        
         print ( eventName1 )
@@ -48,14 +48,14 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None  ):
         eventName2 = "Rear at periphery"
         print ( eventName2 )                    
         
-        rearCenterTimeLine = EventTimeLine( None, eventName1 , idAnimalA , None , None , None , loadEvent=False )
-        rearPeripheryTimeLine = EventTimeLine( None, eventName2 , idAnimalA , None , None , None , loadEvent=False )
+        rearCenterTimeLine = EventTimeLine( None, eventName1 , animal , None , None , None , loadEvent=False )
+        rearPeripheryTimeLine = EventTimeLine( None, eventName2 , animal , None , None , None , loadEvent=False )
                    
         resultCenter={}
         resultPeriphery={}
-        dicRear = rear[ idAnimalA ].getDictionnary()
-        dicCenter = center[ idAnimalA ].getDictionnary()
-        dicPeriphery = periphery[ idAnimalA ].getDictionnary()
+        dicRear = rear[ animal ].getDictionnary()
+        dicCenter = center[ animal ].getDictionnary()
+        dicPeriphery = periphery[ animal ].getDictionnary()
         
         for t in dicRear.keys():
             if ( t in dicCenter ):

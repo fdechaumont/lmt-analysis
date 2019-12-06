@@ -38,21 +38,21 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, showGraph
     
     
     
-    for idAnimalA in pool.animalDictionnary.keys():
-        print(pool.animalDictionnary[idAnimalA])
+    for animal in pool.animalDictionnary.keys():
+        print(pool.animalDictionnary[animal])
         
         if ( showGraph ):    
-            plt.subplot(2,2, idAnimalA )
+            plt.subplot(2,2, animal )
         
         eventName = "WallJump"
         print ( "A is jumping against the wall")        
         print ( eventName )
                 
-        JumpWallTimeLine = EventTimeLine( None, eventName , idAnimalA , None , None , None , loadEvent=False )
+        JumpWallTimeLine = EventTimeLine( None, eventName , animal , None , None , None , loadEvent=False )
         
         result={}
         
-        animalA = pool.animalDictionnary[idAnimalA]
+        animalA = pool.animalDictionnary[animal]
         #print ( animalA )
         dicA = animalA.detectionDictionnary
 
