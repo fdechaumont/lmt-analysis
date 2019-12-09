@@ -18,7 +18,7 @@ import networkx as nx
 
 def flush( connection ):
     ''' flush event in database '''
-    deleteEventTimeLineInBase(connection, "Nest4" )
+    deleteEventTimeLineInBase(connection, "Nest4_" )
     '''
     could extends to those:
     deleteEventTimeLineInBase(connection, "Nest3" )
@@ -77,7 +77,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     for animal in range( 1 , 5 ):
         nest3TimeLine = EventTimeLine( None, "Nest3" , animal, loadEvent=False )
     '''
-    nest4TimeLine = EventTimeLine( None, "Nest4" , loadEvent=False )
+    nest4TimeLine = EventTimeLine( None, "Nest4_" , loadEvent=False )
     
     pool.loadAnonymousDetection()
     
