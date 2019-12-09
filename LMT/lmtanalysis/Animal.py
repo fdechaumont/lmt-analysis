@@ -835,60 +835,22 @@ class Animal():
         '''
         query = "SELECT DATA FROM DETECTION WHERE ANIMALID={} AND FRAMENUMBER={}".format( self.baseId , t )
 
-        #print( "TEST")
-        #print( query )
         cursor = self.conn.cursor()
         cursor.execute( query )
         
         rows = cursor.fetchall()
         cursor.close()    
         
-        
-        
         if ( len(rows)!=1 ):
-            print ("unexpected number of row: " , str( len(rows ) ) )
+            #print ("unexpected number of row: " , str( len(rows ) ) )
             return None
         
         row = rows[0]        
         data = row[0]
         
         mask = Mask( data, self.getColor( ) )
-        
-        '''
-        x = 0
-        y = 0
-        w = 0
-        h = 0
-        boolMaskData = None
-        
-        tree = etree.fromstring( data )
-        for user in tree.xpath("/root/ROI/boundsX"):
-            x = int(user.text)
-        for user in tree.xpath("/root/ROI/boundsY"):
-            y = int(user.text)
-        for user in tree.xpath("/root/ROI/boundsW"):
-            w = int(user.text)
-        for user in tree.xpath("/root/ROI/boundsH"):
-            h = int(user.text)
-        for user in tree.xpath("/root/ROI/boolMaskData"):
-            boolMaskData = user.text
-
-        mask = Mask( x , y , w , h , boolMaskData, self.getColor() )
-        '''
-
-        '''
-        <boundsX>119</boundsX><boundsY>248</boundsY><boundsW>37</boundsW><boundsH>29</boundsH>
-        <boolMaskData>78:5e:bd:d3:4b:e:c0:20:8:4:d0:e9:fd:2f:dd:a0:56:11:87:cf:a2:91:a5:be:c:24:22:c0:ea:91:62:17:eb:ac:91:84:4d:13:84:29:e3:aa:cd:70:65:8:1b:8c:90:83:39:66:eb:59:30:2e:51:41:17:cc:7c:c2:a0:d7:9a:a8:82:42:33:da:e5:26:16:63:a2:3f:50:5f:d7:24:a9:82:be:bd:77:a3:a0:be:b:45:f6:37:11:64:9:60:d0:9:e4:44:23:2e:b4:f2:45:bf:91:b4:c8:bc:14:f1:2:7a</boolMaskData></ROI></
-        '''
-        
+                
         return mask
-
-        '''
-        mask = Mask( x , y , binaryMask )
-        
-        return mask
-        '''
-
 
     
 class AnimalPool():
