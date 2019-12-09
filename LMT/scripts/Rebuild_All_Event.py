@@ -17,7 +17,7 @@ from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Bu
     BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
     BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
     BuildEventOralSideSequence, CheckWrongAnimal,\
-    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventGetAway
+    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventGetAway, BuildEventHuddling
 
     
 from psutil import virtual_memory
@@ -36,8 +36,8 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 ''' minT and maxT to process the analysis (in frame '''
 minT = 0
 
-maxT = 3       *oneDay
-#maxT = 1*oneDay
+#maxT = 1 *oneMinute
+maxT = 3*oneDay
 #maxT = (6+1)*oneHour
 ''' time window to compute the events. '''
 windowT = 1*oneDay
@@ -81,12 +81,8 @@ eventClassList = [
                 BuildEventNest3,
                 BuildEventNest4
                    ]
-'''
-eventClassList = [
-                  BuildEventNest4
-                  
-                   ]
-'''
+
+
 
 
 
