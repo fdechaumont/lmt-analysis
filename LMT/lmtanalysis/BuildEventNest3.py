@@ -95,7 +95,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
         # check with anonymous detection. Check contact
         if anonymousDetectionList!= None:
             # manage anonymous
-            print( t , "manage anonymous")
+            # print( t , "manage anonymous")
             '''
             # load all masks
             for animal in animalDetectedList:
@@ -109,7 +109,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                         if distance != None:
                             if distance < DISTANCE_CONTACT_MASS_CENTER:
                                 graph.add_edge( detectionA, detectionB )
-                                print("Adding edge with mask (det anonymous to det anonymous)")
+                                # print("Adding edge with mask (det anonymous to det anonymous)")
                     
             for detection in anonymousDetectionList:
                 for animal in animalDetectedList:
@@ -118,7 +118,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                         if distance < DISTANCE_CONTACT_MASS_CENTER:
                             #if detection.getMask().isInContactWithMask( animal.getDetectionAt ( t ).getMask() ):
                             graph.add_edge( animal, detection )
-                            print("Adding edge with mask")
+                            # print("Adding edge with mask")
         
         # list of CC from the biggest to the smallest
         listCC = sorted(nx.connected_components( graph ), key=len, reverse=True)
@@ -139,37 +139,16 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                     if isinstance( animal , Animal ):                
                         result[ animal.baseId ][ t ] = True
                  
-        
-        '''
-        largestCC = len ( max(nx.connected_components( graph ), key=len) )
-        
-        #print( str( t ) + " : " + str ( len( largestCC ) ) )
-        
-        print( str( t ) + " : " + str ( largestCC ) + " / " + str( nbAnimalAtT ) )
-        
-        if largestCC == nbAnimalAtT :
-            isNest= True         
-        
-                     
-        if isNest == True:
-            print( "ADD PUNCTUAL")
-            result[t] = True;
-        ''' 
-    
-    for idAanimal range( 1 , 5 ):
-        # the id will be the one excluded from nest.
-        nest3TimeLine[idAanimaleBuildWithDictionnary( result[idAanimal
-        
-        # remove very small events
-        nest3TimeLine[idAanimalemoveEventsBelowLength( 2 )
-        nest3TimeLine[idAanimalergeCloseEvents( 3 )
-        
-        nest3TimeLine[idAanimalndRebuildEventTimeLine(connection)
             
-    #nest4TimeLine.reBuildWithDictionnary( result )
-    
-    #nest4TimeLine.endRebuildEventTimeLine(connection)
-         
+    for idAnimalA in range( 1 , 5 ):
+            
+        # the id will be the one excluded from nest.
+        nest3TimeLine[idAnimalA].reBuildWithDictionnary( result[idAnimalA] )
+        # remove very small events
+        nest3TimeLine.removeEventsBelowLength( 2 )
+        # merge flashing events
+        nest3TimeLine.mergeCloseEvents( 3 )
+        nest3TimeLine[idAnimalA].endRebuildEventTimeLine(connection)
         
     # log process
     from lmtanalysis.TaskLogger import TaskLogger
