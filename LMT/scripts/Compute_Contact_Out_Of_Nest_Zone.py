@@ -32,7 +32,7 @@ def fuseTimeLine( timeLineDico, animalA ):
     return fusedTimeLine
 
 def inZone( detection ):
-    return detection.isInZone( xa=114, ya=353, xb=256, yb=208 ) #Danger: the y-axis is reversed!
+    return detection.isInZone( xa=114, ya=353, xb=256, yb=208 ) #Danger: the y-axis is reversed! classic nest zone:  xa=114, ya=353, xb=256, yb=208 
 
        
 if __name__ == '__main__':
@@ -87,7 +87,7 @@ if __name__ == '__main__':
                         continue
                     
                     print("Load contact timeline for animal {} and animal {}".format(animalA, animalB))                
-                    contactTimeLine[animalA, animalB] = EventTimeLine( connection, "Contact" , animalA, animalB, minFrame=night.startFrame, maxFrame=night.endFrame )
+                    contactTimeLine[animalA, animalB] = EventTimeLine( connection, "Approach contact" , animalA, animalB, minFrame=night.startFrame, maxFrame=night.endFrame )
                     resultInZone[animalA, animalB] = {}
                     resultOutZone[animalA, animalB] = {}
 
