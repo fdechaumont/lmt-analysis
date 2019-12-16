@@ -54,15 +54,15 @@ if __name__ == '__main__':
         animalMakeGroupDictionary = {}
         group4Dictionary = {}
         
-        for idAnimalA in pool.animalDictionnary.keys():
-            if ( pool.animalDictionnary[idAnimalA].genotype == "WT" ):
-                animalWTDictionary[idAnimalA] = pool.animalDictionnary[idAnimalA]
+        for animal in pool.animalDictionnary.keys():
+            if ( pool.animalDictionnary[animal].genotype == "WT" ):
+                animalWTDictionary[animal] = pool.animalDictionnary[animal]
             
-            if ( pool.animalDictionnary[idAnimalA].genotype == "KO" ):
-                animalKODictionary[idAnimalA] = pool.animalDictionnary[idAnimalA]
+            if ( pool.animalDictionnary[animal].genotype == "KO" ):
+                animalKODictionary[animal] = pool.animalDictionnary[animal]
         
-            animalMakeGroupDictionary[idAnimalA] = EventTimeLine( connection, "Group 4 make", idAnimalA, minFrame=tmin, maxFrame=tmax )
-            group4Dictionary[idAnimalA] = EventTimeLine( connection, "Group4", idAnimalA, minFrame=tmin, maxFrame=tmax )
+            animalMakeGroupDictionary[animal] = EventTimeLine( connection, "Group 4 make", animal, minFrame=tmin, maxFrame=tmax )
+            group4Dictionary[animal] = EventTimeLine( connection, "Group4", animal, minFrame=tmin, maxFrame=tmax )
         
         ''' calculating how many groups of were created by WT and by KO '''
         wtMakeGroup4 = 0
@@ -78,16 +78,16 @@ if __name__ == '__main__':
                 
                 frameToCkeck = event.startFrame-1
                 
-                for idAnimalA in pool.animalDictionnary.keys():
+                for animal in pool.animalDictionnary.keys():
                     
-                    animal = pool.animalDictionnary[idAnimalA]
+                    animal = pool.animalDictionnary[animal]
                     animalType = ""
-                    if idAnimalA in animalWTDictionary:
+                    if animal in animalWTDictionary:
                         animalType= "WT"
                     else:
                         animalType = "KO"
                      
-                    if ( animalMakeGroupDictionary[idAnimalA].hasEvent( frameToCkeck ) ):
+                    if ( animalMakeGroupDictionary[animal].hasEvent( frameToCkeck ) ):
                         
                         if ( not ( animalType ) in result ):
                             result[ animalType ] = 0
@@ -106,15 +106,15 @@ if __name__ == '__main__':
         animalMakeGroupDictionary = {}
         group4Dictionary = {}
         
-        for idAnimalA in pool.animalDictionnary.keys():
-            if ( pool.animalDictionnary[idAnimalA].genotype == "WT" ):
-                animalWTDictionary[idAnimalA] = pool.animalDictionnary[idAnimalA]
+        for animal in pool.animalDictionnary.keys():
+            if ( pool.animalDictionnary[animal].genotype == "WT" ):
+                animalWTDictionary[animal] = pool.animalDictionnary[animal]
             
-            if ( pool.animalDictionnary[idAnimalA].genotype == "KO" ):
-                animalKODictionary[idAnimalA] = pool.animalDictionnary[idAnimalA]                    
+            if ( pool.animalDictionnary[animal].genotype == "KO" ):
+                animalKODictionary[animal] = pool.animalDictionnary[animal]                    
         
-            animalMakeGroupDictionary[idAnimalA] = EventTimeLine( connection, "Group 4 break", idAnimalA, minFrame=tmin, maxFrame=tmax )
-            group4Dictionary[idAnimalA] = EventTimeLine( connection, "Group4", idAnimalA, minFrame=tmin, maxFrame=tmax )
+            animalMakeGroupDictionary[animal] = EventTimeLine( connection, "Group 4 break", animal, minFrame=tmin, maxFrame=tmax )
+            group4Dictionary[animal] = EventTimeLine( connection, "Group4", animal, minFrame=tmin, maxFrame=tmax )
         
         ''' calculating how many groups of were created by WT and by KO '''
         wtBreakGroup4 = 0
@@ -130,16 +130,16 @@ if __name__ == '__main__':
                 
                 frameToCkeck = event.startFrame-1
                 
-                for idAnimalA in pool.animalDictionnary.keys():
+                for animal in pool.animalDictionnary.keys():
                     
-                    animal = pool.animalDictionnary[idAnimalA]
+                    animal = pool.animalDictionnary[animal]
                     animalType = ""
-                    if idAnimalA in animalWTDictionary:
+                    if animal in animalWTDictionary:
                         animalType= "WT"
                     else:
                         animalType = "KO"
                      
-                    if ( animalMakeGroupDictionary[idAnimalA].hasEvent( frameToCkeck ) ):
+                    if ( animalMakeGroupDictionary[animal].hasEvent( frameToCkeck ) ):
                         
                         if ( not ( animalType ) in result ):
                             result[ animalType ] = 0

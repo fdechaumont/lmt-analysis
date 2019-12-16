@@ -21,12 +21,12 @@ if __name__ == '__main__':
         
         # create an animalPool, which basically contains your animals
         animalPool = AnimalPool()
-        
+         
         # load infos about the animals
         animalPool.loadAnimals( connection )
         
         # load all detection (positions) of all animals for the first hour
-        animalPool.loadDetection( start = 0, end = oneHour )
+        animalPool.loadDetection( start = 0, end = oneHour , lightLoad = True )
         
         # plot and show trajectory
         animalPool.plotTrajectory()

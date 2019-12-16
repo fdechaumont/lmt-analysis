@@ -26,15 +26,15 @@ from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 from lmtanalysis.Chronometer import Chronometer
 
-def loadDetectionMap( connection, idAnimalA, start=None, end=None ):
+def loadDetectionMap( connection, animal, start=None, end=None ):
     
         chrono = Chronometer("Correct detection integrity: Load detection map")
-        print( "processing animal ID: {}".format( idAnimalA ))
+        print( "processing animal ID: {}".format( animal ))
 
         result = {}
         
         cursor = connection.cursor()
-        query = "SELECT FRAMENUMBER FROM DETECTION WHERE ANIMALID={}".format( idAnimalA )
+        query = "SELECT FRAMENUMBER FROM DETECTION WHERE ANIMALID={}".format( animal )
 
         if ( start != None ):
             query += " AND FRAMENUMBER>={}".format(start )

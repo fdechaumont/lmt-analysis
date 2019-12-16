@@ -8,13 +8,12 @@ import unittest
 from time import *
 from lmtanalysis.Chronometer import Chronometer
 
-#matplotlib fix for mac
 import matplotlib
-matplotlib.use('TkAgg')
+#matplotlib fix for mac
+#matplotlib.use('TkAgg')
 
 import matplotlib.pyplot as plt
 import numpy as np
-from turtledemo.penrose import start
 from lmtanalysis.Measure import *
 import sys
 
@@ -416,6 +415,9 @@ class EventTimeLine:
                
         return durationEventInBinProportionList
     
+    '''
+    deprecated
+    '''
     def getDictionnary(self , minFrame=None, maxFrame=None ):
         frameDico = {}
         for event in self.eventList:
@@ -434,6 +436,26 @@ class EventTimeLine:
                     
         
         return frameDico
+    
+    def getDictionary(self , minFrame=None, maxFrame=None ):
+        frameDico = {}
+        for event in self.eventList:
+            for t in range( event.startFrame, event.endFrame +1):
+                frameDico[t] = True;
+        
+        if ( minFrame !=None ):
+            for key in dict ( frameDico ).keys() :
+                if ( key < minFrame ):
+                    frameDico.pop( key )
+                    
+        if ( maxFrame !=None ):
+            for key in dict ( frameDico ).keys():
+                if ( key > maxFrame ):
+                    frameDico.pop( key )
+                    
+        
+        return frameDico
+    
     
     def reBuildWithDictionnary(self, eventBool ):
         
@@ -549,7 +571,18 @@ class EventTimeLine:
         for event in self.eventList[:]:
             if ( event.endFrame < maxT ):
                 self.eventList.remove( event )
-
+    
+    def overlap(self , candidateEvent, dictionary = None ):
+        '''
+        if the user provides the dictionary, this call is much faster
+        '''
+        if dictionary == None:
+            dictionary = self.getDictionnary()
+        for t in range ( candidateEvent.startFrame, candidateEvent.endFrame+1):
+            if t in dictionary:
+                return True
+        return False
+        
     def keepOnlyEventCommonWithTimeLine(self , timeLineAnd ):
         '''
         perform a AND logic with timeLineAnd
@@ -626,7 +659,7 @@ class EventTimeLine:
         else:
             return sum/nb
     
-    def getStandardDEviationEventLength(self):
+    def getStandardDeviationEventLength(self):
         sd=0
         durationList=[]
         for event in self.eventList:

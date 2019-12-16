@@ -38,22 +38,22 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
 
     
             
-    for idAnimalA in range( 1 , nbAnimal+1 ):
+    for animal in range( 1 , nbAnimal+1 ):
         
         for idAnimalB in range( 1 , nbAnimal+1 ):
-            if( idAnimalA == idAnimalB ):
+            if( animal == idAnimalB ):
                 continue
                         
             eventName = "Get away"        
             print ( eventName )
             
-            getAwayTimeLine = EventTimeLine( None, eventName , idAnimalA , idAnimalB , None , None , loadEvent=False )
+            getAwayTimeLine = EventTimeLine( None, eventName , animal , idAnimalB , None , None , loadEvent=False )
 
             result={}
             
             for t in range ( tmin, tmax+1 ):                
             
-                animalA = pool.animalDictionnary[idAnimalA]
+                animalA = pool.animalDictionnary[animal]
                 animalB = pool.animalDictionnary[idAnimalB]
                 
                 if not ( t-1 in animalA.detectionDictionnary ):

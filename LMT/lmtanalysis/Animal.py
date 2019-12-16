@@ -6,9 +6,11 @@ Created on 7 sept. 2017
 
 from lmtanalysis.Detection import *
 
-#matplotlib fix for mac
 import matplotlib
-matplotlib.use('TkAgg')
+
+
+#matplotlib fix for mac (uncomment if needed)
+#matplotlib.use('TkAgg' )
 
 
 import matplotlib.pyplot as plt
@@ -29,7 +31,9 @@ from lmtanalysis.Point import Point
 from lmtanalysis.Mask import Mask
 import matplotlib.patches as mpatches
 from lxml import etree
-
+import matplotlib.ticker as ticker
+from lmtanalysis.Util import convert_to_d_h_m_s
+from lmtanalysis.Util import getDatetimeFromFrame
 
 idAnimalColor = [ None, "red","green","blue","orange"]
 
@@ -46,7 +50,14 @@ class Animal():
         self.user1 = user1
         self.conn = conn
         self.detectionDictionnary = {}
-        
+
+    def setGenotype(self, genotype ):
+        self.genotype = genotype    
+        cursor = self.conn.cursor()                    
+        query = "UPDATE `ANIMAL` SET `GENOTYPE`='{}' WHERE `ID`='{}';".format( genotype, self.baseId )
+        cursor.execute( query )            
+        self.conn.commit()
+        cursor.close()
 
     def __str__(self):        
         return "Animal Id:{id} Name:{name} RFID:{rfid} Genotype:{genotype} User1:{user1}"\
@@ -54,6 +65,11 @@ class Animal():
 
     def getColor(self):
         return getAnimalColor( self.baseId )
+
+    def getDetectionAt(self, t):
+        if t in self.detectionDictionnary:
+            return self.detectionDictionnary[t]
+        return None
 
     def loadDetection(self, start=None, end=None, lightLoad = False ):
         '''
@@ -86,7 +102,7 @@ class Animal():
             frameNumber = row[0]
             massX = row[1]
             massY = row[2]
-            
+            detection = None
             #filter detection at 0
 
             if ( massX < 10 ):
@@ -109,12 +125,17 @@ class Animal():
             
                 detection = Detection( massX, massY, massZ, frontX, frontY, frontZ, backX, backY, backZ, rearing, lookUp, lookDown )
             else:
-                detection = Detection( massX, massY )
-                
+                detection = Detection( massX, massY , lightLoad = True )
+            
             self.detectionDictionnary[frameNumber] = detection
-        
+
         print ( self.__str__(), " ", len( self.detectionDictionnary ) , " detections loaded in {} seconds.".format( chrono.getTimeInS( )) )
     
+    def loadMask(self , frame ):
+        self.setMask( self.getBinaryDetectionMask() )
+        
+    def clearMask(self):
+        self.setMask( None )
     
     def getNumberOfDetection(self, tmin, tmax):
         
@@ -299,7 +320,7 @@ class Animal():
         
         plt.show()
     
-    
+   
     def getDistancePerBin(self , binFrameSize , minFrame=0, maxFrame=None ):
         if ( maxFrame==None ):
             maxFrame= self.getMaxDetectionT()
@@ -318,30 +339,37 @@ class Animal():
     def getDistance(self , tmin=0, tmax= None ):
         '''
         Returns the distance traveled by the animal (in cm)        
-        '''
-        
+        '''        
         print("Compute total distance min:{} max:{} ".format( tmin , tmax ))
-        keyList = sorted(self.detectionDictionnary.keys())
+
         
+        '''
+        keyList = list( self.detectionDictionnary.keys() )
+        if not alreadySorted:
+            keyList = sorted(self.detectionDictionnary.keys())
+        '''         
         if ( tmax==None ):
             tmax= self.getMaxDetectionT()
-    
-        totalDistance = 0
-        for key in keyList:
             
+        totalDistance = 0
+        for t in range( tmin , tmax ):
+        #for key in keyList:
+            
+            '''
             if ( key <= tmin or key >= tmax ):
                 continue
-            
-            a = self.detectionDictionnary.get( key )
-            b = self.detectionDictionnary.get( key+1 )
+            '''
+
+            a = self.detectionDictionnary.get( t )
+            b = self.detectionDictionnary.get( t+1 )
                         
-            if ( b==None):
+            if b==None or a==None:
+                continue
+            distance = math.hypot( a.massX - b.massX, a.massY - b.massY )
+            if ( distance >85.5): #if the distance calculated between two frames is too large, discard
                 continue
             
-            if (math.hypot( a.massX - b.massX, a.massY - b.massY )>85.5): #if the distance calculated between two frames is too large, discard
-                continue
-            
-            totalDistance += math.hypot( a.massX - b.massX, a.massY - b.massY )
+            totalDistance += distance
         
         totalDistance *= scaleFactor
             
@@ -807,59 +835,22 @@ class Animal():
         '''
         query = "SELECT DATA FROM DETECTION WHERE ANIMALID={} AND FRAMENUMBER={}".format( self.baseId , t )
 
-        print( "TEST")
-
-        print( query )
         cursor = self.conn.cursor()
         cursor.execute( query )
         
         rows = cursor.fetchall()
         cursor.close()    
         
-        
-        
         if ( len(rows)!=1 ):
-            print ("unexpected number of row: " , str( len(rows ) ) )
+            #print ("unexpected number of row: " , str( len(rows ) ) )
             return None
         
         row = rows[0]        
         data = row[0]
         
-        #print( data )        
-        
-        x = 0
-        y = 0
-        w = 0
-        h = 0
-        boolMaskData = None
-        
-        tree = etree.fromstring( data )
-        for user in tree.xpath("/root/ROI/boundsX"):
-            x = int(user.text)
-        for user in tree.xpath("/root/ROI/boundsY"):
-            y = int(user.text)
-        for user in tree.xpath("/root/ROI/boundsW"):
-            w = int(user.text)
-        for user in tree.xpath("/root/ROI/boundsH"):
-            h = int(user.text)
-        for user in tree.xpath("/root/ROI/boolMaskData"):
-            boolMaskData = user.text
-
-        mask = Mask( x , y , w , h , boolMaskData, self.getColor() )
-
-        '''
-        <boundsX>119</boundsX><boundsY>248</boundsY><boundsW>37</boundsW><boundsH>29</boundsH>
-        <boolMaskData>78:5e:bd:d3:4b:e:c0:20:8:4:d0:e9:fd:2f:dd:a0:56:11:87:cf:a2:91:a5:be:c:24:22:c0:ea:91:62:17:eb:ac:91:84:4d:13:84:29:e3:aa:cd:70:65:8:1b:8c:90:83:39:66:eb:59:30:2e:51:41:17:cc:7c:c2:a0:d7:9a:a8:82:42:33:da:e5:26:16:63:a2:3f:50:5f:d7:24:a9:82:be:bd:77:a3:a0:be:b:45:f6:37:11:64:9:60:d0:9:e4:44:23:2e:b4:f2:45:bf:91:b4:c8:bc:14:f1:2:7a</boolMaskData></ROI></
-        '''
-        
+        mask = Mask( data, self.getColor( ) )
+                
         return mask
-
-        '''
-        mask = Mask( x , y , binaryMask )
-        
-        return mask
-        '''
-
 
     
 class AnimalPool():
@@ -917,7 +908,7 @@ class AnimalPool():
         rows = cursor.fetchall()
         cursor.close()    
         
-        self.animalDictionnary.clear()
+        self.animalDictionnary.clear()        
                 
         for row in rows:
             
@@ -934,7 +925,59 @@ class AnimalPool():
                 print ( animal )
             else:
                 print ( "Animal loader : error while loading animal.")
+    
+    def getAnonymousDetection(self, frame ):
+        if frame not in self.anonymousDetection:
+            return None
         
+        return self.anonymousDetection[frame] 
+            
+    def loadAnonymousDetection(self, start = None, end=None ):
+        '''
+        Load the dictionary of anonymous detection.
+        each entry get a list of detection
+        clear previous anonymous detection dictionary
+        '''
+        self.anonymousDetection = {}
+        
+        chrono = Chronometer("Load anonymous detection")                
+        cursor = self.conn.cursor()
+        
+        #query = "SELECT FRAMENUMBER, MASS_X, MASS_Y FROM DETECTION WHERE ANIMALID IS NULL"
+        query = "SELECT FRAMENUMBER, MASS_X, MASS_Y FROM DETECTION WHERE ANIMALID IS NULL"
+        
+        if ( start != None ):
+            query += " AND FRAMENUMBER>={}".format(start )
+        if ( end != None ):
+            query += " AND FRAMENUMBER<={}".format(end )
+            
+        print( query )
+        cursor.execute( query )
+        
+        rows = cursor.fetchall()
+        cursor.close()    
+        
+        for row in rows:
+            frameNumber = row[0]
+            massX = row[1]
+            massY = row[2]
+            #data = row[3]
+            detection = None
+            #filter detection at 0
+            if ( massX < 10 ):
+                continue
+
+            detection = Detection( massX, massY , lightLoad = True )
+            #detection.setMask( Mask( data ) )
+            
+            if frameNumber not in self.anonymousDetection:
+                self.anonymousDetection[frameNumber] = []
+                
+            self.anonymousDetection[frameNumber].append( detection )
+                            
+        print ( len( self.anonymousDetection ) , " frames containing anonymous detections loaded in {} seconds.".format( chrono.getTimeInS( )) )
+    
+      
     def loadDetection (self , start = None, end=None , lightLoad = False ):
         for animal in self.animalDictionnary.keys():
             self.animalDictionnary[animal].loadDetection( start = start, end = end , lightLoad=lightLoad )
@@ -987,6 +1030,182 @@ class AnimalPool():
         
         return maxFrame
     
+    def frameToTimeTicker(self, x, pos):
+        vals= convert_to_d_h_m_s( x )
+        experimentTime = "D{0} - {1:02d}:{2:02d}".format( int(vals[0])+1, int(vals[1]), int(vals[2]) )
+       
+        realTime = ""
+        if x > 0:
+            datetime = getDatetimeFromFrame( self.conn , x )
+            if datetime != None:
+                realTime = "\n" + getDatetimeFromFrame( self.conn , x ).strftime('%d-%b-%Y %H:%M:%S')
+        
+        return experimentTime + realTime
+
+    def plotSensorData( self , sensor="TEMPERATURE", show = True , saveFile = None , minValue=0 , autoNight= False):
+        """
+        plots data for temperature
+        """
+        print( "plotting sensor data. " , sensor )
+        cursor = self.conn.cursor()
+    
+        # Check the number of row available in base
+        query = "SELECT FRAMENUMBER,"+sensor+" FROM FRAME"
+        try:
+            cursor.execute( query )
+        except:
+            print("plot sensor data: can't access data for ", sensor )
+            return
+            
+        rows = cursor.fetchall()
+        cursor.close()    
+        
+        frameNumberList = []
+        sensorValueList = []        
+        for row in rows:
+            
+            sensorValue = row[1]
+            if ( sensorValue > minValue ):
+                if sensorValue != None and minValue !=None:
+                    frameNumberList.append( row[0] )
+                    sensorValueList.append( sensorValue )
+
+        fig, ax = plt.subplots( nrows = 1 , ncols = 1 , figsize=( 24, 8 ) )
+        
+        ''' set x axis '''
+        formatter = ticker.FuncFormatter( self.frameToTimeTicker )
+        ax.xaxis.set_major_formatter(formatter)
+        
+        ax.tick_params(labelsize=20 )
+        ax.xaxis.set_major_locator(ticker.MultipleLocator( 30 * 60 * 60 * 12 ))
+        ax.xaxis.set_minor_locator(ticker.MultipleLocator( 30 * 60 * 60 ))
+        
+        ax.plot( frameNumberList, sensorValueList, color= "black" , linestyle='-', linewidth=1, label= sensor )
+        ax.legend( loc=1 )
+        
+        # plot night
+        nightTimeLine = EventTimeLine( self.conn, "night" , None, None, None , None )        
+        
+        mean = 0
+        std = 0
+        
+        if len( sensorValueList ) > 1 :
+            mean = np.mean( sensorValueList )
+            std = np.std( sensorValueList )
+        
+        for nightEvent in nightTimeLine.eventList:
+            
+            ax.axvspan( nightEvent.startFrame, nightEvent.endFrame, alpha=0.1, color='black', ymin= 0, ymax = 1 )
+            ax.text( (nightEvent.startFrame+ nightEvent.endFrame)/2 , mean+std , "dark phase" ,fontsize=20,ha='center')
+
+        autoNightList = []
+        if autoNight:
+            # compute mean value:
+            plt.axhline(y=mean, color='r', linestyle='--' )
+            ax.text( 0 , mean , "auto night threshold" ,fontsize=20, ha='left' , va='bottom')
+            
+            inNight=False
+            start = None
+            end = None
+            for i in range(len(frameNumberList)):
+                frame = frameNumberList[i]
+                value = sensorValueList[i]
+                if value < mean: # night
+                    if inNight:
+                        continue
+                    else:
+                        inNight = True
+                        start=frame
+                else:
+                    if inNight:
+                        end = frame
+                        inNight = False
+                        if end-start > 300:
+                            autoNightList.append( ( start, end ) )
+                        else:    
+                            print("Skipping very short night phase. (less than 10 seconds)")
+                        start = None
+                        end = None
+            
+            for autoNight in autoNightList:
+                
+                ax.axvspan( autoNight[0], autoNight[1], alpha=0.1, color='red', ymin= 0.2, ymax = 0.8 )
+                ax.text( (autoNight[0]+autoNight[1])/2 , mean , "auto dark phase" ,fontsize=20,ha='center', color='red')
+        
+        plt.xlabel('time')
+        
+        if sensor == "TEMPERATURE":
+            plt.ylabel('Temperature (C)')
+            plt.ylim( 17, 28 )
+            
+        
+        if sensor == "SOUND":
+            plt.ylabel('Sound level (indice)')
+
+        if sensor == "HUMIDITY":
+            plt.ylabel('Humidity %')
+            plt.ylim( 0, 100 )
+
+        if sensor == "LIGHTVISIBLE":
+            plt.ylabel('Visible light (indice)')
+
+        if sensor == "LIGHTVISIBLEANDIR":
+            plt.ylabel('Visible and infrared light (indice)')
+
+        if saveFile !=None:
+            print("Saving figure : " + saveFile )
+            fig.savefig( saveFile, dpi=100)
+        
+        '''
+        print("TEST 1")
+        import os
+        os.startfile( saveFile, 'open')
+        print( "TEST 2")
+        '''
+            
+        if ( show ):
+            plt.show()
+        plt.close()
+        
+        if autoNight:
+            return autoNightList
+
+        
+    def plotNight(self, show = True , saveFile = None ):
+        
+        fig, ax = plt.subplots( nrows = 1 , ncols = 1 , figsize=( 12, 4 ) )
+
+        nightTimeLine = EventTimeLine( self.conn, "night" , None, None, None , None )        
+        for nightEvent in nightTimeLine.eventList:
+            
+            ax.axvspan( nightEvent.startFrame, nightEvent.endFrame, alpha=0.1, color='black')
+            ax.text( (nightEvent.startFrame+ nightEvent.endFrame)/2 , 0.5 , "dark phase" ,fontsize=8,ha='center')
+        
+        ''' set x axis '''
+        formatter = ticker.FuncFormatter( self.frameToTimeTicker )
+        ax.xaxis.set_major_formatter(formatter)
+        ax.tick_params(labelsize=6 )
+        ax.xaxis.set_major_locator(ticker.MultipleLocator( 30 * 60 * 60 * 12 ))
+        ax.xaxis.set_minor_locator(ticker.MultipleLocator( 30 * 60 * 60 ))
+
+        if saveFile !=None:
+            print("Saving figure : " + saveFile )
+            fig.savefig( saveFile, dpi=100)
+            
+        if ( show ):
+            plt.show()
+        plt.close()
+        
+    def buildSensorData(self, file , show=False ):
+        print("Build sensor data")
+        #self.plotNight( show = show, saveFile = file+"_day night.pdf" )
+        self.plotSensorData( sensor = "TEMPERATURE" , minValue = 10, saveFile = file+"_log_temperature.pdf", show = show )
+        self.plotSensorData( sensor = "SOUND" , saveFile = file+"_log_sound level.pdf" , show = show )
+        self.plotSensorData( sensor = "HUMIDITY" , minValue = 5 , saveFile = file+"_log_humidity.pdf" ,show = show )        
+        self.plotSensorData( sensor = "LIGHTVISIBLE" , minValue = 40 , saveFile = file+"_log_light visible.pdf", show = show  )
+        self.plotSensorData( sensor = "LIGHTVISIBLEANDIR" , minValue = 50 , saveFile = file+"_log_light visible and infra.pdf", show = show  )
+
+ 
     def plotTrajectory( self , show=True, maskingEventTimeLine=None , title = None, scatter = False, saveFile = None ):
         
         print( "AnimalPool: plot trajectory.")

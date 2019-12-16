@@ -17,7 +17,8 @@ from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Bu
     BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
     BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
     BuildEventOralSideSequence, CheckWrongAnimal,\
-    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventFight, BuildEventGetAway
+    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventGetAway, BuildEventHuddling
+
     
 from psutil import virtual_memory
 
@@ -35,7 +36,8 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 ''' minT and maxT to process the analysis (in frame '''
 minT = 0
 
-maxT = 3       *oneDay
+#maxT = 1 *oneMinute
+maxT = 3*oneDay
 #maxT = (6+1)*oneHour
 ''' time window to compute the events. '''
 windowT = 1*oneDay
@@ -49,42 +51,39 @@ class FileProcessException(Exception):
 
 
 eventClassList = [
+                
+                BuildEventDetection,                  
+                BuildEventOralOralContact,
+                BuildEventOralGenitalContact,
+                BuildEventSideBySide,
+                BuildEventSideBySideOpposite,
+                BuildEventTrain2,                  
+                BuildEventTrain3,
+                BuildEventTrain4,
+                BuildEventMove,
+                BuildEventFollowZone,
+                BuildEventRear5,
+                BuildEventSocialApproach,
+                BuildEventGetAway,
+                #BuildEventSocialEscape,
+                BuildEventApproachRear,
+                BuildEventGroup2,
+                BuildEventGroup3,
+                BuildEventGroup4,
+                BuildEventGroup3MakeBreak,
+                BuildEventGroup4MakeBreak,
+                BuildEventStop,
+                BuildEventWaterPoint,
+                BuildEventApproachContact,
+                BuildEventWallJump,
+                BuildEventSAP,
+                BuildEventOralSideSequence,                
+                BuildEventNest3,
+                BuildEventNest4
+                   ]
 
-                  BuildEventDetection,                  
-                  BuildEventOralOralContact,
-                  BuildEventOralGenitalContact,
-                  BuildEventSideBySide,
-                  BuildEventSideBySideOpposite,
-                  BuildEventTrain2,                  
-                  BuildEventTrain3,
-                  BuildEventTrain4,
-                  BuildEventMove,
-                  BuildEventFollowZone,
-                  BuildEventRear5,
-                  BuildEventSocialApproach,
-                  BuildEventGetAway,
-                  #BuildEventSocialEscape,
-                  BuildEventApproachRear,
-                  BuildEventGroup2,
-                  BuildEventGroup3,
-                  BuildEventGroup4,
-                  BuildEventGroup3MakeBreak,
-                  BuildEventGroup4MakeBreak,
-                  BuildEventStop,
-                  BuildEventWaterPoint,
-                  BuildEventApproachContact,
-                  BuildEventWallJump,
-                  BuildEventSAP,
-                  BuildEventOralSideSequence,
-                  #BuildEventNest3,
-                  #BuildEventNest4
-                   ]
-'''
-eventClassList = [
-                  BuildEventGetAway
-                  
-                   ]
-'''
+
+
 
 
 def flushEvents( connection ):
@@ -98,7 +97,7 @@ def flushEvents( connection ):
         chrono.printTimeInS()
     
 
-def processTimeWindow( connection, currentMinT , currentMaxT ):
+def processTimeWindow( connection, file, currentMinT , currentMaxT ):
     
     CheckWrongAnimal.check( connection, tmin=currentMinT, tmax=currentMaxT )
     
@@ -226,17 +225,27 @@ def processTimeWindow( connection, currentMinT , currentMaxT ):
 def process( file ):
 
     print(file)
+        
+    mem = virtual_memory()
+    availableMemoryGB = mem.total / 1000000000
+    print( "Total memory on computer: (GB)", availableMemoryGB ) 
+    
+    if availableMemoryGB < 10:
+        print( "Not enough memory to use cache load of events.")
+        disableEventTimeLineCache()
+
     
     chronoFullFile = Chronometer("File " + file )
     
     connection = sqlite3.connect( file )
     
     BuildDataBaseIndex.buildDataBaseIndex( connection, force=False )
-        
-        
-    # TODO: flush events,
-    # TODO: recompute per segment of windowT.
-
+    
+    # build sensor data
+    animalPool = AnimalPool( )
+    animalPool.loadAnimals( connection )
+    #animalPool.buildSensorData(file)
+    
     currentT = minT
 
     try:
@@ -251,7 +260,7 @@ def process( file ):
                 currentMaxT = maxT
                 
             chronoTimeWindowFile = Chronometer("File "+ file+ " currentMinT: "+ str(currentMinT)+ " currentMaxT: " + str(currentMaxT) );
-            processTimeWindow( connection, currentMinT, currentMaxT )    
+            processTimeWindow( connection, file, currentMinT, currentMaxT )    
             chronoTimeWindowFile.printTimeInS()
             
             currentT += windowT
@@ -260,6 +269,7 @@ def process( file ):
 
         print("Full file process time: ")
         chronoFullFile.printTimeInS()
+    
         
         TEST_WINDOWING_COMPUTATION = False
         
@@ -278,8 +288,8 @@ def process( file ):
             file.write( "Event name\nnb event\ntotal duration" )
             
             for eventName in eventList:
-                for idAnimalA in range( 0,5 ):                
-                        idA = idAnimalA 
+                for animal in range( 0,5 ):                
+                        idA = animal 
                         if idA == 0:
                             idA = None
                         timeLine = EventTimeLineCached( connection, file, eventName, idA,  minFrame=minT, maxFrame=maxT )
@@ -291,7 +301,8 @@ def process( file ):
             #plotMultipleTimeLine( eventTimeLineList )
             
             print("************* END TEST")
-        
+            
+        flushEventTimeLineCache()        
         
     except:
         
@@ -301,10 +312,13 @@ def process( file ):
         
         t = TaskLogger( connection )
         t.addLog( error )
+        flushEventTimeLineCache()
         
         print( error, file=sys.stderr ) 
         
         raise FileProcessException()
+    
+    
             
 def getAllEvents( connection ):
     
@@ -318,17 +332,8 @@ def getAllEvents( connection ):
         data.append( row[0] )
     return data
 
-if __name__ == '__main__':
+def processAll():
     
-    print("Code launched.")
-    
-    mem = virtual_memory()
-    availableMemoryGB = mem.total / 1000000000
-    print( "Total memory on computer: (GB)", availableMemoryGB ) 
-    
-    if availableMemoryGB < 10:
-        print( "Not enough memory to use cache load of events.")
-        disableEventTimeLineCache()
     
     files = getFilesToProcess()
 
@@ -343,9 +348,13 @@ if __name__ == '__main__':
             except FileProcessException:
                 print ( "STOP PROCESSING FILE " + file , file=sys.stderr  )
         
-            flushEventTimeLineCache()
-        
     chronoFullBatch.printTimeInS()
     print( "*** ALL JOBS DONE ***")
+
+if __name__ == '__main__':
+    
+    print("Code launched.")
+    processAll()
+    
         
         

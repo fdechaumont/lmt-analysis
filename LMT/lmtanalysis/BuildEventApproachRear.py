@@ -39,30 +39,30 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     rearDico = {}
     approachDico = {}
     dicoEventRearAnimal = {}
-    for idAnimalA in range( 1 , 5 ):
+    for animal in range( 1 , 5 ):
 
-        rearDico[idAnimalA] = EventTimeLine( connection, "Rear in contact", idAnimalA, None, minFrame=tmin, maxFrame=tmax )
-        dicoEventRearAnimal[idAnimalA] = rearDico[idAnimalA].getDictionnary()
+        rearDico[animal] = EventTimeLine( connection, "Rear in contact", animal, None, minFrame=tmin, maxFrame=tmax )
+        dicoEventRearAnimal[animal] = rearDico[animal].getDictionnary()
 
         for idAnimalB in range( 1 , 5 ):
-            if ( idAnimalA == idAnimalB ):
+            if ( animal == idAnimalB ):
                 continue
              
-            approachDico[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Social approach", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ) #fait une matrice de toutes les aproches à deux possibles
+            approachDico[animal, idAnimalB] = EventTimeLineCached( connection, file, "Social approach", animal, idAnimalB, minFrame=tmin, maxFrame=tmax ) #fait une matrice de toutes les aproches à deux possibles
 
-    for idAnimalA in range( 1 , 5 ):
+    for animal in range( 1 , 5 ):
         
         for idAnimalB in range( 1 , 5 ):
-            if( idAnimalA == idAnimalB ):
+            if( animal == idAnimalB ):
                 continue
             
             eventName = "Approach rear"        
             print ( eventName )
             
-            appRearTimeLine = EventTimeLine( None, eventName , idAnimalA , idAnimalB , None , None , loadEvent=False )
+            appRearTimeLine = EventTimeLine( None, eventName , animal , idAnimalB , None , None , loadEvent=False )
             
             
-            for eventApp in approachDico[idAnimalA, idAnimalB].eventList:
+            for eventApp in approachDico[animal, idAnimalB].eventList:
                 
                 ''' new code: '''
                 

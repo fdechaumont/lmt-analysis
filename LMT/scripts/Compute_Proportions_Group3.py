@@ -58,29 +58,29 @@ if __name__ == '__main__':
         animalMakeGroupDictionary = {}
         group3Dictionary = {}
         
-        for idAnimalA in pool.animalDictionnary.keys():
-            if ( pool.animalDictionnary[idAnimalA].genotype == "WT" ):
-                animalWTDictionary[idAnimalA] = pool.animalDictionnary[idAnimalA]
+        for animal in pool.animalDictionnary.keys():
+            if ( pool.animalDictionnary[animal].genotype == "WT" ):
+                animalWTDictionary[animal] = pool.animalDictionnary[animal]
             
-            if ( pool.animalDictionnary[idAnimalA].genotype == "KO" ):
-                animalKODictionary[idAnimalA] = pool.animalDictionnary[idAnimalA]
+            if ( pool.animalDictionnary[animal].genotype == "KO" ):
+                animalKODictionary[animal] = pool.animalDictionnary[animal]
         
-            group3Dictionary[idAnimalA] = EventTimeLine( connection, "Group3", idAnimalA, minFrame=tMin, maxFrame=tMax )
+            group3Dictionary[animal] = EventTimeLine( connection, "Group3", animal, minFrame=tMin, maxFrame=tMax )
         
         ''' calculating how many groups of WKK and of KWW longer than one second were created '''
         Group3WKK = 0
         Group3KWW = 0
         
             
-        for idAnimalA in animalWTDictionary:
-            for event in group3Dictionary[idAnimalA].eventList:
+        for animal in animalWTDictionary:
+            for event in group3Dictionary[animal].eventList:
                 
                 if event.duration() >= 1:
                     Group3WKK +=1
                     
-        for idAnimalA in animalKODictionary:
+        for animal in animalKODictionary:
             
-            for event in group3Dictionary[idAnimalA].eventList:
+            for event in group3Dictionary[animal].eventList:
                 
                 if event.duration() >= 1:
                     Group3KWW +=1

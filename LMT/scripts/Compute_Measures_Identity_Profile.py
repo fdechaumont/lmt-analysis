@@ -19,23 +19,23 @@ from lmtanalysis.Util import getMinTMaxTAndFileNameInput
 
 
 
-def getNumberOfEventWithList( connection, eventName, idAnimalA , animalList, minFrame=None, maxFrame=None ):
+def getNumberOfEventWithList( connection, eventName, animal , animalList, minFrame=None, maxFrame=None ):
     
     sumOfEvent = 0
     for animalCandidate in animalList:
         
-        timeLine = EventTimeLine( connection , eventName , idAnimalA , animalCandidate.baseId, minFrame=minFrame, maxFrame=maxFrame )
+        timeLine = EventTimeLine( connection , eventName , animal , animalCandidate.baseId, minFrame=minFrame, maxFrame=maxFrame )
         sumOfEvent += timeLine.getNbEvent()
     
     return sumOfEvent
 
 
-def getDurationOfEventWithList( connection, eventName, idAnimalA , animalList, minFrame=None, maxFrame=None ):
+def getDurationOfEventWithList( connection, eventName, animal , animalList, minFrame=None, maxFrame=None ):
     
     durationOfEvent = 0
     for animalCandidate in animalList:
         
-        timeLine = EventTimeLine( connection , eventName , idAnimalA , animalCandidate.baseId, minFrame=minFrame, maxFrame=maxFrame )
+        timeLine = EventTimeLine( connection , eventName , animal , animalCandidate.baseId, minFrame=minFrame, maxFrame=maxFrame )
         durationOfEvent += timeLine.getTotalLength()
     
     return durationOfEvent
@@ -93,12 +93,12 @@ if __name__ == '__main__':
         '''
         pool.loadDetection( start = min_dur, end = max_dur)
         
-        for idAnimalA in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionnary.keys():
             
-            print ( pool.animalDictionnary[idAnimalA].RFID )
+            print ( pool.animalDictionnary[animal].RFID )
             #total distance traveled
-            totalDistance = pool.animalDictionnary[idAnimalA].getDistance(tmin = min_dur, tmax = max_dur)
-            resTotalDistance = [file, pool.animalDictionnary[idAnimalA].RFID, pool.animalDictionnary[idAnimalA].genotype, pool.animalDictionnary[idAnimalA].user1, max_dur, totalDistance]
+            totalDistance = pool.animalDictionnary[animal].getDistance(tmin = min_dur, tmax = max_dur)
+            resTotalDistance = [file, pool.animalDictionnary[animal].RFID, pool.animalDictionnary[animal].genotype, pool.animalDictionnary[animal].user1, max_dur, totalDistance]
             text_file.write( "{}\n".format( resTotalDistance ) ) 
         '''    
         
@@ -108,17 +108,17 @@ if __name__ == '__main__':
         
         animal = {}
 
-        for idAnimalA in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionnary.keys():
         
-            print( "computing individual animal: {}".format( idAnimalA ))
-            rfid = pool.animalDictionnary[idAnimalA].RFID
+            print( "computing individual animal: {}".format( animal ))
+            rfid = pool.animalDictionnary[animal].RFID
             print( "RFID: ".format( rfid ) )
             animal[rfid] = {}
             ''' store the animal '''
-            animal[rfid]["animal"] = pool.animalDictionnary[idAnimalA]
+            animal[rfid]["animal"] = pool.animalDictionnary[animal]
             genoA = None
             try:
-                genoA=pool.animalDictionnary[idAnimalA].genotype
+                genoA=pool.animalDictionnary[animal].genotype
             except:
                 pass
                         
@@ -126,7 +126,7 @@ if __name__ == '__main__':
                 
                 print( "computing individual event: {}".format(behavEvent))    
                 
-                behavEventTimeLine = EventTimeLine( connection, behavEvent, idAnimalA, minFrame=tmin, maxFrame=tmax )
+                behavEventTimeLine = EventTimeLine( connection, behavEvent, animal, minFrame=tmin, maxFrame=tmax )
                 
                 totalEventDuration = behavEventTimeLine.getTotalLength()
                 nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame = tmin, maxFrame = tmax )
@@ -177,7 +177,7 @@ if __name__ == '__main__':
         print ("done.")
             
                    
-            #resOneMouse = [file, behavEventTimeLine.eventName, pool.animalDictionnary[idAnimalA].RFID, genoA, pool.animalDictionnary[idAnimalA].user1, totalEventDuration, nbEvent]
+            #resOneMouse = [file, behavEventTimeLine.eventName, pool.animalDictionnary[animal].RFID, genoA, pool.animalDictionnary[animal].user1, totalEventDuration, nbEvent]
             #text_file.write( "{}\n".format( resOneMouse ) ) 
         
         '''
@@ -186,27 +186,27 @@ if __name__ == '__main__':
             print( "computing individual event: {}".format(behavEvent))    
             behavEventTimeLine = {}
         
-            for idAnimalA in pool.animalDictionnary.keys():
+            for animal in pool.animalDictionnary.keys():
                 
                 
                 
-                behavEventTimeLine[idAnimalA] = EventTimeLine( connection, behavEvent, idAnimalA, minFrame=tmin, maxFrame=tmax )
+                behavEventTimeLine[animal] = EventTimeLine( connection, behavEvent, animal, minFrame=tmin, maxFrame=tmax )
                 
-                event = behavEventTimeLine[idAnimalA]
+                event = behavEventTimeLine[animal]
                 
                 totalEventDuration = event.getTotalLength()
                 nbEvent = event.getNumberOfEvent(minFrame = tmin, maxFrame = tmax )
 
                 genoA = None
                 try:
-                    genoA=pool.animalDictionnary[idAnimalA].genotype
+                    genoA=pool.animalDictionnary[animal].genotype
                 except:
                     pass
                 
                 
                 print(event.eventName, genoA, event.idA, totalEventDuration, nbEvent)
                 
-                resOneMouse = [file, event.eventName, pool.animalDictionnary[idAnimalA].RFID, genoA, pool.animalDictionnary[idAnimalA].user1, totalEventDuration, nbEvent]
+                resOneMouse = [file, event.eventName, pool.animalDictionnary[animal].RFID, genoA, pool.animalDictionnary[animal].user1, totalEventDuration, nbEvent]
                 text_file.write( "{}\n".format( resOneMouse ) ) 
         '''
                 
@@ -216,30 +216,30 @@ if __name__ == '__main__':
                 
                 print( "computing {} density".format(behavEvent))
                 
-                for idAnimalA in pool.animalDictionnary:
+                for animal in pool.animalDictionnary:
                     animalDiffGeno = []
                     animalSameGeno = []
                     
                     for animal in pool.animalDictionnary:
-                        if ( pool.animalDictionnary[animal].baseId == pool.animalDictionnary[idAnimalA].baseId ):
+                        if ( pool.animalDictionnary[animal].baseId == pool.animalDictionnary[animal].baseId ):
                             continue
                         
-                        if pool.animalDictionnary[animal].genotype == pool.animalDictionnary[idAnimalA].genotype:
+                        if pool.animalDictionnary[animal].genotype == pool.animalDictionnary[animal].genotype:
                             animalSameGeno.append( pool.animalDictionnary[animal] )
                         else:
                             animalDiffGeno.append( pool.animalDictionnary[animal] )
                             
-                    nbEventsSameGeno = getNumberOfEventWithList(connection, behavEvent, idAnimalA, animalSameGeno, minFrame=tmin, maxFrame=tmax)
-                    durEventsSameGeno = getDurationOfEventWithList(connection, behavEvent, idAnimalA, animalSameGeno, minFrame=tmin, maxFrame=tmax)
-                    nbEventsDiffGeno = getNumberOfEventWithList(connection, behavEvent, idAnimalA, animalDiffGeno, minFrame=tmin, maxFrame=tmax)
-                    durEventsDiffGeno = getDurationOfEventWithList(connection, behavEvent, idAnimalA, animalDiffGeno, minFrame=tmin, maxFrame=tmax)
+                    nbEventsSameGeno = getNumberOfEventWithList(connection, behavEvent, animal, animalSameGeno, minFrame=tmin, maxFrame=tmax)
+                    durEventsSameGeno = getDurationOfEventWithList(connection, behavEvent, animal, animalSameGeno, minFrame=tmin, maxFrame=tmax)
+                    nbEventsDiffGeno = getNumberOfEventWithList(connection, behavEvent, animal, animalDiffGeno, minFrame=tmin, maxFrame=tmax)
+                    durEventsDiffGeno = getDurationOfEventWithList(connection, behavEvent, animal, animalDiffGeno, minFrame=tmin, maxFrame=tmax)
                 
                 
                             
-                    print( behavEvent, pool.animalDictionnary[idAnimalA].RFID )
+                    print( behavEvent, pool.animalDictionnary[animal].RFID )
                     
-                    resSame = [file, behavEvent, pool.animalDictionnary[idAnimalA].RFID, pool.animalDictionnary[idAnimalA].genotype, "sameGeno", durEventsSameGeno, nbEventsSameGeno]
-                    resDiff = [file, behavEvent, pool.animalDictionnary[idAnimalA].RFID, pool.animalDictionnary[idAnimalA].genotype, "diffGeno", durEventsDiffGeno, nbEventsDiffGeno]
+                    resSame = [file, behavEvent, pool.animalDictionnary[animal].RFID, pool.animalDictionnary[animal].genotype, "sameGeno", durEventsSameGeno, nbEventsSameGeno]
+                    resDiff = [file, behavEvent, pool.animalDictionnary[animal].RFID, pool.animalDictionnary[animal].genotype, "diffGeno", durEventsDiffGeno, nbEventsDiffGeno]
                     text_file.write( "{}\n{}\n".format( resSame, resDiff ) ) 
                 
                      

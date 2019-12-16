@@ -31,26 +31,26 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None  ):
         return
 
     contact = {}
-    for idAnimalA in range( 1 , 5 ):
+    for animal in range( 1 , 5 ):
         for idAnimalB in range( 1 , 5 ):
-            if ( idAnimalA == idAnimalB ):
+            if ( animal == idAnimalB ):
                 continue
-            contact[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            contact[animal, idAnimalB] = EventTimeLineCached( connection, file, "Contact", animal, idAnimalB, minFrame=tmin, maxFrame=tmax )
 
-    for idAnimalA in range( 1 , 5 ):
+    for animal in range( 1 , 5 ):
         
         for idAnimalB in range( 1 , 5 ):
-            if( idAnimalA == idAnimalB ):
+            if( animal == idAnimalB ):
                 continue
             
             for idAnimalC in range( 1 , 5 ):
-                if( idAnimalA == idAnimalC ):
+                if( animal == idAnimalC ):
                     continue
                 if( idAnimalB == idAnimalC ):
                     continue
                 
                 for idAnimalD in range( 1 , 5 ):
-                    if( idAnimalA == idAnimalD ):
+                    if( animal == idAnimalD ):
                         continue
                     if( idAnimalB == idAnimalD ):
                         continue
@@ -60,13 +60,13 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None  ):
                     eventName = "Group3"        
                     print ( eventName )
                     
-                    groupTimeLine = EventTimeLine( None, eventName , idAnimalA , idAnimalB , idAnimalC , None , loadEvent=False )
+                    groupTimeLine = EventTimeLine( None, eventName , animal , idAnimalB , idAnimalC , None , loadEvent=False )
                     
                     result={}
                     
-                    dicAB = contact[ idAnimalA , idAnimalB ].getDictionnary()
-                    dicAC = contact[ idAnimalA , idAnimalC ].getDictionnary()
-                    dicAD = contact[ idAnimalA , idAnimalD ].getDictionnary()
+                    dicAB = contact[ animal , idAnimalB ].getDictionnary()
+                    dicAC = contact[ animal , idAnimalC ].getDictionnary()
+                    dicAD = contact[ animal , idAnimalD ].getDictionnary()
                     dicBC = contact[ idAnimalB , idAnimalC ].getDictionnary()
                     dicBD = contact[ idAnimalB , idAnimalD ].getDictionnary()
                     dicCD = contact[ idAnimalC , idAnimalD ].getDictionnary()

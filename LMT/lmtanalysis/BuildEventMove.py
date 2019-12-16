@@ -36,45 +36,45 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None  ):
     isInContactSourceDictionnary = {}
     moveSourceTimeLine = {}
     
-    for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
+    for animal in range( 1 , pool.getNbAnimals()+1 ):
         ''' Load source stop timeLine and revert it to get the move timeline
         If the animal is not detected, this will result in a move. To avoid this we mask with the detection.
         '''
-        moveSourceTimeLine[idAnimalA] = EventTimeLine( connection, "Stop", idAnimalA, minFrame=tmin, maxFrame=tmax, inverseEvent=True )
-        detectionTimeLine = EventTimeLine( connection, "Detection", idAnimalA, minFrame=tmin, maxFrame=tmax )
-        moveSourceTimeLine[idAnimalA].keepOnlyEventCommonWithTimeLine( detectionTimeLine )
+        moveSourceTimeLine[animal] = EventTimeLine( connection, "Stop", animal, minFrame=tmin, maxFrame=tmax, inverseEvent=True )
+        detectionTimeLine = EventTimeLine( connection, "Detection", animal, minFrame=tmin, maxFrame=tmax )
+        moveSourceTimeLine[animal].keepOnlyEventCommonWithTimeLine( detectionTimeLine )
         
         ''' load contact dictionnary with whatever animal '''
-        isInContactSourceDictionnary[idAnimalA] = EventTimeLineCached( connection, file, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+        isInContactSourceDictionnary[animal] = EventTimeLineCached( connection, file, "Contact", animal, minFrame=tmin, maxFrame=tmax ).getDictionnary()
                     
     
-    for idAnimalA in range( 1 , pool.getNbAnimals()+1 ):
+    for animal in range( 1 , pool.getNbAnimals()+1 ):
 
         moveSocialResult = {}
         moveIsolatedResult = {}
         
         ''' loop over eventlist'''
-        for moveEvent in moveSourceTimeLine[idAnimalA].eventList:
+        for moveEvent in moveSourceTimeLine[animal].eventList:
         
             ''' for each event we seek in t and search a match in isInContactDictionnary '''
             for t in range ( moveEvent.startFrame, moveEvent.endFrame+1 ) :
-                if t in isInContactSourceDictionnary[idAnimalA]:
+                if t in isInContactSourceDictionnary[animal]:
                     moveSocialResult[t] = True
                 else:
                     moveIsolatedResult[t] = True
     
         ''' save move '''
-        moveResultTimeLine = EventTimeLine( None, "Move" , idAnimalA , None , None , None , loadEvent=False )
-        moveResultTimeLine.reBuildWithDictionnary( moveSourceTimeLine[idAnimalA].getDictionnary() )
+        moveResultTimeLine = EventTimeLine( None, "Move" , animal , None , None , None , loadEvent=False )
+        moveResultTimeLine.reBuildWithDictionnary( moveSourceTimeLine[animal].getDictionnary() )
         moveResultTimeLine.endRebuildEventTimeLine(connection)
 
         ''' save move isolated '''
-        moveIsolatedResultTimeLine = EventTimeLine( None, "Move isolated" , idAnimalA , None , None , None , loadEvent=False )
+        moveIsolatedResultTimeLine = EventTimeLine( None, "Move isolated" , animal , None , None , None , loadEvent=False )
         moveIsolatedResultTimeLine.reBuildWithDictionnary( moveIsolatedResult )
         moveIsolatedResultTimeLine.endRebuildEventTimeLine(connection)
 
         ''' save move social '''
-        moveSocialResultTimeLine = EventTimeLine( None, "Move in contact" , idAnimalA , None , None , None , loadEvent=False )
+        moveSocialResultTimeLine = EventTimeLine( None, "Move in contact" , animal , None , None , None , loadEvent=False )
         moveSocialResultTimeLine.reBuildWithDictionnary( moveSocialResult )
         moveSocialResultTimeLine.endRebuildEventTimeLine(connection)
 

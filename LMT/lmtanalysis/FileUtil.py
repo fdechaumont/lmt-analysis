@@ -26,6 +26,7 @@ def getFilesToProcess():
         title="Select input for processing", text="Select file(s) or folder for processing", bitmap = 'question',
         strings=('Files', 'Folder', 'Cancel'), default=0 )
 
+    root.focus_force()
     files = None    
     if(  d.num == 0 ):
         files = askopenfilename( title="Choose a set of file to process", multiple=1, filetypes = (("sqlite files","*.sqlite"),("all files","*.*") )  )

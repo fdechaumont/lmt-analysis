@@ -39,23 +39,23 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
         
     contact = {}
     
-    for idAnimalA in pool.animalDictionnary.keys():
-        print(pool.animalDictionnary[idAnimalA])
+    for animal in pool.animalDictionnary.keys():
+        print(pool.animalDictionnary[animal])
         
-        contact[idAnimalA] = EventTimeLineCached( connection, file, "Contact", idAnimalA, minFrame=tmin, maxFrame=tmax )
-        contactDico = contact[idAnimalA].getDictionnary()
+        contact[animal] = EventTimeLineCached( connection, file, "Contact", animal, minFrame=tmin, maxFrame=tmax )
+        contactDico = contact[animal].getDictionnary()
         
         eventName1 = "Rear isolated"
         eventName2 = "Rear in contact"
         print ( "A rears")        
                 
-        rearSocialTimeLine = EventTimeLine( None, eventName2 , idAnimalA , None , None , None , loadEvent=False )
-        rearIsolatedTimeLine = EventTimeLine( None, eventName1 , idAnimalA , None , None , None , loadEvent=False )
+        rearSocialTimeLine = EventTimeLine( None, eventName2 , animal , None , None , None , loadEvent=False )
+        rearIsolatedTimeLine = EventTimeLine( None, eventName1 , animal , None , None , None , loadEvent=False )
                 
         resultSocial={}
         resultIsolated={}
         
-        animalA = pool.animalDictionnary[idAnimalA]
+        animalA = pool.animalDictionnary[animal]
         #print ( animalA )
         dicA = animalA.detectionDictionnary
             

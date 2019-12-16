@@ -18,7 +18,7 @@ import networkx as nx
 
 def flush( connection ):
     ''' flush event in database '''
-    deleteEventTimeLineInBase(connection, "Nest4" )
+    deleteEventTimeLineInBase(connection, "Nest4_" )
     '''
     could extends to those:
     deleteEventTimeLineInBase(connection, "Nest3" )
@@ -36,7 +36,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     Group 3
     Group 4
     ''' 
-    print("[NEST 4] : Assume that there is no occlusion, does not work with anonymous animals")
+    print("[NEST 4] : Assume that there is no occlusion")
     
     if ( pool == None ):
         pool = AnimalPool( )
@@ -59,39 +59,42 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     contact = {}
     
     
-    for idAnimalA in range( 1 , 5 ):
+    for animal in range( 1 , 5 ):
         for idAnimalB in range( 1 , 5 ):
-            if idAnimalA != idAnimalB:    
-                contact[idAnimalA,idAnimalB] = EventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionnary() #fait une matrice de tous les contacts à deux possibles
+            if animal != idAnimalB:    
+                contact[animal,idAnimalB] = EventTimeLineCached( connection, file, "Contact", animal, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionnary() #fait une matrice de tous les contacts à deux possibles
     
     stopDictionnary = {}
         
-    for idAnimalA in range( 1 , 5 ):
-        stopDictionnary[idAnimalA] = EventTimeLineCached( connection, file, "Stop", idAnimalA, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+    for animal in range( 1 , 5 ):
+        stopDictionnary[animal] = EventTimeLineCached( connection, file, "Stop", animal, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+    
     
     
     '''
     nest3TimeLine = {}
     
-    for idAnimalA in range( 1 , 5 ):
-        nest3TimeLine = EventTimeLine( None, "Nest3" , idAnimalA, loadEvent=False )
+    for animal in range( 1 , 5 ):
+        nest3TimeLine = EventTimeLine( None, "Nest3" , animal, loadEvent=False )
     '''
-    nest4TimeLine = EventTimeLine( None, "Nest4" , loadEvent=False )
+    nest4TimeLine = EventTimeLine( None, "Nest4_" , loadEvent=False )
+    
+    pool.loadAnonymousDetection()
     
     '''
     group2TimeLine = {}
-    for idAnimalA in range( 1 , 5 ):
+    for animal in range( 1 , 5 ):
         for idAnimalB in range( 1 , 5 ):
-            if ( idAnimalA != idAnimalB ):
-                group2TimeLine[idAnimalA,idAnimalB] = EventTimeLine( None, "Group2" , idAnimalA , idAnimalB , loadEvent=False )
+            if ( animal != idAnimalB ):
+                group2TimeLine[animal,idAnimalB] = EventTimeLine( None, "Group2" , animal , idAnimalB , loadEvent=False )
 
     group3TimeLine = {}
-    for idAnimalA in range( 1 , 5 ):
+    for animal in range( 1 , 5 ):
         for idAnimalB in range( 1 , 5 ):
-            if( idAnimalA != idAnimalB ):
+            if( animal != idAnimalB ):
                 for idAnimalC in range( 1 , 5 ):
-                    if ( idAnimalA != idAnimalC and idAnimalB != idAnimalC ):
-                        group3TimeLine[idAnimalA,idAnimalB] = EventTimeLine( None, "Group3" , idAnimalA , idAnimalB , idAnimalC, loadEvent=False )
+                    if ( animal != idAnimalC and idAnimalB != idAnimalC ):
+                        group3TimeLine[animal,idAnimalB] = EventTimeLine( None, "Group3" , animal , idAnimalB , idAnimalC, loadEvent=False )
     
     group4TimeLine = EventTimeLine( None, "Group4" , loadEvent=False )
     '''
@@ -109,6 +112,74 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
         nbAnimalAtT = 0
         animalDetectedList = []
         
+        
+        anonymousDetectionList = pool.getAnonymousDetection( t )
+        
+        for animal in animalList:
+            if t in animal.detectionDictionnary:                
+                animalDetectedList.append( animal )
+        
+        #print( str(t) + " : " + str( nbAnimalAtT ) )
+                    
+    
+        #print("TEST")
+        graph = nx.Graph()
+        # add nodes
+        
+        for animal in animalDetectedList:
+            graph.add_node( animal )
+            nbAnimalAtT+=1
+            
+        for animalA in animalDetectedList:
+            for animalB in animalDetectedList:
+                if animalA != animalB:
+                    # add an edge
+                    if t in contact[animalA.baseId,animalB.baseId]:
+                        graph.add_edge( animalA, animalB )
+        
+        # check with anonymous detection. Check contact
+        if anonymousDetectionList!= None:
+            
+            nbAnimalAtT+=len(anonymousDetectionList)
+            
+            # manage anonymous
+            #print( t , "manage anonymous")
+            '''
+            # load all masks
+            for animal in animalDetectedList:
+                animal.loadMask( t )
+            '''
+            
+            for detectionA in anonymousDetectionList: # anonymous with anonymous
+                for detectionB in anonymousDetectionList: # anonymous with anonymous
+                    if detectionA != detectionB:
+                        distance = detectionA.getDistanceTo( detectionB )
+                        if distance != None:
+                            if distance < DISTANCE_CONTACT_MASS_CENTER:
+                                graph.add_edge( detectionA, detectionB )
+                                #print("Adding edge with mask (det anonymous to det anonymous)")
+                    
+            for detection in anonymousDetectionList:
+                for animal in animalDetectedList:
+                    distance = detection.getDistanceTo(animal.getDetectionAt( t ) )
+                    if distance != None:
+                        if distance < DISTANCE_CONTACT_MASS_CENTER:
+                            #if detection.getMask().isInContactWithMask( animal.getDetectionAt ( t ).getMask() ):
+                            graph.add_edge( animal, detection )
+                            #print("Adding edge with mask")
+        
+        # list of CC from the biggest to the smallest
+        #listCC = sorted(nx.connected_components( graph ), key=len, reverse=True)
+        
+        if nbAnimalAtT == 0:            
+            isNest = True
+        
+        # list of CC from the biggest to the smallest
+        listCC = sorted(nx.connected_components( graph ), key=len, reverse=True)
+        
+        #largestCC = len ( max(nx.connected_components( graph ), key=len) )
+
+        '''
         for animal in animalList:
             if t in animal.detectionDictionnary:
                 nbAnimalAtT+=1
@@ -132,24 +203,35 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                         if t in contact[animalA.baseId,animalB.baseId]:
                             graph.add_edge( animalA, animalB )
             
+            
+            
+            
             # check connected components. If the biggest group gets all animal, we got a nest4
             largestCC = len ( max(nx.connected_components( graph ), key=len) )
             
             #print( str( t ) + " : " + str ( len( largestCC ) ) )
             
             #print( str( t ) + " : " + str ( largestCC ) + " / " + str( nbAnimalAtT ) )
+        '''    
+        if len ( listCC ) == 0 :
+            continue
+        
+        #print( t , len ( listCC[0] ) , nbAnimalAtT )
+        
+        if len ( listCC[0] ) == nbAnimalAtT:
+        
+        #if largestCC == nbAnimalAtT :
             
-            if largestCC == nbAnimalAtT :
-                
-                # check if animals in the nest are stopped.
-                allStoppedInBiggestGroup = True
-                for animal in animalDetectedList:
+            # check if animals in the nest are stopped.
+            allStoppedInBiggestGroup = True
+            for animal in animalDetectedList:
+                if isinstance( animal , Animal ):
                     if not ( t in stopDictionnary[animal.baseId] ):
                         allStoppedInBiggestGroup = False
-                    break
+                break
 
-                if allStoppedInBiggestGroup:
-                    isNest= True                     
+            if allStoppedInBiggestGroup:
+                isNest= True                     
                      
         if isNest == True:
             #print( "ADD PUNCTUAL")
@@ -166,20 +248,20 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
         
     
     '''
-    for idAnimalA in range( 1 , 5 ):
+    for animal in range( 1 , 5 ):
         
         for idAnimalB in range( 1 , 5 ):
-            if( idAnimalA == idAnimalB ):
+            if( animal == idAnimalB ):
                 continue
             
             for idAnimalC in range( 1 , 5 ):
-                if( idAnimalA == idAnimalC ):
+                if( animal == idAnimalC ):
                     continue
                 if( idAnimalB == idAnimalC ):
                     continue
                 
                 for idAnimalD in range( 1 , 5 ):
-                    if( idAnimalA == idAnimalD ):
+                    if( animal == idAnimalD ):
                         continue
                     if( idAnimalB == idAnimalD ):
                         continue
@@ -189,16 +271,16 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                     eventName = "Group4"        
                     print ( eventName )
                     
-                    groupTimeLine = EventTimeLine( None, eventName , idAnimalA , idAnimalB , idAnimalC , idAnimalD , loadEvent=False )
+                    groupTimeLine = EventTimeLine( None, eventName , animal , idAnimalB , idAnimalC , idAnimalD , loadEvent=False )
                     
                     result={}
                     
-                    dicA = contact[ idAnimalA ].getDictionnary()
+                    dicA = contact[ animal ].getDictionnary()
                     dicB = contact[ idAnimalB ].getDictionnary()
                     dicC = contact[ idAnimalC ].getDictionnary()
                     dicD = contact[ idAnimalD ].getDictionnary()
                     
-                    dicGroup2A = group2[ idAnimalA ].getDictionnary()
+                    dicGroup2A = group2[ animal ].getDictionnary()
                     dicGroup2B = group2[ idAnimalB ].getDictionnary()
                     dicGroup2C = group2[ idAnimalC ].getDictionnary()
                     dicGroup2D = group2[ idAnimalD ].getDictionnary()

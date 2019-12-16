@@ -31,14 +31,17 @@ def fuseTimeLine( timeLineDico, animalA ):
     fusedTimeLine.reBuildWithDictionnary( fusedTimeLineDico )
     return fusedTimeLine
 
+
 def inZone( detection ):
+
     return detection.isInZone( xa=114, ya=353, xb=256, yb=208 ) #Danger: the y-axis is reversed! classic nest zone:  xa=114, ya=353, xb=256, yb=208 
 
        
+
 if __name__ == '__main__':
     
     '''
-    This script computes the time spent in contact out of the nest zone (the coordinates of the nest zone can be adapted) during each night.
+    This script computes the time spent in contact out of the nest zone during each night.
     '''
     
     files = getFilesToProcess()
@@ -55,18 +58,9 @@ if __name__ == '__main__':
         pool = AnimalPool( )
         pool.loadAnimals( connection )
         
-        nightIndex=1
+        #pool.loadDetection( lightLoad = True )
         
-        # create a new timeline to store the events "Contact out of the nest zone" and "Contact in the nest zone":
-        ContactOutOfNestZoneTimeLine = {}
-        ContactInNestZoneTimeLine = {}
-            
-        for animalA in pool.animalDictionnary.keys():
-                for animalB in pool.animalDictionnary.keys():
-                    if (animalA == animalB):
-                        continue
-                    ContactOutOfNestZoneTimeLine[animalA, animalB] = EventTimeLine( None, "Contact out of nest zone" , animalA, animalB, loadEvent=False )
-                    ContactInNestZoneTimeLine[animalA, animalB] = EventTimeLine( None, "Contact in nest zone" , animalA, animalB, loadEvent=False )
+        nightIndex=1
         
         # process for each night
         
@@ -78,18 +72,21 @@ if __name__ == '__main__':
             # load the timeline of contacts during this night
             contactTimeLine = {}
             
-            resultInZone = {}
-            resultOutZone = {}
-
             for animalA in pool.animalDictionnary.keys():
                 for animalB in pool.animalDictionnary.keys():
                     if (animalA == animalB):
                         continue
                     
                     print("Load contact timeline for animal {} and animal {}".format(animalA, animalB))                
-                    contactTimeLine[animalA, animalB] = EventTimeLine( connection, "Approach contact" , animalA, animalB, minFrame=night.startFrame, maxFrame=night.endFrame )
-                    resultInZone[animalA, animalB] = {}
-                    resultOutZone[animalA, animalB] = {}
+
+
+
+                    contactTimeLine[animalA, animalB] = EventTimeLine( connection, "Contact" , animalA, animalB, minFrame=night.startFrame, maxFrame=night.endFrame )
+           
+           
+            # create a new timeline to store the events "Contact out of the nest zone" and "Contact in the nest zone":
+            ContactOutOfNestZoneTimeLine = {}
+            inNestZoneTimeLine = {}
 
             
             for animalA in pool.animalDictionnary.keys():
@@ -101,10 +98,14 @@ if __name__ == '__main__':
                     
                     detectionDicoAnimalB = pool.getAnimalWithId( animalB ).detectionDictionnary
                     
+                    resultInZone = {}
+                    resultOutZone = {}
                     
                     # load all frames in which animalA and animalB are in contact
                     dicAB = contactTimeLine[ animalA , animalB ].getDictionnary()
                     
+                    ContactOutOfNestZoneTimeLine[animalA, animalB] = EventTimeLine( None, "Contact out of nest zone" , animalA, animalB, loadEvent=False )
+                    inNestZoneTimeLine[animalA, animalB] = EventTimeLine( None, "Contact in nest zone" , animalA, animalB, loadEvent=False )
                     
                     # Test if the detection at the given frame is in or out the nest zone (nest zone = lower left quarter)
                     for t in dicAB:
@@ -115,42 +116,45 @@ if __name__ == '__main__':
                         if t in detectionDicoAnimalA and t in detectionDicoAnimalB:
                             
                             # check detection A and B are both in Zone
-                            if ( inZone( detectionDicoAnimalA[t] ) and inZone( detectionDicoAnimalB[t] ) ):
-                                resultInZone[ animalA , animalB ][t] = True
+                            if ( detectionDicoAnimalA[t].isInZone( xa=114, ya=63, xb=256, yb=208 ) and detectionDicoAnimalB[t].isInZone( xa=114, ya=63, xb=256, yb=208 ) ):
+                                resultInZone[t] = True
 
                             # check detection A and B are both NOT in Zone
-                            if ( (not inZone(detectionDicoAnimalA[t])) and (not inZone(detectionDicoAnimalB[t]) )):
-                                resultOutZone[ animalA , animalB ][t] = True
+                            if ( (not detectionDicoAnimalA[t].isInZone( xa=114, ya=63, xb=256, yb=208 )) and (not detectionDicoAnimalB[t].isInZone( xa=114, ya=63, xb=256, yb=208 ) )):
+                                resultOutZone[t] = True
+                                                        
+                        #
+                        #if ( dicAB[t].isInZone( xa=114, ya=63, xb=256, yb=208 ) == True):
+                        #    resultInZone[t] = True
+                        #else:
+                        #    resultOutZone[t] = True
+                        
+                        #if (dicAB[t].isInZone( xa=114, ya=63, xb=256, yb=208 ) == False):
+                        #    resultOutZone[t] = True
                     
-            
-            for animalA in pool.animalDictionnary.keys():
-                for animalB in pool.animalDictionnary.keys():
-                    if (animalA == animalB):
-                        continue
-
                     # Build the timelines
-                    ContactInNestZoneTimeLine[ animalA , animalB ].reBuildWithDictionnary( resultInZone[ animalA , animalB ] )    
-                    ContactOutOfNestZoneTimeLine[ animalA , animalB ].reBuildWithDictionnary( resultOutZone[ animalA , animalB ] )
+                    inNestZoneTimeLine[ animalA , animalB ].reBuildWithDictionnary( resultInZone )    
+                    ContactOutOfNestZoneTimeLine[ animalA , animalB ].reBuildWithDictionnary( resultOutZone )
                     
                     # Record events in the database
-                    ContactInNestZoneTimeLine[ animalA , animalB ].endRebuildEventTimeLine( connection , deleteExistingEvent = True )
-                    ContactOutOfNestZoneTimeLine[ animalA , animalB ].endRebuildEventTimeLine( connection , deleteExistingEvent = True )
-
+                    inNestZoneTimeLine[ animalA , animalB ].endRebuildEventTimeLine( connection )
+                    ContactOutOfNestZoneTimeLine[ animalA , animalB ].endRebuildEventTimeLine( connection )
             
             text_file.write("{}\t{}\t{}\t{}\t{}\t{}\n".format( "file", "rfid", "genotype", "night", "timeOutOfNestZone", "contactOutOfNestDuration" ) )
             
             #Compute the time spent out of the nest        
             for animalA in pool.animalDictionnary.keys():
                 #upper half
-                print( "night duration: ",night.startFrame , night.endFrame)
-                timeZone1 = pool.animalDictionnary[animalA].getCountFramesSpecZone( tmin=night.startFrame, tmax=night.endFrame, xb=114, yb=208, xa=398, ya=63 )
+                timeZone1 = pool.animalDictionnary[animalA].getCountFramesSpecZone( tmin=night.startFrame, tmax=night.endFrame, xa=114, ya=208, xb=398, yb=353 )
                 #lower right quarter
-                timeZone2 = pool.animalDictionnary[animalA].getCountFramesSpecZone( tmin=night.startFrame, tmax=night.endFrame, xb=256, yb=353, xa=398, ya=208 )       
+                timeZone2 = pool.animalDictionnary[animalA].getCountFramesSpecZone( tmin=night.startFrame, tmax=night.endFrame, xa=256, ya=63, xb=398, yb=208 )       
                 #total number of frames spent out of the nest zone during the night
                 timeOutOfNestZone = timeZone1 + timeZone2
-                print( timeZone1 , timeZone2 )
                 
-                #Compute the time spent in contact out of the nest zone:
+                # ********* can't work:
+                # contactOutOfNestDuration = ContactOutOfNestZoneTimeLine[animalA].getTotalDurationEvent(tmin=night.startFrame, tmax=night.endFrame)
+                
+                # code proposal:
                 contactOutOfNestDuration = fuseTimeLine(ContactOutOfNestZoneTimeLine, animalA ).getTotalDurationEvent(tmin=night.startFrame, tmax=night.endFrame)
                 
                 text_file.write("{}\t{}\t{}\t{}\t{}\t{}\n".format( file, pool.animalDictionnary[animalA].RFID, pool.animalDictionnary[animalA].genotype, nightIndex, timeOutOfNestZone, contactOutOfNestDuration ) )
@@ -158,7 +162,6 @@ if __name__ == '__main__':
             text_file.write( "\n" )
             
             text_file.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( "file", "rfidA", "genoA", "rfidB", "genoB", "night", "contactOutOfNestDuration" ) )
-            
             for animalA in pool.animalDictionnary.keys():
                 
                 for animalB in pool.animalDictionnary.keys():
@@ -168,9 +171,6 @@ if __name__ == '__main__':
                     contactOutOfNestDuration = ContactOutOfNestZoneTimeLine[animalA, animalB].getTotalDurationEvent(tmin=night.startFrame, tmax=night.endFrame)
                     text_file.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, pool.animalDictionnary[animalA].RFID, pool.animalDictionnary[animalA].genotype, pool.animalDictionnary[animalB].RFID, pool.animalDictionnary[animalB].genotype, nightIndex, contactOutOfNestDuration ) )
             
-
-            nightIndex+=1
-
                      
     text_file.write( "\n" )
     
