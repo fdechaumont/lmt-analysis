@@ -241,8 +241,6 @@ class EventTimeLine:
             if ( event.overlapEvent( eventToAdd ) ):                
                 self.mergeEvent( event, eventToAdd )
         
-        #TODO: should also check if the new event overlap with existing events.
-    
     def addPunctualEvent(self , frameNumber ):
         '''
         Adds an event at frame frameNumber. If an event exists beside, extends it, else creates it.
@@ -456,6 +454,8 @@ class EventTimeLine:
         
         return frameDico
     
+    def clearEvents(self):
+        self.eventList.clear()
     
     def reBuildWithDictionnary(self, eventBool ):
         
