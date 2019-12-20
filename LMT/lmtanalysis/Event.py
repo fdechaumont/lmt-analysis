@@ -31,7 +31,7 @@ class Event:
     
     def contain(self , frameNumber ):
         return ( frameNumber >= self.startFrame and frameNumber <= self.endFrame )
-    
+
     def overlapInT(self , start , end ):
         '''
         XXXX
@@ -522,6 +522,30 @@ class EventTimeLine:
         
         self.reBuildWithDictionnary( eventDictionnary )
             
+    def dilateEvents(self, numberOfFrame):
+        '''
+        Dilate events in time.
+        '''
+        minT = self.getMinT()
+        maxT = self.getMaxT( )
+        
+        if ( self.getNbEvent() == 0 ):
+            print("No event in timeLine")
+            return
+        
+        eventDictionnary = self.getDictionnary( minT, maxT )
+        eventDictionnaryDilated = {}
+
+        for t in range( minT , maxT+1 ):
+
+            if t in eventDictionnary:
+                
+                for tt in range ( t - numberOfFrame, t+numberOfFrame+1 ):
+                    eventDictionnaryDilated[tt]=True
+        
+        self.reBuildWithDictionnary( eventDictionnaryDilated )
+        
+        
         
     def mergeEvent( self , eventA, eventB ):
         '''
