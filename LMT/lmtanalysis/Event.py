@@ -22,10 +22,11 @@ class Event:
     '''
     an event represent the interval of frame where the event is
     '''    
-    def __init__(self , startFrame, endFrame, baseId = None, metadata=None ):
+    def __init__(self , startFrame, endFrame, baseId = None, metadata=None, description=None ):
         
         self.startFrame = startFrame
         self.endFrame = endFrame
+        self.description = description
         
         if metadata==None:
             self.metadata = {}
@@ -186,7 +187,7 @@ class EventTimeLine:
                     
                 if ( maxFrame != None ):
                     if ( start > maxFrame or end > maxFrame ):
-                        continue
+                        continue            
                 
                 metadata = None
                 if len(row) >=10 :
@@ -194,7 +195,7 @@ class EventTimeLine:
                     metadata = row[9]
                     #print("Load meta data: " , metadata ) 
                 
-                self.eventList.append( Event( start, end , metadata = metadata, baseId = row[0] ) )
+                self.eventList.append( Event( start, end , metadata = metadata, baseId = row[0], description=row[2] ) )
                 
                 
         else:
@@ -250,13 +251,16 @@ class EventTimeLine:
     def __str__(self):
         return self.eventName + " Id(" + str(self.idA) + ","+  str(self.idB)+ ","+ str(self.idC)+ "," + str(self.idD) + ")"
     
-    def saveTimeLine(self , conn ):
+    def saveTimeLine(self , conn , saveDescriptionPerEvent=False ):
         c = conn.cursor()   
         for event in self.eventList:
             query = "INSERT INTO EVENT (NAME, DESCRIPTION, STARTFRAME, ENDFRAME, IDANIMALA, IDANIMALB, IDANIMALC, IDANIMALD, METADATA ) VALUES (?,?,?,?,?,?,?,?,?);"
 
             jsonToStore = json.dumps( event.metadata )
-            c.execute( query , ( self.eventName, self.eventNameWithId, event.startFrame, event.endFrame , self.idA, self.idB, self.idC, self.idD, jsonToStore ) )            
+            description = "" # self.eventNameWithId
+            if saveDescriptionPerEvent:
+                description = event.description
+            c.execute( query , ( self.eventName, description, event.startFrame, event.endFrame , self.idA, self.idB, self.idC, self.idD, jsonToStore ) )            
         conn.commit()
 
 
