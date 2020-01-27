@@ -104,6 +104,7 @@ venv.bak/
 .mypy_cache/
 .metadata/
 LMT/experimental/
+LMT/from users/
 LMT/scripts/measures_profile_cc_mice_one_mouse_3days_a.txt
 LMT/scripts/measures_profile_cc_mice_one_mouse_day1_a.txt
 LMT/scripts/measures_profile_cc_mice_one_mouse_day2_a.txt
