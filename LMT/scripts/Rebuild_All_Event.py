@@ -235,6 +235,18 @@ def process( file ):
     
     connection = sqlite3.connect( file )
     
+    # update missing fields
+    try:
+        connection = sqlite3.connect( file )    
+        c = connection.cursor()            
+        query = "ALTER TABLE EVENT ADD METADATA TEXT";
+        c.execute( query )    
+        connection.commit()
+        c.close()
+        connection.close()
+    except:
+        print( "METADATA field already exists" , file )
+    
     BuildDataBaseIndex.buildDataBaseIndex( connection, force=False )
     
     # build sensor data
