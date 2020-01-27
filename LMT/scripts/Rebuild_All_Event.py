@@ -17,7 +17,7 @@ from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Bu
     BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
     BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
     BuildEventOralSideSequence, CheckWrongAnimal,\
-    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventGetAway, BuildEventHuddling
+    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventGetAway, BuildEventHuddling, BuildEventDiggingSingle
 
     
 from psutil import virtual_memory
@@ -82,6 +82,9 @@ eventClassList = [
                 BuildEventNest4
                    ]
 
+eventClassList = [ BuildEventDiggingSingle ]
+
+
 def flushEvents( connection ):
     
     print("Flushing events...")
@@ -120,103 +123,6 @@ def processTimeWindow( connection, file, currentMinT , currentMaxT ):
         chrono.printTimeInS()
         
 
-    '''
-    chrono = Chronometer("Oral oral contact" )
-    BuildEventOralOralContact.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT, pool = animalPool )        
-    chrono.printTimeInS()
-
-    chrono = Chronometer("Oral genital contact" )
-    BuildEventOralGenitalContact.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT, pool = animalPool )
-    chrono.printTimeInS()
-    
-    chrono = Chronometer("Side by side" )
-    BuildEventSideBySide.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT, pool = animalPool )        
-    chrono.printTimeInS()
-
-    chrono = Chronometer("Side by side opposite" )
-    BuildEventSideBySideOpposite.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT, pool = animalPool )        
-    chrono.printTimeInS()
-
-    chrono = Chronometer("Train 2" )
-    BuildEventTrain2.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT , pool = animalPool )
-    chrono.printTimeInS()
-    
-    chrono = Chronometer("Train 3" )
-    BuildEventTrain3.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT , pool = animalPool )   
-    chrono.printTimeInS()
-
-    chrono = Chronometer("Train 4" )
-    BuildEventTrain4.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT , pool = animalPool )    
-    chrono.printTimeInS()
-    
-    chrono = Chronometer("Move" )      
-    BuildEventMove.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT, tmax=maxT )
-    chrono.printTimeInS()
-       
-    chrono = Chronometer("FollowZone" )      
-    BuildEventFollowZone.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT, pool = animalPool )
-    chrono.printTimeInS()
-    
-    chrono = Chronometer("Rear" )      
-    BuildEventRear5.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT, pool = animalPool )
-    chrono.printTimeInS()
-    
-    chrono = Chronometer("Social approach" )      
-    BuildEventSocialApproach.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT, pool = animalPool )
-    chrono.printTimeInS()
-    
-    chrono = Chronometer("Social escape" )      
-    BuildEventSocialEscape.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT, pool = animalPool )
-    chrono.printTimeInS()
-
-    chrono = Chronometer("Social approach rear" )      
-    BuildEventApproachRear.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT )
-    chrono.printTimeInS()
-    
-    chrono = Chronometer("group2" )      
-    BuildEventGroup2.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT )
-    chrono.printTimeInS()
-    
-    chrono = Chronometer("group3" )      
-    BuildEventGroup3.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT )
-    chrono.printTimeInS()
-
-    chrono = Chronometer("group4" )      
-    BuildEventGroup4.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT )
-    chrono.printTimeInS()
-    
-    chrono = Chronometer("group4 make break" )      
-    BuildEventGroup4MakeBreak.reBuildEvent( connection, tmin=currentMinT, tmax=currentMaxT )
-    chrono.printTimeInS()
-
-    chrono = Chronometer("group3 make break" )      
-    BuildEventGroup3MakeBreak.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT )
-    chrono.printTimeInS()
-    
-    chrono = Chronometer("stop" )      
-    BuildEventStop.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT )
-    chrono.printTimeInS()
-
-    chrono = Chronometer("waterpoint" )      
-    BuildEventWaterPoint.reBuildEvent(connection, file, tmin=currentMinT, tmax=currentMaxT, pool = animalPool )
-    chrono.printTimeInS()
-
-    chrono = Chronometer("approach contact" )      
-    BuildEventApproachContact.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT )
-    chrono.printTimeInS()
-
-    chrono = Chronometer("wall jump" )      
-    BuildEventWallJump.reBuildEvent(connection, file, tmin=currentMinT, tmax=currentMaxT , pool = animalPool )
-    chrono.printTimeInS()
-
-    chrono = Chronometer("sap" )      
-    BuildEventSAP.reBuildEvent(connection,  file, tmin=currentMinT, tmax=currentMaxT , pool = animalPool )
-    chrono.printTimeInS()
-
-    chrono = Chronometer("oral side sequence" )
-    BuildEventOralSideSequence.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT, pool = animalPool )
-    chrono.printTimeInS()
-    '''
 
 def process( file ):
 
@@ -234,6 +140,18 @@ def process( file ):
     chronoFullFile = Chronometer("File " + file )
     
     connection = sqlite3.connect( file )
+    
+    # update missing fields
+    try:
+        connection = sqlite3.connect( file )    
+        c = connection.cursor()            
+        query = "ALTER TABLE EVENT ADD METADATA TEXT";
+        c.execute( query )    
+        connection.commit()
+        c.close()
+        connection.close()
+    except:
+        print( "METADATA field already exists" , file )
     
     BuildDataBaseIndex.buildDataBaseIndex( connection, force=False )
     
