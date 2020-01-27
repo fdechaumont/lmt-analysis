@@ -79,8 +79,8 @@ def getMinTMaxTAndFileNameInput():
 
 def getMinTMaxTInput():
     
-    tmin = getFrameInput("Starting t")
-    tmax = getFrameInput("Ending t")
+    tmin = int ( input("tMin : ") )
+    tmax = int ( input("tMax : ") )
     
     return tmin,tmax
 
