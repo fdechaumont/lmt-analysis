@@ -47,7 +47,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , showGrap
             roundness = mask.getRoundness()
             if roundness == None:
                 continue
-            #print ( idAnimalA , t , roundness )
+            print ( idAnimalA , t , roundness )
             #if roundness > 1-threshold and roundness < 1+threshold:
             if roundness < 1.85: # and roundness > 1:
                 result[t] = True  

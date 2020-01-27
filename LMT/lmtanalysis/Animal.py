@@ -42,7 +42,7 @@ def getAnimalColor( animalId ):
 
 class Animal():
 
-    def __init__(self, baseId , RFID , name=None, genotype=None , user1 = None, age=None, sex=None, strain=None, conn = None ):
+    def __init__(self, baseId , RFID , name=None, genotype=None , user1 = None, age = None, sex = None, strain = None, conn = None ):
         self.baseId = baseId
         self.RFID = RFID
         self.name = name
@@ -925,8 +925,7 @@ class AnimalPool():
             if ( len( row ) == 5 ):
                 animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , user1=row[4] , conn = conn )
             if ( len( row ) == 7 ):
-                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], conn = conn )
-                
+                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6] , conn = conn )
             
             if ( animal!= None):
                 self.animalDictionnary[animal.baseId] = animal
