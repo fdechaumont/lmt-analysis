@@ -188,11 +188,11 @@ class Animal():
         
         print( "Filtering area, number of detection removed:", nbRemoved )
     
-    def filterDetectionByEventTimeLine( self, eventTimeLine ):
+    def filterDetectionByEventTimeLine( self, eventTimeLineVoc ):
         '''
         filter detection using an event. Keep only what matches the event
         '''
-        eventDic = eventTimeLine.getDictionnary()
+        eventDic = eventTimeLineVoc.getDictionnary()
         nbRemoved = 0
         for key in sorted( self.detectionDictionnary.keys() ):
             a = self.detectionDictionnary.get( key )
@@ -858,7 +858,7 @@ class Animal():
     
 class AnimalPool():
     """
-    Manages a pool of animals.
+    Manages an experiment.
     """
     
     def __init__(self):
@@ -998,9 +998,9 @@ class AnimalPool():
         for animal in self.animalDictionnary.keys():
             self.animalDictionnary[animal].filterDetectionByArea( x1, y1, x2, y2 )
 
-    def filterDetectionByEventTimeLine(self, eventTimeLine ):
+    def filterDetectionByEventTimeLine(self, eventTimeLineVoc ):
         for animal in self.animalDictionnary.keys():
-            self.animalDictionnary[animal].filterDetectionByEventTimeLine( eventTimeLine )
+            self.animalDictionnary[animal].filterDetectionByEventTimeLine( eventTimeLineVoc )
 
     def getGenotypeList(self):
         
@@ -1305,6 +1305,6 @@ class AnimalPool():
             
         return particleDictionnary
         
-
+    
 
 
