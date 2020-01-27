@@ -17,7 +17,7 @@ from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Bu
     BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
     BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
     BuildEventOralSideSequence, CheckWrongAnimal,\
-    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventGetAway, BuildEventHuddling, BuildEventDiggingSingle
+    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventGetAway, BuildEventHuddling
 
     
 from psutil import virtual_memory
@@ -82,7 +82,6 @@ eventClassList = [
                 BuildEventNest4
                    ]
 
-eventClassList = [ BuildEventDiggingSingle ]
 
 
 def flushEvents( connection ):
