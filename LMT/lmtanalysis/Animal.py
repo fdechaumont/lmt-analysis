@@ -42,7 +42,7 @@ def getAnimalColor( animalId ):
 
 class Animal():
 
-    def __init__(self, baseId , RFID , name=None, genotype=None , user1 = None, age = None, sex = None, strain = None, conn = None ):
+    def __init__(self, baseId , RFID , name=None, genotype=None , user1 = None, age=None, sex=None, strain=None, conn = None ):
         self.baseId = baseId
         self.RFID = RFID
         self.name = name
@@ -188,11 +188,11 @@ class Animal():
         
         print( "Filtering area, number of detection removed:", nbRemoved )
     
-    def filterDetectionByEventTimeLine( self, eventTimeLine ):
+    def filterDetectionByEventTimeLine( self, eventTimeLineVoc ):
         '''
         filter detection using an event. Keep only what matches the event
         '''
-        eventDic = eventTimeLine.getDictionnary()
+        eventDic = eventTimeLineVoc.getDictionnary()
         nbRemoved = 0
         for key in sorted( self.detectionDictionnary.keys() ):
             a = self.detectionDictionnary.get( key )
@@ -858,7 +858,7 @@ class Animal():
     
 class AnimalPool():
     """
-    Manages a pool of animals.
+    Manages an experiment.
     """
     
     def __init__(self):
@@ -925,7 +925,8 @@ class AnimalPool():
             if ( len( row ) == 5 ):
                 animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , user1=row[4] , conn = conn )
             if ( len( row ) == 7 ):
-                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6] , conn = conn )
+                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], conn = conn )
+                
             
             if ( animal!= None):
                 self.animalDictionnary[animal.baseId] = animal
@@ -997,9 +998,9 @@ class AnimalPool():
         for animal in self.animalDictionnary.keys():
             self.animalDictionnary[animal].filterDetectionByArea( x1, y1, x2, y2 )
 
-    def filterDetectionByEventTimeLine(self, eventTimeLine ):
+    def filterDetectionByEventTimeLine(self, eventTimeLineVoc ):
         for animal in self.animalDictionnary.keys():
-            self.animalDictionnary[animal].filterDetectionByEventTimeLine( eventTimeLine )
+            self.animalDictionnary[animal].filterDetectionByEventTimeLine( eventTimeLineVoc )
 
     def getGenotypeList(self):
         
@@ -1304,6 +1305,6 @@ class AnimalPool():
             
         return particleDictionnary
         
-
+    
 
 
