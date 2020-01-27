@@ -12,7 +12,7 @@ from lmtanalysis.Measure import *
 import numpy as np
 from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
-from affine import Affine
+#from affine import Affine
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 
