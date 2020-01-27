@@ -16,15 +16,39 @@ import matplotlib.pyplot as plt
 import numpy as np
 from lmtanalysis.Measure import *
 import sys
+import json
 
 class Event:
     '''
     an event represent the interval of frame where the event is
     '''    
-    def __init__(self , startFrame, endFrame ):
+    def __init__(self , startFrame, endFrame, baseId = None, metadata=None, description=None ):
         
         self.startFrame = startFrame
         self.endFrame = endFrame
+        self.description = description
+        
+        if metadata==None:
+            self.metadata = {}
+        else:
+            self.metadata = json.loads( metadata )
+            
+        if baseId!= None:
+            self.baseId = baseId
+        
+    def updateMetaData(self, connection ): 
+        # update event in database at eventBaseId. note that it does not commit.
+        toStore = json.dumps( self.metadata )
+        print( toStore )
+        print( self.baseId )
+        
+        #query = "UPDATE EVENT SET METADATA=%s WHERE ID=%s".format( toStore, self.baseId )
+        query = "UPDATE EVENT SET METADATA=? WHERE ID=?"
+        print ( query )
+        c = connection.cursor()
+        c.execute( query , (toStore , self.baseId ) )
+        
+                
         
     def duration(self):
         return self.endFrame-self.startFrame+1
@@ -81,7 +105,7 @@ class EventTimeLine:
     '''
     classdocs
     ''' 
-    def __init__(self, conn, eventName, idA=None , idB=None ,idC=None , idD=None , loadEvent=True, minFrame = None, maxFrame=None, inverseEvent = False , loadEventWithoutOverlapCheck = False ):
+    def __init__(self, conn, eventName, idA=None , idB=None ,idC=None , idD=None , loadEvent=True, minFrame = None, maxFrame=None, inverseEvent = False , loadEventIndependently = False ):
         '''
         load events 
             where t>=minFrame and t<=maxFrame if applicable
@@ -147,7 +171,7 @@ class EventTimeLine:
         c.execute( query )
         all_rows = c.fetchall()
             
-        if loadEventWithoutOverlapCheck == True:
+        if loadEventIndependently == True: # load events without using the rebuild dictionnary.
             
             if inverseEvent == True:
                 print ( "Warning: inverseEvent option not compatible in loadEventWithoutOverlapCheck")
@@ -163,9 +187,16 @@ class EventTimeLine:
                     
                 if ( maxFrame != None ):
                     if ( start > maxFrame or end > maxFrame ):
-                        continue
-                    
-                self.eventList.append( Event( start, end ) )
+                        continue            
+                
+                metadata = None
+                if len(row) >=10 :
+                    #print (row )
+                    metadata = row[9]
+                    #print("Load meta data: " , metadata ) 
+                
+                self.eventList.append( Event( start, end , metadata = metadata, baseId = row[0], description=row[2] ) )
+                
                 
         else:
             
@@ -220,26 +251,31 @@ class EventTimeLine:
     def __str__(self):
         return self.eventName + " Id(" + str(self.idA) + ","+  str(self.idB)+ ","+ str(self.idC)+ "," + str(self.idD) + ")"
     
-    def saveTimeLine(self , conn ):
+    def saveTimeLine(self , conn , saveDescriptionPerEvent=False ):
         c = conn.cursor()   
         for event in self.eventList:
-            query = "INSERT INTO EVENT (NAME, DESCRIPTION, STARTFRAME, ENDFRAME, IDANIMALA, IDANIMALB, IDANIMALC, IDANIMALD ) VALUES ('{}','{}','{}','{}','{}','{}','{}','{}');".format( self.eventName, self.eventNameWithId, event.startFrame, event.endFrame , self.idA, self.idB, self.idC, self.idD )
-            #print( query )
-            c.execute( query )
+            query = "INSERT INTO EVENT (NAME, DESCRIPTION, STARTFRAME, ENDFRAME, IDANIMALA, IDANIMALB, IDANIMALC, IDANIMALD, METADATA ) VALUES (?,?,?,?,?,?,?,?,?);"
+
+            jsonToStore = json.dumps( event.metadata )
+            description = "" # self.eventNameWithId
+            if saveDescriptionPerEvent:
+                description = event.description
+            c.execute( query , ( self.eventName, description, event.startFrame, event.endFrame , self.idA, self.idB, self.idC, self.idD, jsonToStore ) )            
         conn.commit()
 
 
-    def addEvent(self , eventToAdd ):
+    def addEvent(self , eventToAdd , noCheck =False ):
         self.eventList.append ( eventToAdd )
-        self.checkEventHole( eventToAdd.startFrame-1 )
-        self.checkEventHole( eventToAdd.endFrame )
-        
-        # check merge with existing events
-        for event in self.eventList[:]:
-            if ( event == eventToAdd ):
-                continue
-            if ( event.overlapEvent( eventToAdd ) ):                
-                self.mergeEvent( event, eventToAdd )
+        if not noCheck :
+            self.checkEventHole( eventToAdd.startFrame-1 )
+            self.checkEventHole( eventToAdd.endFrame )
+            
+            # check merge with existing events
+            for event in self.eventList[:]:
+                if ( event == eventToAdd ):
+                    continue
+                if ( event.overlapEvent( eventToAdd ) ):                
+                    self.mergeEvent( event, eventToAdd )
         
     def addPunctualEvent(self , frameNumber ):
         '''
