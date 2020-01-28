@@ -38,7 +38,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , showGrap
         
         animal = pool.animalDictionnary[animal]
                 
-        SAPTimeLine = EventTimeLine( connection, "SAP", animal, minFrame=tmin, maxFrame=tmax, loadEvent=False )
+        SAPTimeLine = EventTimeLine( connection, "SAP", animal.baseId, minFrame=tmin, maxFrame=tmax, loadEvent=False )
 
         #f = animal.getCountFramesSpecZone( start , start+oneMinute*30 , xa=143, ya=190, xb=270, yb=317 )
         result = animal.getSapDictionnary( tmin , tmax )
