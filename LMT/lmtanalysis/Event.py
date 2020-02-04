@@ -939,6 +939,11 @@ class EventTimeLine:
             v = nbMatch / nbEvent
             
         return [v, foundEventList,relativityDico]    
+    
+    def updateMetaData( self , connection ):
+        for event in self.eventList:
+            event.updateMetaData( connection )
+        
 
 def deleteEventTimeLineInBase( connection, eventName, idA=None, idB=None, idC=None, idD=None ):
     '''
