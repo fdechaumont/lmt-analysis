@@ -39,12 +39,12 @@ class Event:
     def updateMetaData(self, connection ): 
         # update event in database at eventBaseId. note that it does not commit.
         toStore = json.dumps( self.metadata )
-        print( toStore )
-        print( self.baseId )
+        #print( toStore )
+        #print( self.baseId )
         
         #query = "UPDATE EVENT SET METADATA=%s WHERE ID=%s".format( toStore, self.baseId )
         query = "UPDATE EVENT SET METADATA=? WHERE ID=?"
-        print ( query )
+        #print ( query )
         c = connection.cursor()
         c.execute( query , (toStore , self.baseId ) )
         
