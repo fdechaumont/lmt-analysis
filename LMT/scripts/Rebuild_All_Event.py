@@ -33,6 +33,7 @@ from lmtanalysis.EventTimeLineCache import flushEventTimeLineCache,\
 
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
+
 ''' minT and maxT to process the analysis (in frame '''
 minT = 0
 
@@ -81,7 +82,6 @@ eventClassList = [
                 BuildEventNest3,
                 BuildEventNest4
                    ]
-
 
 
 def flushEvents( connection ):
@@ -147,8 +147,8 @@ def process( file ):
         query = "ALTER TABLE EVENT ADD METADATA TEXT";
         c.execute( query )    
         connection.commit()
-        c.close()
-        connection.close()
+        #c.close()
+        #connection.close()
     except:
         print( "METADATA field already exists" , file )
     
