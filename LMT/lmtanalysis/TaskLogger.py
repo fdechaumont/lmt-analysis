@@ -53,6 +53,7 @@ class TaskLogger:
             cursor = self.conn.cursor()
             query = "CREATE TABLE LOG ( id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, process TEXT, version TEXT,date TEXT,tmin INTEGER, tmax INTEGER)"
             cursor.execute( query )
+            self.conn.commit()
             cursor.close()
     
     def loadLog(self):
