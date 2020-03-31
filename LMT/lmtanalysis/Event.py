@@ -940,9 +940,11 @@ class EventTimeLine:
             
         return [v, foundEventList,relativityDico]    
     
-    def updateMetaData( self , connection ):
+    def updateMetaData( self , connection , commit= True ):
         for event in self.eventList:
             event.updateMetaData( connection )
+        if commit == True:
+            connection.commit()
         
 
 def deleteEventTimeLineInBase( connection, eventName, idA=None, idB=None, idC=None, idD=None ):
