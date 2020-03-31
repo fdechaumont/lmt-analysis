@@ -135,7 +135,7 @@ class Animal():
         print ( self.__str__(), " ", len( self.detectionDictionnary ) , " detections loaded in {} seconds.".format( chrono.getTimeInS( )) )
     
     def loadMask(self , frame ):
-        self.setMask( self.getBinaryDetectionMask() )
+        self.setMask( self.getBinaryDetectionMask( frame ) )
         
     def clearMask(self):
         self.setMask( None )
@@ -1288,7 +1288,7 @@ class AnimalPool():
         return the number of particle per frame
         '''  
         
-        query = "SELECT * FROM FRAME WHERE FRAMENUMBER>={} AND FRAMENUMBER<={}".format( start, end )
+        query = "SELECT FRAMENUMBER, NUMPARTICLE FROM FRAME WHERE FRAMENUMBER>={} AND FRAMENUMBER<={}".format( start, end )
         
         print ( "SQL Query: " + query )
 
@@ -1301,7 +1301,7 @@ class AnimalPool():
                         
         for row in rows:
             
-            particleDictionnary[ row[0] ] = row[2]
+            particleDictionnary[ row[0] ] = row[1]
             
         return particleDictionnary
         
