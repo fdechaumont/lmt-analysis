@@ -83,6 +83,7 @@ eventClassList = [
                 BuildEventNest4
                    ]
 
+#eventClassList = [BuildEventWaterPoint]
 
 def flushEvents( connection ):
     

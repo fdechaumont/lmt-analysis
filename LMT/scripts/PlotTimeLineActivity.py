@@ -182,3 +182,6 @@ if __name__ == '__main__':
         plt.close( fig )
         #print( "Showing figure...")
         #plt.show()
+        connection.close()
+        
+    text_file.close()
