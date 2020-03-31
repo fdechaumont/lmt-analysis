@@ -706,6 +706,13 @@ class EventTimeLine:
             nb = nb+1
         
         return nb
+    
+    def getEventLengthList(self):
+        eventLengthList = []
+        for event in self.eventList:
+            eventLengthList.append(event.duration())
+            
+        return eventLengthList
         
     def getMeanEventLength(self):
         nb=0

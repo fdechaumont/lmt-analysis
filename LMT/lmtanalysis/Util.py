@@ -79,8 +79,11 @@ def getMinTMaxTAndFileNameInput():
 
 def getMinTMaxTInput():
     
-    tmin = int ( input("tMin : ") )
-    tmax = int ( input("tMax : ") )
+    print ("Enter time information in frame. You can also set in days, hour, minutes")
+    print ("valid entries: 100, 1d, 1.5d, 23.5h, 1d 2h 3m 4s 5f")
+    
+    tmin = getFrameInput("Starting t")
+    tmax = getFrameInput("Ending t")
     
     return tmin,tmax
 
