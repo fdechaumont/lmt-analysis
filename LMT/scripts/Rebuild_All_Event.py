@@ -147,8 +147,7 @@ def process( file ):
         query = "ALTER TABLE EVENT ADD METADATA TEXT";
         c.execute( query )    
         connection.commit()
-        #c.close()
-        #connection.close()
+
     except:
         print( "METADATA field already exists" , file )
     
@@ -264,10 +263,11 @@ def processAll():
     chronoFullBatch.printTimeInS()
     print( "*** ALL JOBS DONE ***")
 
+
 if __name__ == '__main__':
     
     print("Code launched.")
     processAll()
     
-        
+
         
