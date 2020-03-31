@@ -129,6 +129,8 @@ class Mask():
         
         return False
             
+    def getNbPoint(self):
+        return len( self.pointsX )
     
     def unzip(self, maskDataZipped ):
         
