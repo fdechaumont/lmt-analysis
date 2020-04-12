@@ -16,7 +16,7 @@ def disableEventTimeLineCache():
     print( "Cache event is disabled" )
     
     
-def EventTimeLineCached( connection, file, eventName, idA=None, idB=None, idC=None, idD = None, minFrame=None, maxFrame=None, loadEventWithoutOverlapCheck=False ):
+def EventTimeLineCached( connection, file, eventName, idA=None, idB=None, idC=None, idD = None, minFrame=None, maxFrame=None, loadEventIndependently=False ):
             
     global eventCacheDico_
     
@@ -25,17 +25,17 @@ def EventTimeLineCached( connection, file, eventName, idA=None, idB=None, idC=No
         #print ("Cache debug:", connection, file, eventName, "ids:" , idA, idB, idC, idD, "frames:", minFrame, maxFrame , loadEventWithoutOverlapCheck )
         
         
-        if (file, eventName, idA, idB, idC, idD, minFrame, maxFrame, loadEventWithoutOverlapCheck ) in eventCacheDico_: 
-            eventTimeLine = eventCacheDico_[ file, eventName, idA, idB, idC, idD, minFrame, maxFrame, loadEventWithoutOverlapCheck ]
+        if (file, eventName, idA, idB, idC, idD, minFrame, maxFrame, loadEventIndependently ) in eventCacheDico_: 
+            eventTimeLine = eventCacheDico_[ file, eventName, idA, idB, idC, idD, minFrame, maxFrame, loadEventIndependently ]
             print ( eventName , " Id(",idA ,",", idB, ",", idC, "," , idD , ") Loaded from cache (" , len( eventTimeLine.eventList ) , " records. )")
             return eventTimeLine
 
         
-    eventTimeLine = EventTimeLine( connection, eventName , idA = idA, idB = idB, idC = idC, idD = idD, minFrame = minFrame, maxFrame = maxFrame , loadEventIndependently = loadEventWithoutOverlapCheck )
+    eventTimeLine = EventTimeLine( connection, eventName , idA = idA, idB = idB, idC = idC, idD = idD, minFrame = minFrame, maxFrame = maxFrame , loadEventIndependently = loadEventIndependently )
     
     if eventCacheEnable_ == True:
         print ( "Caching eventTimeLine")
-        eventCacheDico_[ file, eventName, idA, idB, idC, idD, minFrame, maxFrame, loadEventWithoutOverlapCheck ] = eventTimeLine
+        eventCacheDico_[ file, eventName, idA, idB, idC, idD, minFrame, maxFrame, loadEventIndependently ] = eventTimeLine
     else:
         print( "Loading event from base (Cache event disabled)")
     
