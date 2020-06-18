@@ -58,6 +58,12 @@ MIN_WATER_STOP_DURATION = 2*oneSecond
 ''' Cage center in 50x50cm area'''
 cageCenterCoordinates50x50Area = Point( 256, 208 )
 
+''' Size of arena in cm '''
+ARENA_SIZE = 50
+
+''' Margin to define center region in cm (chosen to have same area as non-center)'''
+CENTER_MARGIN = 7.32
+
 ''' Corner Coordinates in 50x50cm area '''
 cornerCoordinates50x50Area = [
                         (114,63),
@@ -68,7 +74,7 @@ cornerCoordinates50x50Area = [
 
 def second( second ):
     return second * oneSecond
-    
+
 def day( day ):
     return day* oneDay
 
