@@ -9,7 +9,7 @@ import sqlite3
 import time
 import datetime
 
-def getAllEvents(file=None, connection=None):
+def getAllEvents(connection=None, file=None, ):
     """Returns names of all events present in database
 
     Args:
