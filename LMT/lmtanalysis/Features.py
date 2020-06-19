@@ -3,7 +3,7 @@ import pandas
 
 from lmtanalysis import Measure
 
-class DetectionTableAnalysis():
+class DetectionFeatures():
     @staticmethod
     def total_distance(df, region=None):
         name = "Distance"
@@ -36,10 +36,10 @@ class DetectionTableAnalysis():
         name = "Speed_average"
         if region is not None:
             name += f"_{region}"
-        return pandas.Series({name: DetectionTableAnalysis.total_distance(df, region).values[0] /
-                                        DetectionTableAnalysis.total_time(df, region).values[0]})
+        return pandas.Series({name: DetectionFeatures.total_distance(df, region).values[0] /
+                                        DetectionFeatures.total_time(df, region).values[0]})
 
-class EventTableAnalysis():
+class EventFeatures():
     @staticmethod
     def duration_stats(df):
         return pandas.Series({
@@ -49,7 +49,31 @@ class EventTableAnalysis():
                             })
 
 
-def getDetectionSummary(animal_pool, start="0min", end="60min", freq="5min"):
+def computeDetectionFeatures(animal_pool, start="0min", end="60min", freq="5min"):
+    """Computes common features of the mouse trajectories in the animal pool,
+       for a given time interval range given by start, end and freq (temporal bin size).
+
+       Use pandas convention to specifiy time parameters.
+           * 3 hours  : "3H"
+           * 5 minutes: "5min"
+
+        Features computed:
+            * time spent
+            * distance travelled
+            * average speed
+
+
+    Args:
+        animal_pool (AnimalPool): the animal pool
+        start (str, optional): Start time. Defaults to "0min".
+        end (str, optional)  : End time.   Defaults to "60min".
+        freq (str, optional) : Time step.  Defaults to "5min".
+
+    Returns:
+        DataFrame: Multiindex Dataframe containing mouse meta information and
+                   computed features:
+
+    """
     detection_table = animal_pool.getDetectionTable()
     time_delta_rng = pandas.timedelta_range(start=start, end=end, freq=freq)
 
@@ -57,17 +81,41 @@ def getDetectionSummary(animal_pool, start="0min", end="60min", freq="5min"):
     return pandas.concat([
                         grp.name.first(),
                         grp.genotype.first(),
-                        grp.apply(DetectionTableAnalysis.total_time),
-                        grp.apply(DetectionTableAnalysis.total_time, "in_arena_center"),
+                        grp.apply(DetectionFeatures.total_time),
+                        grp.apply(DetectionFeatures.total_time, "in_arena_center"),
 
-                        grp.apply(DetectionTableAnalysis.total_distance),
-                        grp.apply(DetectionTableAnalysis.total_distance, "in_arena_center"),
+                        grp.apply(DetectionFeatures.total_distance),
+                        grp.apply(DetectionFeatures.total_distance, "in_arena_center"),
 
-                        grp.apply(DetectionTableAnalysis.speed_avg),
-                        grp.apply(DetectionTableAnalysis.speed_avg, "in_arena_center")
+                        grp.apply(DetectionFeatures.speed_avg),
+                        grp.apply(DetectionFeatures.speed_avg, "in_arena_center")
                     ], axis=1)
 
-def getEventSummary(animal_pool, start="0min", end="60min", freq="5min"):
+def computeEventFeatures(animal_pool, start="0min", end="60min", freq="5min"):
+    """Computes common features of the mice' events in the animal pool,
+       for a given time interval range given by start, end and freq (temporal bin size).
+
+       Use pandas convention to specifiy time parameters.
+           * 3 hours  : "3H"
+           * 5 minutes: "5min"
+
+        Features computed:
+            * number of events
+            * duration of events
+                * mean/median/std
+
+
+    Args:
+        animal_pool (AnimalPool): the animal pool
+        start (str, optional): Start time. Defaults to "0min".
+        end (str, optional)  : End time.   Defaults to "60min".
+        freq (str, optional) : Time step.  Defaults to "5min".
+
+    Returns:
+        DataFrame: Multiindex Dataframe containing mouse meta information and
+                   computed event features:
+
+    """
     events_table = animal_pool.getAllEventsTable()
     time_delta_rng = pandas.timedelta_range(start=start, end=end, freq=freq)
 
@@ -76,7 +124,7 @@ def getEventSummary(animal_pool, start="0min", end="60min", freq="5min"):
                    grp.name.first(),
                    grp.genotype.first(),
                    grp.size(),
-                   grp.apply(EventTableAnalysis.duration_stats)
+                   grp.apply(EventFeatures.duration_stats)
     ], axis=1)
     res = res.rename(columns={0: "Number_of_events"})
     return res
