@@ -3,7 +3,7 @@ import pandas
 
 from lmtanalysis import Measure
 
-class DetectionFeatures():
+class DetectionTableAnalysis():
     @staticmethod
     def total_distance(df, region=None):
         name = "Distance"
@@ -36,10 +36,10 @@ class DetectionFeatures():
         name = "Speed_average"
         if region is not None:
             name += f"_{region}"
-        return pandas.Series({name: DetectionFeatures.total_distance(df, region).values[0] /
-                                        DetectionFeatures.total_time(df, region).values[0]})
+        return pandas.Series({name: DetectionTableAnalysis.total_distance(df, region).values[0] /
+                                        DetectionTableAnalysis.total_time(df, region).values[0]})
 
-class EventFeatures():
+class EventTableAnalysis():
     @staticmethod
     def duration_stats(df):
         return pandas.Series({
@@ -57,14 +57,14 @@ def getDetectionSummary(animal_pool, start="0min", end="60min", freq="5min"):
     return pandas.concat([
                         grp.name.first(),
                         grp.genotype.first(),
-                        grp.apply(DetectionFeatures.total_time),
-                        grp.apply(DetectionFeatures.total_time, "in_arena_center"),
+                        grp.apply(DetectionTableAnalysis.total_time),
+                        grp.apply(DetectionTableAnalysis.total_time, "in_arena_center"),
 
-                        grp.apply(DetectionFeatures.total_distance),
-                        grp.apply(DetectionFeatures.total_distance, "in_arena_center"),
+                        grp.apply(DetectionTableAnalysis.total_distance),
+                        grp.apply(DetectionTableAnalysis.total_distance, "in_arena_center"),
 
-                        grp.apply(DetectionFeatures.speed_avg),
-                        grp.apply(DetectionFeatures.speed_avg, "in_arena_center")
+                        grp.apply(DetectionTableAnalysis.speed_avg),
+                        grp.apply(DetectionTableAnalysis.speed_avg, "in_arena_center")
                     ], axis=1)
 
 def getEventSummary(animal_pool, start="0min", end="60min", freq="5min"):
@@ -76,7 +76,7 @@ def getEventSummary(animal_pool, start="0min", end="60min", freq="5min"):
                    grp.name.first(),
                    grp.genotype.first(),
                    grp.size(),
-                   grp.apply(EventFeatures.duration_stats)
+                   grp.apply(EventTableAnalysis.duration_stats)
     ], axis=1)
     res = res.rename(columns={0: "Number_of_events"})
     return res
