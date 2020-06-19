@@ -36,8 +36,7 @@ from lmtanalysis.Util import getAllEvents
 import matplotlib.patches as mpatches
 from lxml import etree
 import matplotlib.ticker as ticker
-from lmtanalysis.Util import convert_to_d_h_m_s
-from lmtanalysis.Util import getDatetimeFromFrame
+from lmtanalysis.Util import convert_to_d_h_m_s, getDatetimeFromFrame, mute_prints
 
 idAnimalColor = [ None, "red","green","blue","orange"]
 
@@ -1355,13 +1354,27 @@ class AnimalPool():
 
 
     def getSingleEventTable(self, event_name):
+        """
+        Returns pandas table containing all found events for given event name'
+            * Primary mouse' meta data
+            * Event start time
+            * Event end time
+            * Event duration
+
+        Args:
+            event_name (str): Event name e. g. Rearing
+
+        Returns:
+            DataFrame
+        """
         data = defaultdict(list)
         for animal in self.getAnimalList():
-            eventTimeLine = EventTimeLine(self.conn,
-                                          event_name,
-                                          idA=animal.baseId,
-                                          minFrame=self.detectionStartFrame,
-                                          maxFrame=self.detectionEndFrame)
+            with mute_prints():
+                eventTimeLine = EventTimeLine(self.conn,
+                                                event_name,
+                                                idA=animal.baseId,
+                                                minFrame=self.detectionStartFrame,
+                                                maxFrame=self.detectionEndFrame)
 
             for e in eventTimeLine.getEventList():
                 data["RFID"]         .append(f"{animal.name}_{animal.RFID}")
@@ -1379,7 +1392,19 @@ class AnimalPool():
 
 
     def getAllEventsTable(self):
-        all_event_names = getAllEvents(connection=self.conn)
+        """
+        Returns pandas table containing all found events for all found event types'
+            * Primary mouse' meta data
+            * Events' start time
+            * Events' end time
+            * Events' duration
+
+        Returns:
+            DataFrame
+        """
+        with mute_prints():
+            all_event_names = getAllEvents(connection=self.conn)
+
         event_table =  pd.concat([self.getSingleEventTable(event_name)
                                     for event_name in all_event_names]
                                 , axis=0)
