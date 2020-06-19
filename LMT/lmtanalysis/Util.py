@@ -4,10 +4,24 @@ Created on 6 sept. 2017
 @author: Fab
 '''
 
+import sys
 import math
-import sqlite3
 import time
+import sqlite3
 import datetime
+import contextlib
+
+
+class DummyFile(object):
+    def write(self, x): pass
+
+@contextlib.contextmanager
+def mute_prints():
+    # https://stackoverflow.com/questions/2828953/silence-the-stdout-of-a-function-in-python-without-trashing-sys-stdout-and-resto
+    save_stdout = sys.stdout
+    sys.stdout = DummyFile()
+    yield
+    sys.stdout = save_stdout
 
 def getAllEvents(connection=None, file=None, ):
     """Returns names of all events present in database
