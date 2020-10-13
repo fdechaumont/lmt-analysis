@@ -26,7 +26,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None  ):
     
     ''' 
     Animal A is stopped (built-in event):
-    Move social: animal A is stopped and in contact with any other animal.
+    Move social: animal A is stopped and in contact with another animal.
     Move isolated: animal A is stopped and not in contact with any other animal.
     ''' 
     
@@ -36,7 +36,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None  ):
     isInContactSourceDictionnary = {}
     moveSourceTimeLine = {}
     
-    for animal in range( 1 , pool.getNbAnimals()+1 ):
+    for animal in pool.animalDictionnary.keys():
         ''' Load source stop timeLine and revert it to get the move timeline
         If the animal is not detected, this will result in a move. To avoid this we mask with the detection.
         '''
@@ -44,39 +44,46 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None  ):
         detectionTimeLine = EventTimeLine( connection, "Detection", animal, minFrame=tmin, maxFrame=tmax )
         moveSourceTimeLine[animal].keepOnlyEventCommonWithTimeLine( detectionTimeLine )
         
-        ''' load contact dictionnary with whatever animal '''
-        isInContactSourceDictionnary[animal] = EventTimeLineCached( connection, file, "Contact", animal, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+        ''' load contact dictionnary with another animal '''
+        for animalB in pool.animalDictionnary.keys():
+            if animal == animalB:
+                print('Same identity')
+                continue
+            else:
+                isInContactSourceDictionnary[(animal, animalB)] = EventTimeLineCached( connection, file, "Contact", animal, animalB, minFrame=tmin, maxFrame=tmax ).getDictionnary()
                     
     
-    for animal in range( 1 , pool.getNbAnimals()+1 ):
-
-        moveSocialResult = {}
+    for animal in pool.animalDictionnary.keys():
+        #initialisation of a dic for isolated move
         moveIsolatedResult = {}
-        
-        ''' loop over eventlist'''
-        for moveEvent in moveSourceTimeLine[animal].eventList:
-        
-            ''' for each event we seek in t and search a match in isInContactDictionnary '''
-            for t in range ( moveEvent.startFrame, moveEvent.endFrame+1 ) :
-                if t in isInContactSourceDictionnary[animal]:
-                    moveSocialResult[t] = True
-                else:
-                    moveIsolatedResult[t] = True
-    
-        ''' save move '''
-        moveResultTimeLine = EventTimeLine( None, "Move" , animal , None , None , None , loadEvent=False )
-        moveResultTimeLine.reBuildWithDictionnary( moveSourceTimeLine[animal].getDictionnary() )
-        moveResultTimeLine.endRebuildEventTimeLine(connection)
 
-        ''' save move isolated '''
-        moveIsolatedResultTimeLine = EventTimeLine( None, "Move isolated" , animal , None , None , None , loadEvent=False )
-        moveIsolatedResultTimeLine.reBuildWithDictionnary( moveIsolatedResult )
+        for animalB in pool.animalDictionnary.keys():
+            # initialisation of a dic for move in contact for each individual of the cage
+            moveSocialResult = {}
+            if animal == animalB:
+                print('Same identity')
+                continue
+            else:
+                ''' loop over eventlist'''
+                for moveEvent in moveSourceTimeLine[animal].eventList:
+
+                    ''' for each event we seek in t and search a match in isInContactDictionnary between animal and animalB '''
+                    for t in range ( moveEvent.startFrame, moveEvent.endFrame+1 ) :
+                        if t in isInContactSourceDictionnary[(animal, animalB)]:
+                            moveSocialResult[t] = True
+                        else:
+                            moveIsolatedResult[t] = True
+
+                ''' save move social at the end of the search for each animal'''
+                moveSocialResultTimeLine = EventTimeLine( None, "Move in contact" , idA=animal , idB=animalB , idC=None , idD=None , loadEvent=False )
+                moveSocialResultTimeLine.reBuildWithDictionnary( moveSocialResult )
+                moveSocialResultTimeLine.endRebuildEventTimeLine(connection)
+
+        ''' save move isolated at the end of the complete process for animalA'''
+        moveIsolatedResultTimeLine = EventTimeLine(None, "Move isolated", idA=animal, idB=None, idC=None, idD=None, loadEvent=False)
+        moveIsolatedResultTimeLine.reBuildWithDictionnary(moveIsolatedResult)
         moveIsolatedResultTimeLine.endRebuildEventTimeLine(connection)
 
-        ''' save move social '''
-        moveSocialResultTimeLine = EventTimeLine( None, "Move in contact" , animal , None , None , None , loadEvent=False )
-        moveSocialResultTimeLine.reBuildWithDictionnary( moveSocialResult )
-        moveSocialResultTimeLine.endRebuildEventTimeLine(connection)
 
         
     # log process
