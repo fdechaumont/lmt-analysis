@@ -37,36 +37,42 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     isInContactSourceDictionnary = {}
     stopSourceTimeLine = {}
     
-    for animal in range( 1 , 5 ):
+    for animal in pool.animalDictionnary.keys():
         ''' Load source stop timeLine '''
         stopSourceTimeLine[animal] = EventTimeLineCached( connection, file, "Stop", animal, minFrame=tmin, maxFrame=tmax )
-        ''' load contact dictionnary with whatever animal '''
-        isInContactSourceDictionnary[animal] = EventTimeLineCached( connection, file, "Contact", animal, minFrame=tmin, maxFrame=tmax ).getDictionnary()
-                    
+        for animalB in pool.animalDictionnary.keys():
+            if animal == animalB:
+                print('Same identity')
+                continue
+            else:
+                ''' load contact dictionnary with another animal '''
+                isInContactSourceDictionnary[(animal, animalB)] = EventTimeLineCached( connection, file, "Contact", idA=animal, idB=animalB, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+
     eventName2 = "Stop in contact"
     eventName1 = "Stop isolated"        
     
-    for animal in range( 1 , 5 ):
+    for animal in pool.animalDictionnary.keys():
 
-        print ( eventName1, eventName2 )
-                
-        stopSocialResult = {}
         stopIsolatedResult = {}
+        for animalB in pool.animalDictionnary.keys():
+            stopSocialResult = {}
+            if animal == animalB:
+                print('Same identity')
+                continue
+            else:
+                ''' loop over eventlist'''
+                for stopEvent in stopSourceTimeLine[animal].eventList:
+                    ''' for each event we seek in t and search a match in isInContactDictionnary '''
+                    for t in range ( stopEvent.startFrame, stopEvent.endFrame+1 ) :
+                        if t in isInContactSourceDictionnary[(animal, animalB)]:
+                            stopSocialResult[t] = True
+                        else:
+                            stopIsolatedResult[t] = True
         
-        ''' loop over eventlist'''
-        for stopEvent in stopSourceTimeLine[animal].eventList:
-        
-            ''' for each event we seek in t and search a match in isInContactDictionnary '''
-            for t in range ( stopEvent.startFrame, stopEvent.endFrame+1 ) :
-                if t in isInContactSourceDictionnary[animal]:
-                    stopSocialResult[t] = True
-                else:
-                    stopIsolatedResult[t] = True
-        
-        ''' save stop social '''
-        stopSocialResultTimeLine = EventTimeLine( None, eventName2 , animal , None , None , None , loadEvent=False )
-        stopSocialResultTimeLine.reBuildWithDictionnary( stopSocialResult )
-        stopSocialResultTimeLine.endRebuildEventTimeLine(connection)
+                ''' save stop social '''
+                stopSocialResultTimeLine = EventTimeLine( None, eventName2 , animal , animalB , None , None , loadEvent=False )
+                stopSocialResultTimeLine.reBuildWithDictionnary( stopSocialResult )
+                stopSocialResultTimeLine.endRebuildEventTimeLine(connection)
 
         ''' save stop isolated '''
         stopIsolatedResultTimeLine = EventTimeLine( None, eventName1 , animal , None , None , None , loadEvent=False )
