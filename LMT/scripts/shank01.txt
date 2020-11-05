@@ -1,0 +1,50 @@
+D:/usv_shank3/20190510_usv_lmt_pair_shank3_4724356_4724113/20190510_usv_lmt_pair_shank3_4724356_4724113.sqlite
+Time of experiment start: 2019-05-10 15:34:28.734000
+Time of experiment end: 2019-05-13 18:20:33.086000
+Real duration of experiment: 269165.3519999981 s (8074960.559999943 frames)
+Number of frames recorded:  8074151 frames (269138.36666666664 seconds or 4485.639444444444 minutes or 74.76065740740741 hours or 3.1150273919753086 days)
+Number of frames omitted: 809.5599999427795 (0.010025559802149489 % of the total experiment duration)
+
+Animal 000004724356: 1500216 missed detections over 8074151 frames recorded (18.58047985478597 %)
+Animal 000004724113: 1931170 missed detections over 8074151 frames recorded (23.917932671806607 %)
+Number of RFID match for animal 000004724356: 399927 (rate: 2.751765066898881e-05 events/min)
+Number of RFID mismatch for animal 000004724356: 1408 (rate: 9.687981092033357e-08 events/min)
+Number of RFID match for animal 000004724113: 323185 (rate: 2.2237288133727277e-05 events/min)
+Number of RFID mismatch for animal 000004724113: 1093 (rate: 7.520570549426463e-08 events/min)
+
+Total number of each event type:
+Contact:	 17774
+Oral-oral Contact:	 33015
+Oral-genital Contact:	 43409
+Side by side Contact:	 27082
+Side by side Contact, opposite way:	 28356
+Social approach:	 220447
+Social escape:	 0
+Approach contact:	 180744
+Approach rear:	 30915
+Break contact:	 8969
+Get away:	 152978
+FollowZone Isolated:	 25027
+Train2:	 473
+Group2:	 17573
+Group3:	 0
+Group 3 break:	 0
+Group 3 make:	 0
+Group4:	 0
+Group 4 break:	 0
+Group 4 make:	 0
+Huddling:	 217942
+Move isolated:	 99269
+Move in contact:	 30269
+Nest3:	 0
+Nest4:	 0
+Rearing:	 15497
+Rear isolated:	 41957
+Rear in contact:	 22232
+Stop isolated:	 50159
+WallJump:	 3879
+Water Zone:	 3308
+USV seq:	 378
+
+##############################################################
+
