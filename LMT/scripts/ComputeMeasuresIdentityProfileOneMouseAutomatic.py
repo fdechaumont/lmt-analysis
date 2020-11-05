@@ -220,7 +220,7 @@ if __name__ == '__main__':
     
     print("Code launched.")
     
-    #List of events to be computed within the behavioural profile, and header for the computation of the total distance travelled.
+    #List of events to be computed within the behavioural profile2, and header for the computation of the total distance travelled.
     behaviouralEventOneMouse = ["Contact", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Get away", "Approach contact", "Approach rear", "Break contact", "FollowZone Isolated", "Train2", "Group2", "Group3", "Group 3 break", "Group 3 make", "Group 4 break", "Group 4 make", "Huddling", "Move isolated", "Move in contact", "Nest3", "Nest4", "Rearing", "Rear isolated", "Rear in contact", "Stop isolated", "WallJump", "Water Zone", "totalDistance", "experiment"]
     #behaviouralEventOneMouse = ["Contact", "totalDistance", "experiment"]
 
@@ -228,7 +228,7 @@ if __name__ == '__main__':
     tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
 
     profileData = {}
-    nightComputation = input("Compute profile only during night events (Y or N)? ")
+    nightComputation = input("Compute profile2 only during night events (Y or N)? ")
     
     for file in files:
         
@@ -244,7 +244,7 @@ if __name__ == '__main__':
             minT = tmin
             maxT = tmax
             n = 0
-            #Compute profile data and save them in a text file
+            #Compute profile2 data and save them in a text file
             profileData[file][n] = computeProfile(file = file, minT=minT, maxT=maxT, night=n)
             text_file.write( "\n" )
             print("Profile data saved.")
@@ -257,7 +257,7 @@ if __name__ == '__main__':
                 minT = eventNight.startFrame
                 maxT = eventNight.endFrame
                 print("Night: ", n)
-                #Compute profile data and save them in a text file
+                #Compute profile2 data and save them in a text file
                 profileData[file][n] = computeProfile(file=file, minT=minT, maxT=maxT, night=n)
                 text_file.write( "\n" )
                 n+=1
@@ -269,12 +269,12 @@ if __name__ == '__main__':
     if nightComputation == "N":
         n = 0
 
-        #Plot profile data and save them in a pdf file
+        #Plot profile2 data and save them in a pdf file
         plotProfileDataDuration(profileData=profileData, night=n, valueCat=" TotalLen")
         plotProfileDataDuration(profileData=profileData, night=n, valueCat=" Nb")
         text_file.write( "Statistical analysis: mixed linear models" )
         text_file.write( "{}\n" )
-        #Test profile data and save results in a text file
+        #Test profile2 data and save results in a text file
         testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse[:-2], valueCat=" TotalLen", text_file=text_file)
         testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse[:-2], valueCat=" Nb", text_file=text_file)
         print("test for total distance")
@@ -289,12 +289,12 @@ if __name__ == '__main__':
 
             print("Night: ", n)
                
-            #Plot profile data and save them in a pdf file
+            #Plot profile2 data and save them in a pdf file
             plotProfileDataDuration(profileData=profileData, night=n, valueCat=" TotalLen")
             plotProfileDataDuration(profileData=profileData, night=n, valueCat=" Nb")
             text_file.write( "Statistical analysis: mixed linear models" )
             text_file.write( "{}\n" )
-            #Test profile data and save results in a text file
+            #Test profile2 data and save results in a text file
             testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse[:-2], valueCat=" TotalLen", text_file=text_file)
             testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse[:-2], valueCat=" Nb", text_file=text_file)
             print("test for total distance")
