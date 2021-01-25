@@ -17,6 +17,7 @@ from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Bu
     BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
     BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
     BuildEventOralSideSequence
+from lmtanalysis.FileUtil import getFilesToProcess
     
 from tkinter.filedialog import askopenfilename
 
@@ -27,7 +28,7 @@ if __name__ == '__main__':
     
     ''' to get a GUI window to select file '''    
     
-    files = askopenfilename( title="Choose a set of file to process", multiple=1 )
+    files = getFilesToProcess()
     
     maxT = 3*oneDay
     

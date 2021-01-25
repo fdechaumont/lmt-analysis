@@ -10,6 +10,7 @@ from tkinter.dialog import Dialog
 from tkinter.filedialog import askopenfilename, askdirectory
 import tkinter as tk
 import unittest
+from random import randrange, random
 
 '''
 Provide a dialog to ask for either files or folder to process.
@@ -47,6 +48,14 @@ def getFilesToProcess():
     
     return files
 
+
+def addJitter(x, jit):
+    newX = []
+    for item in x:
+        addedJitter = (random() * 2 - 1) * jit
+        newX.append(item + addedJitter)
+
+    return newX
 
 
 class TestFileUtil ( unittest.TestCase ):

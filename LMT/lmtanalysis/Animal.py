@@ -267,6 +267,60 @@ class Animal():
 
         return xList, yList
 
+    def getNoseTrajectoryData( self , maskingEventTimeLine=None ):
+
+        keyList = sorted(self.detectionDictionnary.keys())
+
+        if maskingEventTimeLine!=None:
+            keyList = maskingEventTimeLine.getDictionnary()
+
+        xList = []
+        yList = []
+
+        previousKey = 0
+
+
+        for key in keyList:
+
+            #print ( "key:", key, "value", self.getSpeed( key ) , "previous:" , previousKey )
+
+            if previousKey+1 != key:
+                xList.append( [np.nan, np.nan] )
+                yList.append( [np.nan, np.nan] )
+                previousKey = key
+
+                #print("break previous")
+                continue
+            previousKey = key
+
+            a = self.detectionDictionnary.get( key )
+            if ( a==None):
+                xList.append( [np.nan, np.nan] )
+                yList.append( [np.nan, np.nan] )
+                #print("break none A")
+                continue
+            b = self.detectionDictionnary.get( key+1 )
+            if ( b==None):
+                xList.append( [np.nan, np.nan] )
+                yList.append( [np.nan, np.nan] )
+                #print("break none B")
+                continue
+
+            xa = a.frontX
+            xb = b.frontX
+            ya = -a.frontY
+            yb = -b.frontY
+
+            if xa < 0:
+                xa = np.nan
+                xb = np.nan
+                ya = np.nan
+                yb = np.nan
+
+            xList.append( [xa,xb] )
+            yList.append( [ya,yb] )
+
+        return xList, yList
 
     def plotTrajectory(self , show=True, color='k', maskingEventTimeLine=None, title = "" ):
 
@@ -516,6 +570,23 @@ class Animal():
         else:
             distanceToPoint = math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint )
             return distanceToPoint
+
+    def getDistanceNoseToPoint (self, t, xPoint, yPoint):
+        '''
+        determine the distance between the nose of the animal and a specific point in the arena at one specified time point t
+        '''
+        distanceNoseToPoint = None
+
+        if ( not ( t in self.detectionDictionnary ) ):
+            return None
+        if (self.detectionDictionnary[t].frontX < 0):
+            return None
+        if (math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint ) > MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
+            return None
+
+        else:
+            distanceNoseToPoint = math.hypot( self.detectionDictionnary[t].frontX - xPoint, self.detectionDictionnary[t].frontY - yPoint )
+            return distanceNoseToPoint
 
 
     def getMeanBodyLength (self, tmin=0, tmax=None):

@@ -40,16 +40,16 @@ if __name__ == '__main__':
         pool = AnimalPool( )
         pool.loadAnimals( connection )
         
-        animal = {}
+        animalDic = {}
 
         for animal in pool.animalDictionnary.keys():
         
             print( "computing individual animal: {}".format( animal ))
             rfid = pool.animalDictionnary[animal].RFID
             print( "RFID: ".format( rfid ) )
-            animal[rfid] = {}
+            animalDic[rfid] = {}
             ''' store the animal '''
-            animal[rfid]["animal"] = pool.animalDictionnary[animal]
+            animalDic[rfid]["animal"] = pool.animalDictionnary[animal]
             
             genoA = None
             try:
@@ -66,8 +66,8 @@ if __name__ == '__main__':
                 totalEventDuration = behavEventTimeLine.getTotalLength()
                 nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame = tmin, maxFrame = tmax )
                 print( "total event duration: " , totalEventDuration )                
-                animal[rfid][behavEventTimeLine.eventName+" TotalLen"] = totalEventDuration
-                animal[rfid][behavEventTimeLine.eventName+" Nb"] = nbEvent
+                animalDic[rfid][behavEventTimeLine.eventName+" TotalLen"] = totalEventDuration
+                animalDic[rfid][behavEventTimeLine.eventName+" Nb"] = nbEvent
                 
                 print(behavEventTimeLine.eventName, genoA, behavEventTimeLine.idA, totalEventDuration, nbEvent)
             
@@ -81,33 +81,33 @@ if __name__ == '__main__':
             text_file.write( "{}\t".format ( name ) ) 
         
         ''' write event keys '''
-        firstAnimalKey = next(iter(animal))
-        firstAnimal = animal[firstAnimalKey]
+        firstAnimalKey = next(iter(animalDic))
+        firstAnimal = animalDic[firstAnimalKey]
         for k in firstAnimal.keys():
             text_file.write( "{}\t".format( k.replace(" ", "") ) )
         text_file.write("\n")
         
-        for kAnimal in animal:
+        for kAnimal in animalDic:
             text_file.write( "{}\t".format( file ) )
             text_file.write( "{}\t".format( "strain" ) )
             text_file.write( "{}\t".format( "sex" ) )
             text_file.write( "{}\t".format( "group" ) )
             text_file.write( "{}\t".format( "day" ) )
             text_file.write( "{}\t".format( "exp" ) )
-            text_file.write( "{}\t".format( animal[kAnimal]["animal"].RFID ) )
+            text_file.write( "{}\t".format( animalDic[kAnimal]["animal"].RFID ) )
             text_file.write( "{}\t".format( tmin ) )
             text_file.write( "{}\t".format( tmax ) )
 
             COMPUTE_TOTAL_DISTANCE = True
             if ( COMPUTE_TOTAL_DISTANCE == True ):
-                animal[kAnimal]["animal"].loadDetection( lightLoad = True )
-                text_file.write( "{}\t".format( animal[kAnimal]["animal"].getDistance( tmin=tmin,tmax=tmax) ) )
+                animalDic[kAnimal]["animal"].loadDetection( lightLoad = True )
+                text_file.write( "{}\t".format( animalDic[kAnimal]["animal"].getDistance( tmin=tmin,tmax=tmax) ) )
             else:
                 text_file.write( "{}\t".format( "totalDistance" ) )
 
             for kEvent in firstAnimal.keys():
-                text_file.write( "{}\t".format( animal[kAnimal][kEvent] ) )
-            text_file.write( "\n" );
+                text_file.write( "{}\t".format( animalDic[kAnimal][kEvent] ) )
+            text_file.write( "\n" )
             
         print ("done.")
             

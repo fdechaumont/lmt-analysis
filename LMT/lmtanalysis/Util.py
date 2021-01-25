@@ -10,7 +10,7 @@ import time
 import sqlite3
 import datetime
 import contextlib
-
+from random import randrange, random
 
 class DummyFile(object):
     def write(self, x): pass
@@ -265,3 +265,12 @@ def recoverFrame(file, MyDatetime):
     print( "Closest Frame in selected database is: " + str( closestFrame ) )
     print( "Distance to target: " + str( smallestDif ) + " milliseconds")
     return closestFrame
+
+
+def addJitter(x, jit):
+    newX = []
+    for item in x:
+        addedJitter = (random() * 2 - 1) * jit
+        newX.append(item + addedJitter)
+
+    return newX
