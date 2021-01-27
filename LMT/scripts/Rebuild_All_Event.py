@@ -11,15 +11,8 @@ from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 
 from lmtanalysis.Util import getAllEvents
-from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, BuildEventFollowZone, BuildEventRear5, BuildEventFloorSniffing,\
-    BuildEventSocialApproach, BuildEventSocialEscape, BuildEventApproachContact,BuildEventOralOralContact,\
-    BuildEventApproachRear, BuildEventGroup2, BuildEventGroup3, BuildEventGroup4, BuildEventOralGenitalContact, \
-    BuildEventStop, BuildEventWaterPoint, \
-    BuildEventMove, BuildEventGroup3MakeBreak, BuildEventGroup4MakeBreak,\
-    BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
-    BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
-    BuildEventOralSideSequence, CheckWrongAnimal,\
-    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventGetAway
+
+from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, BuildEventFollowZone, BuildEventRear5, BuildEventFloorSniffing, BuildEventSocialApproach, BuildEventSocialEscape, BuildEventApproachContact,BuildEventOralOralContact, BuildEventApproachRear, BuildEventGroup2, BuildEventGroup3, BuildEventGroup4, BuildEventOralGenitalContact, BuildEventStop, BuildEventWaterPoint, BuildEventMove, BuildEventGroup3MakeBreak, BuildEventGroup4MakeBreak, BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection, BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP, BuildEventOralSideSequence, CheckWrongAnimal, CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventGetAway
 
 
 from psutil import virtual_memory
@@ -36,7 +29,7 @@ from lmtanalysis.EventTimeLineCache import flushEventTimeLineCache,\
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
 
-''' minT and maxT to process the analysis (in frame '''
+''' minT and maxT to process the analysis (in frame) '''
 minT = 0
 
 #maxT = 1 *oneMinute
@@ -85,7 +78,6 @@ eventClassList = [
                 BuildEventNest4
                    ]
 
-#eventClassList = [BuildEventWaterPoint]
 
 def flushEvents( connection ):
 
