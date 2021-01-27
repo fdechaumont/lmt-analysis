@@ -124,7 +124,7 @@ if __name__ == '__main__':
             #traj of center of mass
             files = getFilesToProcess() #upload files for the analysis
             nbFiles = len(files) #number of files to be processed
-            fig, axes = plt.subplots(nrows=4, ncols=5, figsize=(18, 24)) #building the plot for trajectories
+            fig, axes = plt.subplots(nrows=7, ncols=5, figsize=(12, 40)) #building the plot for trajectories
 
             nRow = 0 #initialisation of the row
             nCol = 0 #initialisation of the column
@@ -145,6 +145,7 @@ if __name__ == '__main__':
 
             plt.tight_layout(pad=2, h_pad=4, w_pad=0) #reduce the margins to the minimum
             plt.show() #display the plot
+            fig.savefig('fig_trajectories_hab_nor.pdf', dpi=200)
 
             print('Compute distance travelled and number of SAP displayed.')
             data = {}
@@ -211,6 +212,7 @@ if __name__ == '__main__':
                 ax.set_xlim(0, 6)
                 #ax.set_ylim(0, 60)
                 ax.tick_params(axis='y', labelsize=14)
+                ax.text([1.5, 4.5], [max(max(dataVal['male']['WT']), max(dataVal['male']['Del/+']))*1.05]*2, ['males', 'females'], fontsize=16)
 
                 #compute the mean and the standard error of mean
                 mean = {}
@@ -237,11 +239,14 @@ if __name__ == '__main__':
                     try:
                         U, p = stats.mannwhitneyu( dataVal[sex]['WT'] , dataVal[sex]['Del/+'])
                         print('Mann-Whitney U-test for {} in {}: U={}, p={}'.format(val, sex, U, p))
-                        ax.text(xPos[sex], max(max(dataVal[sex]['WT']), max(dataVal[sex]['Del/+'])), getStarsFromPvalues(pvalue=p, numberOfTests=2), fontsize=16)
+                        ax.text(xPos[sex], max(max(dataVal[sex]['WT']), max(dataVal[sex]['Del/+'])), getStarsFromPvalues(pvalue=p, numberOfTests=1), fontsize=16)
                     except:
                         continue
                 col += 1
 
+            plt.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
+            plt.show()  # display the plot
+            fig.savefig('fig_values_hab_nor.pdf', dpi=200)
             break
 
         if answer == 'pt':

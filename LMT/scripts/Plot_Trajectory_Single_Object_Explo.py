@@ -34,7 +34,7 @@ def plot( ax , animal, title , color = None ):
     if ( color == None ):
         color = animal.getColor()
     ax.plot( xList, yList, color=color, linestyle='-', linewidth=0.5, alpha=0.8, label= animal.name )
-    ax.set_title( title + " " + animal.RFID[-4:] + " " + animal.genotype )
+    ax.set_title( title + " " + animal.sex[0] + " " + animal.RFID[-4:] + " " + animal.genotype )
     ax.legend().set_visible(False)
     ax.set_xlim(90, 420)
     ax.set_ylim(-370, -40)
