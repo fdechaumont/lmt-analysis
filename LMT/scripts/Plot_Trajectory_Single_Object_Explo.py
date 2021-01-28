@@ -33,7 +33,7 @@ def plot( ax , animal, title , color = None ):
 
     if ( color == None ):
         color = animal.getColor()
-    ax.plot( xList, yList, color=color, linestyle='-', linewidth=0.5, alpha=0.8, label= animal.name )
+    ax.plot( xList, yList, color=color, linestyle='-', linewidth=0.5, alpha=0.5, label= animal.name )
     ax.set_title( title + " " + animal.sex[0] + " " + animal.RFID[-4:] + " " + animal.genotype )
     ax.legend().set_visible(False)
     ax.set_xlim(90, 420)
@@ -59,7 +59,7 @@ def plotSap( ax , animal ):
     ax.scatter( xList, yList,  color=color, alpha=1, label= "sap", s=10 )
 
 
-def plotSapNose(ax, animal):
+def plotSapNose(ax, animal, color = 'red'):
     sapDico = animal.getSapDictionnary()
 
     xList = []
@@ -69,8 +69,8 @@ def plotSapNose(ax, animal):
         detection = animal.detectionDictionnary.get(t)
         xList.append(detection.frontX)
         yList.append(-detection.frontY)
-    color = "red"
-    ax.scatter(xList, yList, color=color, alpha=0.7, label="sap", s=8)
+
+    ax.scatter(xList, yList, color=color, alpha=0.9, label="sap", s=8)
 
 
 if __name__ == '__main__':

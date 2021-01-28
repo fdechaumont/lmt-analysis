@@ -43,7 +43,7 @@ def plotObjectZone(ax, colorFill, x, y, radius, alpha):
     ax.add_artist(circle1)
 
 
-def plotTrajectorySingleAnimal(file, ax, tmin, tmax):
+def plotTrajectorySingleAnimal(file, ax, color, tmin, tmax):
     connection = sqlite3.connect(file) #connection to the database
 
     pool = AnimalPool()
@@ -57,7 +57,7 @@ def plotTrajectorySingleAnimal(file, ax, tmin, tmax):
     plotZone(ax, colorEdge='lightgrey', colorFill='grey', xa=191, xb=320, ya=-273, yb=-143 ) # draw the rectangle for the center zone
     plot(ax, animal, title="Hab day1", color="black") #plot the trajectory of the center of mass
 
-    plotSapNose(ax, animal) # add the frames where the animal is in SAP
+    plotSapNose(ax, animal, color = color) # add the frames where the animal is in SAP
 
 
 if __name__ == '__main__':
@@ -101,13 +101,13 @@ if __name__ == '__main__':
     colorObjects = ['orangered', 'gold', 'dodgerblue', 'mediumseagreen']
     objectList = ['cup', 'flask', 'falcon', 'shaker']
 
+    coloSap = {'WT': 'steelblue', 'Del/+': 'darkorange'}
+
     while True:
         question = "Do you want to:"
         question += "\n\t [r]ebuild all events?"
         question += "\n\t [ph]lot trajectories in the habituation phase?"
-        question += "\n\t [pt]lot trajectories in the test phase?"
-        question += "\n\t plot [m]anual scoring in the test phase?"
-        question += "\n\t [c]orrelate manual and automatic scoring?"
+        question += "\n\t [c]ompute the distance travelled in the habituation phase?"
         question += "\n"
         answer = input(question)
 
@@ -124,28 +124,49 @@ if __name__ == '__main__':
             #traj of center of mass
             files = getFilesToProcess() #upload files for the analysis
             nbFiles = len(files) #number of files to be processed
-            fig, axes = plt.subplots(nrows=7, ncols=5, figsize=(12, 40)) #building the plot for trajectories
+            figM, axesM = plt.subplots(nrows=6, ncols=5, figsize=(14, 20)) #building the plot for trajectories
+            figF, axesF = plt.subplots(nrows=8, ncols=5, figsize=(14, 25))  # building the plot for trajectories
 
-            nRow = 0 #initialisation of the row
-            nCol = 0 #initialisation of the column
+            nRow = {'male': 0, 'female': 0} #initialisation of the row
+            nCol = {'male': 0, 'female': 0} #initialisation of the column
 
             tminHab = 0 #start time of the computation
             tmaxHab = 15 * oneMinute #end time of the computation
 
             for file in files:
-                # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
-                ax = axes[nRow][nCol] #set the subplot where to draw the plot
-                plotTrajectorySingleAnimal( file, ax = ax, tmin = tminHab, tmax = tmaxHab) #function to draw the trajectory
+                connection = sqlite3.connect(file)  # connection to the database
 
-                if nCol < 5:
-                    nCol += 1
-                if nCol >= 5:
-                    nCol = 0
-                    nRow += 1
+                pool = AnimalPool()
+                pool.loadAnimals(connection)  # upload all the animals from the database
+                animal = pool.animalDictionnary[1]
 
-            plt.tight_layout(pad=2, h_pad=4, w_pad=0) #reduce the margins to the minimum
-            plt.show() #display the plot
-            fig.savefig('fig_trajectories_hab_nor.pdf', dpi=200)
+                if animal.sex == 'male':
+                    # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
+                    ax = axesM[nRow['male']][nCol['male']] #set the subplot where to draw the plot
+                    plotTrajectorySingleAnimal( file, color=coloSap[animal.genotype], ax = ax, tmin = tminHab, tmax = tmaxHab) #function to draw the trajectory
+
+                    if nCol['male'] < 5:
+                        nCol['male'] += 1
+                    if nCol['male'] >= 5:
+                        nCol['male'] = 0
+                        nRow['male'] += 1
+
+                if animal.sex == 'female':
+                    # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
+                    ax = axesF[nRow['female']][nCol['female']]  # set the subplot where to draw the plot
+                    plotTrajectorySingleAnimal(file, color=coloSap[animal.genotype], ax=ax, tmin=tminHab, tmax=tmaxHab)  # function to draw the trajectory
+
+                    if nCol['female'] < 5:
+                        nCol['female'] += 1
+                    if nCol['female'] >= 5:
+                        nCol['female'] = 0
+                        nRow['female'] += 1
+
+            figM.tight_layout(pad=2, h_pad=4, w_pad=0) #reduce the margins to the minimum
+            #plt.show() #display the plot
+            figM.savefig('fig_trajectories_hab_nor_males.pdf', dpi=200)
+            figF.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
+            figF.savefig('fig_trajectories_hab_nor_females.pdf', dpi=200)
 
             print('Compute distance travelled and number of SAP displayed.')
             data = {}
@@ -185,6 +206,16 @@ if __name__ == '__main__':
             with open('habituationDay1.json', 'w') as jFile:
                 json.dump(data, jFile, indent=4)
             print("json file created")
+
+            break
+
+        if answer == 'c':
+
+            # open the json file
+            jsonFileName = "habituationDay1.json"
+            with open(jsonFileName) as json_data:
+                data = json.load(json_data)
+            print("json file re-imported.")
 
             fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(16, 4)) #create the figure for the graphs of the computation
 
