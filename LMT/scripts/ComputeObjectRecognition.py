@@ -14,6 +14,7 @@ from lmtanalysis.Measure import *
 from matplotlib import patches
 from scipy import stats
 from scripts.ComputeActivityHabituationNorTest import *
+from lmtanalysis import BuildEventObjectSniffingNor
 
 
 def getStartTestPhase(pool):
@@ -44,7 +45,7 @@ def plotObjectZone(ax, colorFill, x, y, radius, alpha):
     ax.add_artist(circle1)
 
 
-def computeSniffTime(files, tmin = None):
+def computeSniffTime(files, objectDic, tmin = None):
     print('Compute time of exploration and number of SAP displayed.')
     data = {}
     for val in ['sniffLeft', 'sniffRight', 'onLeftObject', 'onRightObject', 'totalSniff']:
@@ -66,7 +67,7 @@ def computeSniffTime(files, tmin = None):
         setup = int(animal.setup)
         geno = animal.genotype
         rfid = animal.RFID
-        object = objectDic[setup][exp][0]
+        object = objectDic[setup][exp]['test'][0]
 
         # determine the startframe of the test phase:
         if tmin == None:
@@ -119,13 +120,20 @@ if __name__ == '__main__':
 
     rc('font', **{'family': 'serif', 'serif': ['Arial']})
     #object positions (x,y) according to the setup:
-    objectPosition = {1: {'left': (190, -148), 'right': (340, -148)},
-                      2: {'left': (186, -146), 'right': (330, -146)}
+    objectPosition = {1: {'left': (190, -152), 'right': (310, -152)},
+                      2: {'left': (186, -152), 'right': (330, -152)}
                       }
 
     # object information
+    objectDic = {1: {'short': {'learning': ('cup', 'cup'), 'test': ('cup', 'shaker')},
+                     'medium': {'learning': ('falcon', 'falcon'), 'test': ('falcon', 'flask')}},
+                 2: {'short': {'learning': ('flacon', 'flacon'), 'test': ('falcon', 'flask')},
+                     'medium': {'learning': ('cup', 'cup'), 'test': ('cup', 'shaker')}}
+                 }
+    '''
     objectDic = {1: {'short': ('cup', 'shaker'), 'medium': ('falcon', 'flask')},
                  2: {'short': ('falcon', 'flask'), 'medium': ('cup', 'shaker')}}
+    '''
     radiusObjects = {'cup': 18, 'flask': 15, 'falcon': 9, 'shaker': 11}
     colorObjects = {'cup': 'orangered', 'flask': 'gold', 'falcon': 'dodgerblue', 'shaker': 'mediumseagreen'}
     objectList = ['cup', 'flask', 'falcon', 'shaker']
@@ -142,6 +150,7 @@ if __name__ == '__main__':
     while True:
         question = "Do you want to:"
         question += "\n\t [r]ebuild all events?"
+        question += "\n\t rebuild [sn]iff events?"
         question += "\n\t [ch]eck file info?"
         question += "\n\t [ph]lot trajectories in the habituation phase?"
         question += "\n\t [pl]lot trajectories in the learning phase (same objects)?"
@@ -157,6 +166,23 @@ if __name__ == '__main__':
 
             break
 
+        if answer == 'sn':
+            print("Rebuilding sniff events.")
+            question1 = "Is it the short or medium retention time? (short / medium)"
+            exp = input(question1)
+            question2 = "Is it the learning or test phase? (learning / test)"
+            phase = input(question2)
+            files = getFilesToProcess()
+
+            for file in files:
+                print(file)
+                connection = sqlite3.connect(file)
+
+                BuildEventObjectSniffingNor.reBuildEvent(connection, tmin=0, tmax=20*oneMinute, pool = None, exp=exp, phase=phase, objectPosition=objectPosition, radiusObjects=radiusObjects, objectDic=objectDic)
+
+
+            break
+
         if answer == 'ch':
             print('Check information entered into the databases')
             files = getFilesToProcess()
@@ -164,6 +190,7 @@ if __name__ == '__main__':
             text_file = open(text_file_name, "w")
 
             for file in files:
+                print(file)
                 connection = sqlite3.connect(file)  # connection to the database
 
                 pool = AnimalPool()
@@ -197,6 +224,7 @@ if __name__ == '__main__':
             print('Plot trajectory during the learning phase.')
             question = "Is it the short or medium retention time? (short / medium)"
             exp = input(question)
+            phase = 'learning'
             #traj of center of mass
             #traj of the nose position
             #sap
@@ -230,7 +258,7 @@ if __name__ == '__main__':
                     ax = axesM[nRow['male']][nCol['male']]  # set the subplot where to draw the plot
                     plotTrajectorySingleAnimal(file, color=colorSap[animal.genotype], ax=ax, tmin=tmin,
                                                tmax=tmax, title='same')  # function to draw the trajectory
-                    object = objectDic[setup][exp][0]
+                    object = objectDic[setup][exp][phase][0]
                     plotObjectZone(ax = ax, colorFill = colorObjects[object], x = objectPosition[setup]['right'][0], y = objectPosition[setup]['right'][1], radius =radiusObjects[object], alpha = 0.5) #plot the object on the right side
                     plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
                                    y=objectPosition[setup]['left'][1], radius=radiusObjects[object], alpha=0.5) #plot the object on the left side
@@ -252,7 +280,7 @@ if __name__ == '__main__':
                     ax = axesF[nRow['female']][nCol['female']]  # set the subplot where to draw the plot
                     plotTrajectorySingleAnimal(file, color=colorSap[animal.genotype], ax=ax, tmin=tmin,
                                                tmax=tmax, title='same')  # function to draw the trajectory
-                    object = objectDic[setup][exp][0]
+                    object = objectDic[setup][exp][phase][0]
                     plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['right'][0],
                                    y=objectPosition[setup]['right'][1], radius=radiusObjects[object], alpha=0.5) #plot the object on the right side
                     plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
@@ -276,7 +304,7 @@ if __name__ == '__main__':
             figF.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
             figF.savefig('{}_females.pdf'.format(figName), dpi=200)
 
-            data = computeSniffTime(files, tmin=0)
+            data = computeSniffTime(files, tmin=0, objectDic=objectDic)
 
             # store the data dictionary in a json file
             with open('sniff_time_same_{}.json'.format(exp), 'w') as jFile:
@@ -295,7 +323,7 @@ if __name__ == '__main__':
             files = getFilesToProcess()
             buildFigTrajectoryMalesFemales(files=files, title='test', tmin=0, tmax=10*oneMinute, figName='fig_traj_nor_{}_diff'.format(exp), colorSap=colorSap)
 
-            data = computeSniffTime(files, tmin=0)
+            data = computeSniffTime(files, tmin=0, objectDic=objectDic)
 
             # store the data dictionary in a json file
             with open('sniff_time_test_{}.json'.format(exp), 'w') as jFile:
