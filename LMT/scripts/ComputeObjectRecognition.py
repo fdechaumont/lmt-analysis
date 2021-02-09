@@ -46,7 +46,7 @@ def plotObjectZone(ax, colorFill, x, y, radius, alpha):
 
 
 def computeSniffTime(files, objectDic, tmin = None):
-    print('Compute time of exploration and number of SAP displayed.')
+    print('Compute time of exploration.')
     data = {}
     for val in ['sniffLeft', 'sniffRight', 'onLeftObject', 'onRightObject', 'totalSniff']:
         data[val] = {}
@@ -120,14 +120,14 @@ if __name__ == '__main__':
 
     rc('font', **{'family': 'serif', 'serif': ['Arial']})
     #object positions (x,y) according to the setup:
-    objectPosition = {1: {'left': (190, -152), 'right': (310, -152)},
+    objectPosition = {1: {'left': (190, -152), 'right': (330, -152)},
                       2: {'left': (186, -152), 'right': (330, -152)}
                       }
 
     # object information
     objectDic = {1: {'short': {'learning': ('cup', 'cup'), 'test': ('cup', 'shaker')},
                      'medium': {'learning': ('falcon', 'falcon'), 'test': ('falcon', 'flask')}},
-                 2: {'short': {'learning': ('flacon', 'flacon'), 'test': ('falcon', 'flask')},
+                 2: {'short': {'learning': ('falcon', 'flacon'), 'test': ('falcon', 'flask')},
                      'medium': {'learning': ('cup', 'cup'), 'test': ('cup', 'shaker')}}
                  }
     '''
@@ -367,9 +367,11 @@ if __name__ == '__main__':
                             dataS[val][setup][sex][geno] = []
                             dataD[val][setup][sex][geno] = []
                             for rfid in dataSame[val][setup][sex][geno].keys():
-                                dataS[val][setup][sex][geno].append(dataSame[val][setup][sex][geno][rfid]/dataSame['totalSniff'][setup][sex][geno][rfid])
-                                dataD[val][setup][sex][geno].append(dataTest[val][setup][sex][geno][rfid]/dataTest['totalSniff'][setup][sex][geno][rfid])
-
+                                if (dataSame['totalSniff'][setup][sex][geno][rfid] >= 5*30) & (dataTest['totalSniff'][setup][sex][geno][rfid] >= 5*30):
+                                    dataS[val][setup][sex][geno].append(dataSame[val][setup][sex][geno][rfid]/dataSame['totalSniff'][setup][sex][geno][rfid])
+                                    dataD[val][setup][sex][geno].append(dataTest[val][setup][sex][geno][rfid]/dataTest['totalSniff'][setup][sex][geno][rfid])
+                                else:
+                                    print('Too Short exploration time in setup {} for {} {} {}'.format(setup, sex, geno, rfid))
 
             ax = axes[col]
             yLabel = 'Proportion sniff time (same)'
