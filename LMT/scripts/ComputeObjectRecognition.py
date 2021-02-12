@@ -15,6 +15,8 @@ from matplotlib import patches
 from scipy import stats
 from scripts.ComputeActivityHabituationNorTest import *
 from lmtanalysis import BuildEventObjectSniffingNor
+from lmtanalysis.Event import *
+from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
 
 def getStartTestPhase(pool):
@@ -127,7 +129,7 @@ if __name__ == '__main__':
     # object information
     objectDic = {1: {'short': {'learning': ('cup', 'cup'), 'test': ('cup', 'shaker')},
                      'medium': {'learning': ('falcon', 'falcon'), 'test': ('falcon', 'flask')}},
-                 2: {'short': {'learning': ('falcon', 'flacon'), 'test': ('falcon', 'flask')},
+                 2: {'short': {'learning': ('falcon', 'falcon'), 'test': ('falcon', 'flask')},
                      'medium': {'learning': ('cup', 'cup'), 'test': ('cup', 'shaker')}}
                  }
     '''
@@ -140,6 +142,9 @@ if __name__ == '__main__':
 
     colorSap = {'WT': 'steelblue', 'Del/+': 'darkorange'}
 
+    sexList = ['male', 'female']
+    genoList = ['WT', 'Del/+']
+
     markerList = ['o', 'v'] #for the setups
 
     xPos = {'male': {'WT': 1.5, 'Del/+': 4.5},
@@ -150,8 +155,8 @@ if __name__ == '__main__':
     while True:
         question = "Do you want to:"
         question += "\n\t [r]ebuild all events?"
-        question += "\n\t rebuild [sn]iff events?"
         question += "\n\t [ch]eck file info?"
+        question += "\n\t rebuild [sn]iff events?"
         question += "\n\t [ph]lot trajectories in the habituation phase?"
         question += "\n\t [pl]lot trajectories in the learning phase (same objects)?"
         question += "\n\t [pt]lot trajectories in the test phase (different objects)?"
@@ -163,23 +168,6 @@ if __name__ == '__main__':
         if answer == 'r':
             print("Rebuilding all events.")
             processAll()
-
-            break
-
-        if answer == 'sn':
-            print("Rebuilding sniff events.")
-            question1 = "Is it the short or medium retention time? (short / medium)"
-            exp = input(question1)
-            question2 = "Is it the learning or test phase? (learning / test)"
-            phase = input(question2)
-            files = getFilesToProcess()
-
-            for file in files:
-                print(file)
-                connection = sqlite3.connect(file)
-
-                BuildEventObjectSniffingNor.reBuildEvent(connection, tmin=0, tmax=20*oneMinute, pool = None, exp=exp, phase=phase, objectPosition=objectPosition, radiusObjects=radiusObjects, objectDic=objectDic)
-
 
             break
 
@@ -209,6 +197,189 @@ if __name__ == '__main__':
             text_file.write("\n")
             text_file.close()
             print('Job done.')
+            break
+
+        if answer == 'sn':
+            print("Rebuilding sniff events.")
+            question1 = "Is it the short or medium retention time? (short / medium)"
+            exp = input(question1)
+            question2 = "Is it the learning or test phase? (learning / test)"
+            phase = input(question2)
+            files = getFilesToProcess()
+            eventList = ['SniffLeft', 'SniffRight', 'UpLeft', 'UpRight']
+            colorEvent = {'SniffLeft': 'dodgerblue', 'SniffRight': 'darkorange', 'UpLeft': 'skyblue', 'UpRight': 'peachpuff'}
+            addThickness = 0
+            yLim = {'nbEvent': 150, 'meanEventLength': 100, 'totalDuration': 4000, 'ratio': 1.2}
+
+            for file in files:
+                print(file)
+                connection = sqlite3.connect(file)
+                BuildEventObjectSniffingNor.reBuildEvent(connection, tmin=0, tmax=20*oneMinute, pool = None, exp=exp, phase=phase, objectPosition=objectPosition, radiusObjects=radiusObjects, objectDic=objectDic)
+                print('Rebuild sniff events done.')
+
+            figName = 'fig_timeline_nor_{}_{}.pdf'.format(exp, phase)
+            fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(14, 6))  # building the plot for timelines
+
+            nRow = {'male': {'WT': 0, 'Del/+': 1}, 'female': {'WT': 0, 'Del/+': 1}}  # initialisation of the row
+            nCol = {'male': {'WT': 0, 'Del/+': 0}, 'female': {'WT': 1, 'Del/+': 1}}  # initialisation of the column
+            line = {}
+            for sex in sexList:
+                line[sex] = {}
+                for geno in genoList:
+                    line[sex][geno] = 1
+
+            for row in [0,1]:
+                for col in [0,1]:
+                    ax = axes[row][col]
+                    ax.spines['top'].set_visible(False)
+                    ax.spines['right'].set_visible(False)
+                    ax.spines['left'].set_visible(False)
+                    ax.set_title('{} {}'.format(genoList[row], sexList[col]), fontsize=18)
+                    ax.legend().set_visible(False)
+                    ax.xaxis.set_tick_params(direction="in")
+                    ax.get_yaxis().set_visible(False)
+                    ax.set_xlim(0, 14400)
+                    ax.set_ylim(0, 16)
+            measureData = {}
+            for var in ['nbEvent', 'meanEventLength', 'totalDuration', 'ratio']:
+                measureData[var] = {}
+                for eventType in eventList:
+                    measureData[var][eventType] = {}
+                    for setup in ['1','2']:
+                        measureData[var][eventType][setup] = {}
+                        for sex in sexList:
+                            measureData[var][eventType][setup][sex] = {}
+                            for geno in genoList:
+                                measureData[var][eventType][setup][sex][geno] = []
+
+            for file in files:
+                print(file)
+                connection = sqlite3.connect(file)
+                pool = AnimalPool()
+                pool.loadAnimals(connection)
+                animal = pool.animalDictionnary[1]
+                sex = animal.sex
+                geno = animal.genotype
+                setup = animal.setup
+                #determine the start frame:
+                if phase == 'learning':
+                    tmin = getStartTestPhase(pool)
+                elif phase == 'test':
+                    tmin = 0
+                #determine the end of the computation
+                tmax = tmin + 10*oneMinute
+
+                ax = axes[nRow[sex][geno]][nCol[sex][geno]]
+                ax.text(-20, line[sex][geno]-0.5, s=animal.RFID[-4:], fontsize=10, horizontalalignment='right')
+                #compute the coordinates for the drawing:
+                lineData = {}
+                for eventType in eventList:
+                    #upload event timeline:
+                    eventTypeTimeLine = EventTimeLine( connection, eventType, minFrame = tmin, maxFrame = tmax )
+                    nbEvent = eventTypeTimeLine.getNbEvent()
+                    meanEventLength = eventTypeTimeLine.getMeanEventLength()
+                    totalDuration = eventTypeTimeLine.getTotalLength()
+                    measureData['nbEvent'][eventType][setup][sex][geno].append(nbEvent)
+                    measureData['meanEventLength'][eventType][setup][sex][geno].append(meanEventLength)
+                    measureData['totalDuration'][eventType][setup][sex][geno].append(totalDuration)
+
+                    lineData[eventType] = []
+                    for event in eventTypeTimeLine.eventList:
+                        lineData[eventType].append((event.startFrame - tmin - addThickness, event.duration() + addThickness))
+
+                    ax.broken_barh(lineData[eventType], (line[sex][geno] - 1, 1), facecolors=colorEvent[eventType])
+                    print('plot for ', animal.RFID)
+                    print('line: ', line[sex][geno])
+
+                sniffRightTimeLine = EventTimeLine(connection, 'SniffRight', minFrame=tmin, maxFrame=tmax)
+                totalDurationRight = sniffRightTimeLine.getTotalLength()
+                sniffLeftTimeLine = EventTimeLine(connection, 'SniffLeft', minFrame=tmin, maxFrame=tmax)
+                totalDurationLeft = sniffLeftTimeLine.getTotalLength()
+
+                measureData['ratio']['SniffRight'][setup][sex][geno].append(totalDurationRight / (totalDurationLeft + totalDurationRight))
+                measureData['ratio']['SniffLeft'][setup][sex][geno].append(totalDurationLeft / (totalDurationLeft + totalDurationRight))
+
+                line[sex][geno] += 1.5
+
+            fig.show()
+            fig.savefig(figName, dpi=300)
+
+            figName = 'fig_measures_events_{}_{}.pdf'.format(exp, phase)
+            figMeasures, axesMeasures = plt.subplots(nrows=1, ncols=4, figsize=(24, 4))
+            col = 0
+            for var in ['nbEvent', 'meanEventLength', 'totalDuration', 'ratio']:
+                ax = axesMeasures[col]
+                yLabel = var
+                ax.spines['top'].set_visible(False)
+                ax.spines['right'].set_visible(False)
+                xIndex = [1, 2, 4, 5, 7, 8, 10, 11]
+                ax.set_xticks(xIndex)
+                ax.set_xticklabels(['Left', 'Right', 'Left', 'Right', 'Left', 'Right', 'Left', 'Right'], rotation=45,
+                                   FontSize=12, horizontalalignment='right')
+                ax.set_ylabel(yLabel, FontSize=15)
+                ax.legend().set_visible(False)
+                ax.xaxis.set_tick_params(direction="in")
+                ax.set_xlim(0, 12)
+                ax.set_ylim(0, yLim[var])
+                ax.tick_params(axis='y', labelsize=14)
+                ax.text(1.5, yLim[var], s='WT males', fontsize=14, horizontalalignment='center')
+                ax.text(4.5, yLim[var], s='Del/+ males', fontsize=14, horizontalalignment='center')
+                ax.text(7.5, yLim[var], s='WT females', fontsize=14, horizontalalignment='center')
+                ax.text(10.5, yLim[var], s='Del/+ females', fontsize=14, horizontalalignment='center')
+                if var == 'ratio':
+                    ax.hlines(0.5, xmin = 0, xmax=12, colors='grey', linestyles='dashed')
+
+                # plot the points for each value:
+                i = 0
+                for setup in ['1', '2']:
+                    ax.scatter(addJitter([1] * len(measureData[var]['SniffLeft'][setup]['male']['WT']), 0.2),
+                               measureData[var]['SniffLeft'][setup]['male']['WT'], color='blue', marker=markerList[i], alpha=0.8,
+                               label="on", s=8)
+                    ax.scatter(addJitter([2] * len(measureData[var]['SniffRight'][setup]['male']['WT']), 0.2),
+                               measureData[var]['SniffRight'][setup]['male']['WT'], color='blue', marker=markerList[i], alpha=0.8,
+                               label="on", s=8)
+                    ax.scatter(addJitter([4] * len(measureData[var]['SniffLeft'][setup]['male']['Del/+']), 0.2),
+                               measureData[var]['SniffLeft'][setup]['male']['Del/+'], color='darkorange', marker=markerList[i],
+                               alpha=0.8, label="on", s=8)
+                    ax.scatter(addJitter([5] * len(measureData[var]['SniffRight'][setup]['male']['Del/+']), 0.2),
+                               measureData[var]['SniffRight'][setup]['male']['Del/+'], color='darkorange', marker=markerList[i],
+                               alpha=0.8, label="on", s=8)
+
+                    ax.scatter(addJitter([7] * len(measureData[var]['SniffLeft'][setup]['female']['WT']), 0.2),
+                               measureData[var]['SniffLeft'][setup]['female']['WT'], color='blue', marker=markerList[i], alpha=0.8,
+                               label="on", s=8)
+                    ax.scatter(addJitter([8] * len(measureData[var]['SniffRight'][setup]['female']['WT']), 0.2),
+                               measureData[var]['SniffRight'][setup]['female']['WT'], color='blue', marker=markerList[i], alpha=0.8,
+                               label="on", s=8)
+                    ax.scatter(addJitter([10] * len(measureData[var]['SniffLeft'][setup]['female']['Del/+']), 0.2),
+                               measureData[var]['SniffLeft'][setup]['female']['Del/+'], color='darkorange', marker=markerList[i],
+                               alpha=0.8, label="on", s=8)
+                    ax.scatter(addJitter([11] * len(measureData[var]['SniffRight'][setup]['female']['Del/+']), 0.2),
+                               measureData[var]['SniffRight'][setup]['female']['Del/+'], color='darkorange', marker=markerList[i],
+                               alpha=0.8, label="on", s=8)
+                    i += 1
+
+                if var == 'ratio':
+                    # conduct statistical testing: one sample Student t-test:
+                    T = {}
+                    p = {}
+                    for sex in ['male', 'female']:
+                        T[sex] = {}
+                        p[sex] = {}
+                        for geno in ['WT', 'Del/+']:
+                            prop = measureData['ratio']['SniffRight']['1'][sex][geno] + \
+                                   measureData['ratio']['SniffRight']['2'][sex][geno]
+                            T[sex][geno], p[sex][geno] = stats.ttest_1samp(a=prop, popmean=0.5)
+                            print(
+                                'One-sample Student T-test for {} learning {} {} {}: T={}, p={}'.format(exp, len(prop), sex, geno, T[sex][geno], p[sex][geno]))
+                            ax.text(xPos[sex][geno], 1.1, getStarsFromPvalues(pvalue=p[sex][geno], numberOfTests=1),
+                                    fontsize=14)
+
+                col += 1
+
+            figMeasures.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
+            figMeasures.show() #display the plot
+            figMeasures.savefig(figName, dpi=200)
             break
 
         if answer == 'ph':

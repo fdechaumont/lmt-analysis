@@ -36,7 +36,6 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectD
     '''
     Event SniffRight
     - the animal's nose is in a zone 3 cm around the object at the right
-    right object position: 
     
     Event SniffLeft
     - the animal's nose is in a zone 3 cm around the object at the left
@@ -59,11 +58,11 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectD
         print ( "A is around object located on the left")
         print ( eventNameSniffLeft )
 
-        eventNameUpRight = "upRight"
+        eventNameUpRight = "UpRight"
         print("A is on the object located on the right")
         print(eventNameUpRight)
 
-        eventNameUpLeft = "upLeft"
+        eventNameUpLeft = "UpLeft"
         print("A is on object located on the left")
         print(eventNameUpLeft)
                 
