@@ -218,7 +218,7 @@ if __name__ == '__main__':
                 print('Rebuild sniff events done.')
 
             figName = 'fig_timeline_nor_{}_{}.pdf'.format(exp, phase)
-            fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(14, 6))  # building the plot for timelines
+            fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(14, 8))  # building the plot for timelines
 
             nRow = {'male': {'WT': 0, 'Del/+': 1}, 'female': {'WT': 0, 'Del/+': 1}}  # initialisation of the row
             nCol = {'male': {'WT': 0, 'Del/+': 0}, 'female': {'WT': 1, 'Del/+': 1}}  # initialisation of the column
@@ -239,7 +239,7 @@ if __name__ == '__main__':
                     ax.xaxis.set_tick_params(direction="in")
                     ax.get_yaxis().set_visible(False)
                     ax.set_xlim(0, 14400)
-                    ax.set_ylim(0, 16)
+                    ax.set_ylim(0, 24)
             measureData = {}
             for var in ['nbEvent', 'meanEventLength', 'totalDuration', 'ratio']:
                 measureData[var] = {}
