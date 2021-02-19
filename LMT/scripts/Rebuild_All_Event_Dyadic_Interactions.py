@@ -30,7 +30,8 @@ if __name__ == '__main__':
     
     files = getFilesToProcess()
     
-    maxT = 3*oneDay
+    #maxT = 3*oneDay
+    maxT = 1 * oneHour
     
     '''oneMinute*240'''
     
@@ -65,7 +66,7 @@ if __name__ == '__main__':
         BuildEventGroup2.reBuildEvent( connection, tmin=0, tmax=maxT )
        
         BuildEventStop.reBuildEvent( connection, tmin=0, tmax=maxT )
-        BuildEventWaterPoint.reBuildEvent(connection, tmin=0, tmax=maxT)
+        #BuildEventWaterPoint.reBuildEvent(connection, tmin=0, tmax=maxT)
         BuildEventApproachContact.reBuildEvent( connection, tmin=0, tmax=maxT )
         BuildEventWallJump.reBuildEvent(connection, tmin=0, tmax=maxT)
         BuildEventSAP.reBuildEvent(connection,  tmin=0, tmax=maxT)
