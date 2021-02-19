@@ -186,8 +186,8 @@ def plotProfileUnidentifiedPairs( profileDic):
     fig, axes = plt.subplots(nrows=5, ncols=5, figsize=(20, 22), sharey=False)
 
     # generate plots
-    eventList = eventNb
-    #eventList = eventDuration
+    #eventList = eventNb
+    eventList = eventDuration
     row = 0
     col = 0
     #fig.suptitle(t="Nb of events", y=1.2, fontweight='bold')
@@ -197,10 +197,10 @@ def plotProfileUnidentifiedPairs( profileDic):
         print("event: ", behavEvent)
 
         yWtWt = data[behavEvent]['WT-WT']
-        yHzHz = data[behavEvent]['HZ-HZ']
+        #yHzHz = data[behavEvent]['HZ-HZ']
         yKoKo = data[behavEvent]['KO-KO']
         xWtWt = [1] * len(yWtWt)
-        xHzHz = [2] * len(yHzHz)
+        #xHzHz = [2] * len(yHzHz)
         xKoKo = [3] * len(yKoKo)
 
         ax = axes[row][col]
@@ -217,7 +217,7 @@ def plotProfileUnidentifiedPairs( profileDic):
 
         # plot points for WT and KO:
         ax.scatter(addJitter(xWtWt, 0.08), yWtWt, marker='o', s=16, c='steelblue')
-        ax.scatter(addJitter(xHzHz, 0.08), yHzHz, marker='o', s=16, c='grey')
+        #ax.scatter(addJitter(xHzHz, 0.08), yHzHz, marker='o', s=16, c='grey')
         ax.scatter(addJitter(xKoKo, 0.08), yKoKo, marker='o', s=16, c='darkorange')
         print('points added')
 
@@ -230,7 +230,7 @@ def plotProfileUnidentifiedPairs( profileDic):
 
     fig.tight_layout()
     plt.show()
-    fig.savefig("profile_unidentified_pairs_nb.pdf", dpi=100)
+    fig.savefig("profile_unidentified_pairs_dur_dgkk.pdf", dpi=100)
     plt.close(fig)
     print("Plots saved as pdf.")
 

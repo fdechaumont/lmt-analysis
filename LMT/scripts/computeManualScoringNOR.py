@@ -1,0 +1,289 @@
+'''
+#Created on 16 December 2020
+
+#@author: Elodie
+'''
+
+from scripts.Rebuild_All_Event import *
+from scripts.Plot_Trajectory_Single_Object_Explo import *
+import numpy as np; np.random.seed(0)
+from lmtanalysis.Animal import *
+from tkinter.filedialog import askopenfilename
+from lmtanalysis.Util import *
+from lmtanalysis.Measure import *
+from matplotlib import patches
+from scipy import stats
+from scripts.ComputeActivityHabituationNorTest import *
+from scripts.ComputeObjectRecognition import *
+
+
+
+def computeSniffTimeNoSetup(files, exp, phase, objectDic, tmin = None):
+    print('Compute time of exploration.')
+    data = {}
+    for val in ['sniffLeft', 'sniffRight', 'onLeftObject', 'onRightObject', 'totalSniff']:
+        data[val] = {}
+        for sex in ['male', 'female']:
+            data[val][sex] = {}
+            for geno in ['WT', 'Del/+']:
+                data[val][sex][geno] = {}
+
+    for file in files:
+        connection = sqlite3.connect(file)
+
+        pool = AnimalPool()
+        pool.loadAnimals(connection)
+        animal = pool.animalDictionnary[1]
+        sex = animal.sex
+        geno = animal.genotype
+        setup = int(animal.setup)
+        print(setup)
+        rfid = animal.RFID
+        object = objectDic[setup][exp][phase][0]
+
+        # determine the startframe of the test phase:
+        if tmin == None:
+            tmin = getStartTestPhase(pool=pool)
+        # load detection for the animal:
+        pool.loadDetection(start=tmin, end=tmin + 10 * oneMinute)
+        pool.filterDetectionByInstantSpeed(0, 70)
+
+        selectedFrames = {}
+        onObjectX = {}
+        onObjectY = {}
+        for obj in ['left', 'right']:
+            selectedFrames[obj] = []
+            onObjectX[obj] = []
+            onObjectY[obj] = []
+
+        noneVec = []
+
+        for t in animal.detectionDictionnary.keys():
+            for obj in ['left', 'right']:
+                distanceNose = animal.getDistanceNoseToPoint(t=t, xPoint=objectPosition[setup][obj][0],
+                                                             yPoint=-objectPosition[setup][obj][1])
+                distanceMass = animal.getDistanceToPoint(t=t, xPoint=objectPosition[setup][obj][0],
+                                                         yPoint=-objectPosition[setup][obj][1])
+                if distanceNose == None:
+                    noneVec.append(t)
+                    break
+                else:
+                    if distanceNose <= radiusObjects[object] + 2 / scaleFactor:
+                        # check if the animal is on the object:
+                        if distanceMass <= radiusObjects[object]:
+                            detection = animal.detectionDictionnary.get(t)
+                            onObjectX[obj].append(detection.massX)
+                            onObjectY[obj].append(-detection.massY)
+                        else:
+                            selectedFrames[obj].append(t)
+
+        data['sniffLeft'][sex][geno][rfid] = len(selectedFrames['left'])
+        data['sniffRight'][sex][geno][rfid] = len(selectedFrames['right'])
+        data['totalSniff'][sex][geno][rfid] = data['sniffLeft'][sex][geno][rfid] + data['sniffRight'][sex][geno][rfid]
+
+    return data
+
+if __name__ == '__main__':
+
+    print("Code launched.")
+    # set font
+    from matplotlib import rc, gridspec
+
+    rc('font', **{'family': 'serif', 'serif': ['Arial']})
+
+    objectPosition = {1: {'left': (190, -152), 'right': (330, -152)},
+                      2: {'left': (186, -152), 'right': (330, -152)}
+                      }
+
+    # object information
+    objectDic = {1: {'short': {'same': ('cup', 'cup'), 'diff': ('cup', 'shaker')},
+                     'medium': {'same': ('falcon', 'falcon'), 'diff': ('falcon', 'flask')}},
+                 2: {'short': {'same': ('falcon', 'falcon'), 'diff': ('falcon', 'flask')},
+                     'medium': {'same': ('cup', 'cup'), 'diff': ('cup', 'shaker')}}
+                 }
+
+    radiusObjects = {'cup': 18, 'flask': 15, 'falcon': 9, 'shaker': 11}
+
+    while True:
+        question = "Do you want to:"
+        question += "\n\t [p]lot sniffing time with manual scoring?"
+        question += "\n\t [r]ecompute automatic detection to compare with manual scoring?"
+        question += "\n\t [c]ompare manual scoring with automatic detection?"
+        question += "\n"
+        answer = input(question)
+
+        if answer == 'p':
+            print('Plot sniffing time with manual scoring')
+            file = 'C:/Users/eye/Documents/2020_09_biblio_16p11/2021_01_NOR/nor short/learning_same_obj/time_budget_ee.xlsx'
+            df = pd.read_excel( file, sheet_name= 'time_budget_short_same_ee' )
+            print(df)
+            manualTimeSniff = {}
+            for exp in ['short', 'medium']:
+                manualTimeSniff[exp] = {}
+                for phase in ['same', 'diff']:
+                    manualTimeSniff[exp][phase] = {}
+                    for sex in ['male', 'female']:
+                        manualTimeSniff[exp][phase][sex] = {}
+                        for side in ['left', 'right', 'total', 'ratio_left', 'ratio_right']:
+                            manualTimeSniff[exp][phase][sex][side] = {}
+                            for geno in ['WT', 'Del/+']:
+                                manualTimeSniff[exp][phase][sex][side][geno] = []
+
+            for i in df.index:
+                exp = df['test'][i]
+                phase = df['phase'][i]
+                geno = df['genotype'][i]
+                sex = df['sex'][i]
+                manualTimeSniff[exp][phase][sex]['left'][df['genotype'][i]].append(df['tot_dur_left'][i])
+                manualTimeSniff[exp][phase][sex]['right'][df['genotype'][i]].append(df['tot_dur_right'][i])
+                manualTimeSniff[exp][phase][sex]['total'][df['genotype'][i]].append(df['tot_dur_left'][i] + df['tot_dur_right'][i])
+                if ((df['tot_dur_left'][i] + df['tot_dur_right'][i]) >= 5):
+                    manualTimeSniff[exp][phase][sex]['ratio_left'][df['genotype'][i]].append(df['tot_dur_left'][i] / (df['tot_dur_left'][i] + df['tot_dur_right'][i]))
+                    manualTimeSniff[exp][phase][sex]['ratio_right'][df['genotype'][i]].append(df['tot_dur_right'][i] / (df['tot_dur_left'][i] + df['tot_dur_right'][i]))
+
+
+            fig2, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 8))
+            jitterValue = 0.2
+            row = 0
+
+            for exp in ['short', 'medium']:
+                col = 0
+                for phase in ['same', 'diff']:
+                    ax = axes[row][col]
+                    yLabel = 'ratio sniff time'
+                    ax.spines['top'].set_visible(False)
+                    ax.spines['right'].set_visible(False)
+                    xIndex = [1, 2.5, 4.5, 6]
+                    ax.set_xticks(xIndex)
+                    ax.set_xticklabels(['left', 'right', 'left', 'right'], rotation=45, FontSize=12, horizontalalignment='right')
+                    ax.set_ylabel(yLabel, FontSize=15)
+                    ax.legend().set_visible(False)
+                    ax.xaxis.set_tick_params(direction="in")
+                    ax.set_xlim(0, 6)
+                    ax.set_ylim(0, 1.2)
+                    ax.tick_params(axis='y', labelsize=14)
+                    sex = 'male'
+                    ax.scatter([xIndex[0]-0.5]*len(manualTimeSniff[exp][phase][sex]['ratio_left']['WT']), manualTimeSniff[exp][phase][sex]['ratio_left']['WT'], marker='o', c='blue', alpha=0.7)
+                    ax.scatter([xIndex[0]+0.5]*len(manualTimeSniff[exp][phase][sex]['ratio_right']['WT']), manualTimeSniff[exp][phase][sex]['ratio_right']['WT'], marker='o', c='blue', alpha=0.7)
+
+                    ax.scatter([xIndex[1] - 0.5] * len(manualTimeSniff[exp][phase][sex]['ratio_left']['Del/+']), manualTimeSniff[exp][phase][sex]['ratio_left']['Del/+'], marker='o', c='darkorange', alpha=0.7)
+                    ax.scatter([xIndex[1] + 0.5] * len(manualTimeSniff[exp][phase][sex]['ratio_right']['Del/+']), manualTimeSniff[exp][phase][sex]['ratio_right']['Del/+'], marker='o', c='darkorange', alpha=0.7)
+
+
+                    sex = 'female'
+                    ax.scatter([xIndex[0] - 0.5] * len(manualTimeSniff[exp][phase][sex]['ratio_left']['WT']),
+                               manualTimeSniff[exp][phase][sex]['ratio_left']['WT'], marker='o', c='blue', alpha=0.7)
+                    ax.scatter([xIndex[0] + 0.5] * len(manualTimeSniff[exp][phase][sex]['ratio_right']['WT']),
+                               manualTimeSniff[exp][phase][sex]['ratio_right']['WT'], marker='o', c='blue', alpha=0.7)
+
+                    ax.scatter([xIndex[1] - 0.5] * len(manualTimeSniff[exp][phase][sex]['ratio_left']['Del/+']),
+                               manualTimeSniff[exp][phase][sex]['ratio_left']['Del/+'], marker='o', c='darkorange', alpha=0.7)
+                    ax.scatter([xIndex[1] + 0.5] * len(manualTimeSniff[exp][phase][sex]['ratio_right']['Del/+']),
+                               manualTimeSniff[exp][phase][sex]['ratio_right']['Del/+'], marker='o', c='darkorange', alpha=0.7)
+
+                    # conduct statistical testing: one sample Student t-test:
+                    T = {}
+                    p = {}
+                    for sex in ['male', 'female']:
+                        T[sex] = {}
+                        p[sex] = {}
+                        for geno in ['WT', 'Del/+']:
+                            prop = manualTimeSniff[exp][phase][sex]['ratio_left'][geno]
+                            T[sex][geno], p[sex][geno] = stats.ttest_1samp(a=prop, popmean=0.5)
+                            print('One-sample Student T-test for {} {} {} {} {}: T={}, p={}'.format(exp, phase, len(prop), sex, geno, T[sex][geno], p[sex][geno]))
+                            #ax.text(xPos[sex][geno], 1.1, getStarsFromPvalues(pvalue=p[sex][geno], numberOfTests=1), fontsize=16)
+
+                    col += 1
+                row += 1
+
+            plt.tight_layout()
+            plt.show()
+
+            with open('manualTimeSniff.json', 'w') as jFile:
+                json.dump(manualTimeSniff, jFile, indent=4)
+            print("json file created")
+
+            break
+
+        if answer == 'r':
+            print('Recompute automatic detection to be able to compare with manual scoring')
+            question = "Is it the short or medium retention time? (short / medium)"
+            exp = input(question)
+            question = "Is it the same or diff phase? (same / diff)"
+            phase = input(question)
+            files = getFilesToProcess()
+
+            data = computeSniffTimeNoSetup(files, tmin=0, exp= exp, phase=phase, objectDic=objectDic)
+
+            # store the data dictionary in a json file
+            with open('auto_sniff_time_{}_{}.json'.format(exp, phase), 'w') as jFile:
+                json.dump(data, jFile, indent=4)
+            print("json file created")
+            break
+
+        if answer == 'c':
+            print('Compare manual scoring with automatic detection')
+            #store manual data in a dictionary
+            file = 'C:/Users/eye/Documents/2020_09_biblio_16p11/2021_01_NOR/nor short/learning_same_obj/time_budget_ee.xlsx'
+            df = pd.read_excel( file, sheet_name= 'time_budget_short_same_ee' )
+            print(df)
+            manualTimeSniff = {}
+            for exp in ['short', 'medium']:
+                manualTimeSniff[exp] = {}
+                for phase in ['same', 'diff']:
+                    manualTimeSniff[exp][phase] = {}
+                    for side in ['sniffLeft', 'sniffRight', 'totalSniff']:
+                        manualTimeSniff[exp][phase][side] = {}
+                        for sex in ['male', 'female']:
+                            manualTimeSniff[exp][phase][side][sex] = {}
+                            for geno in ['WT', 'Del/+']:
+                                manualTimeSniff[exp][phase][side][sex][geno] = {}
+
+            for i in df.index:
+                exp = df['test'][i]
+                phase = df['phase'][i]
+                geno = df['genotype'][i]
+                sex = df['sex'][i]
+                ind = '00103812{}'.format(df['Observations id'][i][-4:]) #to obtain the same dic keys as in automatic measures
+                manualTimeSniff[exp][phase]['sniffLeft'][sex][df['genotype'][i]][ind] = df['tot_dur_left'][i]
+                manualTimeSniff[exp][phase]['sniffRight'][sex][df['genotype'][i]][ind] = df['tot_dur_right'][i]
+                manualTimeSniff[exp][phase]['totalSniff'][sex][df['genotype'][i]][ind] = df['tot_dur_left'][i] + df['tot_dur_right'][i]
+
+            #store automatic data in a dictionary
+            autoTimeSniff = {}
+            for exp in ['short', 'medium']:
+                autoTimeSniff[exp] = {}
+                jsonFileName = "auto_sniff_time_{}_same.json".format(exp)
+                with open(jsonFileName) as json_data:
+                    autoTimeSniff[exp]['same'] = json.load(json_data)
+                jsonFileName = "auto_sniff_time_{}_diff.json".format(exp)
+                with open(jsonFileName) as json_data:
+                    autoTimeSniff[exp]['diff'] = json.load(json_data)
+
+            print( autoTimeSniff)
+
+            markerDic = {'female': 'o', 'male': 'v'}
+            colorDic = {'WT': 'steelblue', 'Del/+': 'darkorange'}
+
+            fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 8))
+            row = 0
+            for exp in ['short', 'medium']:
+                col = 0
+                for phase in ['same', 'diff']:
+                    ax = axes[row][col]
+                    for sex in ['male', 'female']:
+                        for geno in ['WT', 'Del/+']:
+                            x = []
+                            for id in autoTimeSniff[exp][phase]['sniffLeft'][sex][geno].keys():
+                                x.append(autoTimeSniff[exp][phase]['sniffLeft'][sex][geno][id])
+                            y = []
+                            for id in manualTimeSniff[exp][phase]['sniffLeft'][sex][geno].keys():
+                                y.append(manualTimeSniff[exp][phase]['sniffLeft'][sex][geno][id])
+                            ax.scatter(x, y, marker=markerDic[sex], c=colorDic[geno], alpha=0.7)
+                    col += 1
+                row += 1
+
+            plt.tight_layout()
+            plt.show()
+
+            break
