@@ -152,7 +152,7 @@ if __name__ == '__main__':
     xPos = {'male': {'WT': 1.5, 'Del/+': 4.5},
             'female': {'WT': 7.5, 'Del/+': 10.5}}
 
-    vibrissae = 2 #estimated size of the vibrissae to determine the contact zone with the object
+    vibrissae = 3 #estimated size of the vibrissae to determine the contact zone with the object
 
     while True:
         question = "Do you want to:"
