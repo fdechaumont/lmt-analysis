@@ -17,8 +17,8 @@ from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventFollowZone
 from tkinter.filedialog import askopenfilename
 from lmtanalysis.Util import getMinTMaxTAndFileNameInput, level
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
-from lmtanalysis.FileUtil import getFilesToProcess, addJitter
-
+from lmtanalysis.FileUtil import getFilesToProcess, addJitter, getStarsFromPvalues
+from scipy.stats import mannwhitneyu
 import pandas as pd
 
 
@@ -169,7 +169,7 @@ def plotProfileUnidentifiedPairs( profileDic):
         if 'TotalLen' in eventElement:
             eventDuration.append( eventElement )
 
-    print('event nb: ', eventNb)
+
     data = {}
     for event in eventList:
         data[event] = {}
@@ -183,56 +183,72 @@ def plotProfileUnidentifiedPairs( profileDic):
                    data[eventKey][genoKey].append( profileDic[fileKey][idKey][genoKey][eventKey] )
 
     '''plots the profile for pairs of mice, according to the type of pairs'''
-    fig, axes = plt.subplots(nrows=5, ncols=5, figsize=(20, 22), sharey=False)
-
     # generate plots
     #eventList = eventNb
-    eventList = eventDuration
-    row = 0
-    col = 0
+    #eventList = eventDuration
+    eventListComplete = [eventDuration, eventNb]
+
     #fig.suptitle(t="Nb of events", y=1.2, fontweight='bold')
-    xIndex = [1]
+    nPlot = 0
     # plot the data for each behavioural event
-    for behavEvent in eventList:
-        print("event: ", behavEvent)
+    for eventList in eventListComplete:
+        fig, axes = plt.subplots(nrows=5, ncols=5, figsize=(20, 22), sharey=False)
+        row = 0
+        col = 0
+        for behavEvent in eventList:
+            print("event: ", behavEvent)
 
-        yWtWt = data[behavEvent]['WT-WT']
-        #yHzHz = data[behavEvent]['HZ-HZ']
-        yKoKo = data[behavEvent]['KO-KO']
-        xWtWt = [1] * len(yWtWt)
-        #xHzHz = [2] * len(yHzHz)
-        xKoKo = [3] * len(yKoKo)
+            yWtWt = data[behavEvent]['WT-WT']
+            #yHzHz = data[behavEvent]['HZ-HZ']
+            yKoKo = data[behavEvent]['KO-KO']
+            xWtWt = [1] * len(yWtWt)
+            #xHzHz = [2] * len(yHzHz)
+            xKoKo = [3] * len(yKoKo)
 
-        ax = axes[row][col]
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.set_xticks([ 1, 2, 3 ])
-        ax.set_xticklabels(['WT-WT', 'HZ-HZ', 'KO-KO'], rotation = 45, FontSize=12)
-        ax.set_ylabel(behavEvent, FontSize=10)
-        ax.legend().set_visible(False)
-        ax.xaxis.set_tick_params(direction="in")
-        ax.set_xlim(0, 4)
-        #ax.set_ylim(0, 1.06)
-        ax.tick_params(axis='y', labelsize=14)
+            yMax = np.amax([np.amax(yWtWt), np.amax(yKoKo)])
+            yMin = np.amin([np.amin(yWtWt), np.amin(yKoKo)])
 
-        # plot points for WT and KO:
-        ax.scatter(addJitter(xWtWt, 0.08), yWtWt, marker='o', s=16, c='steelblue')
-        #ax.scatter(addJitter(xHzHz, 0.08), yHzHz, marker='o', s=16, c='grey')
-        ax.scatter(addJitter(xKoKo, 0.08), yKoKo, marker='o', s=16, c='darkorange')
-        print('points added')
+            ax = axes[row][col]
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            #ax.set_xticks([ 1, 2, 3 ])
+            ax.set_xticks([1, 3])
+            #ax.set_xticklabels(['WT-WT', 'HZ-HZ', 'KO-KO'], rotation = 45, FontSize=12)
+            ax.set_xticklabels(['WT-WT', 'KO-KO'], rotation = 45, FontSize=12)
+            ax.set_ylabel(behavEvent, FontSize=14)
+            ax.legend().set_visible(False)
+            ax.xaxis.set_tick_params(direction="in")
+            ax.set_xlim(0, 4)
+            #ax.set_ylim(0.94*yMin, 1.06*yMax)
+            ax.tick_params(axis='y', labelsize=14)
 
-        if col < 4:
-            col += 1
-            row = row
-        else:
-            col = 0
-            row += 1
+            # plot points for WT and KO:
+            ax.scatter(addJitter(xWtWt, 0.08), yWtWt, marker='o', s=16, c='steelblue')
+            #ax.scatter(addJitter(xHzHz, 0.08), yHzHz, marker='o', s=16, c='grey')
+            ax.scatter(addJitter(xKoKo, 0.08), yKoKo, marker='o', s=16, c='darkorange')
+            print('points added')
+            try:
+                U, p = mannwhitneyu(yWtWt, yKoKo, alternative='two-sided')
+                print(behavEvent, ' U = ', U, 'p = ', p, getStarsFromPvalues(p, 1))
+                ax.text(2, yMax - 0.06 * (yMax - yMin), getStarsFromPvalues(p, 1),
+                        FontSize=20, horizontalalignment='center', color='black', weight='bold')
+            except:
+                print('stats not possible!')
+                continue
 
-    fig.tight_layout()
-    plt.show()
-    fig.savefig("profile_unidentified_pairs_dur_dgkk.pdf", dpi=100)
-    plt.close(fig)
-    print("Plots saved as pdf.")
+            if col < 4:
+                col += 1
+                row = row
+            else:
+                col = 0
+                row += 1
+
+        fig.tight_layout()
+        plt.show()
+        fig.savefig("profile_unidentified_pairs_dgkk_{}.pdf".format(nPlot), dpi=100)
+        plt.close(fig)
+        print("Plots saved as pdf.")
+        nPlot += 1
 
 
 if __name__ == '__main__':
@@ -245,7 +261,7 @@ if __name__ == '__main__':
         question = "Do you want to:"
         question += "\n\t generate the [j]son file for a profile on pairs of mice?"
         question += "\n\t [p]lot profiles for the different pairs"
-        question += "\n\t [pp]lot profiles for WT versus mutant over the first 3h only "
+        question += "\n\t [sp]lot only a subset of variables"
         question += "\n"
         answer = input(question)
 
@@ -267,6 +283,120 @@ if __name__ == '__main__':
 
             plotProfileUnidentifiedPairs( profileDic )
 
+            break
+
+        if answer == 'sp':
+            '''This script allows to select a few variables to plot them, focusing on social events for unidentified pairs'''
+            shortEventList = ["Contact", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact",
+                                 "Side by side Contact, opposite way", "Approach rear", "FollowZone Isolated", "Train2"]
+
+            eventDuration = []
+            eventNb = []
+            for event in shortEventList:
+                evDur = event+' TotalLen'
+                evNb = event+' Nb'
+                eventDuration.append( evDur )
+                eventNb.append( evNb )
+
+            eventListComplete = [eventDuration, eventNb]
+
+            # open the json file
+            jsonFileName = "profile_unidentified_pairs.json"
+            with open(jsonFileName) as json_data:
+                profileDic = json.load(json_data)
+            print("json file re-imported.")
+
+            genoList = []
+            for fileKey in profileDic.keys():
+                for idKey in profileDic[fileKey].keys():
+                    for genoKey in profileDic[fileKey][idKey].keys():
+                        genoList.append(genoKey)
+
+
+
+            data = {}
+            for event in eventDuration+eventNb:
+                data[event] = {}
+                for geno in genoList:
+                    data[event][geno] = []
+
+            for fileKey in profileDic.keys():
+                for idKey in profileDic[fileKey].keys():
+                    for genoKey in profileDic[fileKey][idKey].keys():
+                        for eventKey in eventDuration+eventNb:
+                            data[eventKey][genoKey].append(profileDic[fileKey][idKey][genoKey][eventKey])
+
+            '''plots the profile for pairs of mice, according to the type of pairs'''
+            # generate plots
+            # eventList = eventNb
+            # eventList = eventDuration
+
+
+            # fig.suptitle(t="Nb of events", y=1.2, fontweight='bold')
+            nPlot = 0
+            # plot the data for each behavioural event
+            for eventList in eventListComplete:
+                fig, axes = plt.subplots(nrows=2, ncols=4, figsize=(12, 6), sharey=False)
+                row = 0
+                col = 0
+                for behavEvent in eventList:
+                    print("event: ", behavEvent)
+
+                    yWtWt = data[behavEvent]['WT-WT']
+                    # yHzHz = data[behavEvent]['HZ-HZ']
+                    yKoKo = data[behavEvent]['KO-KO']
+                    xWtWt = [1] * len(yWtWt)
+                    # xHzHz = [2] * len(yHzHz)
+                    xKoKo = [3] * len(yKoKo)
+
+                    if 'TotalLen' in behavEvent:
+                        yWtWt = np.array(yWtWt)/30
+                        yKoKo = np.array(yKoKo)/30
+
+                    yMax = np.amax([np.amax(yWtWt), np.amax(yKoKo)])
+                    yMin = np.amin([np.amin(yWtWt), np.amin(yKoKo)])
+
+                    ax = axes[row][col]
+                    ax.spines['top'].set_visible(False)
+                    ax.spines['right'].set_visible(False)
+                    # ax.set_xticks([ 1, 2, 3 ])
+                    ax.set_xticks([1, 3])
+                    # ax.set_xticklabels(['WT-WT', 'HZ-HZ', 'KO-KO'], rotation = 45, FontSize=12)
+                    ax.set_xticklabels(['WT-WT', 'KO-KO'], rotation=45, FontSize=12)
+                    ax.set_ylabel(behavEvent, FontSize=11)
+                    ax.legend().set_visible(False)
+                    ax.xaxis.set_tick_params(direction="in")
+                    ax.set_xlim(0, 4)
+                    # ax.set_ylim(0.94*yMin, 1.06*yMax)
+                    ax.tick_params(axis='y', labelsize=14)
+
+                    # plot points for WT and KO:
+                    ax.scatter(addJitter(xWtWt, 0.08), yWtWt, marker='o', s=16, c='steelblue')
+                    # ax.scatter(addJitter(xHzHz, 0.08), yHzHz, marker='o', s=16, c='grey')
+                    ax.scatter(addJitter(xKoKo, 0.08), yKoKo, marker='o', s=16, c='darkorange')
+                    print('points added')
+                    try:
+                        U, p = mannwhitneyu(yWtWt, yKoKo, alternative='two-sided')
+                        print(behavEvent, ' U = ', U, 'p = ', p, getStarsFromPvalues(p, 1))
+                        ax.text(2, yMax - 0.06 * (yMax - yMin), getStarsFromPvalues(p, 1),
+                                FontSize=14, horizontalalignment='center', color='black')
+                    except:
+                        print('stats not possible!')
+                        continue
+
+                    if col < 3:
+                        col += 1
+                        row = row
+                    else:
+                        col = 0
+                        row += 1
+
+                fig.tight_layout()
+                plt.show()
+                fig.savefig("social_unidentified_pairs_dgkk_{}.pdf".format(nPlot), dpi=100)
+                plt.close(fig)
+                print("Plots saved as pdf.")
+                nPlot += 1
             break
 
 
