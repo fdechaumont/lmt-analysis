@@ -17,13 +17,14 @@ import seaborn as sns
 from tkinter.filedialog import askopenfilename
 from lmtanalysis.Util import getMinTMaxTAndFileNameInput
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
-from lmtanalysis.FileUtil import getFilesToProcess
+from lmtanalysis.FileUtil import getFilesToProcess, getJsonFileToProcess
+from lmtanalysis.Util import getFileNameInput
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import pandas
 
 
-def computeProfile(file, minT, maxT, night):
+def computeProfile(file, minT, maxT, night, text_file):
     
     connection = sqlite3.connect( file )
     
@@ -39,8 +40,10 @@ def computeProfile(file, minT, maxT, night):
         print( "RFID: {}".format( rfid ) )
         animalData[rfid]= {}        
         #store the animal
-        animalData[rfid]["animal"] = pool.animalDictionnary[animal]
+        animalData[rfid]["animal"] = pool.animalDictionnary[animal].name
+        animalObject = pool.animalDictionnary[animal]
         animalData[rfid]["file"] = file
+        animalData[rfid]['genotype'] = pool.animalDictionnary[animal].genotype
                 
         genoA = None
         try:
@@ -62,21 +65,19 @@ def computeProfile(file, minT, maxT, night):
             
             print(behavEventTimeLine.eventName, genoA, behavEventTimeLine.idA, totalEventDuration, nbEvent)
 
-    
-    header = ["file","strain","sex","group","day","exp","RFID","genotype", "user1", "minTime","maxTime"]
-    for name in header:
-        text_file.write( "{}\t".format ( name ) ) 
-    for kAnimal in animalData:    
-        #identify the experiment where the animal comes from:
-        animalData[kAnimal]["experiment"] = file
         #compute the total distance traveled
         COMPUTE_TOTAL_DISTANCE = True
         if ( COMPUTE_TOTAL_DISTANCE == True ):
-            animalData[kAnimal]["animal"].loadDetection( start=minT, end=maxT, lightLoad = True )
-            animalData[kAnimal]["totalDistance"] = animalData[kAnimal]["animal"].getDistance( tmin=minT,tmax=maxT)/100
+            animalObject.loadDetection( start=minT, end=maxT, lightLoad = True )
+            animalData[rfid]["totalDistance"] = animalObject.getDistance( tmin=minT,tmax=maxT)/100
         else:
-            animalData[kAnimal]["totalDistance"] = "totalDistance"
-        
+            animalData[rfid]["totalDistance"] = "totalDistance"
+
+
+    header = ["file", "strain", "sex", "group", "day", "exp", "RFID", "genotype", "user1", "minTime", "maxTime"]
+    for name in header:
+        text_file.write("{}\t".format(name))
+
     #write event keys
     firstAnimalKey = next(iter(animalData))
     firstAnimal = animalData[firstAnimalKey]
@@ -91,9 +92,8 @@ def computeProfile(file, minT, maxT, night):
         text_file.write( "{}\t".format( "group" ) )
         text_file.write( "{}\t".format( night ) )
         text_file.write( "{}\t".format( "exp" ) )
-        text_file.write( "{}\t".format( animalData[kAnimal]["animal"].RFID ) )
-        text_file.write( "{}\t".format( animalData[kAnimal]["animal"].genotype ) )
-        text_file.write( "{}\t".format( animalData[kAnimal]["animal"].user1 ) )
+        text_file.write( "{}\t".format( kAnimal ) )
+        text_file.write( "{}\t".format( animalData[kAnimal]["genotype"] ) )
         text_file.write( "{}\t".format( minT ) )
         text_file.write( "{}\t".format( maxT ) )
 
@@ -111,10 +111,11 @@ def getProfileValues( profileData, night=0, event=None):
     dataDic["exp"] = []
     
     for file in profileData.keys():
-        for animal in profileData[file][night]:
-            dataDic["value"].append(profileData[file][night][animal][event])
-            dataDic["exp"].append(profileData[file][night][animal]["experiment"])
-            dataDic["genotype"].append(profileData[file][night][animal]["animal"].genotype)
+        print(profileData[file].keys())
+        for animal in profileData[file][str(night)].keys():
+            dataDic["value"].append(profileData[file][str(night)][animal][event])
+            dataDic["exp"].append(profileData[file][str(night)][animal]["file"])
+            dataDic["genotype"].append(profileData[file][str(night)][animal]["genotype"])
     
     return dataDic
 
@@ -214,6 +215,7 @@ def testProfileData(profileData=None, night=0, eventListNames=None, valueCat="",
         #print summary
         print(result.summary())
         text_file.write(result.summary().as_text())
+        text_file.write('\n')
 
 
 if __name__ == '__main__':
@@ -221,91 +223,125 @@ if __name__ == '__main__':
     print("Code launched.")
     
     #List of events to be computed within the behavioural profile2, and header for the computation of the total distance travelled.
-    behaviouralEventOneMouse = ["Contact", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Get away", "Approach contact", "Approach rear", "Break contact", "FollowZone Isolated", "Train2", "Group2", "Group3", "Group 3 break", "Group 3 make", "Group 4 break", "Group 4 make", "Huddling", "Move isolated", "Move in contact", "Nest3_", "Nest4_", "Rearing", "Rear isolated", "Rear in contact", "Stop isolated", "WallJump", "Water Zone", "totalDistance", "experiment"]
-    #behaviouralEventOneMouse = ["Contact", "totalDistance", "experiment"]
+    #behaviouralEventOneMouse = ["Contact", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Get away", "Approach contact", "Approach rear", "Break contact", "FollowZone Isolated", "Train2", "Group2", "Group3", "Group 3 break", "Group 3 make", "Group 4 break", "Group 4 make", "Huddling", "Move isolated", "Move in contact", "Nest3_", "Nest4_", "Rearing", "Rear isolated", "Rear in contact", "Stop isolated", "WallJump", "Water Zone", "totalDistance", "experiment"]
+    behaviouralEventOneMouse = ["Contact", "Oral-genital Contact", "totalDistance", "experiment"]
 
-    files = getFilesToProcess()
-    tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
+    while True:
 
-    profileData = {}
-    nightComputation = input("Compute profile2 only during night events (Y or N)? ")
-    
-    for file in files:
-        
-        print(file)
-        connection = sqlite3.connect( file )
-    
-        profileData[file] = {}
-    
-        pool = AnimalPool( )
-        pool.loadAnimals( connection )
+        question = "Do you want to:"
+        question += "\n\t [c]ompute profile data (save json file)?"
+        question += "\n\t [p]lot and analyse profile data (from stored json file)?"
+        question += "\n"
+        answer = input(question)
 
-        if nightComputation == "N":
-            minT = tmin
-            maxT = tmax
-            n = 0
-            #Compute profile2 data and save them in a text file
-            profileData[file][n] = computeProfile(file = file, minT=minT, maxT=maxT, night=n)
+        if answer == "c":
+            files = getFilesToProcess()
+            tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
+
+            profileData = {}
+            nightComputation = input("Compute profile only during night events (Y or N)? ")
+
+            for file in files:
+
+                print(file)
+                connection = sqlite3.connect( file )
+
+                profileData[file] = {}
+
+                pool = AnimalPool( )
+                pool.loadAnimals( connection )
+
+                if nightComputation == "N":
+                    minT = tmin
+                    maxT = tmax
+                    n = 0
+                    #Compute profile2 data and save them in a text file
+                    profileData[file][n] = computeProfile(file = file, minT=minT, maxT=maxT, night=n, text_file=text_file)
+                    text_file.write( "\n" )
+                    # Create a json file to store the computation
+                    with open("profile_data_{}.json".format('no_night'), 'w') as fp:
+                        json.dump(profileData, fp, indent=4)
+                    print("json file with profile measurements created.")
+
+
+                else:
+                    nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=tmin, maxFrame=tmax )
+                    n = 1
+
+                    for eventNight in nightEventTimeLine.getEventList():
+                        minT = eventNight.startFrame
+                        maxT = eventNight.endFrame
+                        print("Night: ", n)
+                        #Compute profile2 data and save them in a text file
+                        profileData[file][n] = computeProfile(file=file, minT=minT, maxT=maxT, night=n, text_file=text_file)
+                        text_file.write( "\n" )
+                        n+=1
+                        print("Profile data saved.")
+
+                    # Create a json file to store the computation
+                    with open("profile_data_{}.json".format('over_night'), 'w') as fp:
+                        json.dump(profileData, fp, indent=4)
+                    print("json file with profile measurements created.")
+
             text_file.write( "\n" )
-            print("Profile data saved.")
-            
-        else:
-            nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=tmin, maxFrame=tmax )
-            n = 1
-            
-            for eventNight in nightEventTimeLine.getEventList():
-                minT = eventNight.startFrame
-                maxT = eventNight.endFrame
-                print("Night: ", n)
-                #Compute profile2 data and save them in a text file
-                profileData[file][n] = computeProfile(file=file, minT=minT, maxT=maxT, night=n)
-                text_file.write( "\n" )
-                n+=1
-                print("Profile data saved.")
-            
-            
-    text_file.write( "\n" )
-    
-    if nightComputation == "N":
-        n = 0
+            text_file.close()
 
-        #Plot profile2 data and save them in a pdf file
-        plotProfileDataDuration(profileData=profileData, night=n, valueCat=" TotalLen")
-        plotProfileDataDuration(profileData=profileData, night=n, valueCat=" Nb")
-        text_file.write( "Statistical analysis: mixed linear models" )
-        text_file.write( "{}\n" )
-        #Test profile2 data and save results in a text file
-        testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse[:-2], valueCat=" TotalLen", text_file=text_file)
-        testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse[:-2], valueCat=" Nb", text_file=text_file)
-        print("test for total distance")
-        testProfileData(profileData=profileData, night=n, eventListNames=["totalDistance"], valueCat="", text_file=text_file)
-    
-            
-    else:
-        nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=tmin, maxFrame=tmax )
-        n = 1
-        
-        for eventNight in nightEventTimeLine.getEventList():
+            break
 
-            print("Night: ", n)
-               
-            #Plot profile2 data and save them in a pdf file
-            plotProfileDataDuration(profileData=profileData, night=n, valueCat=" TotalLen")
-            plotProfileDataDuration(profileData=profileData, night=n, valueCat=" Nb")
-            text_file.write( "Statistical analysis: mixed linear models" )
-            text_file.write( "{}\n" )
-            #Test profile2 data and save results in a text file
-            testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse[:-2], valueCat=" TotalLen", text_file=text_file)
-            testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse[:-2], valueCat=" Nb", text_file=text_file)
-            print("test for total distance")
-            testProfileData(profileData=profileData, night=n, eventListNames=["totalDistance"], valueCat="", text_file=text_file)
-            
-            n+=1
-            
-    
-    print ("Plots saved as pdf and analyses saved in text file.")
-    
-    text_file.close()
+        if answer == "p":
+            nightComputation = input("Compute profile only during night events (Y or N)? ")
+            text_file = getFileNameInput()
+
+            if nightComputation == "N":
+                n = 0
+                file = getJsonFileToProcess()
+                print(file)
+                # create a dictionary with profile data
+                with open(file) as json_data:
+                    profileData = json.load(json_data)
+
+                print("json file for profile data re-imported.")
+                #Plot profile2 data and save them in a pdf file
+                print('data: ', profileData)
+                plotProfileDataDuration(profileData=profileData, night=n, valueCat=" TotalLen")
+                plotProfileDataDuration(profileData=profileData, night=n, valueCat=" Nb")
+                text_file.write( "Statistical analysis: mixed linear models" )
+                text_file.write( "{}\n" )
+                #Test profile2 data and save results in a text file
+                testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse[:-2], valueCat=" TotalLen", text_file=text_file)
+                testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse[:-2], valueCat=" Nb", text_file=text_file)
+                print("test for total distance")
+                testProfileData(profileData=profileData, night=n, eventListNames=["totalDistance"], valueCat="", text_file=text_file)
+
+
+            else:
+                file = getJsonFileToProcess()
+                # create a dictionary with profile data
+                with open(file) as json_data:
+                    profileData = json.load(json_data)
+                print("json file for profile data re-imported.")
+
+                for n in range(1, 4):
+
+                    print("Night: ", n)
+                    #Plot profile2 data and save them in a pdf file
+                    plotProfileDataDuration(profileData=profileData, night=n, valueCat=" TotalLen")
+                    plotProfileDataDuration(profileData=profileData, night=n, valueCat=" Nb")
+                    text_file.write( "Statistical analysis: mixed linear models" )
+                    text_file.write( "{}\n" )
+                    #Test profile2 data and save results in a text file
+                    testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse[:-2], valueCat=" TotalLen", text_file=text_file)
+                    testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse[:-2], valueCat=" Nb", text_file=text_file)
+                    print("test for total distance")
+                    testProfileData(profileData=profileData, night=n, eventListNames=["totalDistance"], valueCat="", text_file=text_file)
+
+                    n+=1
+
+
+            print ("Plots saved as pdf and analyses saved in text file.")
+
+            text_file.close()
+            break
 
     
             
