@@ -47,7 +47,7 @@ def plotObjectZone(ax, colorFill, x, y, radius, alpha):
     ax.add_artist(circle1)
 
 
-def computeSniffTime(files, objectDic, tmin = None):
+def computeSniffTime(files=None, tmin=None, objectDic=None):
     print('Compute time of exploration.')
     data = {}
     for val in ['sniffLeft', 'sniffRight', 'onLeftObject', 'onRightObject', 'totalSniff']:
@@ -71,8 +71,7 @@ def computeSniffTime(files, objectDic, tmin = None):
         rfid = animal.RFID
         object = objectDic[setup][exp]['test'][0]
 
-        # determine the startframe of the test phase:
-        if tmin == None:
+        if tmin==None:
             tmin = getStartTestPhase(pool=pool)
         # load detection for the animal:
         pool.loadDetection(start=tmin, end=tmin + 10 * oneMinute)
@@ -477,7 +476,7 @@ if __name__ == '__main__':
             figF.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
             figF.savefig('{}_females.pdf'.format(figName), dpi=200)
 
-            data = computeSniffTime(files, tmin=0, objectDic=objectDic)
+            data = computeSniffTime(files, objectDic=objectDic)
 
             # store the data dictionary in a json file
             with open('sniff_time_same_{}.json'.format(exp), 'w') as jFile:

@@ -57,8 +57,8 @@ def plotTrajectorySingleAnimal(file, ax, color, tmin, tmax, title):
     #plotZone(ax, colorEdge='lightgrey', colorFill='grey', xa=191, xb=320, ya=-273, yb=-143 ) # draw the rectangle for the center zone
     plotZone(ax, colorEdge='lightgrey', colorFill='grey', xa=168, xb=343, ya=-296, yb=-120)  # draw the rectangle for the center zone
 
-    plot(ax, animal, title=title, color="black") #plot the trajectory of the center of mass
-
+    #plot(ax, animal, title=title, color="black") #plot the trajectory of the center of mass
+    plotNoseTrajectory(ax, animal, title=title, color='black') #plot the trajectory of the nose
     plotSapNose(ax, animal, color = color) # add the frames where the animal is in SAP
 
 

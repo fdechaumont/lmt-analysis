@@ -18,7 +18,8 @@ from scripts.ComputeObjectRecognition import *
 
 
 
-def computeSniffTimeNoSetup(files, exp, phase, objectDic, tmin = None):
+def computeSniffTimeNoSetup(files, exp, phase, objectDic):
+
     print('Compute time of exploration.')
     vibrissae = 3  # estimated size of the vibrissae to determine the contact zone with the object
     data = {}
@@ -43,8 +44,10 @@ def computeSniffTimeNoSetup(files, exp, phase, objectDic, tmin = None):
         object = objectDic[setup][exp][phase][0]
 
         # determine the startframe of the test phase:
-        if tmin == None:
+        if phase == 'same':
             tmin = getStartTestPhase(pool=pool)
+        if phase == 'diff':
+            tmin = 0
         # load detection for the animal:
         pool.loadDetection(start=tmin, end=tmin + 10 * oneMinute)
         pool.filterDetectionByInstantSpeed(0, 70)
@@ -218,7 +221,8 @@ if __name__ == '__main__':
             phase = input(question)
             files = getFilesToProcess()
 
-            data = computeSniffTimeNoSetup(files, tmin=0, exp= exp, phase=phase, objectDic=objectDic)
+            ##############
+            data = computeSniffTimeNoSetup(files, exp= exp, phase=phase, objectDic=objectDic)
 
             # store the data dictionary in a json file
             with open('auto_sniff_time_{}_{}.json'.format(exp, phase), 'w') as jFile:
