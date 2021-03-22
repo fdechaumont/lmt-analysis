@@ -109,7 +109,7 @@ if __name__ == '__main__':
     radiusObjects = {'cup': 18, 'flask': 15, 'falcon': 9, 'shaker': 11}
 
     expList = ['short', 'medium']
-    expList = ['short']
+    #expList = ['short']
 
     while True:
         question = "Do you want to:"
@@ -167,9 +167,10 @@ if __name__ == '__main__':
                     ax.set_ylabel(yLabel, FontSize=15)
                     ax.legend().set_visible(False)
                     ax.xaxis.set_tick_params(direction="in")
-                    ax.set_xlim(0, 6)
+                    ax.set_xlim(0, 7)
                     ax.set_ylim(0, 1.2)
                     ax.tick_params(axis='y', labelsize=14)
+                    ax.axhline(y=0.5, color='black')
                     sex = 'male'
                     ax.scatter([xIndex[0]-0.5]*len(manualTimeSniff[exp][phase][sex]['ratio_left']['WT']), manualTimeSniff[exp][phase][sex]['ratio_left']['WT'], marker='o', c='blue', alpha=0.7)
                     ax.scatter([xIndex[0]+0.5]*len(manualTimeSniff[exp][phase][sex]['ratio_right']['WT']), manualTimeSniff[exp][phase][sex]['ratio_right']['WT'], marker='o', c='blue', alpha=0.7)
