@@ -93,6 +93,9 @@ if __name__ == '__main__':
     # set font
     from matplotlib import rc, gridspec
 
+    pd.set_option('display.max_rows', 20)
+    pd.set_option('display.max_columns', 20)
+
     rc('font', **{'family': 'serif', 'serif': ['Arial']})
 
     objectPosition = {1: {'left': (190, -152), 'right': (330, -152)},
@@ -121,9 +124,11 @@ if __name__ == '__main__':
 
         if answer == 'p':
             print('Plot sniffing time with manual scoring')
-            file = 'C:/Users/eye/Documents/2020_09_biblio_16p11/2021_01_NOR/nor short/learning_same_obj/time_budget_ee.xlsx'
+            file = 'C:/Users/eye/Documents/2020_09_biblio_16p11/2021_01_NOR/nor short/time_budget_ee.xlsx'
             df = pd.read_excel( file, sheet_name= 'time_budget_short_same_ee' )
             print(df)
+
+            annotatePlot = True
 
             manualTimeSniff = {}
             for exp in expList:
@@ -135,19 +140,21 @@ if __name__ == '__main__':
                         for side in ['left', 'right', 'total', 'ratio_left', 'ratio_right']:
                             manualTimeSniff[exp][phase][sex][side] = {}
                             for geno in ['WT', 'Del/+']:
-                                manualTimeSniff[exp][phase][sex][side][geno] = []
+                                manualTimeSniff[exp][phase][sex][side][geno] = {}
+
 
             for i in df.index:
                 exp = df['test'][i]
                 phase = df['phase'][i]
                 geno = df['genotype'][i]
                 sex = df['sex'][i]
-                manualTimeSniff[exp][phase][sex]['left'][df['genotype'][i]].append(df['tot_dur_left'][i])
-                manualTimeSniff[exp][phase][sex]['right'][df['genotype'][i]].append(df['tot_dur_right'][i])
-                manualTimeSniff[exp][phase][sex]['total'][df['genotype'][i]].append(df['tot_dur_left'][i] + df['tot_dur_right'][i])
+                ind = df['Observations id'][i][-4:]
+                manualTimeSniff[exp][phase][sex]['left'][df['genotype'][i]][ind] = df['tot_dur_left'][i]
+                manualTimeSniff[exp][phase][sex]['right'][df['genotype'][i]][ind] = df['tot_dur_right'][i]
+                manualTimeSniff[exp][phase][sex]['total'][df['genotype'][i]][ind] = df['tot_dur_left'][i] + df['tot_dur_right'][i]
                 if ((df['tot_dur_left'][i] + df['tot_dur_right'][i]) >= 5):
-                    manualTimeSniff[exp][phase][sex]['ratio_left'][df['genotype'][i]].append(df['tot_dur_left'][i] / (df['tot_dur_left'][i] + df['tot_dur_right'][i]))
-                    manualTimeSniff[exp][phase][sex]['ratio_right'][df['genotype'][i]].append(df['tot_dur_right'][i] / (df['tot_dur_left'][i] + df['tot_dur_right'][i]))
+                    manualTimeSniff[exp][phase][sex]['ratio_left'][df['genotype'][i]][ind] = df['tot_dur_left'][i] / (df['tot_dur_left'][i] + df['tot_dur_right'][i])
+                    manualTimeSniff[exp][phase][sex]['ratio_right'][df['genotype'][i]][ind] = df['tot_dur_right'][i] / (df['tot_dur_left'][i] + df['tot_dur_right'][i])
 
 
             fig2, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 8))
@@ -172,23 +179,38 @@ if __name__ == '__main__':
                     ax.tick_params(axis='y', labelsize=14)
                     ax.axhline(y=0.5, color='black')
                     sex = 'male'
-                    ax.scatter([xIndex[0]-0.5]*len(manualTimeSniff[exp][phase][sex]['ratio_left']['WT']), manualTimeSniff[exp][phase][sex]['ratio_left']['WT'], marker='o', c='blue', alpha=0.7)
-                    ax.scatter([xIndex[0]+0.5]*len(manualTimeSniff[exp][phase][sex]['ratio_right']['WT']), manualTimeSniff[exp][phase][sex]['ratio_right']['WT'], marker='o', c='blue', alpha=0.7)
-
-                    ax.scatter([xIndex[1] - 0.5] * len(manualTimeSniff[exp][phase][sex]['ratio_left']['Del/+']), manualTimeSniff[exp][phase][sex]['ratio_left']['Del/+'], marker='o', c='darkorange', alpha=0.7)
-                    ax.scatter([xIndex[1] + 0.5] * len(manualTimeSniff[exp][phase][sex]['ratio_right']['Del/+']), manualTimeSniff[exp][phase][sex]['ratio_right']['Del/+'], marker='o', c='darkorange', alpha=0.7)
-
+                    for ind in manualTimeSniff[exp][phase][sex]['ratio_left']['WT'].keys():
+                        ax.scatter(xIndex[0]-0.5, manualTimeSniff[exp][phase][sex]['ratio_left']['WT'][ind], marker='o', c='blue', alpha=0.7)
+                        ax.scatter(xIndex[0]+0.5, manualTimeSniff[exp][phase][sex]['ratio_right']['WT'][ind], marker='o', c='blue', alpha=0.7)
+                    for ind in manualTimeSniff[exp][phase][sex]['ratio_left']['Del/+'].keys():
+                        ax.scatter(xIndex[1] - 0.5, manualTimeSniff[exp][phase][sex]['ratio_left']['Del/+'][ind], marker='o', c='darkorange', alpha=0.7)
+                        ax.scatter(xIndex[1] + 0.5, manualTimeSniff[exp][phase][sex]['ratio_right']['Del/+'][ind], marker='o', c='darkorange', alpha=0.7)
 
                     sex = 'female'
-                    ax.scatter([xIndex[2] - 0.5] * len(manualTimeSniff[exp][phase][sex]['ratio_left']['WT']),
-                               manualTimeSniff[exp][phase][sex]['ratio_left']['WT'], marker='o', c='blue', alpha=0.7)
-                    ax.scatter([xIndex[2] + 0.5] * len(manualTimeSniff[exp][phase][sex]['ratio_right']['WT']),
-                               manualTimeSniff[exp][phase][sex]['ratio_right']['WT'], marker='o', c='blue', alpha=0.7)
+                    for ind in manualTimeSniff[exp][phase][sex]['ratio_left']['WT'].keys():
+                        ax.scatter(xIndex[2] - 0.5, manualTimeSniff[exp][phase][sex]['ratio_left']['WT'][ind], marker='o', c='blue', alpha=0.7)
+                        ax.scatter(xIndex[2] + 0.5, manualTimeSniff[exp][phase][sex]['ratio_right']['WT'][ind], marker='o', c='blue', alpha=0.7)
+                    for ind in manualTimeSniff[exp][phase][sex]['ratio_left']['Del/+'].keys():
+                        ax.scatter(xIndex[3] - 0.5, manualTimeSniff[exp][phase][sex]['ratio_left']['Del/+'][ind], marker='o', c='darkorange', alpha=0.7)
+                        ax.scatter(xIndex[3] + 0.5, manualTimeSniff[exp][phase][sex]['ratio_right']['Del/+'][ind], marker='o', c='darkorange', alpha=0.7)
 
-                    ax.scatter([xIndex[3] - 0.5] * len(manualTimeSniff[exp][phase][sex]['ratio_left']['Del/+']),
-                               manualTimeSniff[exp][phase][sex]['ratio_left']['Del/+'], marker='o', c='darkorange', alpha=0.7)
-                    ax.scatter([xIndex[3] + 0.5] * len(manualTimeSniff[exp][phase][sex]['ratio_right']['Del/+']),
-                               manualTimeSniff[exp][phase][sex]['ratio_right']['Del/+'], marker='o', c='darkorange', alpha=0.7)
+                    if annotatePlot == True:
+                        sex = 'male'
+                        for ind in manualTimeSniff[exp][phase][sex]['ratio_left']['WT'].keys():
+                            ax.annotate(ind, (xIndex[0] - 0.4, manualTimeSniff[exp][phase][sex]['ratio_left']['WT'][ind]), fontsize=8)
+                            ax.annotate(ind, (xIndex[0] + 0.1, manualTimeSniff[exp][phase][sex]['ratio_right']['WT'][ind]), fontsize=8)
+                        for ind in manualTimeSniff[exp][phase][sex]['ratio_left']['Del/+'].keys():
+                            ax.annotate(ind, (xIndex[1] - 0.4, manualTimeSniff[exp][phase][sex]['ratio_left']['Del/+'][ind]), fontsize=8)
+                            ax.annotate(ind, (xIndex[1] + 0.1, manualTimeSniff[exp][phase][sex]['ratio_right']['Del/+'][ind]), fontsize=8)
+
+                        sex = 'female'
+                        for ind in manualTimeSniff[exp][phase][sex]['ratio_left']['WT'].keys():
+                            ax.annotate(ind, (xIndex[2] - 0.4, manualTimeSniff[exp][phase][sex]['ratio_left']['WT'][ind]), fontsize=8)
+                            ax.annotate(ind, (xIndex[2] + 0.1, manualTimeSniff[exp][phase][sex]['ratio_right']['WT'][ind]), fontsize=8)
+                        for ind in manualTimeSniff[exp][phase][sex]['ratio_left']['Del/+'].keys():
+                            ax.annotate(ind, (xIndex[3] - 0.4, manualTimeSniff[exp][phase][sex]['ratio_left']['Del/+'][ind]), fontsize=8)
+                            ax.annotate(ind, (xIndex[3] + 0.1, manualTimeSniff[exp][phase][sex]['ratio_right']['Del/+'][ind]), fontsize=8)
+
 
                     # conduct statistical testing: one sample Student t-test:
                     T = {}
@@ -197,7 +219,9 @@ if __name__ == '__main__':
                         T[sex] = {}
                         p[sex] = {}
                         for geno in ['WT', 'Del/+']:
-                            prop = manualTimeSniff[exp][phase][sex]['ratio_left'][geno]
+                            prop = []
+                            for ind in manualTimeSniff[exp][phase][sex]['ratio_left'][geno].keys():
+                                prop.append(manualTimeSniff[exp][phase][sex]['ratio_left'][geno][ind])
                             T[sex][geno], p[sex][geno] = stats.ttest_1samp(a=prop, popmean=0.5)
                             print('One-sample Student T-test for {} {} {} {} {}: T={}, p={}'.format(exp, phase, len(prop), sex, geno, T[sex][geno], p[sex][geno]))
                             #ax.text(xPos[sex][geno], 1.1, getStarsFromPvalues(pvalue=p[sex][geno], numberOfTests=1), fontsize=16)
@@ -207,6 +231,7 @@ if __name__ == '__main__':
 
             plt.tight_layout()
             plt.show()
+            fig2.savefig('figure_manul_sniff.pdf', dpi=300)
 
             with open('manualTimeSniff.json', 'w') as jFile:
                 json.dump(manualTimeSniff, jFile, indent=4)
@@ -308,6 +333,7 @@ if __name__ == '__main__':
                                 #print(id, autoTimeSniff[exp][phase]['sniffLeft'][sex][geno][id]/30, manualTimeSniff[exp][phase]['sniffLeft'][sex][geno][id] )
                                 x.append(autoTimeSniff[exp][phase]['sniffLeft'][sex][geno][id]/30)
                                 y.append(manualTimeSniff[exp][phase]['sniffLeft'][sex][geno][id])
+                                ax.annotate(id[-4:], (x+1, y+1), fontsize=5)
                             '''
                             for id in autoTimeSniff[exp][phase]['sniffRight'][sex][geno].keys():
                                 #print(id, autoTimeSniff[exp][phase]['sniffLeft'][sex][geno][id]/30, manualTimeSniff[exp][phase]['sniffLeft'][sex][geno][id] )
