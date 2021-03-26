@@ -104,7 +104,7 @@ def computeProfile(file, minT, maxT, night, text_file):
     return animalData
 
 
-def getProfileValues( profileData, night=0, event=None):
+def getProfileValues( profileData, night='0', event=None):
     dataDic = {}
     dataDic["genotype"] = []
     dataDic["value"] = []
@@ -289,7 +289,7 @@ if __name__ == '__main__':
             break
 
         if answer == "p":
-            nightComputation = input("Compute profile only during night events (Y or N)? ")
+            nightComputation = input("Plot profile only during night events (Y or N)? ")
             text_file = getFileNameInput()
 
             if nightComputation == "N":
@@ -313,29 +313,30 @@ if __name__ == '__main__':
                 print("test for total distance")
                 testProfileData(profileData=profileData, night=n, eventListNames=["totalDistance"], valueCat="", text_file=text_file)
 
-
-            else:
+            elif nightComputation == "Y":
                 file = getJsonFileToProcess()
                 # create a dictionary with profile data
                 with open(file) as json_data:
                     profileData = json.load(json_data)
                 print("json file for profile data re-imported.")
 
-                for n in range(1, 4):
+                nightList = list(profileData[list(profileData.keys())[0]].keys())
+                print('nights: ', nightList)
+
+                for n in nightList:
 
                     print("Night: ", n)
                     #Plot profile2 data and save them in a pdf file
-                    plotProfileDataDuration(profileData=profileData, night=n, valueCat=" TotalLen")
-                    plotProfileDataDuration(profileData=profileData, night=n, valueCat=" Nb")
+                    plotProfileDataDuration(profileData=profileData, night=str(n), valueCat=" TotalLen")
+                    plotProfileDataDuration(profileData=profileData, night=str(n), valueCat=" Nb")
                     text_file.write( "Statistical analysis: mixed linear models" )
                     text_file.write( "{}\n" )
                     #Test profile2 data and save results in a text file
-                    testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse[:-2], valueCat=" TotalLen", text_file=text_file)
-                    testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse[:-2], valueCat=" Nb", text_file=text_file)
+                    testProfileData(profileData=profileData, night=str(n), eventListNames=behaviouralEventOneMouse[:-2], valueCat=" TotalLen", text_file=text_file)
+                    testProfileData(profileData=profileData, night=str(n), eventListNames=behaviouralEventOneMouse[:-2], valueCat=" Nb", text_file=text_file)
                     print("test for total distance")
-                    testProfileData(profileData=profileData, night=n, eventListNames=["totalDistance"], valueCat="", text_file=text_file)
+                    testProfileData(profileData=profileData, night=str(n), eventListNames=["totalDistance"], valueCat="", text_file=text_file)
 
-                    n+=1
 
 
             print ("Plots saved as pdf and analyses saved in text file.")
