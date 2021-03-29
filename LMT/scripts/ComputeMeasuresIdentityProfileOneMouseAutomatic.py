@@ -62,8 +62,13 @@ def computeProfile(file, minT, maxT, night, text_file):
             print( "total event duration: " , totalEventDuration )                
             animalData[rfid][behavEventTimeLine.eventName+" TotalLen"] = totalEventDuration
             animalData[rfid][behavEventTimeLine.eventName+" Nb"] = nbEvent
+            if nbEvent == 0:
+                meanDur = 0
+            else:
+                meanDur = totalEventDuration / nbEvent
+            animalData[rfid][behavEventTimeLine.eventName+" MeanDur"] = meanDur
             
-            print(behavEventTimeLine.eventName, genoA, behavEventTimeLine.idA, totalEventDuration, nbEvent)
+            print(behavEventTimeLine.eventName, genoA, behavEventTimeLine.idA, totalEventDuration, nbEvent, meanDur)
 
         #compute the total distance traveled
         COMPUTE_TOTAL_DISTANCE = True
@@ -305,11 +310,14 @@ if __name__ == '__main__':
                 print('data: ', profileData)
                 plotProfileDataDuration(profileData=profileData, night=n, valueCat=" TotalLen")
                 plotProfileDataDuration(profileData=profileData, night=n, valueCat=" Nb")
+                plotProfileDataDuration(profileData=profileData, night=n, valueCat=" MeanDur")
                 text_file.write( "Statistical analysis: mixed linear models" )
                 text_file.write( "{}\n" )
                 #Test profile2 data and save results in a text file
                 testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse[:-2], valueCat=" TotalLen", text_file=text_file)
                 testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse[:-2], valueCat=" Nb", text_file=text_file)
+                testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse[:-2], valueCat=" MeanDur", text_file=text_file)
+
                 print("test for total distance")
                 testProfileData(profileData=profileData, night=n, eventListNames=["totalDistance"], valueCat="", text_file=text_file)
 
@@ -329,11 +337,14 @@ if __name__ == '__main__':
                     #Plot profile2 data and save them in a pdf file
                     plotProfileDataDuration(profileData=profileData, night=str(n), valueCat=" TotalLen")
                     plotProfileDataDuration(profileData=profileData, night=str(n), valueCat=" Nb")
+                    plotProfileDataDuration(profileData=profileData, night=str(n), valueCat=" MeanDur")
                     text_file.write( "Statistical analysis: mixed linear models" )
                     text_file.write( "{}\n" )
                     #Test profile2 data and save results in a text file
                     testProfileData(profileData=profileData, night=str(n), eventListNames=behaviouralEventOneMouse[:-2], valueCat=" TotalLen", text_file=text_file)
                     testProfileData(profileData=profileData, night=str(n), eventListNames=behaviouralEventOneMouse[:-2], valueCat=" Nb", text_file=text_file)
+                    testProfileData(profileData=profileData, night=str(n), eventListNames=behaviouralEventOneMouse[:-2], valueCat=" MeanDur", text_file=text_file)
+
                     print("test for total distance")
                     testProfileData(profileData=profileData, night=str(n), eventListNames=["totalDistance"], valueCat="", text_file=text_file)
 
