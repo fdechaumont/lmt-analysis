@@ -62,12 +62,21 @@ class Detection():
         
         return bodySlope
     
+    def getMassCenterPoint(self):
+        return Point( self.massX , self.massY )
+
+    def getFrontPoint(self):
+        return Point( self.frontX , self.frontY )
+    
+    def getBackPoint(self):
+        return Point( self.backX , self.backY )
     
     def getDirection(self):
         '''
         determines the direction of the animal using the head and the mass center
         '''
-        angleDir = math.atan2(self.frontY-self.massY, self.frontX-self.massX)
+        #angleDir = math.atan2(self.frontY-self.massY, self.frontX-self.massX)
+        angleDir = math.atan2(self.frontY-self.backY, self.frontX-self.backX)
         return angleDir
             
     
