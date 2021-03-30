@@ -97,6 +97,7 @@ if __name__ == '__main__':
         text_file.write("\n")
         
         print ("##############################################################")
+        continue
         ##########################################################################
         '''Number of animals detected and rate of detection'''
         pool = AnimalPool( )

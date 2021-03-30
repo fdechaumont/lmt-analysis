@@ -17,6 +17,7 @@ from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Bu
     BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
     BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
     BuildEventOralSideSequence
+from lmtanalysis.FileUtil import getFilesToProcess
     
 from tkinter.filedialog import askopenfilename
 
@@ -27,9 +28,10 @@ if __name__ == '__main__':
     
     ''' to get a GUI window to select file '''    
     
-    files = askopenfilename( title="Choose a set of file to process", multiple=1 )
+    files = getFilesToProcess()
     
-    maxT = 3*oneDay
+    #maxT = 3*oneDay
+    maxT = 1 * oneHour
     
     '''oneMinute*240'''
     
@@ -64,7 +66,7 @@ if __name__ == '__main__':
         BuildEventGroup2.reBuildEvent( connection, tmin=0, tmax=maxT )
        
         BuildEventStop.reBuildEvent( connection, tmin=0, tmax=maxT )
-        BuildEventWaterPoint.reBuildEvent(connection, tmin=0, tmax=maxT)
+        #BuildEventWaterPoint.reBuildEvent(connection, tmin=0, tmax=maxT)
         BuildEventApproachContact.reBuildEvent( connection, tmin=0, tmax=maxT )
         BuildEventWallJump.reBuildEvent(connection, tmin=0, tmax=maxT)
         BuildEventSAP.reBuildEvent(connection,  tmin=0, tmax=maxT)

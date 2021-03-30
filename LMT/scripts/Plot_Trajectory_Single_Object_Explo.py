@@ -16,14 +16,25 @@ from lmtanalysis.Util import *
 from lmtanalysis.Measure import *
 from matplotlib import patches
 
+def plotNoseTrajectory( ax , animal, title , color = None ):
+    xList, yList = animal.getNoseTrajectoryData( )
+
+    if ( color == None ):
+        color = animal.getColor()
+    ax.plot( xList, yList, color=color, linestyle='-', linewidth=0.5, alpha=0.8, label= animal.name )
+    ax.set_title( title + " " + animal.RFID )
+    ax.legend().set_visible(False)
+    ax.set_xlim(90, 420)
+    ax.set_ylim(-370, -40)
+    ax.axis('off')
 
 def plot( ax , animal, title , color = None ):
     xList, yList = animal.getTrajectoryData( )
 
     if ( color == None ):
         color = animal.getColor()
-    ax.plot( xList, yList, color=color, linestyle='-', linewidth=0.5, alpha=0.8, label= animal.name )
-    ax.set_title( title + " " + animal.RFID )
+    ax.plot( xList, yList, color=color, linestyle='-', linewidth=0.5, alpha=0.5, label= animal.name )
+    ax.set_title( title + " " + animal.sex[0] + " " + animal.RFID[-4:] + " " + animal.genotype )
     ax.legend().set_visible(False)
     ax.set_xlim(90, 420)
     ax.set_ylim(-370, -40)
@@ -46,7 +57,21 @@ def plotSap( ax , animal ):
         yList.append( -detection.massY )    
     color = "red"
     ax.scatter( xList, yList,  color=color, alpha=1, label= "sap", s=10 )
-    
+
+
+def plotSapNose(ax, animal, color = 'red'):
+    sapDico = animal.getSapDictionnary()
+
+    xList = []
+    yList = []
+
+    for t in sapDico.keys():
+        detection = animal.detectionDictionnary.get(t)
+        xList.append(detection.frontX)
+        yList.append(-detection.frontY)
+
+    ax.scatter(xList, yList, color=color, alpha=0.9, label="sap", s=8)
+
 
 if __name__ == '__main__':
     
@@ -102,7 +127,7 @@ if __name__ == '__main__':
             
         #draw the trajectory in the second phase, with the object
         pool.loadDetection( start=32*oneMinute , end=60*oneMinute )
-        pool.filterDetectionByInstantSpeed( 0,70 );
+        pool.filterDetectionByInstantSpeed( 0,70 )
         plotZone(axMiddle2, colorEdge='lightgrey', colorFill='lightgrey' ) #whole cage
         plotZone(axMiddle2, colorEdge='dimgrey', colorFill='dimgrey', xa=120, xb=250, ya=-210, yb=-340) #object zone
         plot ( axMiddle2, animal, title = "Second phase", color ="black" )
