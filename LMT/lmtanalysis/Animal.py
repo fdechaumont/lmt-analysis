@@ -1,6 +1,5 @@
 '''
 Created on 7 sept. 2017
-
 @author: Fab
 '''
 
@@ -45,7 +44,7 @@ def getAnimalColor( animalId ):
 
 class Animal():
 
-    def __init__(self, baseId , RFID , name=None, genotype=None , user1 = None, age=None, sex=None, strain=None, conn = None ):
+    def __init__(self, baseId , RFID , name=None, genotype=None , user1 = None, age=None, sex=None, strain=None, setup=None, conn = None ):
         self.baseId = baseId
         self.RFID = RFID
         self.name = name
@@ -54,6 +53,7 @@ class Animal():
         self.age = age
         self.sex = sex
         self.strain = strain
+        self.setup = setup
         self.conn = conn
         self.detectionDictionnary = {}
 
@@ -267,6 +267,60 @@ class Animal():
 
         return xList, yList
 
+    def getNoseTrajectoryData( self , maskingEventTimeLine=None ):
+
+        keyList = sorted(self.detectionDictionnary.keys())
+
+        if maskingEventTimeLine!=None:
+            keyList = maskingEventTimeLine.getDictionnary()
+
+        xList = []
+        yList = []
+
+        previousKey = 0
+
+
+        for key in keyList:
+
+            #print ( "key:", key, "value", self.getSpeed( key ) , "previous:" , previousKey )
+
+            if previousKey+1 != key:
+                xList.append( [np.nan, np.nan] )
+                yList.append( [np.nan, np.nan] )
+                previousKey = key
+
+                #print("break previous")
+                continue
+            previousKey = key
+
+            a = self.detectionDictionnary.get( key )
+            if ( a==None):
+                xList.append( [np.nan, np.nan] )
+                yList.append( [np.nan, np.nan] )
+                #print("break none A")
+                continue
+            b = self.detectionDictionnary.get( key+1 )
+            if ( b==None):
+                xList.append( [np.nan, np.nan] )
+                yList.append( [np.nan, np.nan] )
+                #print("break none B")
+                continue
+
+            xa = a.frontX
+            xb = b.frontX
+            ya = -a.frontY
+            yb = -b.frontY
+
+            if xa < 0:
+                xa = np.nan
+                xb = np.nan
+                ya = np.nan
+                yb = np.nan
+
+            xList.append( [xa,xb] )
+            yList.append( [ya,yb] )
+
+        return xList, yList
 
     def plotTrajectory(self , show=True, color='k', maskingEventTimeLine=None, title = "" ):
 
@@ -360,7 +414,6 @@ class Animal():
         totalDistance = 0
         for t in range( tmin , tmax ):
         #for key in keyList:
-
             '''
             if ( key <= tmin or key >= tmax ):
                 continue
@@ -372,6 +425,7 @@ class Animal():
             if b==None or a==None:
                 continue
             distance = math.hypot( a.massX - b.massX, a.massY - b.massY )
+            print('distance: ', distance)
             if ( distance >85.5): #if the distance calculated between two frames is too large, discard
                 continue
 
@@ -380,6 +434,7 @@ class Animal():
         totalDistance *= scaleFactor
 
         return totalDistance
+
 
     def getOrientationVector(self, t):
 
@@ -444,12 +499,12 @@ class Animal():
 
     def getDistanceSpecZone(self, tmin=0, tmax=None, xa=None, ya=None, xb=None, yb=None):
 
-        keyList = sorted(self.detectionDictionnary.keys())
+        keyList = sorted(self.detectionDictionnary.keys()) #get the list of the frames where the animal has been detected
 
         if ( tmax==None ):
             tmax = self.getMaxDetectionT()
 
-        distance = 0
+        distance = 0 #initialise the distance
 
         for key in keyList:
 
@@ -457,22 +512,22 @@ class Animal():
                 #print ( 1 )
                 continue
 
-            a = self.detectionDictionnary.get( key )
-            b = self.detectionDictionnary.get( key+1 )
+            a = self.detectionDictionnary.get( key ) #get the detection of the animal at the given frame
+            b = self.detectionDictionnary.get( key+1 ) #get the detection of the animal at the following frame
 
             if ( b==None):
                 continue
 
             if (a.massX<xa or a.massX>xb or a.massY<ya or a.massY>yb or b.massX<xa or b.massX>xb or b.massY<ya or b.massY>yb):
-                #print ( 2 )
+                #if the animal is not in the zone, then the distance is not computed
                 continue
 
             if (math.hypot( a.massX - b.massX, a.massY - b.massY )>85.5): #if the distance calculated between two frames is too large, discard
                 continue
 
-            distance += math.hypot( a.massX - b.massX, a.massY - b.massY )
+            distance += math.hypot( a.massX - b.massX, a.massY - b.massY ) #add the distance to the previously calculated distance
 
-        distance *= scaleFactor
+        distance *= scaleFactor #convert the distance in cm
 
         return distance
 
@@ -516,6 +571,23 @@ class Animal():
         else:
             distanceToPoint = math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint )
             return distanceToPoint
+
+    def getDistanceNoseToPoint (self, t, xPoint, yPoint):
+        '''
+        determine the distance between the nose of the animal and a specific point in the arena at one specified time point t
+        '''
+        distanceNoseToPoint = None
+
+        if ( not ( t in self.detectionDictionnary ) ):
+            return None
+        if (self.detectionDictionnary[t].frontX < 0):
+            return None
+        if (math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint ) > MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
+            return None
+
+        else:
+            distanceNoseToPoint = math.hypot( self.detectionDictionnary[t].frontX - xPoint, self.detectionDictionnary[t].frontY - yPoint )
+            return distanceNoseToPoint
 
 
     def getMeanBodyLength (self, tmin=0, tmax=None):
@@ -910,6 +982,8 @@ class AnimalPool():
             query+="ID,RFID,NAME,GENOTYPE,IND"
         elif ( nbField == 7 ):
             query+="ID,RFID,NAME,GENOTYPE,AGE,SEX,STRAIN"
+        elif ( nbField == 8 ):
+            query+="ID,RFID,NAME,GENOTYPE,AGE,SEX,STRAIN,SETUP"
 
         query += " FROM ANIMAL ORDER BY GENOTYPE"
         print ( "SQL Query: " + query )
@@ -931,6 +1005,9 @@ class AnimalPool():
                 animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , user1=row[4] , conn = conn )
             if ( len( row ) == 7 ):
                 animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], conn = conn )
+            if ( len( row ) == 8 ):
+                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], setup=row[7], conn = conn )
+
 
 
             if ( animal!= None):
@@ -1316,11 +1393,9 @@ class AnimalPool():
     def getDetectionTable(self):
         """
         Returns detections as pandas table for all animals in pool.
-
         * adds location also in cm
         * adds time column in pandas timedelta
         * adds column to indicate detections in center region
-
         Returns:
             pd.DataFrame: detections as pandas table
         """
@@ -1360,10 +1435,8 @@ class AnimalPool():
             * Event start time
             * Event end time
             * Event duration
-
         Args:
             event_name (str): Event name e. g. Rearing
-
         Returns:
             DataFrame
         """
@@ -1398,7 +1471,6 @@ class AnimalPool():
             * Events' start time
             * Events' end time
             * Events' duration
-
         Returns:
             DataFrame
         """
@@ -1409,5 +1481,3 @@ class AnimalPool():
                                     for event_name in all_event_names]
                                 , axis=0)
         return event_table.sort_values("time").reset_index(drop=True)
-
-
