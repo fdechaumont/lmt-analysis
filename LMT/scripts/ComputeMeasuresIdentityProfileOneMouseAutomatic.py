@@ -228,14 +228,15 @@ if __name__ == '__main__':
     print("Code launched.")
     
     #List of events to be computed within the behavioural profile2, and header for the computation of the total distance travelled.
-    behaviouralEventOneMouse = ["Contact", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Get away", "Approach contact", "Approach rear", "Break contact", "FollowZone Isolated", "Train2", "Group2", "Group3", "Group 3 break", "Group 3 make", "Group 4 break", "Group 4 make", "Huddling", "Move isolated", "Move in contact", "Nest3_", "Nest4_", "Rearing", "Rear isolated", "Rear in contact", "Stop isolated", "WallJump", "Water Zone", "totalDistance", "experiment"]
-    #behaviouralEventOneMouse = ["Contact", "Oral-genital Contact", "totalDistance", "experiment"]
+    #behaviouralEventOneMouse = ["Contact", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Get away", "Approach contact", "Approach rear", "Break contact", "FollowZone Isolated", "Train2", "Group2", "Group3", "Group 3 break", "Group 3 make", "Group 4 break", "Group 4 make", "Huddling", "Move isolated", "Move in contact", "Nest3_", "Nest4_", "Rearing", "Rear isolated", "Rear in contact", "Stop isolated", "WallJump", "Water Zone", "totalDistance", "experiment"]
+    behaviouralEventOneMouse = ["Contact", "Oral-genital Contact", "totalDistance", "experiment"]
 
     while True:
 
         question = "Do you want to:"
         question += "\n\t [c]ompute profile data (save json file)?"
         question += "\n\t [p]lot and analyse profile data (from stored json file)?"
+        question += "\n\t [pn]lot and analyse profile data (from stored json file) after merging the different nights?"
         question += "\n"
         answer = input(question)
 
@@ -355,7 +356,74 @@ if __name__ == '__main__':
             text_file.close()
             break
 
-    
-            
+        if answer == "pn":
+            print('Choose the profile json file to process.')
+            file = getJsonFileToProcess()
+            # create a dictionary with profile data
+            with open(file) as json_data:
+                profileData = json.load(json_data)
+            print("json file for profile data re-imported.")
+
+            print('Choose a name for the text file to store analyses results.')
+            text_file = getFileNameInput()
+
+            nightList = list(profileData[list(profileData.keys())[0]].keys())
+            print('nights: ', nightList)
+
+            categoryList = [' TotalLen', ' Nb', ' MeanDur']
+
+            #merge data from the different nights
+            mergeProfile = {}
+            for file in profileData.keys():
+                mergeProfile[file] = {}
+                mergeProfile[file]['all nights'] = {}
+                for rfid in profileData[file][nightList[0]].keys():
+                    mergeProfile[file]['all nights'][rfid] = {}
+                    mergeProfile[file]['all nights'][rfid]['animal'] = profileData[file][nightList[0]][rfid]['animal']
+                    mergeProfile[file]['all nights'][rfid]['genotype'] = profileData[file][nightList[0]][rfid]['genotype']
+                    mergeProfile[file]['all nights'][rfid]['file'] = profileData[file][nightList[0]][rfid]['file']
+                    for cat in categoryList:
+                        traitList = [trait+cat for trait in behaviouralEventOneMouse[:-2]]
+                        for event in traitList:
+                            dataNight = 0
+                            for night in profileData[file].keys():
+                                dataNight += profileData[file][night][rfid][event]
+
+                            if ' MeanDur' in event:
+                                mergeProfile[file]['all nights'][rfid][event] = dataNight / len(profileData[file].keys())
+                            else:
+                                mergeProfile[file]['all nights'][rfid][event] = dataNight
+
+                    distNight = 0
+                    for night in profileData[file].keys():
+                        distNight += profileData[file][night][rfid]['totalDistance']
+
+                    mergeProfile[file]['all nights'][rfid]['totalDistance'] = distNight
+
+            #print(mergeProfile)
+
+            n = 'all nights'
+
+            plotProfileDataDuration(profileData=mergeProfile, night=n, valueCat=" TotalLen")
+            plotProfileDataDuration(profileData=mergeProfile, night=n, valueCat=" Nb")
+            plotProfileDataDuration(profileData=mergeProfile, night=n, valueCat=" MeanDur")
+            text_file.write("Statistical analysis: mixed linear models")
+            text_file.write("{}\n")
+            # Test profile data and save results in a text file
+            testProfileData(profileData=mergeProfile, night=n, eventListNames=behaviouralEventOneMouse[:-2],
+                            valueCat=" TotalLen", text_file=text_file)
+            testProfileData(profileData=mergeProfile, night=n, eventListNames=behaviouralEventOneMouse[:-2],
+                            valueCat=" Nb", text_file=text_file)
+            testProfileData(profileData=mergeProfile, night=n, eventListNames=behaviouralEventOneMouse[:-2],
+                            valueCat=" MeanDur", text_file=text_file)
+
+            print("test for total distance")
+            testProfileData(profileData=mergeProfile, night=n, eventListNames=["totalDistance"], valueCat="",
+                            text_file=text_file)
+
+            text_file.close()
+            print('Job done.')
+
+            break
             
             
