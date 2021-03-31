@@ -562,23 +562,49 @@ class EventTimeLine:
         '''
         Dilate events in time.
         '''
+        '''
         minT = self.getMinT()
         maxT = self.getMaxT( )
+        '''
 
         if ( self.getNbEvent() == 0 ):
             print("No event in timeLine")
             return
 
-        eventDictionnary = self.getDictionnary( minT, maxT )
+        #eventDictionnary = self.getDictionnary( minT, maxT )
         eventDictionnaryDilated = {}
 
-        for t in range( minT , maxT+1 ):
+        for event in self.eventList:            
+            for tt in range ( event.startFrame - numberOfFrame, event.endFrame +numberOfFrame+1 ):
+                eventDictionnaryDilated[tt]=True
+            
 
-            if t in eventDictionnary:
-
-                for tt in range ( t - numberOfFrame, t+numberOfFrame+1 ):
-                    eventDictionnaryDilated[tt]=True
-
+        '''
+        #faster algo:
+        
+        # copy original to dilated
+        eventDictionnaryDilated = eventDictionnary.copy()
+        for d in range( numberOfFrame ):
+            print("Dilate " , d)
+            for t in eventDictionnaryDilated.copy().keys():    
+                
+                if t-1 not in eventDictionnaryDilated:
+                    eventDictionnaryDilated[t-1] = True
+                    
+                if t+1 not in eventDictionnaryDilated:
+                    eventDictionnaryDilated[t+1] = True
+                
+        '''
+        
+        
+        '''
+        #slow:
+        for t in eventDictionnary.keys():
+        #for t in range( minT , maxT+1 ):
+            for tt in range ( t - numberOfFrame, t+numberOfFrame+1 ):
+                eventDictionnaryDilated[tt]=True
+        '''
+        
         self.reBuildWithDictionnary( eventDictionnaryDilated )
 
 

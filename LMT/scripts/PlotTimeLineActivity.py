@@ -49,6 +49,7 @@ def plotNightTimeLine ( file ):
    
     nightTimeLineList.append( nightTimeLine )
     
+    ax = plt.gca()
     for nightEvent in nightTimeLine.getEventList():
         ax.axvspan( nightEvent.startFrame, nightEvent.endFrame, alpha=0.1, color='black')
 

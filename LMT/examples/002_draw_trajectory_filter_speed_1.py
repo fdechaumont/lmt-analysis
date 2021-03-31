@@ -29,10 +29,10 @@ if __name__ == '__main__':
         animalPool.loadDetection( start = 0, end = oneHour )
         
         # filter detection by animalSpeed (speed is in centimeters per second)
-        animalPool.filterDetectionByInstantSpeed( 0, 2 )
+        animalPool.filterDetectionByInstantSpeed( 0, 20 )
         
         # plot and show trajectory
-        animalPool.plotTrajectory( title="Trajectories filtered by speed (max 2) ")
+        animalPool.plotTrajectory( title="Trajectories filtered by speed (max 2) \n" + file )
 
     
     

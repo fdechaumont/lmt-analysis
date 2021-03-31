@@ -1,6 +1,5 @@
 '''
 Created on 7 sept. 2017
-
 @author: Fab
 '''
 
@@ -1394,11 +1393,9 @@ class AnimalPool():
     def getDetectionTable(self):
         """
         Returns detections as pandas table for all animals in pool.
-
         * adds location also in cm
         * adds time column in pandas timedelta
         * adds column to indicate detections in center region
-
         Returns:
             pd.DataFrame: detections as pandas table
         """
@@ -1438,10 +1435,8 @@ class AnimalPool():
             * Event start time
             * Event end time
             * Event duration
-
         Args:
             event_name (str): Event name e. g. Rearing
-
         Returns:
             DataFrame
         """
@@ -1476,7 +1471,6 @@ class AnimalPool():
             * Events' start time
             * Events' end time
             * Events' duration
-
         Returns:
             DataFrame
         """
@@ -1487,5 +1481,3 @@ class AnimalPool():
                                     for event_name in all_event_names]
                                 , axis=0)
         return event_table.sort_values("time").reset_index(drop=True)
-
-
