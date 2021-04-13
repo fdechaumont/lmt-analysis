@@ -60,8 +60,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
         dicA = animalA.detectionDictionnary
             
         for t in dicA.keys():
-            
-            if (dicA[t].isInZone(xa=149, xb=363, ya=318, yb=98) == True): 
+
+            if (dicA[t].isInZone(xa=168, xb=343, ya=296, yb=120) == True):
                 resultCenter[t] = True
                 
             else:

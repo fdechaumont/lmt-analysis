@@ -121,6 +121,12 @@ if __name__ == '__main__':
 
     colorSap = {'WT': 'steelblue', 'Del/+': 'darkorange'}
 
+    variableList = ['totDistance', 'centerDistance', 'centerTime', 'nbSap', 'rearTotal Nb', 'rearTotal Duration',
+                    'rearCenter Nb', 'rearCenter Duration', 'rearPeriphery Nb', 'rearPeriphery Duration']
+
+    unitDic = {'totDistance': 'cm', 'centerDistance': 'cm', 'centerTime': 's', 'nbSap': 'occurrences', 'rearTotal Nb': 'occurrences', 'rearTotal Duration': 's',
+                    'rearCenter Nb': 'occurrences', 'rearCenter Duration': 's', 'rearPeriphery Nb': 'occurrences', 'rearPeriphery Duration': 's'}
+
     while True:
         question = "Do you want to:"
         question += "\n\t [r]ebuild all events?"
@@ -143,9 +149,10 @@ if __name__ == '__main__':
             files = getFilesToProcess() #upload files for the analysis
             buildFigTrajectoryMalesFemales(files=files, tmin=0, tmax=15*oneMinute, figName='fig_traj_hab_nor', colorSap=colorSap, title='hab d1')
 
-            print('Compute distance travelled and number of SAP displayed.')
+            print('Compute distance travelled, number of SAP displayed, and rearing.')
+
             data = {}
-            for val in ['totDistance', 'centerDistance', 'centerTime', 'nbSap']:
+            for val in variableList:
                 data[val] = {}
                 for sex in ['male', 'female']:
                     data[val][sex] = {}
@@ -179,8 +186,20 @@ if __name__ == '__main__':
                 #fill the data dictionary with the computed data for each file:
                 data['totDistance'][sex][geno][rfid] = dt1
                 data['centerDistance'][sex][geno][rfid] = d1
-                data['centerTime'][sex][geno][rfid] = t1
-                data['nbSap'][sex][geno][rfid] = sap1
+                data['centerTime'][sex][geno][rfid] = t1 / 30
+                data['nbSap'][sex][geno][rfid] = sap1 / 30
+
+                #get the number and time of rearing
+                rearTotalTimeLine = EventTimeLine( connection, "Rear isolated", minFrame = tminHab, maxFrame = tmaxHab, loadEventIndependently = True )
+                rearCenterTimeLine = EventTimeLine(connection, "Rear in center", minFrame=tminHab, maxFrame=tmaxHab, loadEventIndependently=True)
+                rearPeripheryTimeLine = EventTimeLine(connection, "Rear at periphery", minFrame=tminHab, maxFrame=tmaxHab, loadEventIndependently=True)
+
+                data['rearTotal Nb'][sex][geno][rfid] = rearTotalTimeLine.getNbEvent()
+                data['rearTotal Duration'][sex][geno][rfid] = rearTotalTimeLine.getTotalLength() / 30
+                data['rearCenter Nb'][sex][geno][rfid] = rearCenterTimeLine.getNbEvent()
+                data['rearCenter Duration'][sex][geno][rfid] = rearCenterTimeLine.getTotalLength() / 30
+                data['rearPeriphery Nb'][sex][geno][rfid] = rearPeripheryTimeLine.getNbEvent()
+                data['rearPeriphery Duration'][sex][geno][rfid] = rearPeripheryTimeLine.getTotalLength() / 30
 
             print(data)
             #store the data dictionary in a json file
@@ -198,11 +217,11 @@ if __name__ == '__main__':
                 data = json.load(json_data)
             print("json file re-imported.")
 
-            fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(16, 4)) #create the figure for the graphs of the computation
+            fig, axes = plt.subplots(nrows=1, ncols=len(variableList), figsize=(4*len(variableList), 4)) #create the figure for the graphs of the computation
 
             col = 0 #initialise the column number
             #reformate the data dictionary to get the correct format of data for plotting and statistical analyses
-            for val in ['totDistance', 'centerDistance', 'centerTime', 'nbSap']:
+            for val in variableList:
                 dataVal = {}
                 for sex in ['male', 'female']:
                     dataVal[sex] = {}
@@ -212,7 +231,7 @@ if __name__ == '__main__':
                             dataVal[sex][geno].append(data[val][sex][geno][rfid])
 
                 ax = axes[col]
-                yLabel = val
+                yLabel = '{} ({})'.format( val, unitDic[val])
                 ax.spines['top'].set_visible(False)
                 ax.spines['right'].set_visible(False)
                 xIndex = [1, 2, 4, 5]
