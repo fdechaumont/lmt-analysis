@@ -532,6 +532,7 @@ if __name__ == '__main__':
             testProfileData(profileData=mergeProfile, night=n, eventListNames=["totalDistance"], valueCat="",
                             text_file=text_file)
 
+
             text_file.close()
             print('Job done.')
 
@@ -545,21 +546,25 @@ if __name__ == '__main__':
             with open(file) as json_data:
                 profileData = json.load(json_data)
             print("json file for profile data re-imported.")
-
-            print('Choose a name for the text file to store analyses results.')
-            #text_file = getFileNameInput()
             categoryList = [' TotalLen', ' Nb', ' MeanDur']
+
+            mergeProfile = mergeProfileOverNights( profileData=profileData, categoryList=categoryList )
+            #If the profiles are computed over the nights separately as in the original json file:
+            #dataToUse = profileData
+            #If the profiles are computed over the merged nights:
+            dataToUse = mergeProfile
+
             #compute the data for the control animal of each cage
             genoControl = 'WT'
-            wtData = extractControlData( profileData=profileData, genoControl=genoControl)
-            wtData = extractCageData(profileData=profileData)
+            wtData = extractControlData( profileData=dataToUse, genoControl=genoControl)
+            wtData = extractCageData(profileData=dataToUse)
             #mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList )
             #wtData = extractControlData(profileData=mergeProfile, genoControl=genoControl)
             #print(wtData)
 
             #compute the mutant data, centered and reduced for each cage
             genoMutant = 'Del/+'
-            koData = generateMutantData(profileData=profileData, genoMutant=genoMutant, wtData=wtData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
+            koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
 
             print(koData)
 
@@ -638,9 +643,9 @@ if __name__ == '__main__':
 
                     meanprops = dict(marker='D', markerfacecolor='white', markeredgecolor='black')
                     bp = sns.boxplot( data=selectedDataframe, y='trait', x='value', ax=ax, width=0.5, orient='h', meanprops=meanprops, showmeans=True, linewidth=0.4 )
-                    #sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, color='black', orient='h')
+                    sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, color='black', orient='h')
                     #this swarmplot should be used instead of the previous one if you want to see whether animals from the same cage are similar
-                    sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, hue='exp', orient='h')
+                    #sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, hue='exp', orient='h')
                     ax.vlines(x=0, ymin=-6, ymax=30, colors='grey', linestyles='dashed')
                     ax.vlines(x=-1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
                     ax.vlines(x=1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
