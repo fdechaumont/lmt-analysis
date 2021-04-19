@@ -374,6 +374,7 @@ if __name__ == '__main__':
         question = "Do you want to:"
         question += "\n\t [c]ompute profile data (save json file)?"
         question += "\n\t [p]lot and analyse profile data (from stored json file)?"
+        question += "\n\t [pn]lot and analyse profile data after merging the different nigths?"
         question += "\n\t [prof] plot KO profile data as centered and reduced data per cage?"
         question += "\n"
         answer = input(question)
@@ -637,9 +638,9 @@ if __name__ == '__main__':
 
                     meanprops = dict(marker='D', markerfacecolor='white', markeredgecolor='black')
                     bp = sns.boxplot( data=selectedDataframe, y='trait', x='value', ax=ax, width=0.5, orient='h', meanprops=meanprops, showmeans=True, linewidth=0.4 )
-                    sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, color='black', orient='h')
+                    #sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, color='black', orient='h')
                     #this swarmplot should be used instead of the previous one if you want to see whether animals from the same cage are similar
-                    #sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, hue='exp', orient='h')
+                    sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, hue='exp', orient='h')
                     ax.vlines(x=0, ymin=-6, ymax=30, colors='grey', linestyles='dashed')
                     ax.vlines(x=-1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
                     ax.vlines(x=1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
