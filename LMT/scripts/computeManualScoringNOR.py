@@ -322,7 +322,7 @@ if __name__ == '__main__':
                     ax.set_ylim(0, 50)
                     ax.title.set_text('{} {}'.format(exp, phase))
 
-                    for sex in ['male']:
+                    for sex in ['male', 'female']:
                         autoList = []
                         manualList = []
                         for geno in ['WT', 'Del/+']:
@@ -331,9 +331,11 @@ if __name__ == '__main__':
 
                             for id in autoTimeSniff[exp][phase]['sniffLeft'][sex][geno].keys():
                                 #print(id, autoTimeSniff[exp][phase]['sniffLeft'][sex][geno][id]/30, manualTimeSniff[exp][phase]['sniffLeft'][sex][geno][id] )
-                                x.append(autoTimeSniff[exp][phase]['sniffLeft'][sex][geno][id]/30)
-                                y.append(manualTimeSniff[exp][phase]['sniffLeft'][sex][geno][id])
-                                ax.annotate(id[-4:], (x+1, y+1), fontsize=5)
+                                xId = autoTimeSniff[exp][phase]['sniffLeft'][sex][geno][id] / 30
+                                yId = manualTimeSniff[exp][phase]['sniffLeft'][sex][geno][id]
+                                x.append(xId)
+                                y.append(yId)
+                                ax.annotate(id[-4:], (xId+1, yId), fontsize=8)
                             '''
                             for id in autoTimeSniff[exp][phase]['sniffRight'][sex][geno].keys():
                                 #print(id, autoTimeSniff[exp][phase]['sniffLeft'][sex][geno][id]/30, manualTimeSniff[exp][phase]['sniffLeft'][sex][geno][id] )
