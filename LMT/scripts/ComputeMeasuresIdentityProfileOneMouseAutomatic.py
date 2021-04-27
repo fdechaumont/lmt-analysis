@@ -269,14 +269,14 @@ def getProfileValuesPairs(profileData, night='0', event=None):
 
 
 def plotProfileDataDuration( profileData, night, valueCat ):
-    fig, axes = plt.subplots(nrows=5, ncols=6, figsize=(14, 12))
+    fig, axes = plt.subplots(nrows=4, ncols=6, figsize=(14, 12))
     
     row=0
     col=0
     fig.suptitle(t="{} of events (night {})".format(valueCat, night), y=1.2, fontweight= 'bold')
     
     #plot the data for each behavioural event
-    for behavEvent in behaviouralEventOneMouse[:-2]:
+    for behavEvent in behaviouralEventOneMouse[:-2]+['totalDistance']:
         if behavEvent != 'totalDistance':
             event = behavEvent+valueCat
 
@@ -287,7 +287,8 @@ def plotProfileDataDuration( profileData, night, valueCat ):
         profileValueDictionary = getProfileValues(profileData=profileData, night=night, event=event)
         y = profileValueDictionary["value"]
         x = profileValueDictionary["genotype"]
-        genotypeType = Counter(x)
+        genotypeType = list(Counter(x).keys())
+        print(genotypeType)
         group = profileValueDictionary["exp"]
         
         print("y: ", y)
@@ -298,7 +299,12 @@ def plotProfileDataDuration( profileData, night, valueCat ):
         
         axes[row,col].set_xlim(-0.5, 1.5)
         axes[row,col].set_ylim(min(y)-0.2*max(y), max(y)+0.2*max(y))
-        sns.stripplot(x, y, jitter=True, hue=group, s=5, ax=axes[row,col] )
+        sns.boxplot(x, y, order=[genotypeType[1], genotypeType[0]], ax=axes[row,col], linewidth=0.5, showmeans=True,
+                    meanprops={"marker": 'o',
+                               "markerfacecolor": 'white',
+                               "markeredgecolor": 'black',
+                               "markersize": '8'} )
+        sns.stripplot(x, y, order=[genotypeType[1], genotypeType[0]], jitter=True, color='black', hue=group, s=5, ax=axes[row,col])
         axes[row,col].set_title(behavEvent)
         axes[row,col].set_ylabel("{} (frames)".format(valueCat))
         axes[row,col].legend().set_visible(False)
@@ -311,28 +317,6 @@ def plotProfileDataDuration( profileData, night, valueCat ):
         else:
             col=0
             row+=1
-    
-    '''#plot the data for the total distance traveled   
-    profileValueDictionary = getProfileValues(profileData=profileData, night=night, event="totalDistance")
-    y = profileValueDictionary["value"]
-    x = profileValueDictionary["genotype"]
-    genotypeType = Counter(x)
-    group = profileValueDictionary["exp"]
-    
-    print("y: ", y)
-    print("x: ", x)
-    print("group: ", group)
-    experimentType = Counter(group)
-    print("Nb of experiments: ", len(experimentType))
-    
-    axes[row,col].set_xlim(-0.5, 1.5)
-    axes[row,col].set_ylim(min(y)-0.2*max(y), max(y)+0.2*max(y))
-    sns.stripplot(x, y, jitter=True, hue=group, s=5, ax=axes[row,col] )
-    axes[row,col].set_title("Activity")
-    axes[row,col].set_ylabel("total distance (m)")
-    axes[row,col].legend().set_visible(False)
-    axes[row,col].spines['right'].set_visible(False)
-    axes[row,col].spines['top'].set_visible(False)'''
 
     fig.tight_layout()    
     fig.savefig( "FigProfile{}_Events_night_{}.pdf".format( valueCat, night ) ,dpi=100)
