@@ -43,7 +43,7 @@ def plotObjectZone(ax, colorFill, x, y, radius, alpha):
     ax.add_artist(circle1)
 
 
-def plotTrajectorySingleAnimal(file, ax, color, tmin, tmax, title):
+def plotTrajectorySingleAnimal(file, ax, color, tmin, tmax, title, xa = 111, xb = 400, ya = 63, yb = 353):
     connection = sqlite3.connect(file) #connection to the database
 
     pool = AnimalPool()
@@ -59,10 +59,10 @@ def plotTrajectorySingleAnimal(file, ax, color, tmin, tmax, title):
 
     #plot(ax, animal, title=title, color="black") #plot the trajectory of the center of mass
     plotNoseTrajectory(ax, animal, title=title, color='black') #plot the trajectory of the nose
-    plotSapNose(ax, animal, color = color) # add the frames where the animal is in SAP
+    plotSapNose(ax, animal, color = color, xa=xa, xb=xb, ya=ya, yb=yb) # add the frames where the animal is in SAP
 
 
-def buildFigTrajectoryMalesFemales(files, tmin, tmax, figName, colorSap, title):
+def buildFigTrajectoryMalesFemales(files, tmin, tmax, figName, colorSap, title, xa = 111, xb = 400, ya = 63, yb = 353):
 
     figM, axesM = plt.subplots(nrows=6, ncols=5, figsize=(14, 20))  # building the plot for trajectories
     figF, axesF = plt.subplots(nrows=8, ncols=5, figsize=(14, 25))  # building the plot for trajectories
@@ -84,7 +84,7 @@ def buildFigTrajectoryMalesFemales(files, tmin, tmax, figName, colorSap, title):
             # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
             ax = axesM[nRow['male']][nCol['male']]  # set the subplot where to draw the plot
             plotTrajectorySingleAnimal(file, color=colorSap[animal.genotype], ax=ax, tmin=tminHab,
-                                       tmax=tmaxHab, title=title)  # function to draw the trajectory
+                                       tmax=tmaxHab, title=title, xa = 111, xb = 400, ya = 63, yb = 353)  # function to draw the trajectory
 
             if nCol['male'] < 5:
                 nCol['male'] += 1
@@ -96,7 +96,7 @@ def buildFigTrajectoryMalesFemales(files, tmin, tmax, figName, colorSap, title):
             # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
             ax = axesF[nRow['female']][nCol['female']]  # set the subplot where to draw the plot
             plotTrajectorySingleAnimal(file, color=colorSap[animal.genotype], ax=ax, tmin=tminHab,
-                                       tmax=tmaxHab, title=title)  # function to draw the trajectory
+                                       tmax=tmaxHab, title=title, xa = 111, xb = 400, ya = 63, yb = 353)  # function to draw the trajectory
 
             if nCol['female'] < 5:
                 nCol['female'] += 1
@@ -147,7 +147,8 @@ if __name__ == '__main__':
             #space use
             #traj of center of mass
             files = getFilesToProcess() #upload files for the analysis
-            buildFigTrajectoryMalesFemales(files=files, tmin=0, tmax=15*oneMinute, figName='fig_traj_hab_nor', colorSap=colorSap, title='hab d1')
+            #plot the trajectories, with SAP only in the inner zone of the cage to avoid SAP against the walls
+            buildFigTrajectoryMalesFemales(files=files, tmin=0, tmax=15*oneMinute, figName='fig_traj_hab_nor', colorSap=colorSap, title='hab d1', xa=128, xb=383, ya=80, yb=336)
 
             print('Compute distance travelled, number of SAP displayed, and rearing.')
 
@@ -181,8 +182,10 @@ if __name__ == '__main__':
                 d1 = animal.getDistanceSpecZone(tminHab, tmaxHab, xa = 168, xb = 343, ya = 120, yb = 296)  # compute the distance traveled in the center zone
                 t1 = animal.getCountFramesSpecZone(tminHab, tmaxHab, xa = 168, xb = 343, ya = 120, yb = 296)  # compute the time spent in the center zone
 
-                #get the number of frames in sap in whole cage
-                sap1 = len(animal.getSap(tmin=tminHab, tmax=tmaxHab, xa = 111, xb = 400, ya = 63, yb = 353))
+                '''#get the number of frames in sap in whole cage
+                sap1 = len(animal.getSap(tmin=tminHab, tmax=tmaxHab, xa = 111, xb = 400, ya = 63, yb = 353))'''
+                # get the number of frames in sap in whole cage but without counting the border (3 cm) to filter out SAPs against the wall
+                sap1 = len(animal.getSap(tmin=tminHab, tmax=tmaxHab, xa=128, xb=383, ya=80, yb=336))
                 #fill the data dictionary with the computed data for each file:
                 data['totDistance'][sex][geno][rfid] = dt1
                 data['centerDistance'][sex][geno][rfid] = d1
@@ -257,9 +260,9 @@ if __name__ == '__main__':
                         sem[sex][geno] = np.std(dataVal[sex][geno])/ np.sqrt(len(dataVal[sex][geno]))
 
                 #plot the points for each value:
-                ax.scatter(addJitter([1] * len(dataVal['male']['WT']), 0.2), dataVal['male']['WT'], color='blue', alpha=0.8, label="on", s=8)
+                ax.scatter(addJitter([1] * len(dataVal['male']['WT']), 0.2), dataVal['male']['WT'], color='steelblue', alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([2] * len(dataVal['male']['Del/+']), 0.2), dataVal['male']['Del/+'], color='darkorange', alpha=0.8, label="on", s=8)
-                ax.scatter(addJitter([4] * len(dataVal['female']['WT']), 0.2), dataVal['female']['WT'], color='blue', alpha=0.8, label="on", s=8)
+                ax.scatter(addJitter([4] * len(dataVal['female']['WT']), 0.2), dataVal['female']['WT'], color='steelblue', alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([5] * len(dataVal['female']['Del/+']), 0.2), dataVal['female']['Del/+'], color='darkorange', alpha=0.8, label="on", s=8)
 
                 #plot the mean and SEM on the graphs:

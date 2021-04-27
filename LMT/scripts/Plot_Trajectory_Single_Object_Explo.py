@@ -21,7 +21,7 @@ def plotNoseTrajectory( ax , animal, title , color = None ):
 
     if ( color == None ):
         color = animal.getColor()
-    ax.plot( xList, yList, color=color, linestyle='-', linewidth=0.5, alpha=0.8, label= animal.name )
+    ax.plot( xList, yList, color=color, linestyle='-', linewidth=0.3, alpha=0.5, label= animal.name )
     ax.set_title( title + " " + animal.RFID )
     ax.legend().set_visible(False)
     ax.set_xlim(90, 420)
@@ -59,7 +59,8 @@ def plotSap( ax , animal ):
     ax.scatter( xList, yList,  color=color, alpha=1, label= "sap", s=10 )
 
 
-def plotSapNose(ax, animal, color = 'red'):
+def plotSapNose(ax, animal, color = 'red', xa = 111, xb = 400, ya = 63, yb = 353):
+    #plot the position of the nose if the animal is in SAP within the determined zone
     sapDico = animal.getSapDictionnary()
 
     xList = []
@@ -67,8 +68,11 @@ def plotSapNose(ax, animal, color = 'red'):
 
     for t in sapDico.keys():
         detection = animal.detectionDictionnary.get(t)
-        xList.append(detection.frontX)
-        yList.append(-detection.frontY)
+        x = detection.frontX
+        y = detection.frontY
+        if ( x >= xa ) & (x <= xb ) & ( y >= ya ) & (y <= yb ):
+            xList.append(x)
+            yList.append(-y)
 
     ax.scatter(xList, yList, color=color, alpha=0.9, label="sap", s=8)
 
