@@ -47,6 +47,94 @@ def plotObjectZone(ax, colorFill, x, y, radius, alpha):
     ax.add_artist(circle1)
 
 
+def plotTrajectoriesNorPhases(files, figName, title, phase, exp, colorSap, objectDic, colorObjects,
+                              objectPosition, radiusObjects, xa=111, xb=400, ya=63, yb=353):
+    figM, axesM = plt.subplots(nrows=6, ncols=5, figsize=(14, 20))  # building the plot for trajectories
+    figF, axesF = plt.subplots(nrows=8, ncols=5, figsize=(14, 25))  # building the plot for trajectories
+
+    nRow = {'male': 0, 'female': 0}  # initialisation of the row
+    nCol = {'male': 0, 'female': 0}  # initialisation of the column
+
+    for file in files:
+        connection = sqlite3.connect(file)  # connection to the database
+
+        pool = AnimalPool()
+        pool.loadAnimals(connection)  # upload all the animals from the database
+        animal = pool.animalDictionnary[1]
+        setup = float(animal.setup)
+        print('setup: ', setup)
+
+        if phase == 'learning':
+            tmin = getStartTestPhase(pool)
+        else:
+            tmin = 0
+        tmax = tmin + 10 * oneMinute
+
+        if animal.sex == 'male':
+            # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
+            ax = axesM[nRow['male']][nCol['male']]  # set the subplot where to draw the plot
+            plotTrajectorySingleAnimal(file, color=colorSap[animal.genotype], ax=ax, tmin=tmin,
+                                       tmax=tmax, title=title, xa=128, xb=383, ya=80,
+                                       yb=336)  # function to draw the trajectory
+            object = objectDic[setup][exp][phase][1]
+            plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['right'][0],
+                           y=objectPosition[setup]['right'][1], radius=radiusObjects[object],
+                           alpha=0.5)  # plot the object on the right side
+            object = objectDic[setup][exp][phase][0]
+            plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
+                           y=objectPosition[setup]['left'][1], radius=radiusObjects[object],
+                           alpha=0.5)  # plot the object on the left side
+            object = objectDic[setup][exp][phase][1]
+            plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['right'][0],
+                           y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + vibrissae / scaleFactor,
+                           alpha=0.2)  # plot a zone around the object on the right side
+            object = objectDic[setup][exp][phase][0]
+            plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
+                           y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + vibrissae / scaleFactor,
+                           alpha=0.2)  # plot a zone around the object on the left side
+
+            if nCol['male'] < 5:
+                nCol['male'] += 1
+            if nCol['male'] >= 5:
+                nCol['male'] = 0
+                nRow['male'] += 1
+
+        if animal.sex == 'female':
+            # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
+            ax = axesF[nRow['female']][nCol['female']]  # set the subplot where to draw the plot
+            plotTrajectorySingleAnimal(file, color=colorSap[animal.genotype], ax=ax, tmin=tmin,
+                                       tmax=tmax, title=title, xa=128, xb=383, ya=80,
+                                       yb=336)  # function to draw the trajectory
+            object = objectDic[setup][exp][phase][1]
+            plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['right'][0],
+                           y=objectPosition[setup]['right'][1], radius=radiusObjects[object],
+                           alpha=0.5)  # plot the object on the right side
+            object = objectDic[setup][exp][phase][0]
+            plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
+                           y=objectPosition[setup]['left'][1], radius=radiusObjects[object],
+                           alpha=0.5)  # plot the object on the left side
+            object = objectDic[setup][exp][phase][1]
+            plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['right'][0],
+                           y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + vibrissae / scaleFactor,
+                           alpha=0.2)  # plot a zone around the object on the right side
+            object = objectDic[setup][exp][phase][0]
+            plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
+                           y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + vibrissae / scaleFactor,
+                           alpha=0.2)  # plot a zone around the object on the left side
+
+            if nCol['female'] < 5:
+                nCol['female'] += 1
+            if nCol['female'] >= 5:
+                nCol['female'] = 0
+                nRow['female'] += 1
+
+    figM.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
+    # plt.show() #display the plot
+    figM.savefig('{}_males.pdf'.format(figName), dpi=200)
+    figF.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
+    figF.savefig('{}_females.pdf'.format(figName), dpi=200)
+
+
 def computeSniffTime(files=None, tmin=None, objectDic=None):
     print('Compute time of exploration.')
     data = {}
@@ -138,7 +226,7 @@ if __name__ == '__main__':
                  2: {'short': ('falcon', 'flask'), 'medium': ('cup', 'shaker')}}
     '''
     radiusObjects = {'cup': 18, 'flask': 15, 'falcon': 9, 'shaker': 11}
-    colorObjects = {'cup': 'orangered', 'flask': 'gold', 'falcon': 'dodgerblue', 'shaker': 'mediumseagreen'}
+    colorObjects = {'cup': 'gold', 'flask': 'mediumpurple', 'falcon': 'mediumseagreen', 'shaker': 'orchid'}
     objectList = ['cup', 'flask', 'falcon', 'shaker']
 
     colorSap = {'WT': 'steelblue', 'Del/+': 'darkorange'}
@@ -334,10 +422,10 @@ if __name__ == '__main__':
                 i = 0
                 for setup in ['1', '2']:
                     ax.scatter(addJitter([1] * len(measureData[var]['SniffLeft'][setup]['male']['WT']), 0.2),
-                               measureData[var]['SniffLeft'][setup]['male']['WT'], color='blue', marker=markerList[i], alpha=0.8,
+                               measureData[var]['SniffLeft'][setup]['male']['WT'], color='steelblue', marker=markerList[i], alpha=0.8,
                                label="on", s=8)
                     ax.scatter(addJitter([2] * len(measureData[var]['SniffRight'][setup]['male']['WT']), 0.2),
-                               measureData[var]['SniffRight'][setup]['male']['WT'], color='blue', marker=markerList[i], alpha=0.8,
+                               measureData[var]['SniffRight'][setup]['male']['WT'], color='steelblue', marker=markerList[i], alpha=0.8,
                                label="on", s=8)
                     ax.scatter(addJitter([4] * len(measureData[var]['SniffLeft'][setup]['male']['Del/+']), 0.2),
                                measureData[var]['SniffLeft'][setup]['male']['Del/+'], color='darkorange', marker=markerList[i],
@@ -347,10 +435,10 @@ if __name__ == '__main__':
                                alpha=0.8, label="on", s=8)
 
                     ax.scatter(addJitter([7] * len(measureData[var]['SniffLeft'][setup]['female']['WT']), 0.2),
-                               measureData[var]['SniffLeft'][setup]['female']['WT'], color='blue', marker=markerList[i], alpha=0.8,
+                               measureData[var]['SniffLeft'][setup]['female']['WT'], color='steelblue', marker=markerList[i], alpha=0.8,
                                label="on", s=8)
                     ax.scatter(addJitter([8] * len(measureData[var]['SniffRight'][setup]['female']['WT']), 0.2),
-                               measureData[var]['SniffRight'][setup]['female']['WT'], color='blue', marker=markerList[i], alpha=0.8,
+                               measureData[var]['SniffRight'][setup]['female']['WT'], color='steelblue', marker=markerList[i], alpha=0.8,
                                label="on", s=8)
                     ax.scatter(addJitter([10] * len(measureData[var]['SniffLeft'][setup]['female']['Del/+']), 0.2),
                                measureData[var]['SniffLeft'][setup]['female']['Del/+'], color='darkorange', marker=markerList[i],
@@ -389,7 +477,7 @@ if __name__ == '__main__':
             #space use
             #traj of center of mass
             files = getFilesToProcess()
-            buildFigTrajectoryMalesFemales(files=files, title='hab', tmin=0, tmax=4*oneMinute, figName='fig_traj_hab_long_nor', colorSap=colorSap)
+            buildFigTrajectoryMalesFemales(files=files, title='hab', tmin=0, tmax=4*oneMinute, figName='fig_traj_hab_long_nor', colorSap=colorSap, xa=128, xb=383, ya=80, yb=336)
             break
 
         if answer == 'pl':
@@ -406,75 +494,7 @@ if __name__ == '__main__':
             #body orientation toward each object
             files = getFilesToProcess()
             figName = 'fig_traj_nor_{}_same'.format(exp)
-
-            figM, axesM = plt.subplots(nrows=6, ncols=5, figsize=(14, 20))  # building the plot for trajectories
-            figF, axesF = plt.subplots(nrows=8, ncols=5, figsize=(14, 25))  # building the plot for trajectories
-
-            nRow = {'male': 0, 'female': 0}  # initialisation of the row
-            nCol = {'male': 0, 'female': 0}  # initialisation of the column
-
-            for file in files:
-                connection = sqlite3.connect(file)  # connection to the database
-
-                pool = AnimalPool()
-                pool.loadAnimals(connection)  # upload all the animals from the database
-                animal = pool.animalDictionnary[1]
-                setup = float(animal.setup)
-                print('setup: ', setup)
-
-                tmin = getStartTestPhase(pool)
-                tmax = tmin + 10 * oneMinute
-
-                if animal.sex == 'male':
-                    # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
-                    ax = axesM[nRow['male']][nCol['male']]  # set the subplot where to draw the plot
-                    plotTrajectorySingleAnimal(file, color=colorSap[animal.genotype], ax=ax, tmin=tmin,
-                                               tmax=tmax, title='same')  # function to draw the trajectory
-                    object = objectDic[setup][exp][phase][0]
-                    plotObjectZone(ax = ax, colorFill = colorObjects[object], x = objectPosition[setup]['right'][0], y = objectPosition[setup]['right'][1], radius =radiusObjects[object], alpha = 0.5) #plot the object on the right side
-                    plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
-                                   y=objectPosition[setup]['left'][1], radius=radiusObjects[object], alpha=0.5) #plot the object on the left side
-                    plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['right'][0],
-                                   y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + vibrissae/scaleFactor,
-                                   alpha=0.2)  # plot a zone around the object on the right side
-                    plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
-                                   y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + vibrissae/scaleFactor,
-                                   alpha=0.2)  # plot a zone around the object on the left side
-
-                    if nCol['male'] < 5:
-                        nCol['male'] += 1
-                    if nCol['male'] >= 5:
-                        nCol['male'] = 0
-                        nRow['male'] += 1
-
-                if animal.sex == 'female':
-                    # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
-                    ax = axesF[nRow['female']][nCol['female']]  # set the subplot where to draw the plot
-                    plotTrajectorySingleAnimal(file, color=colorSap[animal.genotype], ax=ax, tmin=tmin,
-                                               tmax=tmax, title='same')  # function to draw the trajectory
-                    object = objectDic[setup][exp][phase][0]
-                    plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['right'][0],
-                                   y=objectPosition[setup]['right'][1], radius=radiusObjects[object], alpha=0.5) #plot the object on the right side
-                    plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
-                                   y=objectPosition[setup]['left'][1], radius=radiusObjects[object], alpha=0.5) #plot the object on the left side
-                    plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['right'][0],
-                                   y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + vibrissae/scaleFactor,
-                                   alpha=0.2)  # plot a zone around the object on the right side
-                    plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
-                                   y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + vibrissae/scaleFactor,
-                                   alpha=0.2)  # plot a zone around the object on the left side
-
-                    if nCol['female'] < 5:
-                        nCol['female'] += 1
-                    if nCol['female'] >= 5:
-                        nCol['female'] = 0
-                        nRow['female'] += 1
-
-            figM.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
-            # plt.show() #display the plot
-            figM.savefig('{}_males.pdf'.format(figName), dpi=200)
-            figF.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
-            figF.savefig('{}_females.pdf'.format(figName), dpi=200)
+            plotTrajectoriesNorPhases(files=files, figName=figName, title=phase, phase=phase, exp=exp, colorSap=colorSap, xa=128, xb=383, ya=80, yb=336, objectDic=objectDic, colorObjects=colorObjects, objectPosition=objectPosition, radiusObjects=radiusObjects)
 
             data = computeSniffTime(files, objectDic=objectDic)
 
@@ -489,11 +509,15 @@ if __name__ == '__main__':
             print('Plot trajectory in the test phase')
             question = "Is it the short or medium retention time? (short / medium)"
             exp = input(question)
+            phase = 'test'
             #distance travelled
             #space use
             #traj of center of mass
             files = getFilesToProcess()
-            buildFigTrajectoryMalesFemales(files=files, title='test', tmin=0, tmax=10*oneMinute, figName='fig_traj_nor_{}_diff'.format(exp), colorSap=colorSap)
+            figName = 'fig_traj_nor_{}_test'.format(exp)
+            plotTrajectoriesNorPhases(files=files, figName=figName, title=phase, phase=phase, exp=exp, colorSap=colorSap, xa=128, xb=383, ya=80, yb=336,
+                                      objectDic=objectDic, colorObjects=colorObjects, objectPosition=objectPosition,
+                                      radiusObjects=radiusObjects)
 
             data = computeSniffTime(files, tmin=0, objectDic=objectDic)
 
@@ -590,13 +614,13 @@ if __name__ == '__main__':
             # plot the points for each value:
             i = 0
             for setup in ['1','2']:
-                ax.scatter(addJitter([1] * len(dataS['sniffLeft'][setup]['male']['WT']), 0.2), dataS['sniffLeft'][setup]['male']['WT'], color='blue', marker=markerList[i], alpha=0.8, label="on", s=8)
-                ax.scatter(addJitter([2] * len(dataS['sniffRight'][setup]['male']['WT']), 0.2), dataS['sniffRight'][setup]['male']['WT'], color='blue', marker=markerList[i], alpha=0.8, label="on", s=8)
+                ax.scatter(addJitter([1] * len(dataS['sniffLeft'][setup]['male']['WT']), 0.2), dataS['sniffLeft'][setup]['male']['WT'], color='steelblue', marker=markerList[i], alpha=0.8, label="on", s=8)
+                ax.scatter(addJitter([2] * len(dataS['sniffRight'][setup]['male']['WT']), 0.2), dataS['sniffRight'][setup]['male']['WT'], color='steelblue', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([4] * len(dataS['sniffLeft'][setup]['male']['Del/+']), 0.2), dataS['sniffLeft'][setup]['male']['Del/+'], color='darkorange', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([5] * len(dataS['sniffRight'][setup]['male']['Del/+']), 0.2), dataS['sniffRight'][setup]['male']['Del/+'], color='darkorange', marker=markerList[i], alpha=0.8, label="on", s=8)
 
-                ax.scatter(addJitter([7] * len(dataS['sniffLeft'][setup]['female']['WT']), 0.2), dataS['sniffLeft'][setup]['female']['WT'], color='blue', marker=markerList[i], alpha=0.8, label="on", s=8)
-                ax.scatter(addJitter([8] * len(dataS['sniffRight'][setup]['female']['WT']), 0.2), dataS['sniffRight'][setup]['female']['WT'], color='blue', marker=markerList[i], alpha=0.8, label="on", s=8)
+                ax.scatter(addJitter([7] * len(dataS['sniffLeft'][setup]['female']['WT']), 0.2), dataS['sniffLeft'][setup]['female']['WT'], color='steelblue', marker=markerList[i], alpha=0.8, label="on", s=8)
+                ax.scatter(addJitter([8] * len(dataS['sniffRight'][setup]['female']['WT']), 0.2), dataS['sniffRight'][setup]['female']['WT'], color='steelblue', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([10] * len(dataS['sniffLeft'][setup]['female']['Del/+']), 0.2), dataS['sniffLeft'][setup]['female']['Del/+'], color='darkorange', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([11] * len(dataS['sniffRight'][setup]['female']['Del/+']), 0.2), dataS['sniffRight'][setup]['female']['Del/+'], color='darkorange', marker=markerList[i], alpha=0.8, label="on", s=8)
                 i += 1
@@ -653,13 +677,13 @@ if __name__ == '__main__':
             # plot the points for each value:
             i = 0
             for setup in ['1','2']:
-                ax.scatter(addJitter([1] * len(dataD['sniffLeft'][setup]['male']['WT']), 0.2), dataD['sniffLeft'][setup]['male']['WT'], color='blue', marker=markerList[i], alpha=0.8, label="on", s=8)
-                ax.scatter(addJitter([2] * len(dataD['sniffRight'][setup]['male']['WT']), 0.2), dataD['sniffRight'][setup]['male']['WT'], color='blue', marker=markerList[i], alpha=0.8, label="on", s=8)
+                ax.scatter(addJitter([1] * len(dataD['sniffLeft'][setup]['male']['WT']), 0.2), dataD['sniffLeft'][setup]['male']['WT'], color='steelblue', marker=markerList[i], alpha=0.8, label="on", s=8)
+                ax.scatter(addJitter([2] * len(dataD['sniffRight'][setup]['male']['WT']), 0.2), dataD['sniffRight'][setup]['male']['WT'], color='steelblue', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([4] * len(dataD['sniffLeft'][setup]['male']['Del/+']), 0.2), dataD['sniffLeft'][setup]['male']['Del/+'], color='darkorange', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([5] * len(dataD['sniffRight'][setup]['male']['Del/+']), 0.2), dataD['sniffRight'][setup]['male']['Del/+'], color='darkorange', marker=markerList[i], alpha=0.8, label="on", s=8)
 
-                ax.scatter(addJitter([7] * len(dataD['sniffLeft'][setup]['female']['WT']), 0.2), dataD['sniffLeft'][setup]['female']['WT'], color='blue', marker=markerList[i], alpha=0.8, label="on", s=8)
-                ax.scatter(addJitter([8] * len(dataD['sniffRight'][setup]['female']['WT']), 0.2), dataD['sniffRight'][setup]['female']['WT'], color='blue', marker=markerList[i], alpha=0.8, label="on", s=8)
+                ax.scatter(addJitter([7] * len(dataD['sniffLeft'][setup]['female']['WT']), 0.2), dataD['sniffLeft'][setup]['female']['WT'], color='steelblue', marker=markerList[i], alpha=0.8, label="on", s=8)
+                ax.scatter(addJitter([8] * len(dataD['sniffRight'][setup]['female']['WT']), 0.2), dataD['sniffRight'][setup]['female']['WT'], color='steelblue', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([10] * len(dataD['sniffLeft'][setup]['female']['Del/+']), 0.2), dataD['sniffLeft'][setup]['female']['Del/+'], color='darkorange', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([11] * len(dataD['sniffRight'][setup]['female']['Del/+']), 0.2), dataD['sniffRight'][setup]['female']['Del/+'], color='darkorange', marker=markerList[i], alpha=0.8, label="on", s=8)
                 i += 1
@@ -758,18 +782,18 @@ if __name__ == '__main__':
             i = 0
             for setup in ['1', '2']:
                 ax.scatter(addJitter([1] * len(timeS['sniffLeft'][setup]['male']['WT']), 0.2), timeS['sniffLeft'][setup]['male']['WT'],
-                           color='blue', marker=markerList[i], alpha=0.8, label="on", s=8)
+                           color='steelblue', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([2] * len(timeS['sniffRight'][setup]['male']['WT']), 0.2), timeS['sniffRight'][setup]['male']['WT'],
-                           color='blue', marker=markerList[i], alpha=0.8, label="on", s=8)
+                           color='steelblue', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([4] * len(timeS['sniffLeft'][setup]['male']['Del/+']), 0.2),
                            timeS['sniffLeft'][setup]['male']['Del/+'], color='darkorange', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([5] * len(timeS['sniffRight'][setup]['male']['Del/+']), 0.2),
                            timeS['sniffRight'][setup]['male']['Del/+'], color='darkorange', marker=markerList[i], alpha=0.8, label="on", s=8)
 
                 ax.scatter(addJitter([7] * len(timeS['sniffLeft'][setup]['female']['WT']), 0.2),
-                           timeS['sniffLeft'][setup]['female']['WT'], color='blue', marker=markerList[i], alpha=0.8, label="on", s=8)
+                           timeS['sniffLeft'][setup]['female']['WT'], color='steelblue', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([8] * len(timeS['sniffRight'][setup]['female']['WT']), 0.2),
-                           timeS['sniffRight'][setup]['female']['WT'], color='blue', marker=markerList[i], alpha=0.8, label="on", s=8)
+                           timeS['sniffRight'][setup]['female']['WT'], color='steelblue', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([10] * len(timeS['sniffLeft'][setup]['female']['Del/+']), 0.2),
                            timeS['sniffLeft'][setup]['female']['Del/+'], color='darkorange', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([11] * len(timeS['sniffRight'][setup]['female']['Del/+']), 0.2),
@@ -801,18 +825,18 @@ if __name__ == '__main__':
             i = 0
             for setup in ['1', '2']:
                 ax.scatter(addJitter([1] * len(timeD['sniffLeft'][setup]['male']['WT']), 0.2), timeD['sniffLeft'][setup]['male']['WT'],
-                           color='blue', marker=markerList[i], alpha=0.8, label="on", s=8)
+                           color='steelblue', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([2] * len(timeD['sniffRight'][setup]['male']['WT']), 0.2), timeD['sniffRight'][setup]['male']['WT'],
-                           color='blue', marker=markerList[i], alpha=0.8, label="on", s=8)
+                           color='steelblue', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([4] * len(timeD['sniffLeft'][setup]['male']['Del/+']), 0.2),
                            timeD['sniffLeft'][setup]['male']['Del/+'], color='darkorange', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([5] * len(timeD['sniffRight'][setup]['male']['Del/+']), 0.2),
                            timeD['sniffRight'][setup]['male']['Del/+'], color='darkorange', marker=markerList[i], alpha=0.8, label="on", s=8)
 
                 ax.scatter(addJitter([7] * len(timeD['sniffLeft'][setup]['female']['WT']), 0.2),
-                           timeD['sniffLeft'][setup]['female']['WT'], color='blue', marker=markerList[i], alpha=0.8, label="on", s=8)
+                           timeD['sniffLeft'][setup]['female']['WT'], color='steelblue', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([8] * len(timeD['sniffRight'][setup]['female']['WT']), 0.2),
-                           timeD['sniffRight'][setup]['female']['WT'], color='blue', marker=markerList[i], alpha=0.8, label="on", s=8)
+                           timeD['sniffRight'][setup]['female']['WT'], color='steelblue', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([10] * len(timeD['sniffLeft'][setup]['female']['Del/+']), 0.2),
                            timeD['sniffLeft'][setup]['female']['Del/+'], color='darkorange', marker=markerList[i], alpha=0.8, label="on", s=8)
                 ax.scatter(addJitter([11] * len(timeD['sniffRight'][setup]['female']['Del/+']), 0.2),
