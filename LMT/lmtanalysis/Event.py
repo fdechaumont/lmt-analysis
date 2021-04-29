@@ -36,8 +36,9 @@ class Event:
         if baseId!= None:
             self.baseId = baseId
 
-    def updateMetaData(self, connection ):
-        # update event in database at eventBaseId. note that it does not commit.
+    def updateMetaData(self, connection , commit= False ):
+        
+        #print("Update metadata")
         toStore = json.dumps( self.metadata )
         #print( toStore )
         #print( self.baseId )
@@ -47,6 +48,8 @@ class Event:
         #print ( query )
         c = connection.cursor()
         c.execute( query , (toStore , self.baseId ) )
+        if commit:
+            connection.commit()
 
 
 
@@ -338,12 +341,12 @@ class EventTimeLine:
 
         listToSearchIn = self.eventList
 
+        '''
+        todo: fix this algorithm. removed from process (no impact on result):
         # pre-fetch events.
         if ( optimizeAssumingOrderedList == True ):
             listToSearchIn=[]
-            for event in self.eventList:
-                if ( event.startFrame < frameNumber ):
-                    continue
+            for event in self.eventList:                
                 # we just overtook the best match.
                 # we put the current event and the previous one (if it exists) in the list
                 currentIndex = self.eventList.index( event )
@@ -351,6 +354,7 @@ class EventTimeLine:
                 if ( currentIndex > 0 ):
                     listToSearchIn.append( self.eventList[currentIndex-1] )
                 break
+        '''
 
         if constraint=="after frame":
             # creates a new list where only events in the future are kept
@@ -370,16 +374,16 @@ class EventTimeLine:
 
         closestEvent = None
         bestDistance = sys.maxsize
-
+        
         for event in listToSearchIn:
 
             distanceToStart = abs( frameNumber - event.startFrame )
             distanceToEnd = abs( frameNumber - event.endFrame )
             best = min( distanceToStart, distanceToEnd )
-
+            #print( bestDistance, best )
             if ( best < bestDistance ):
                 closestEvent = event
-                bestDistance = best
+                bestDistance = best                
 
         return closestEvent , bestDistance
 
