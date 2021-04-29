@@ -1034,11 +1034,11 @@ if __name__ == '__main__':
                     meanprops = dict(marker='D', markerfacecolor='white', markeredgecolor='black')
                     bp = sns.boxplot( data=selectedDataframe, y='trait', x='value', ax=ax, width=0.5, orient='h', meanprops=meanprops, showmeans=True, linewidth=0.4 )
                     sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, color='black', orient='h')
-                    #this swarmplot should be used instead of the previous one if you want to see whether animals from the same cage are similar
+                    #this following swarmplot should be used instead of the previous one if you want to see whether animals from the same cage are similar
                     #sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, hue='exp', orient='h')
                     ax.vlines(x=0, ymin=-6, ymax=30, colors='grey', linestyles='dashed')
-                    ax.vlines(x=-1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
-                    ax.vlines(x=1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
+                    #ax.vlines(x=-1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
+                    #ax.vlines(x=1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
 
                     ax.set_xlabel('Z-score per cage', fontsize=18)
                     ax.set_ylabel('Behavioral events', fontsize=18)

@@ -35,19 +35,15 @@ if __name__ == '__main__':
 
         
     
-    '''
+
     #behaviouralEventOneMouse = ["Approach contact", "Approach rear", "Break contact", "Contact", "FollowZone Isolated", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Social escape", "Train2"]
     behaviouralEventOneMouse = ["Contact", "Group2", "Group3", "Group 3 break", "Group 3 make", "Group4", "Group 4 break", "Group 4 make", "Huddling", "Move isolated", "Move in contact", "Nest3", "Rearing", "Rear isolated", "Rear in contact", "Stop isolated", "WallJump", "Water Zone", "Approach contact", "Approach rear", "Break contact", "FollowZone Isolated", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Get away", "Train2"]
     #behaviouralEventTwoMice = None
     behaviouralEventTwoMice = ["Approach contact", "Approach rear", "Break contact", "Contact", "FollowZone Isolated", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Get away", "Train2"] 
-    '''
-    behaviouralEventOneMouse = ["Group3", "Water Zone"]
-    behaviouralEventTwoMice = ["Contact", "Oral-genital Contact"] 
+
+    '''behaviouralEventOneMouse = ["Group3", "Water Zone"]
+    behaviouralEventTwoMice = ["Contact", "Oral-genital Contact"] '''
     
-    
-    '''
-    text_file = open ("measures_identity_profile_cc2_social_day3.txt", "w")
-    '''
     
     for file in files:
         
