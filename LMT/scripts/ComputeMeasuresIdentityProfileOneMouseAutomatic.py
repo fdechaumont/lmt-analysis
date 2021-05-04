@@ -46,6 +46,7 @@ def computeProfile(file, minT, maxT, night, text_file):
         animalObject = pool.animalDictionnary[animal]
         animalData[rfid]["file"] = file
         animalData[rfid]['genotype'] = pool.animalDictionnary[animal].genotype
+        animalData[rfid]['sex'] = pool.animalDictionnary[animal].sex
                 
         genoA = None
         try:
@@ -95,7 +96,7 @@ def computeProfile(file, minT, maxT, night, text_file):
     for kAnimal in animalData:
         text_file.write( "{}\t".format( file ) )
         text_file.write( "{}\t".format( "strain" ) )
-        text_file.write( "{}\t".format( "sex" ) )
+        text_file.write( "{}\t".format( animalData[kAnimal]["sex"] ) )
         text_file.write( "{}\t".format( "group" ) )
         text_file.write( "{}\t".format( night ) )
         text_file.write( "{}\t".format( "exp" ) )
@@ -202,35 +203,6 @@ def computeProfilePair(file, minT, maxT, night, text_file):
 
         print(behavEventTimeLine.eventName, genoPair, pairName, totalEventDuration, nbEvent, meanDur)
 
-
-    '''
-    header = ["file", "strain", "sex", "group", "day", "exp", "RFID", "genotype", "user1", "minTime", "maxTime"]
-    for name in header:
-        text_file.write("{}\t".format(name))
-
-    # write event keys
-    firstAnimalKey = next(iter(animalData))
-    firstAnimal = animalData[firstAnimalKey]
-    for k in firstAnimal.keys():
-        text_file.write("{}\t".format(k.replace(" ", "")))
-    text_file.write("\n")
-
-    for kAnimal in animalData:
-        text_file.write("{}\t".format(file))
-        text_file.write("{}\t".format("strain"))
-        text_file.write("{}\t".format("sex"))
-        text_file.write("{}\t".format("group"))
-        text_file.write("{}\t".format(night))
-        text_file.write("{}\t".format("exp"))
-        text_file.write("{}\t".format(kAnimal))
-        text_file.write("{}\t".format(animalData[kAnimal]["genotype"]))
-        text_file.write("{}\t".format(minT))
-        text_file.write("{}\t".format(maxT))
-
-        for kEvent in firstAnimal.keys():
-            text_file.write("{}\t".format(animalData[kAnimal][kEvent]))
-        text_file.write("\n")
-    '''
     return animalData
 
 
@@ -239,6 +211,7 @@ def getProfileValues( profileData, night='0', event=None):
     dataDic["genotype"] = []
     dataDic["value"] = []
     dataDic["exp"] = []
+    #dataDic['sex'] = []
     
     for file in profileData.keys():
         print(profileData[file].keys())
@@ -247,6 +220,7 @@ def getProfileValues( profileData, night='0', event=None):
                 dataDic["value"].append(profileData[file][str(night)][animal][event])
                 dataDic["exp"].append(profileData[file][str(night)][animal]["file"])
                 dataDic["genotype"].append(profileData[file][str(night)][animal]["genotype"])
+                #dataDic["sex"].append(profileData[file][str(night)][animal]["sex"])
     
     return dataDic
 
@@ -277,39 +251,8 @@ def plotProfileDataDuration( profileData, night, valueCat ):
     
     #plot the data for each behavioural event
     for behavEvent in behaviouralEventOneMouse[:-2]+['totalDistance']:
-        if behavEvent != 'totalDistance':
-            event = behavEvent+valueCat
 
-        elif behavEvent == 'totalDistance':
-            event = behavEvent
-        print("event: ", event)
-
-        profileValueDictionary = getProfileValues(profileData=profileData, night=night, event=event)
-        y = profileValueDictionary["value"]
-        x = profileValueDictionary["genotype"]
-        genotypeType = list(Counter(x).keys())
-        print(genotypeType)
-        group = profileValueDictionary["exp"]
-        
-        print("y: ", y)
-        print("x: ", x)
-        print("group: ", group)
-        experimentType = Counter(group)
-        print("Nb of experiments: ", len(experimentType))
-        
-        axes[row,col].set_xlim(-0.5, 1.5)
-        axes[row,col].set_ylim(min(y)-0.2*max(y), max(y)+0.2*max(y))
-        sns.boxplot(x, y, order=[genotypeType[1], genotypeType[0]], ax=axes[row,col], linewidth=0.5, showmeans=True,
-                    meanprops={"marker": 'o',
-                               "markerfacecolor": 'white',
-                               "markeredgecolor": 'black',
-                               "markersize": '8'} )
-        sns.stripplot(x, y, order=[genotypeType[1], genotypeType[0]], jitter=True, color='black', hue=group, s=5, ax=axes[row,col])
-        axes[row,col].set_title(behavEvent)
-        axes[row,col].set_ylabel("{} (frames)".format(valueCat))
-        axes[row,col].legend().set_visible(False)
-        axes[row,col].spines['right'].set_visible(False)
-        axes[row,col].spines['top'].set_visible(False)
+        singlePlotPerEventProfile(profileData, night, valueCat, behavEvent, ax=axes[row, col])
         
         if col<5:
             col+=1
@@ -321,6 +264,146 @@ def plotProfileDataDuration( profileData, night, valueCat ):
     fig.tight_layout()    
     fig.savefig( "FigProfile{}_Events_night_{}.pdf".format( valueCat, night ) ,dpi=100)
     plt.close( fig )
+
+
+def singlePlotPerEventProfile(profileData, night, valueCat, behavEvent, ax):
+    if behavEvent != 'totalDistance':
+        event = behavEvent + valueCat
+
+    elif behavEvent == 'totalDistance':
+        event = behavEvent
+    print("event: ", event)
+
+    profileValueDictionary = getProfileValues(profileData=profileData, night=night, event=event)
+    yval = profileValueDictionary["value"]
+    x = profileValueDictionary["genotype"]
+    genotypeType = list(Counter(x).keys())
+    print(genotypeType)
+    group = profileValueDictionary["exp"]
+
+    if valueCat == ' TotalLen':
+        y = [i / 30 for i in yval]
+    else:
+        y = yval
+
+
+    print("y: ", y)
+    print("x: ", x)
+    print("group: ", group)
+    experimentType = Counter(group)
+    print("Nb of experiments: ", len(experimentType))
+
+    ax.set_xlim(-0.5, 1.5)
+    ax.set_ylim(min(y) - 0.2 * max(y), max(y) + 0.2 * max(y))
+    sns.boxplot(x, y, order=[genotypeType[1], genotypeType[0]], ax=ax, linewidth=0.5, showmeans=True,
+                meanprops={"marker": 'o',
+                           "markerfacecolor": 'white',
+                           "markeredgecolor": 'black',
+                           "markersize": '8'}, showfliers=False, width=0.4)
+    sns.stripplot(x, y, order=[genotypeType[1], genotypeType[0]], jitter=True, color='black', hue=group, s=5,
+                  ax=ax)
+    ax.set_title(behavEvent)
+    ax.set_ylabel("{} (s)".format(valueCat))
+    ax.legend().set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+
+def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueCat, behavEvent, ax, row, col, letter, text_file, pM, pF):
+    if behavEvent != 'totalDistance':
+        event = behavEvent + valueCat
+
+    elif behavEvent == 'totalDistance':
+        event = behavEvent
+    print("event: ", event)
+
+    #upload data for males:
+    profileValueDictionaryM = getProfileValues(profileData=profileDataM, night=night, event=event)
+    yvalM = profileValueDictionaryM["value"]
+    xM = profileValueDictionaryM["genotype"]
+    genotypeTypeM = list(Counter(xM).keys())
+    print(genotypeTypeM)
+    groupM = profileValueDictionaryM["exp"]
+    sexM = ['male'] * len(xM)
+
+    # upload data for females:
+    profileValueDictionaryF = getProfileValues(profileData=profileDataF, night=night, event=event)
+    yvalF = profileValueDictionaryF["value"]
+    xF = profileValueDictionaryF["genotype"]
+    genotypeTypeF = list(Counter(xF).keys())
+    print(genotypeTypeF)
+    groupF = profileValueDictionaryF["exp"]
+    sexF = ['female'] * len(xF)
+
+    #merge data for males and females:
+    yval = yvalM + yvalF
+    x = xM + xF
+    group = groupM + groupF
+    sex = sexM + sexF
+    genotypeType = list(Counter(x).keys())
+    print(genotypeType)
+
+    if valueCat == ' TotalLen':
+        y = [i / 30 for i in yval]
+    else:
+        y = yval
+
+
+    print("y: ", y)
+    print("x: ", x)
+    print("group: ", group)
+    experimentType = Counter(group)
+    print("Nb of experiments: ", len(experimentType))
+
+    ax.text(-1, max(y) + 0.4 * (max(y) - min(y)), letter, FontSize=20, horizontalalignment='center', color='black', weight='bold')
+    ax.set_ylim(min(y) - 0.2 * max(y), max(y) + 0.2 * max(y))
+    bp = sns.boxplot(sex, y, hue=x, hue_order=[genotypeType[1], genotypeType[0]], ax=ax, linewidth=0.5, showmeans=True,
+                meanprops={"marker": 'o',
+                           "markerfacecolor": 'white',
+                           "markeredgecolor": 'black',
+                           "markersize": '8'}, showfliers=False, width=0.8, dodge=True)
+    # Add transparency to colors
+    '''for patch in bp.artists:
+        r, g, b, a = patch.get_facecolor()
+        patch.set_facecolor((r, g, b, .7))'''
+
+    sns.stripplot(sex, y, hue=x, hue_order=[genotypeType[1], genotypeType[0]], jitter=True, color='black', s=5,
+                  dodge=True, ax=ax)
+    ax.set_title(behavEvent, fontsize=14)
+    ax.xaxis.set_tick_params(direction="in")
+    ax.tick_params(axis='x', labelsize=14)
+    ax.yaxis.set_tick_params(direction="in")
+    ax.tick_params(axis='y', labelsize=12)
+    if valueCat == ' TotalLen':
+        ylabel = 'total duration (s)'
+    if valueCat == ' Nb':
+        ylabel = 'occurrences'
+    if valueCat == ' MeanDur':
+        ylabel = 'mean duration (s)'
+    ax.set_ylabel(ylabel, fontsize=14)
+    ax.legend().set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+
+    # Mixed model: variable to explain: value; fixed factor = genotype; random effect: group
+    dataDict = {'value': y, 'sex': sex, 'genotype': x, 'group': group}
+    dfDataBothSexes = pd.DataFrame(dataDict)
+    for sexClass in ['male', 'female']:
+        dfData = dfDataBothSexes[dfDataBothSexes['sex'] == sexClass]
+        # create model:
+        model = smf.mixedlm("value ~ genotype", dfData, groups=dfData["group"])
+        # run model:
+        result = model.fit()
+        # print summary
+        print(behavEvent, sexClass)
+        print(result.summary())
+        text_file.write('{} {} {}'.format(behavEvent, valueCat, sexClass))
+        text_file.write(result.summary().as_text())
+        text_file.write('\n')
+    #add manually p-values on the plot
+    ax.text(0, max(y) + 0.1 * (max(y)-min(y)), getStarsFromPvalues(pM, 1), fontsize=16, horizontalalignment='center', color='black', weight='bold')
+    ax.text(1, max(y) + 0.1 * (max(y)-min(y)), getStarsFromPvalues(pF, 1), fontsize=16, horizontalalignment='center', color='black', weight='bold')
 
 
 def plotProfileDataDurationPairs(profileData, night, valueCat):
