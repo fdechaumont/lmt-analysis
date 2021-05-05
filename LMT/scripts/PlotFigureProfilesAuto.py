@@ -188,7 +188,7 @@ if __name__ == '__main__':
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row, col], row=row, col=col,
                                                letter='A', text_file=text_file, pM=0.025, pF=0.015)
-            axes[row, col].legend(loc='lower left').set_visible(True)
+            axes[row, col].legend(loc='lower left', fancybox=False, ncol=2).set_visible(True)
 
             # Fig 1B
             row = 0
