@@ -25,6 +25,10 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import pandas
 from scipy.stats import mannwhitneyu, kruskal, ttest_1samp
+from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
+
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 def computeProfile(file, minT, maxT, night, text_file):
     
@@ -309,7 +313,7 @@ def singlePlotPerEventProfile(profileData, night, valueCat, behavEvent, ax):
     ax.spines['top'].set_visible(False)
 
 
-def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueCat, behavEvent, ax, row, col, letter, text_file, pM, pF):
+def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueCat, behavEvent, ax, row, col, letter, text_file, pM, pF, image, imgPos):
     if behavEvent != 'totalDistance':
         event = behavEvent + valueCat
 
@@ -384,6 +388,11 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
     ax.legend().set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
+
+    behavSchema = mpimg.imread(image)
+    imgBox = OffsetImage(behavSchema, zoom=0.5)
+    imageBox = AnnotationBbox(imgBox, imgPos, frameon=False)
+    ax.add_artist(imageBox)
 
 
     # Mixed model: variable to explain: value; fixed factor = genotype; random effect: group

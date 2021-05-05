@@ -15,6 +15,8 @@ from collections import Counter
 import seaborn as sns
 import matplotlib.patches as mpatches
 
+import matplotlib.pyplot as plt
+
 
 from tkinter.filedialog import askopenfilename
 from lmtanalysis.Util import getMinTMaxTAndFileNameInput
@@ -185,9 +187,10 @@ if __name__ == '__main__':
             behavEvent = 'Oral-oral Contact'
             # behavEvent = 'FollowZone Isolated'
             valueCatEvent = ' Nb'
+            imgPos = (0.5, 17000)
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row, col], row=row, col=col,
-                                               letter='A', text_file=text_file, pM=0.025, pF=0.015)
+                                               letter='A', text_file=text_file, pM=0.025, pF=0.015, image='img_nose-nose.jpg', imgPos=imgPos)
             axes[row, col].legend(loc='lower left', fancybox=False, ncol=2).set_visible(True)
 
             # Fig 1B
@@ -195,34 +198,38 @@ if __name__ == '__main__':
             col = 1
             behavEvent = 'Oral-genital Contact'
             valueCatEvent = ' Nb'
+            imgPos = (0.5, 18000)
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row, col], row=row, col=col,
-                                               letter='B', text_file=text_file, pM=0.003, pF=0.005)
+                                               letter='B', text_file=text_file, pM=0.003, pF=0.005, image='img_nose-anogenital.jpg', imgPos=imgPos)
 
             # Fig 1C
             row = 0
             col = 2
             behavEvent = 'Side by side Contact'
             valueCatEvent = ' TotalLen'
+            imgPos = (0.5, 5400)
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row, col], row=row, col=col,
-                                               letter='C', text_file=text_file, pM=0.044, pF=0.032)
+                                               letter='C', text_file=text_file, pM=0.044, pF=0.032, image='img_side-side.jpg', imgPos=imgPos)
 
             # Fig 1D
             row = 1
             col = 0
             behavEvent = 'Contact'
             valueCatEvent = ' MeanDur'
+            imgPos = (0.5, 160)
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row, col], row=row, col=col,
-                                               letter='D', text_file=text_file, pM=0.014, pF=0.002)
+                                               letter='D', text_file=text_file, pM=0.014, pF=0.002, image='img_cct.jpg', imgPos=imgPos)
 
             # Fig 1E
             row = 1
             col = 1
             behavEvent = 'Approach contact'
             valueCatEvent = ' Nb'
-            singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n, valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row, col], row=row, col=col, letter='E', text_file=text_file, pM=0.005, pF=0.006)
+            imgPos = (0.5, 79500)
+            singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n, valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row, col], row=row, col=col, letter='E', text_file=text_file, pM=0.005, pF=0.006, image='img_app_cct.jpg', imgPos=imgPos)
 
             # Fig 1F: USVs
             row = 1
