@@ -1156,9 +1156,9 @@ if __name__ == '__main__':
                     ax.set_xlabel('Z-score per cage', fontsize=18)
                     ax.set_ylabel('Behavioral events', fontsize=18)
 
-                    ax.set_yticklabels(eventListForTest, rotation=0, FontSize=14,
+                    ax.set_yticklabels(eventListForTest, rotation=0, fontsize=14,
                                        horizontalalignment='right')
-                    ax.set_xticklabels([-3, -2, -1, 0, 1, 2, 3], FontSize=14)
+                    ax.set_xticklabels([-3, -2, -1, 0, 1, 2, 3], fontsize=14)
                     ax.legend().set_visible(False)
                     col += 1
 
