@@ -214,17 +214,19 @@ def getProfileValues( profileData, night='0', event=None):
     dataDic = {}
     dataDic["genotype"] = []
     dataDic["value"] = []
+    dataDic["meanValue"] = []
     dataDic["exp"] = []
-    #dataDic['sex'] = []
+    dataDic['sex'] = []
     
     for file in profileData.keys():
         print(profileData[file].keys())
         for animal in profileData[file][str(night)].keys():
             if not '-' in animal:
                 dataDic["value"].append(profileData[file][str(night)][animal][event])
+                dataDic["meanValue"].append(np.mean(profileData[file][str(night)][animal][event]))
                 dataDic["exp"].append(profileData[file][str(night)][animal]["file"])
                 dataDic["genotype"].append(profileData[file][str(night)][animal]["genotype"])
-                #dataDic["sex"].append(profileData[file][str(night)][animal]["sex"])
+                dataDic["sex"].append(profileData[file][str(night)][animal]["sex"])
     
     return dataDic
 
@@ -1076,19 +1078,24 @@ if __name__ == '__main__':
 
                 nightList = list(koData[list(koData.keys())[0]].keys())
 
-
-
-                row = 0
+                col = 0
                 for night in nightList:
-                    ax = axes[row]
+                    ax = axes[col]
                     selectedDataframe = koDataframe[(koDataframe['night'] == night)]
                     pos = 0
+                    colorList = []
                     for event in eventListForTest:
+                        color = 'grey'
                         valList = selectedDataframe['value'][selectedDataframe['trait']==event]
                         T, p = ttest_1samp( valList, popmean=0 )
                         if p < 0.05:
                             print(night, event, T, p)
                             ax.text(-2.95, pos, s=getStarsFromPvalues(p, numberOfTests=1), fontsize=16)
+                            if T > 0:
+                                color = 'red'
+                            elif T < 0:
+                                color = 'blue'
+                        colorList.append(color)
                         pos += 1
 
 
@@ -1132,6 +1139,20 @@ if __name__ == '__main__':
                     #ax.vlines(x=-1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
                     #ax.vlines(x=1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
 
+
+                    edgeList = 'black'
+                    n = 0
+                    for box in bp.artists:
+                        box.set_facecolor(colorList[n])
+                        box.set_edgecolor(edgeList)
+                        n += 1
+                    # Add transparency to colors
+                    for box in bp.artists:
+                        r, g, b, a = box.get_facecolor()
+                        box.set_facecolor((r, g, b, .7))
+
+                    bp.legend().set_visible(False)
+
                     ax.set_xlabel('Z-score per cage', fontsize=18)
                     ax.set_ylabel('Behavioral events', fontsize=18)
 
@@ -1139,7 +1160,7 @@ if __name__ == '__main__':
                                        horizontalalignment='right')
                     ax.set_xticklabels([-3, -2, -1, 0, 1, 2, 3], FontSize=14)
                     ax.legend().set_visible(False)
-                    row += 1
+                    col += 1
 
                 plt.tight_layout()
                 plt.show()
