@@ -356,7 +356,16 @@ def singlePlotPerEventProfilePairs(profileData, night, valueCat, behavEvent, ax)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
 
-
+    #stats
+    df = pandas.DataFrame(profileValueDictionary)
+    genotypeType[0]
+    val = {}
+    for geno in genotypeType:
+        val[geno] = df['value'][df['genotype']==geno]
+        print(geno, val[geno])
+    W, p = mannwhitneyu(val[genotypeType[0]], val[genotypeType[1]])
+    print('Mann-Whitney U test for {}: W={} p={}'.format( behavEvent, W, p ))
+    ax.text(0.5, max(y) - 0.02 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=16, horizontalalignment='center', color='black', weight='bold')
 
 
 def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueCat, behavEvent, ax, row, col, letter, text_file, pM, pF, image, imgPos):
