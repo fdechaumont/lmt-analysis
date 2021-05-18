@@ -68,6 +68,7 @@ if __name__ == '__main__':
         question = "Do you want to:"
         question += "\n\t [pfig] plot figure with selected behaviours for one sex only (from json file)?"
         question += "\n\t [pfigsex] plot figure with selected behaviours for both sexes (from json file)?"
+        question += "\n\t [pfigpair] plot figure with selected behaviours for pairs of mice (from json file)?"
         question += "\n"
         answer = input(question)
 
@@ -269,4 +270,87 @@ if __name__ == '__main__':
 
             text_file.close()
             break
+
+        if answer == "pfigpair":
+            text_file = getFileNameInput()
+            #fix the night:
+            n = 1
+            file = getJsonFileToProcess()
+            print(file)
+            # create a dictionary with profile data
+            with open(file) as json_data:
+                profileData = json.load(json_data)
+
+            print("json file for profile data re-imported.")
+            #Plot fig and save it in a pdf file
+
+            fig, axes = plt.subplots(nrows=2, ncols=4, figsize=(14, 9))
+            fig.suptitle(t="no night", y=1.2, fontweight='bold')
+
+            # plot the data for each behavioural event
+            #Fig 1A
+            row = 0
+            col = 0
+            behavEvent = 'Contact'
+            valueCatEvent = ' TotalLen'
+            singlePlotPerEventProfilePairs(profileData=profileData, night=n, valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row, col])
+
+            # Fig 1B
+            row = 0
+            col = 1
+            behavEvent = 'FollowZone Isolated'
+            valueCatEvent = ' TotalLen'
+            singlePlotPerEventProfilePairs(profileData=profileData, night=n, valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row, col])
+
+            # Fig 1C
+            row = 0
+            col = 2
+            behavEvent = 'Oral-oral Contact'
+            valueCatEvent = ' TotalLen'
+            singlePlotPerEventProfilePairs(profileData=profileData, night=n, valueCat=valueCatEvent,
+                                      behavEvent=behavEvent, ax=axes[row, col])
+
+            # Fig 1D
+            row = 0
+            col = 3
+            behavEvent = 'Oral-genital Contact'
+            valueCatEvent = ' TotalLen'
+            singlePlotPerEventProfilePairs(profileData=profileData, night=n, valueCat=valueCatEvent,
+                                      behavEvent=behavEvent, ax=axes[row, col])
+
+            # Fig 1E
+            row = 1
+            col = 0
+            behavEvent = 'Side by side Contact'
+            valueCatEvent = ' TotalLen'
+            singlePlotPerEventProfilePairs(profileData=profileData, night=n, valueCat=valueCatEvent,
+                                      behavEvent=behavEvent, ax=axes[row, col])
+
+            # Fig 1F
+            row = 1
+            col = 1
+            behavEvent = 'Side by side Contact, opposite way'
+            valueCatEvent = ' TotalLen'
+            singlePlotPerEventProfilePairs(profileData=profileData, night=n, valueCat=valueCatEvent,
+                                      behavEvent=behavEvent, ax=axes[row, col])
+
+            # Fig 1G
+            row = 1
+            col = 2
+            behavEvent = 'Approach contact'
+            valueCatEvent = ' TotalLen'
+            singlePlotPerEventProfilePairs(profileData=profileData, night=n, valueCat=valueCatEvent,
+                                      behavEvent=behavEvent, ax=axes[row, col])
+
+
+            fig.tight_layout()
+            fig.savefig("FigSimple_Profile_Events_night_pair_{}.pdf".format(n), dpi=100)
+            plt.close(fig)
+
+
+            print ("Plots saved as pdf and analyses saved in text file.")
+
+            text_file.close()
+            break
+
 

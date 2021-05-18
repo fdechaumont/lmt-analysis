@@ -314,6 +314,50 @@ def singlePlotPerEventProfile(profileData, night, valueCat, behavEvent, ax):
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
 
+def singlePlotPerEventProfilePairs(profileData, night, valueCat, behavEvent, ax):
+    if behavEvent != 'totalDistance':
+        event = behavEvent + valueCat
+
+    elif behavEvent == 'totalDistance':
+        event = behavEvent
+    print("event: ", event)
+
+    profileValueDictionary = getProfileValuesPairs(profileData=profileData, night=night, event=event)
+    yval = profileValueDictionary["value"]
+    x = profileValueDictionary["genotype"]
+    genotypeType = list(Counter(x).keys())
+    print(genotypeType)
+    group = profileValueDictionary["exp"]
+
+    if valueCat == ' TotalLen':
+        y = [i / 30 for i in yval]
+    else:
+        y = yval
+
+
+    print("y: ", y)
+    print("x: ", x)
+    print("group: ", group)
+    experimentType = Counter(group)
+    print("Nb of experiments: ", len(experimentType))
+
+    ax.set_xlim(-0.5, 1.5)
+    ax.set_ylim(min(y) - 0.2 * max(y), max(y) + 0.2 * max(y))
+    sns.boxplot(x, y, order=[genotypeType[1], genotypeType[0]], ax=ax, linewidth=0.5, showmeans=True,
+                meanprops={"marker": 'o',
+                           "markerfacecolor": 'white',
+                           "markeredgecolor": 'black',
+                           "markersize": '8'}, showfliers=False, width=0.4)
+    sns.stripplot(x, y, order=[genotypeType[1], genotypeType[0]], jitter=True, color='black', hue=group, s=5,
+                  ax=ax)
+    ax.set_title(behavEvent)
+    ax.set_ylabel("{} (s)".format(valueCat))
+    ax.legend().set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+
+
 
 def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueCat, behavEvent, ax, row, col, letter, text_file, pM, pF, image, imgPos):
     if behavEvent != 'totalDistance':
