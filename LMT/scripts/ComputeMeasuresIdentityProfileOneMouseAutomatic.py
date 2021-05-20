@@ -116,7 +116,7 @@ def computeProfile(file, minT, maxT, night, text_file):
     return animalData
 
 
-def computeProfilePair(file, minT, maxT, night, text_file):
+def computeProfilePair(file, minT, maxT):
     connection = sqlite3.connect(file)
 
     pool = AnimalPool()
@@ -124,21 +124,34 @@ def computeProfilePair(file, minT, maxT, night, text_file):
 
     pair = []
     genotype = []
+    sex = []
+    age = []
     for animal in pool.animalDictionnary.keys():
         rfid = pool.animalDictionnary[animal].RFID
         geno = pool.animalDictionnary[animal].genotype
+        sexAnimal = pool.animalDictionnary[animal].sex
+        ageAnimal = pool.animalDictionnary[animal].age
         pair.append(rfid)
         genotype.append(geno)
+        sex.append(sexAnimal)
+        age.append(ageAnimal)
 
     pairName = ('{}-{}'.format(pair[0], pair[1]))
     genoPair = ('{}-{}'.format(genotype[0], genotype[1]))
-    print('pair: ', pairName, genoPair)
+    agePair = age[0]
+    if sex[0] == sex[1]:
+        sexPair = sex[0]
+    else:
+        sexPair = 'mixed'
+    print('pair: ', pairName, genoPair, sexPair)
 
     animalData = {}
     animalData[pairName] = {}
     animalData[pairName]['genotype'] = genoPair
     animalData[pairName]["file"] = file
     animalData[pairName]["animal"] = pairName
+    animalData[pairName]['sex'] = sexPair
+    animalData[pairName]['age'] = agePair
     animalData[pairName]["totalDistance"] = "totalDistance"
 
     for animal in pool.animalDictionnary.keys():
@@ -152,6 +165,8 @@ def computeProfilePair(file, minT, maxT, night, text_file):
         animalObject = pool.animalDictionnary[animal]
         animalData[rfid]["file"] = file
         animalData[rfid]['genotype'] = pool.animalDictionnary[animal].genotype
+        animalData[rfid]['sex'] = pool.animalDictionnary[animal].sex
+        animalData[rfid]['age'] = pool.animalDictionnary[animal].age
 
         #compute the profile for single behaviours
         for behavEvent in behaviouralEventOneMouseSingle:
@@ -883,7 +898,7 @@ if __name__ == '__main__':
                     maxT = tmax
                     n = 0
                     #Compute profile2 data and save them in a text file
-                    profileData[file][n] = computeProfilePair(file = file, minT=minT, maxT=maxT, night=n, text_file=text_file)
+                    profileData[file][n] = computeProfilePair(file = file, minT=minT, maxT=maxT)
                     text_file.write( "\n" )
                     # Create a json file to store the computation
                     with open("profile_data_pair_{}.json".format('no_night'), 'w') as fp:
@@ -900,13 +915,13 @@ if __name__ == '__main__':
                         maxT = eventNight.endFrame
                         print("Night: ", n)
                         #Compute profile2 data and save them in a text file
-                        profileData[file][n] = computeProfilePair(file=file, minT=minT, maxT=maxT, night=n, text_file=text_file)
+                        profileData[file][n] = computeProfilePair(file=file, minT=minT, maxT=maxT)
                         text_file.write( "\n" )
                         n+=1
                         print("Profile data saved.")
 
                     # Create a json file to store the computation
-                    with open("profile_data_pair_{}.json".format('over_night'), 'w') as fp:
+                    with open("profile_data_pair_s3_S3_{}.json".format('over_night'), 'w') as fp:
                         json.dump(profileData, fp, indent=4)
                     print("json file with profile measurements created.")
 
