@@ -19,7 +19,7 @@ import matplotlib.patches as mpatches
 from tkinter.filedialog import askopenfilename
 from lmtanalysis.Util import getMinTMaxTAndFileNameInput
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
-from lmtanalysis.FileUtil import getFilesToProcess, getJsonFileToProcess
+from lmtanalysis.FileUtil import *
 from lmtanalysis.Util import getFileNameInput, getStarsFromPvalues
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
@@ -443,7 +443,7 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
 
     sns.stripplot(sex, y, hue=x, hue_order=[genotypeType[1], genotypeType[0]], jitter=True, color='black', s=5,
                   dodge=True, ax=ax)
-    ax.set_title(behavEvent, fontsize=14)
+    #ax.set_title(behavEvent, fontsize=14)
     ax.xaxis.set_tick_params(direction="in")
     ax.tick_params(axis='x', labelsize=14)
     ax.yaxis.set_tick_params(direction="in")
@@ -454,6 +454,8 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
         ylabel = 'occurrences'
     if valueCat == ' MeanDur':
         ylabel = 'mean duration (s)'
+    elif valueCat == '':
+        ylabel = event+' (m)'
     ax.set_ylabel(ylabel, fontsize=14)
     ax.legend().set_visible(False)
     ax.spines['right'].set_visible(False)
@@ -468,6 +470,7 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
     # Mixed model: variable to explain: value; fixed factor = genotype; random effect: group
     dataDict = {'value': y, 'sex': sex, 'genotype': x, 'group': group}
     dfDataBothSexes = pd.DataFrame(dataDict)
+    n = 0
     for sexClass in ['male', 'female']:
         dfData = dfDataBothSexes[dfDataBothSexes['sex'] == sexClass]
         # create model:
@@ -480,10 +483,10 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
         text_file.write('{} {} {}'.format(behavEvent, valueCat, sexClass))
         text_file.write(result.summary().as_text())
         text_file.write('\n')
-    #add manually p-values on the plot
-    ax.text(0, max(y) + 0.1 * (max(y)-min(y)), getStarsFromPvalues(pM, 1), fontsize=16, horizontalalignment='center', color='black', weight='bold')
-    ax.text(1, max(y) + 0.1 * (max(y)-min(y)), getStarsFromPvalues(pF, 1), fontsize=16, horizontalalignment='center', color='black', weight='bold')
-
+        p, sign = extractPValueFromLMMResult(result=result, keyword='WT')
+        #add p-values on the plot
+        ax.text(n, max(y) + 0.1 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=20, horizontalalignment='center', color='black', weight='bold')
+        n += 1
 
 def plotProfileDataDurationPairs(profileData, night, valueCat):
     fig, axes = plt.subplots(nrows=3, ncols=6, figsize=(14, 12))
@@ -660,7 +663,7 @@ def testProfileDataPairs(profileData=None, night=0, eventListSocial=None, eventL
         text_file.write('\n')
 
 
-def mergeProfileOverNights( profileData, categoryList ):
+def mergeProfileOverNights( profileData, categoryList, behaviouralEventOneMouse ):
     #merge data from the different nights
     mergeProfile = {}
     for file in profileData.keys():
@@ -672,6 +675,7 @@ def mergeProfileOverNights( profileData, categoryList ):
             mergeProfile[file]['all nights'][rfid]['animal'] = profileData[file][nightList[0]][rfid]['animal']
             mergeProfile[file]['all nights'][rfid]['genotype'] = profileData[file][nightList[0]][rfid]['genotype']
             mergeProfile[file]['all nights'][rfid]['file'] = profileData[file][nightList[0]][rfid]['file']
+            mergeProfile[file]['all nights'][rfid]['sex'] = profileData[file][nightList[0]][rfid]['sex']
             for cat in categoryList:
                 traitList = [trait+cat for trait in behaviouralEventOneMouse[:-2]]
                 for event in traitList:
@@ -1100,7 +1104,7 @@ if __name__ == '__main__':
             print("json file for profile data re-imported.")
             categoryList = [' TotalLen', ' Nb', ' MeanDur']
 
-            mergeProfile = mergeProfileOverNights( profileData=profileData, categoryList=categoryList )
+            mergeProfile = mergeProfileOverNights( profileData=profileData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
             #If the profiles are computed over the nights separately as in the original json file:
             #dataToUse = profileData
             #If the profiles are computed over the merged nights:

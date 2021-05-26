@@ -13,6 +13,7 @@ from lmtanalysis.Util import *
 from lmtanalysis.Measure import *
 from matplotlib import patches
 from scipy import stats
+import seaborn as sns
 
 
 def getStartTestPhase(pool):
@@ -110,6 +111,137 @@ def buildFigTrajectoryMalesFemales(files, tmin, tmax, figName, colorSap, title, 
     figF.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
     figF.savefig('{}_females.pdf'.format(figName), dpi=200)
 
+def getColorGeno(geno):
+    if geno == 'WT':
+        color = 'steelblue'
+    else:
+        color = 'darkorange'
+    return color
+
+
+def plotVariablesHabituationNor(col, axes, sexList, genoList, data, val, unitDic, yMinDic, yMaxDic ):
+    # reformate the data dictionary to get the correct format of data for plotting and statistical analyses
+    dataVal = {}
+    for sex in sexList:
+        dataVal[sex] = {}
+        for geno in genoList:
+            dataVal[sex][geno] = []
+            for rfid in data[val][sex][geno].keys():
+                dataVal[sex][geno].append(data[val][sex][geno][rfid])
+
+    ax = axes[col]
+    yLabel = '{} ({})'.format(val, unitDic[val])
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    xIndex = [1, 2, 4, 5]
+    ax.set_xticks(xIndex)
+    ax.set_xticklabels(genoList+genoList, rotation=0, fontsize=14, horizontalalignment='center')
+    ax.set_ylabel(yLabel, fontsize=16)
+    ax.legend().set_visible(False)
+    ax.xaxis.set_tick_params(direction="in")
+    ax.set_xlim(0, 6)
+    ax.set_ylim(yMinDic[val], yMaxDic[val])
+    ax.tick_params(axis='y', labelsize=14)
+    ax.text(1.5, yMaxDic[val] , sexList[0]+'s', horizontalalignment= 'center', fontsize=16)
+    ax.text(4.5, yMaxDic[val] , sexList[1]+'s', horizontalalignment='center', fontsize=16)
+
+    # compute the mean and the standard error of mean
+    mean = {}
+    sem = {}
+    for sex in sexList:
+        mean[sex] = {}
+        sem[sex] = {}
+        for geno in genoList:
+            mean[sex][geno] = np.mean(dataVal[sex][geno])
+            sem[sex][geno] = np.std(dataVal[sex][geno]) / np.sqrt(len(dataVal[sex][geno]))
+
+    # plot the points for each value:
+    n = 0
+    for sex in sexList:
+        for geno in genoList:
+            ax.scatter(addJitter([xIndex[n]] * len(dataVal[sex][geno]), 0.2), dataVal[sex][geno], color=getColorGeno(geno), alpha=0.8,
+                       label="on", s=8)
+
+            n += 1
+
+    # plot the mean and SEM on the graphs:
+    ax.errorbar(xIndex,
+                [mean['male']['WT'], mean['male']['Del/+'], mean['female']['WT'], mean['female']['Del/+']],
+                [sem['male']['WT'], sem['male']['Del/+'], sem['female']['WT'], sem['female']['Del/+']], color='black',
+                linestyle='None', marker='o')
+
+    # conduct statistical testing: Mann-Whitney U test (non-parametric for non normal data with small sample size):
+    xPos = {'male': 1.5, 'female': 4.5}
+    for sex in sexList:
+        try:
+            U, p = stats.mannwhitneyu(dataVal[sex]['WT'], dataVal[sex]['Del/+'])
+            print('Mann-Whitney U-test for {} in {}: U={}, p={}'.format(val, sex, U, p))
+            ax.text(xPos[sex], yMaxDic[val] - 0.1 * (yMaxDic[val]-yMinDic[val]),
+                    getStarsFromPvalues(pvalue=p, numberOfTests=1), horizontalalignment='center',fontsize=20)
+        except:
+            print('stats problem!')
+            continue
+
+
+def plotVariablesHabituationNorBoxplots(ax, sexList, genoList, data, val, unitDic, yMinDic, yMaxDic ):
+    # reformate the data dictionary to get the correct format of data for plotting and statistical analyses
+    dataVal = {}
+    for sex in sexList:
+        dataVal[sex] = {}
+        for geno in genoList:
+            dataVal[sex][geno] = []
+            for rfid in data[val][sex][geno].keys():
+                dataVal[sex][geno].append(data[val][sex][geno][rfid])
+
+    dic = {'geno' : [], 'sex' : [], 'val': [], 'variable': []}
+    for sex in sexList:
+        for geno in genoList:
+            dic['variable'].extend( [val] * len(dataVal[sex][geno]) )
+            dic['val'].extend(dataVal[sex][geno])
+            dic['sex'].extend( [sex] * len(dataVal[sex][geno]) )
+            dic['geno'].extend( [geno] * len(dataVal[sex][geno]) )
+
+    df = pd.DataFrame.from_dict(dic)
+    print(df)
+
+    ax.set_ylim(yMinDic[val], yMaxDic[val])
+
+    bp = sns.boxplot(data=df, x='sex', y='val', hue='geno', hue_order=genoList, ax=ax, linewidth=0.5, showmeans=True,
+                     meanprops={"marker": 'o',
+                                "markerfacecolor": 'white',
+                                "markeredgecolor": 'black',
+                                "markersize": '8'}, showfliers=False, width=0.8, dodge=True)
+    # Add transparency to colors
+    '''for patch in bp.artists:
+        r, g, b, a = patch.get_facecolor()
+        patch.set_facecolor((r, g, b, .7))'''
+
+    sns.stripplot(data=df, x='sex', y='val', hue='geno', hue_order=genoList, jitter=True, color='black', s=5,
+                  dodge=True, ax=ax)
+    #ax.set_title(val, fontsize=14)
+    ax.xaxis.set_tick_params(direction="in")
+    ax.tick_params(axis='x', labelsize=14)
+    ax.yaxis.set_tick_params(direction="in")
+    ax.tick_params(axis='y', labelsize=12)
+    ylabel = '{} ({})'.format(val, unitDic[val])
+    ax.set_ylabel(ylabel, fontsize=14)
+    ax.set_xlabel('', fontsize=14)
+    ax.legend().set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+    # conduct statistical testing: Mann-Whitney U test (non-parametric for non normal data with small sample size):
+    xPos = {'male': 0, 'female': 1}
+    for sex in sexList:
+        try:
+            U, p = stats.mannwhitneyu(list(df['val'][(df['sex']==sex) & (df['geno']==genoList[0])]), list(df['val'][(df['sex']==sex) & (df['geno']==genoList[1])]))
+            print('Mann-Whitney U-test for {} in {}: U={}, p={}'.format(val, sex, U, p))
+            ax.text(xPos[sex], yMaxDic[val] - 0.1 * (yMaxDic[val]-yMinDic[val]),
+                    getStarsFromPvalues(pvalue=p, numberOfTests=1), horizontalalignment='center', fontsize=20, weight='bold')
+        except:
+            print('stats problem!')
+            continue
+
 
 if __name__ == '__main__':
 
@@ -127,11 +259,21 @@ if __name__ == '__main__':
     unitDic = {'totDistance': 'cm', 'centerDistance': 'cm', 'centerTime': 's', 'nbSap': 'occurrences', 'rearTotal Nb': 'occurrences', 'rearTotal Duration': 's',
                     'rearCenter Nb': 'occurrences', 'rearCenter Duration': 's', 'rearPeriphery Nb': 'occurrences', 'rearPeriphery Duration': 's'}
 
+    yMinDic = {'totDistance': 4000, 'centerDistance': 0, 'centerTime': 0, 'nbSap': 0,
+               'rearTotal Nb': 0, 'rearTotal Duration': 0,
+               'rearCenter Nb': 0, 'rearCenter Duration': 0, 'rearPeriphery Nb': 0,
+               'rearPeriphery Duration': 0}
+
+    yMaxDic = {'totDistance': 9000, 'centerDistance': 2400, 'centerTime': 450, 'nbSap': 50,
+               'rearTotal Nb': 900, 'rearTotal Duration': 150,
+               'rearCenter Nb': 200, 'rearCenter Duration': 25, 'rearPeriphery Nb': 600,
+               'rearPeriphery Duration': 140}
+
     while True:
         question = "Do you want to:"
         question += "\n\t [r]ebuild all events?"
         question += "\n\t [ph]lot trajectories in the habituation phase?"
-        question += "\n\t [c]ompute the distance travelled in the habituation phase?"
+        question += "\n\t [p] plot the distance and anxiety measures in the habituation phase?"
         question += "\n"
         answer = input(question)
 
@@ -212,7 +354,7 @@ if __name__ == '__main__':
 
             break
 
-        if answer == 'c':
+        if answer == 'p':
 
             # open the json file
             jsonFileName = "habituationDay1.json"
@@ -220,67 +362,23 @@ if __name__ == '__main__':
                 data = json.load(json_data)
             print("json file re-imported.")
 
+            sexList = ['male', 'female']
+            genoList = ['WT', 'Del/+']
+
+
             fig, axes = plt.subplots(nrows=1, ncols=len(variableList), figsize=(4*len(variableList), 4)) #create the figure for the graphs of the computation
 
             col = 0 #initialise the column number
-            #reformate the data dictionary to get the correct format of data for plotting and statistical analyses
+
             for val in variableList:
-                dataVal = {}
-                for sex in ['male', 'female']:
-                    dataVal[sex] = {}
-                    for geno in ['WT', 'Del/+']:
-                        dataVal[sex][geno] = []
-                        for rfid in data[val][sex][geno].keys():
-                            dataVal[sex][geno].append(data[val][sex][geno][rfid])
+                plotVariablesHabituationNorBoxplots(ax=axes[col], sexList=sexList, genoList=genoList, data=data, val=val, unitDic=unitDic, yMinDic=yMinDic, yMaxDic=yMaxDic)
 
-                ax = axes[col]
-                yLabel = '{} ({})'.format( val, unitDic[val])
-                ax.spines['top'].set_visible(False)
-                ax.spines['right'].set_visible(False)
-                xIndex = [1, 2, 4, 5]
-                ax.set_xticks(xIndex)
-                ax.set_xticklabels(['WT', 'Del/+', 'WT', 'Del/+'], rotation=0, FontSize=12, horizontalalignment='center')
-                ax.set_ylabel(yLabel, FontSize=15)
-                ax.legend().set_visible(False)
-                ax.xaxis.set_tick_params(direction="in")
-                ax.set_xlim(0, 6)
-                #ax.set_ylim(0, 60)
-                ax.tick_params(axis='y', labelsize=14)
-                #ax.text([1.5, 4.5], [min(dataVal['male']['WT']), min(dataVal['female']['WT'])], ['males', 'females'], fontsize=16)
-
-                
-                #compute the mean and the standard error of mean
-                mean = {}
-                sem = {}
-                for sex in ['male', 'female']:
-                    mean[sex] = {}
-                    sem[sex] = {}
-                    for geno in ['WT', 'Del/+']:
-                        mean[sex][geno] = np.mean(dataVal[sex][geno])
-                        sem[sex][geno] = np.std(dataVal[sex][geno])/ np.sqrt(len(dataVal[sex][geno]))
-
-                #plot the points for each value:
-                ax.scatter(addJitter([1] * len(dataVal['male']['WT']), 0.2), dataVal['male']['WT'], color='steelblue', alpha=0.8, label="on", s=8)
-                ax.scatter(addJitter([2] * len(dataVal['male']['Del/+']), 0.2), dataVal['male']['Del/+'], color='darkorange', alpha=0.8, label="on", s=8)
-                ax.scatter(addJitter([4] * len(dataVal['female']['WT']), 0.2), dataVal['female']['WT'], color='steelblue', alpha=0.8, label="on", s=8)
-                ax.scatter(addJitter([5] * len(dataVal['female']['Del/+']), 0.2), dataVal['female']['Del/+'], color='darkorange', alpha=0.8, label="on", s=8)
-
-                #plot the mean and SEM on the graphs:
-                ax.errorbar([1,2, 4,5], [mean['male']['WT'], mean['male']['Del/+'], mean['female']['WT'], mean['female']['Del/+']], [sem['male']['WT'], sem['male']['Del/+'], sem['female']['WT'], sem['female']['Del/+']], color='black', linestyle='None', marker='o')
-
-                #conduct statistical testing: Mann-Whitney U test (non-parametric for non normal data with small sample size):
-                xPos = {'male': 1.5, 'female': 4.5}
-                for sex in ['male', 'female']:
-                    try:
-                        U, p = stats.mannwhitneyu( dataVal[sex]['WT'] , dataVal[sex]['Del/+'])
-                        print('Mann-Whitney U-test for {} in {}: U={}, p={}'.format(val, sex, U, p))
-                        ax.text(xPos[sex], max(max(dataVal[sex]['WT']), max(dataVal[sex]['Del/+'])), getStarsFromPvalues(pvalue=p, numberOfTests=1), fontsize=16)
-                    except:
-                        continue
                 col += 1
 
-            plt.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
+            #plt.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
+            plt.tight_layout()
             plt.show()  # display the plot
             fig.savefig('fig_values_hab_nor.pdf', dpi=200)
+            print('Job done.')
             break
 

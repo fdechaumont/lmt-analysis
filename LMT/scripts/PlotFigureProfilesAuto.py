@@ -272,7 +272,7 @@ if __name__ == '__main__':
             break
 
         if answer == "pfigpair":
-            text_file = getFileNameInput()
+            #text_file = getFileNameInput()
             #fix the night:
             n = 1
             file = getJsonFileToProcess()
@@ -350,7 +350,7 @@ if __name__ == '__main__':
 
             print ("Plots saved as pdf and analyses saved in text file.")
 
-            text_file.close()
+            #text_file.close()
             break
 
 
