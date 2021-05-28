@@ -179,20 +179,44 @@ if __name__ == '__main__':
             print("json files for profile data re-imported.")
             #Plot fig and save it in a pdf file
 
-            letter = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
+            letter = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 
             fig, axes = plt.subplots(nrows=2, ncols=5, figsize=(20, 9))
             k = 0
-
-            # plot the data for each behavioural event
-            #Fig 1A
+            #insert figure for database extraction
             row = 0
             col = 0
+            ax = axes[row, col]
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.spines['left'].set_visible(False)
+            ax.spines['bottom'].set_visible(False)
+            ax.set_xlim(0, 1)
+            ax.set_ylim(0, 1)
+            ax.set_xticklabels([])
+            ax.set_yticklabels([])
+            ax.tick_params(bottom=False, left=False)
+            ax.patch.set_facecolor('white')
+
+            imgPos = (0.5, 0.5)
+            image = 'img_lmt_db_player.jpg'
+            behavSchema = mpimg.imread(image)
+            imgBox = OffsetImage(behavSchema, zoom=0.4)
+            imageBox = AnnotationBbox(imgBox, imgPos, frameon=False)
+            ax.add_artist(imageBox)
+
+            ax.text(-0.1, 1.06, letter[k], fontsize=20, horizontalalignment='center', color='black', weight='bold')
+            k += 1
+
+            # plot the data for each behavioural event
+            #Fig 1B
+            row = 0
+            col = 1
             behavEvent = 'Contact'
             valueCatEvent = ' TotalLen'
             image = 'img_cct.jpg'
-            imgPos = (0.5, 24000)
-            zoom = 0.4
+            imgPos = (0.5, 23000)
+            zoom = 0.7
             ax = axes[row, col]
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
@@ -201,123 +225,141 @@ if __name__ == '__main__':
             delPatch = mpatches.Patch(edgecolor='black', facecolor='darkorange', label='Del/+-Del/+')
             handles = [wtPatch, delPatch]
             ax.legend(handles=handles, loc=(0.02, 0.1)).set_visible(True)
-            k += 1
-
-            # Fig 1B
-            row = 0
-            col = 1
-            behavEvent = 'Oral-oral Contact'
-            valueCatEvent = ' Nb'
-            image='img_nose-nose.jpg'
-            imgPos = (0.5, 19000)
-            zoom = 0.4
-            ax = axes[row, col]
-            singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
-                                               valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
-                                               letter=letter[k], text_file=text_file, image=image, imgPos=imgPos, zoom=zoom)
+            ax.set_title("contact", fontsize=16)
+            ax.set_xticklabels(['males', 'femelles'], fontsize=14)
             k += 1
 
             # Fig 1C
             row = 0
             col = 2
-            behavEvent = 'Oral-genital Contact'
+            behavEvent = 'Oral-oral Contact'
             valueCatEvent = ' Nb'
-            image = 'img_nose-anogenital.jpg'
-            imgPos = (0.5, 19500)
-            zoom = 0.4
+            image='img_nose-nose.jpg'
+            imgPos = (0.5, 18000)
+            zoom = 0.6
             ax = axes[row, col]
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
                                                letter=letter[k], text_file=text_file, image=image, imgPos=imgPos, zoom=zoom)
+            ax.set_title("contact nez-nez", fontsize=16)
+            ax.set_xticklabels(['males', 'femelles'], fontsize=14)
             k += 1
 
             # Fig 1D
             row = 0
             col = 3
-            behavEvent = 'Side by side Contact'
+            behavEvent = 'Oral-genital Contact'
             valueCatEvent = ' Nb'
-            image = 'img_side-side.jpg'
-            imgPos = (0.5, 18000)
-            zoom = 0.4
+            image = 'img_nose-anogenital.jpg'
+            imgPos = (0.5, 18500)
+            zoom = 0.65
             ax = axes[row, col]
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
                                                letter=letter[k], text_file=text_file, image=image, imgPos=imgPos, zoom=zoom)
+            ax.set_title("contact nez-anogenital", fontsize=16)
+            ax.set_xticklabels(['males', 'femelles'], fontsize=14)
             k += 1
 
             # Fig 1E
             row = 0
             col = 4
-            behavEvent = 'Side by side Contact, opposite way'
+            behavEvent = 'Side by side Contact'
             valueCatEvent = ' Nb'
-            image = 'img_side-side_opp.jpg'
-            imgPos = (0.5, 17500)
-            zoom = 0.2
+            image = 'img_side-side.jpg'
+            imgPos = (0.5, 17000)
+            zoom = 0.65
             ax = axes[row, col]
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
-                                               letter=letter[k], text_file=text_file, image=image, imgPos=imgPos,
-                                               zoom=zoom)
+                                               letter=letter[k], text_file=text_file, image=image, imgPos=imgPos, zoom=zoom)
+
+            ax.set_title("contact cote-a-cote", fontsize=16)
+            ax.set_xticklabels(['males', 'femelles'], fontsize=14)
             k += 1
 
             # Fig 1F
             row = 1
             col = 0
-            behavEvent = 'Social approach'
+            behavEvent = 'Side by side Contact, opposite way'
             valueCatEvent = ' Nb'
-            image = 'img_soc_app.jpg'
-            imgPos = (0.5, 95000)
-            zoom = 0.2
+            image = 'img_side-side_opp.jpg'
+            imgPos = (0.5, 16000)
+            zoom = 0.4
             ax = axes[row, col]
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
-                                               letter=letter[k], text_file=text_file, image=image, imgPos=imgPos, zoom=zoom)
+                                               letter=letter[k], text_file=text_file, image=image, imgPos=imgPos,
+                                               zoom=zoom)
+            ax.set_title("contact cote-a-cote, tete beche", fontsize=16)
+            ax.set_xticklabels(['males', 'femelles'], fontsize=14)
             k += 1
 
             # Fig 1G
             row = 1
             col = 1
-            behavEvent = 'Approach contact'
+            behavEvent = 'Social approach'
             valueCatEvent = ' Nb'
-            image = 'img_app_cct.jpg'
-            imgPos = (0.5, 85000)
-            zoom = 0.3
+            image = 'img_soc_app.jpg'
+            imgPos = (0.5, 90000)
+            zoom = 0.38
             ax = axes[row, col]
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
-                                               letter=letter[k], text_file=text_file, image=image,
-                                               imgPos=imgPos, zoom=zoom)
+                                               letter=letter[k], text_file=text_file, image=image, imgPos=imgPos, zoom=zoom)
+            ax.set_title("approche", fontsize=16)
+            ax.set_xticklabels(['males', 'femelles'], fontsize=14)
             k += 1
 
             # Fig 1H
             row = 1
             col = 2
-            behavEvent = 'Get away'
-            valueCatEvent = ' TotalLen'
-            image = 'img_getaway.jpg'
-            imgPos = (0.5, 12000)
-            zoom = 0.2
+            behavEvent = 'Approach contact'
+            valueCatEvent = ' Nb'
+            image = 'img_app_cct.jpg'
+            imgPos = (0.5, 80000)
+            zoom = 0.5
             ax = axes[row, col]
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
                                                letter=letter[k], text_file=text_file, image=image,
                                                imgPos=imgPos, zoom=zoom)
+            ax.set_title("approche avant contact", fontsize=16)
+            ax.set_xticklabels(['males', 'femelles'], fontsize=14)
             k += 1
 
             # Fig 1I
             row = 1
             col = 3
-            behavEvent = 'Break contact'
+            behavEvent = 'Get away'
             valueCatEvent = ' TotalLen'
-            image = 'img_break_cct.jpg'
-            imgPos = (0.5, 1900)
-            zoom = 0.2
+            image = 'img_getaway.jpg'
+            imgPos = (0.5, 11500)
+            zoom = 0.4
             ax = axes[row, col]
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
                                                letter=letter[k], text_file=text_file, image=image,
                                                imgPos=imgPos, zoom=zoom)
+            ax.set_title("echappement", fontsize=16)
+            ax.set_xticklabels(['males', 'femelles'], fontsize=14)
+            k += 1
 
+            # Fig 1J
+            row = 1
+            col = 4
+            behavEvent = 'Break contact'
+            valueCatEvent = ' TotalLen'
+            image = 'img_break_cct.jpg'
+            imgPos = (0.5, 1900)
+            zoom = 0.35
+            ax = axes[row, col]
+            singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
+                                               valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
+                                               letter=letter[k], text_file=text_file, image=image,
+                                               imgPos=imgPos, zoom=zoom)
+            ax.set_title("rupture de contact", fontsize=16)
+            ax.set_xticklabels(['males', 'femelles'], fontsize=14)
 
             fig.tight_layout()
             fig.show()
