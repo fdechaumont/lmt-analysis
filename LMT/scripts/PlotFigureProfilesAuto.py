@@ -201,7 +201,7 @@ if __name__ == '__main__':
             imgPos = (0.5, 0.5)
             image = 'img_lmt_db_player.jpg'
             behavSchema = mpimg.imread(image)
-            imgBox = OffsetImage(behavSchema, zoom=0.4)
+            imgBox = OffsetImage(behavSchema, zoom=0.47)
             imageBox = AnnotationBbox(imgBox, imgPos, frameon=False)
             ax.add_artist(imageBox)
 
