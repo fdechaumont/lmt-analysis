@@ -204,13 +204,14 @@ def plotVariablesHabituationNorBoxplots(ax, sexList, genoList, data, val, unitDi
     df = pd.DataFrame.from_dict(dic)
     print(df)
 
-    ax.set_ylim(yMinDic[val], yMaxDic[val])
+
 
     bp = sns.boxplot(data=df, x='sex', y='val', hue='geno', hue_order=genoList, ax=ax, linewidth=0.5, showmeans=True,
                      meanprops={"marker": 'o',
                                 "markerfacecolor": 'white',
                                 "markeredgecolor": 'black',
                                 "markersize": '8'}, showfliers=False, width=0.8, dodge=True)
+
     # Add transparency to colors
     '''for patch in bp.artists:
         r, g, b, a = patch.get_facecolor()
@@ -226,6 +227,7 @@ def plotVariablesHabituationNorBoxplots(ax, sexList, genoList, data, val, unitDi
     ylabel = '{} ({})'.format(val, unitDic[val])
     ax.set_ylabel(ylabel, fontsize=14)
     ax.set_xlabel('', fontsize=14)
+    ax.set_ylim(yMinDic[val], yMaxDic[val])
     ax.legend().set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)

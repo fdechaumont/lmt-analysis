@@ -94,6 +94,20 @@ def getStarsFromPvalues(pvalue, numberOfTests):
 
     return stars
 
+def extractPValueFromLMMResult( result, keyword ):
+    r = result.summary().as_text()
+    for l in r.split("\n"):
+        if keyword in l:
+            print (l)
+            lineWithoutSpace = ' '.join(l.split())
+            pValue = float( lineWithoutSpace.split(" ")[4] )
+            sign = 1
+            print( "test: " , lineWithoutSpace.split(" ")[1] )
+            if float( lineWithoutSpace.split(" ")[1] ) < 0:
+                sign=-1
+            print ( "P VALUE :" , pValue )
+            print ( "SIGN :" , sign )
+            return pValue, sign
 
 class TestFileUtil ( unittest.TestCase ):
     
