@@ -75,6 +75,7 @@ if __name__ == '__main__':
                                                     val=val, unitDic=unitDic, yMinDic=yMinDic, yMaxDic=yMaxDic)
                 axes[col].text(-1, yMaxDic[val] + 0.05 * (yMaxDic[val] - yMinDic[val]), letter[col], fontsize=20, horizontalalignment='center',
                         color='black', weight='bold')
+                axes[col].set_xticklabels(['males', 'femelles'], fontsize=14)
 
                 col += 1
             #Add the legend manually
@@ -83,11 +84,11 @@ if __name__ == '__main__':
             handles = [wtPatch, delPatch]
             axes[0].legend(handles=handles, loc='lower right').set_visible(True)
             axes[0].set_ylabel('distance totale 15min hab (cm)', fontsize=16)
-            axes[0].set_title('15 min habituation', fontsize=16)
+            axes[0].set_title('openfield 15 min', fontsize=16)
             axes[1].set_ylabel('distance parcourue au centre (cm)', fontsize=16)
-            axes[1].set_title('15 min habituation', fontsize=16)
+            axes[1].set_title('openfield 15 min', fontsize=16)
             axes[2].set_ylabel('temps passe au centre (s)', fontsize=16)
-            axes[2].set_title('15 min habituation', fontsize=16)
+            axes[2].set_title('openfield 15 min', fontsize=16)
 
             #Activity during the long term group monitoring
             # fix the night:
@@ -127,12 +128,14 @@ if __name__ == '__main__':
             behavEvent = 'totalDistance'
             valueCatEvent = ''
             imgPos = (0.5, 12000)
+            zoom = 0.25
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[col],
                                                letter=letter[col], text_file=text_file,
-                                               image='img_moving.jpg', imgPos=imgPos)
+                                               image='img_moving.jpg', imgPos=imgPos, zoom=zoom)
             axes[col].set_ylabel('distance totale (m)', fontsize=16)
             axes[col].set_title('3 nuits en groupe', fontsize=16)
+            axes[col].set_xticklabels(['males', 'femelles'], fontsize=14)
 
             # plt.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
             plt.tight_layout()
@@ -167,6 +170,7 @@ if __name__ == '__main__':
                                                     val=val, unitDic=unitDic, yMinDic=yMinDic, yMaxDic=yMaxDic)
                 axes[row][col].text(-1, yMaxDic[val] + 0.05 * (yMaxDic[val] - yMinDic[val]), letter[k], fontsize=20, horizontalalignment='center',
                         color='black', weight='bold')
+                axes[row][col].set_xticklabels(['males', 'femelles'], fontsize=14)
 
                 k += 1
 
@@ -178,17 +182,17 @@ if __name__ == '__main__':
             handles = [wtPatch, delPatch]
             axes[0][0].legend(handles=handles, loc=(0.45, 0.6)).set_visible(True)
             axes[0][0].set_ylabel('nombre de SAP', fontsize=16)
-            axes[0][0].set_title('15 min habituation', fontsize=16)
+            axes[0][0].set_title('openfield 15 min', fontsize=16)
             axes[0][1].set_ylabel('nombre de redressements', fontsize=16)
-            axes[0][1].set_title('15 min habituation', fontsize=16)
+            axes[0][1].set_title('openfield 15 min', fontsize=16)
             axes[0][2].set_ylabel('duree totale des redressements', fontsize=16)
-            axes[0][2].set_title('15 min habituation', fontsize=16)
+            axes[0][2].set_title('openfield 15 min', fontsize=16)
 
             # add scale on the plot
             image = 'img_sap.jpg'
             imgPos = (0.5, 47)
             behavSchema = mpimg.imread(image)
-            imgBox = OffsetImage(behavSchema, zoom=0.25)
+            imgBox = OffsetImage(behavSchema, zoom=0.2)
             imageBox = AnnotationBbox(imgBox, imgPos, frameon=False)
             axes[0][0].add_artist(imageBox)
 
@@ -196,7 +200,7 @@ if __name__ == '__main__':
             image = 'img_rearing.jpg'
             imgPos = (0.5, 820)
             behavSchema = mpimg.imread(image)
-            imgBox = OffsetImage(behavSchema, zoom=0.25)
+            imgBox = OffsetImage(behavSchema, zoom=0.2)
             imageBox = AnnotationBbox(imgBox, imgPos, frameon=False)
             axes[0][1].add_artist(imageBox)
 
@@ -204,7 +208,7 @@ if __name__ == '__main__':
             image = 'img_rearing.jpg'
             imgPos = (0.5, 135)
             behavSchema = mpimg.imread(image)
-            imgBox = OffsetImage(behavSchema, zoom=0.25)
+            imgBox = OffsetImage(behavSchema, zoom=0.2)
             imageBox = AnnotationBbox(imgBox, imgPos, frameon=False)
             axes[0][2].add_artist(imageBox)
 
@@ -248,12 +252,14 @@ if __name__ == '__main__':
             behavEvent = 'Rear isolated'
             valueCatEvent = ' Nb'
             imgPos = (0.5, 39000)
+            zoom=0.2
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row][col],
                                                letter=letter[k], text_file=text_file,
-                                               image='img_rearing.jpg', imgPos=imgPos)
+                                               image='img_rearing.jpg', imgPos=imgPos, zoom=zoom)
             axes[row][col].set_ylabel('nombre de redressements', fontsize=16)
             axes[row][col].set_title('3 nuits en groupe', fontsize=16)
+            axes[row][col].set_xticklabels(['males', 'femelles'], fontsize=14)
 
             k += 1
             col += 1
@@ -262,12 +268,14 @@ if __name__ == '__main__':
             behavEvent = 'Rear isolated'
             valueCatEvent = ' TotalLen'
             imgPos = (0.5, 7000)
+            zoom=0.2
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row][col],
                                                letter=letter[k], text_file=text_file,
-                                               image='img_rearing.jpg', imgPos=imgPos)
+                                               image='img_rearing.jpg', imgPos=imgPos, zoom=zoom)
             axes[row][col].set_ylabel('duree totale des redressements', fontsize=16)
             axes[row][col].set_title('3 nuits en groupe', fontsize=16)
+            axes[row][col].set_xticklabels(['males', 'femelles'], fontsize=14)
 
             k += 1
             col += 1
@@ -276,11 +284,13 @@ if __name__ == '__main__':
             behavEvent = 'Rear isolated'
             valueCatEvent = ' MeanDur'
             imgPos = (0.5, 7.7)
+            zoom=0.2
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row][col],
                                                letter=letter[k], text_file=text_file,
-                                               image='img_rearing.jpg', imgPos=imgPos)
+                                               image='img_rearing.jpg', imgPos=imgPos, zoom=zoom)
             axes[row][col].set_ylabel('duree moyenne des redressements', fontsize=16)
+            axes[row][col].set_xticklabels(['males', 'femelles'], fontsize=14)
             axes[row][col].set_title('3 nuits en groupe', fontsize=16)
 
 
