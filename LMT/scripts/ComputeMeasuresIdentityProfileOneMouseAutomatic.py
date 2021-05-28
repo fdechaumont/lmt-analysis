@@ -333,7 +333,7 @@ def singlePlotPerEventProfile(profileData, night, valueCat, behavEvent, ax):
 
 
 
-def singlePlotPerEventProfilePairs(profileData, night, valueCat, behavEvent, ax, image, imgPos):
+def singlePlotPerEventProfilePairs(profileData, night, valueCat, behavEvent, ax, image, imgPos, zoom, letter):
     if behavEvent != 'totalDistance':
         event = behavEvent + valueCat
 
@@ -361,22 +361,24 @@ def singlePlotPerEventProfilePairs(profileData, night, valueCat, behavEvent, ax,
     print("Nb of experiments: ", len(experimentType))
 
     ax.set_xlim(-0.5, 1.5)
-    ax.set_ylim(min(y) - 0.1 * max(y), max(y) + 0.2 * max(y))
-    sns.boxplot(x, y, order=[genotypeType[1], genotypeType[0]], ax=ax, linewidth=0.5, showmeans=True,
+    ax.set_ylim(min(y) - 0.1 * (max(y) - min(y)), max(y) + 0.3 * (max(y) - min(y)))
+    sns.boxplot(x, y, order=[genotypeType[0], genotypeType[1]], ax=ax, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
                            "markersize": '8'}, showfliers=False, width=0.4)
-    sns.stripplot(x, y, order=[genotypeType[1], genotypeType[0]], jitter=True, color='black', hue=group, s=5,
+    sns.stripplot(x, y, order=[genotypeType[0], genotypeType[1]], jitter=True, color='black', hue=group, s=5,
                   ax=ax)
-    ax.set_title( getFigureBehaviouralEventsLabelsFrench(behavEvent) )
+    ax.set_title( getFigureBehaviouralEventsLabelsFrench(behavEvent), y=1.05 )
     ax.set_ylabel("{} (s)".format(valueCat))
     ax.legend().set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
+    ax.text(-1, max(y) + 0.4 * (max(y) - min(y)), letter, fontsize=20, horizontalalignment='center', color='black',
+            weight='bold')
 
     behavSchema = mpimg.imread(image)
-    imgBox = OffsetImage(behavSchema, zoom=0.25)
+    imgBox = OffsetImage(behavSchema, zoom=zoom)
     imageBox = AnnotationBbox(imgBox, imgPos, frameon=False)
     ax.add_artist(imageBox)
 
@@ -389,10 +391,10 @@ def singlePlotPerEventProfilePairs(profileData, night, valueCat, behavEvent, ax,
         print(geno, val[geno])
     W, p = mannwhitneyu(val[genotypeType[0]], val[genotypeType[1]])
     print('Mann-Whitney U test for {}: W={} p={}'.format( behavEvent, W, p ))
-    ax.text(0.5, max(y) - 0.02 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=20, horizontalalignment='center', color='black', weight='bold')
+    ax.text(0.5, max(y) - 0.05 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=20, horizontalalignment='center', color='black', weight='bold')
 
 
-def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueCat, behavEvent, ax, letter, text_file, image, imgPos):
+def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueCat, behavEvent, ax, letter, text_file, image, imgPos, zoom):
     if behavEvent != 'totalDistance':
         event = behavEvent + valueCat
 
@@ -438,9 +440,9 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
     experimentType = Counter(group)
     print("Nb of experiments: ", len(experimentType))
 
-    ax.text(-1, max(y) + 0.4 * (max(y) - min(y)), letter, fontsize=20, horizontalalignment='center', color='black', weight='bold')
-    ax.set_ylim(min(y) - 0.2 * max(y), max(y) + 0.2 * max(y))
-    bp = sns.boxplot(sex, y, hue=x, hue_order=genotypeType.reverse(), ax=ax, linewidth=0.5, showmeans=True,
+    ax.text(-1, max(y) + 0.5 * (max(y) - min(y)), letter, fontsize=20, horizontalalignment='center', color='black', weight='bold')
+    ax.set_ylim(min(y) - 0.2 * (max(y)-min(y)), max(y) + 0.4 * (max(y)-min(y)))
+    bp = sns.boxplot(sex, y, hue=x, hue_order=reversed(genotypeType), ax=ax, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
@@ -450,9 +452,9 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
         r, g, b, a = patch.get_facecolor()
         patch.set_facecolor((r, g, b, .7))'''
 
-    sns.stripplot(sex, y, hue=x, hue_order=genotypeType.reverse(), jitter=True, color='black', s=5,
+    sns.stripplot(sex, y, hue=x, hue_order=reversed(genotypeType), jitter=True, color='black', s=5,
                   dodge=True, ax=ax)
-    #ax.set_title(behavEvent, fontsize=14)
+    ax.set_title(behavEvent, y=1, fontsize=14)
     ax.xaxis.set_tick_params(direction="in")
     ax.tick_params(axis='x', labelsize=14)
     ax.yaxis.set_tick_params(direction="in")
@@ -471,7 +473,7 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
     ax.spines['top'].set_visible(False)
 
     behavSchema = mpimg.imread(image)
-    imgBox = OffsetImage(behavSchema, zoom=0.25)
+    imgBox = OffsetImage(behavSchema, zoom=zoom)
     imageBox = AnnotationBbox(imgBox, imgPos, frameon=False)
     ax.add_artist(imageBox)
 

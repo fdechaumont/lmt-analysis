@@ -179,96 +179,153 @@ if __name__ == '__main__':
             print("json files for profile data re-imported.")
             #Plot fig and save it in a pdf file
 
-            fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(12, 9))
-            fig.suptitle(t="no night", y=1.2, fontweight='bold')
+            letter = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
+
+            fig, axes = plt.subplots(nrows=2, ncols=5, figsize=(20, 9))
+            k = 0
 
             # plot the data for each behavioural event
             #Fig 1A
             row = 0
             col = 0
-            behavEvent = 'Oral-oral Contact'
-            # behavEvent = 'FollowZone Isolated'
-            valueCatEvent = ' Nb'
-            imgPos = (0.5, 17000)
+            behavEvent = 'Contact'
+            valueCatEvent = ' TotalLen'
+            image = 'img_cct.jpg'
+            imgPos = (0.5, 24000)
+            zoom = 0.4
+            ax = axes[row, col]
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
-                                               valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row, col], row=row, col=col,
-                                               letter='A', text_file=text_file, image='img_nose-nose.jpg', imgPos=imgPos)
-            axes[row, col].legend(loc='lower left', fancybox=False, ncol=2).set_visible(True)
+                                               valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
+                                               letter=letter[k], text_file=text_file, image=image, imgPos=imgPos, zoom=zoom)
+            wtPatch = mpatches.Patch(edgecolor='black', facecolor='steelblue', label='WT-WT')
+            delPatch = mpatches.Patch(edgecolor='black', facecolor='darkorange', label='Del/+-Del/+')
+            handles = [wtPatch, delPatch]
+            ax.legend(handles=handles, loc=(0.02, 0.1)).set_visible(True)
+            k += 1
 
             # Fig 1B
             row = 0
             col = 1
-            behavEvent = 'Oral-genital Contact'
+            behavEvent = 'Oral-oral Contact'
             valueCatEvent = ' Nb'
-            imgPos = (0.5, 18000)
+            image='img_nose-nose.jpg'
+            imgPos = (0.5, 19000)
+            zoom = 0.4
+            ax = axes[row, col]
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
-                                               valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row, col], row=row, col=col,
-                                               letter='B', text_file=text_file, image='img_nose-anogenital.jpg', imgPos=imgPos)
+                                               valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
+                                               letter=letter[k], text_file=text_file, image=image, imgPos=imgPos, zoom=zoom)
+            k += 1
 
             # Fig 1C
             row = 0
             col = 2
-            behavEvent = 'Side by side Contact'
-            valueCatEvent = ' TotalLen'
-            imgPos = (0.5, 5400)
+            behavEvent = 'Oral-genital Contact'
+            valueCatEvent = ' Nb'
+            image = 'img_nose-anogenital.jpg'
+            imgPos = (0.5, 19500)
+            zoom = 0.4
+            ax = axes[row, col]
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
-                                               valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row, col],
-                                               letter='C', text_file=text_file, image='img_side-side.jpg', imgPos=imgPos)
+                                               valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
+                                               letter=letter[k], text_file=text_file, image=image, imgPos=imgPos, zoom=zoom)
+            k += 1
 
             # Fig 1D
-            row = 1
-            col = 0
-            behavEvent = 'Contact'
-            valueCatEvent = ' MeanDur'
-            image = 'img_cct.jpg'
-            imgPos = (0.5, 160)
+            row = 0
+            col = 3
+            behavEvent = 'Side by side Contact'
+            valueCatEvent = ' Nb'
+            image = 'img_side-side.jpg'
+            imgPos = (0.5, 18000)
+            zoom = 0.4
+            ax = axes[row, col]
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
-                                               valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row, col],
-                                               letter='D', text_file=text_file, image='img_cct.jpg', imgPos=imgPos)
+                                               valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
+                                               letter=letter[k], text_file=text_file, image=image, imgPos=imgPos, zoom=zoom)
+            k += 1
 
             # Fig 1E
+            row = 0
+            col = 4
+            behavEvent = 'Side by side Contact, opposite way'
+            valueCatEvent = ' Nb'
+            image = 'img_side-side_opp.jpg'
+            imgPos = (0.5, 17500)
+            zoom = 0.2
+            ax = axes[row, col]
+            singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
+                                               valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
+                                               letter=letter[k], text_file=text_file, image=image, imgPos=imgPos,
+                                               zoom=zoom)
+            k += 1
+
+            # Fig 1F
+            row = 1
+            col = 0
+            behavEvent = 'Social approach'
+            valueCatEvent = ' Nb'
+            image = 'img_soc_app.jpg'
+            imgPos = (0.5, 95000)
+            zoom = 0.2
+            ax = axes[row, col]
+            singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
+                                               valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
+                                               letter=letter[k], text_file=text_file, image=image, imgPos=imgPos, zoom=zoom)
+            k += 1
+
+            # Fig 1G
             row = 1
             col = 1
             behavEvent = 'Approach contact'
             valueCatEvent = ' Nb'
-            imgPos = (0.5, 79500)
-            singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n, valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row, col], letter='E', text_file=text_file, image='img_app_cct.jpg', imgPos=imgPos)
+            image = 'img_app_cct.jpg'
+            imgPos = (0.5, 85000)
+            zoom = 0.3
+            ax = axes[row, col]
+            singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
+                                               valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
+                                               letter=letter[k], text_file=text_file, image=image,
+                                               imgPos=imgPos, zoom=zoom)
+            k += 1
 
-            # Fig 1F: USVs
+            # Fig 1H
             row = 1
             col = 2
+            behavEvent = 'Get away'
+            valueCatEvent = ' TotalLen'
+            image = 'img_getaway.jpg'
+            imgPos = (0.5, 12000)
+            zoom = 0.2
+            ax = axes[row, col]
+            singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
+                                               valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
+                                               letter=letter[k], text_file=text_file, image=image,
+                                               imgPos=imgPos, zoom=zoom)
+            k += 1
 
-            df = createDataframeFromJsonNumberUsvPerBurstDiffGeno(jsonFile='dataUsvDescriptionDiffGeno750_16p11.json')
-            dataframe = getDataFramePerSex(df, sex='female')
-            yMinUsv = {'nbUsvBurst': 0}
-            yMaxUsv = {'nbUsvBurst': 50}
-            strainListShort = ['B6C3B16p11.2']
-            genoList = ['WT-WT', 'Del/+-Del/+']
+            # Fig 1I
+            row = 1
+            col = 3
+            behavEvent = 'Break contact'
+            valueCatEvent = ' TotalLen'
+            image = 'img_break_cct.jpg'
+            imgPos = (0.5, 1900)
+            zoom = 0.2
+            ax = axes[row, col]
+            singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
+                                               valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
+                                               letter=letter[k], text_file=text_file, image=image,
+                                               imgPos=imgPos, zoom=zoom)
 
-            plotNumberUsvPerBurstBoxplotDiffGeno(ax=axes[row,col], dataframe=dataframe, yMinUsv=yMinUsv,
-                                                 yMaxUsv=yMaxUsv, letter='F', strain=strainListShort[0], sex='female',
-                                                 genoList=genoList)
-
-            # create model:
-            print('nbUsvBurst')
-            model = smf.mixedlm("nbUsvBurst ~ geno", dataframe, groups=dataframe['pair'])
-            # run model:
-            result = model.fit()
-            # print summary
-            print(result.summary())
-            text_file.write('{} {}'.format('females', 'number of USV per burst'))
-            text_file.write(result.summary().as_text())
-            text_file.write('\n')
-            p = 0.006
-            axes[row,col].text(0.5, yMaxUsv['nbUsvBurst'] - 0.06 * (yMaxUsv['nbUsvBurst'] - yMinUsv['nbUsvBurst']),
-                    getStarsFromPvalues(p, 1), FontSize=16, horizontalalignment='center', color='black', weight='bold')
 
             fig.tight_layout()
-            fig.savefig("FigSimple_Profile_Events_night_{}.pdf".format(n), dpi=100)
+            fig.show()
+            fig.savefig("FigSimple_Profile_Events_3d_both_sexes.pdf", dpi=300)
             plt.close(fig)
 
 
-            print ("Plots saved as pdf and analyses saved in text file.")
+            print ("Plots saved as pdf.")
 
             text_file.close()
             break
@@ -365,7 +422,8 @@ if __name__ == '__main__':
 
             print("json file for profile data re-imported.")
             #Plot fig and save it in a pdf file
-
+            letter = ['A', 'B', 'C', 'D', 'E', 'F']
+            k = 0
             fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(12, 8))
 
             # plot the data for each behavioural event
@@ -376,13 +434,14 @@ if __name__ == '__main__':
             behavEvent = 'Train2'
             valueCatEvent = ' Nb'
             image = 'img_train2.jpg'
-            imgPos = (0.5, 30)
-            singlePlotPerEventProfilePairs(profileData=profileData, night=n, valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row, col], image=image, imgPos=imgPos)
+            imgPos = (0.5, 36)
+            singlePlotPerEventProfilePairs(profileData=profileData, night=n, valueCat=valueCatEvent, behavEvent=behavEvent, letter=letter[k], ax=axes[row, col], image=image, imgPos=imgPos, zoom=0.20)
             axes[row, col].set_ylabel("nombre d'occurrences", fontsize=16)
             wtPatch = mpatches.Patch(edgecolor='black', facecolor='steelblue', label='WT-WT')
             delPatch = mpatches.Patch(edgecolor='black', facecolor='darkorange', label='Del/+-Del/+')
             handles = [wtPatch, delPatch]
             axes[row, col].legend(handles=handles, loc=(0.02, 0.1)).set_visible(True)
+            k += 1
 
             # Fig 1B
             n = 2
@@ -391,9 +450,10 @@ if __name__ == '__main__':
             behavEvent = 'Contact'
             valueCatEvent = ' TotalLen'
             image = 'img_cct.jpg'
-            imgPos = (0.5, 30)
-            singlePlotPerEventProfilePairs(profileData=profileData, night=n, valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row, col], image=image, imgPos=imgPos)
+            imgPos = (0.5, 11100)
+            singlePlotPerEventProfilePairs(profileData=profileData, night=n, valueCat=valueCatEvent, behavEvent=behavEvent, letter=letter[k], ax=axes[row, col], image=image, imgPos=imgPos, zoom=0.36)
             axes[row, col].set_ylabel("duree totale (s)", fontsize=16)
+            k += 1
 
             # Fig 1C
             n = 2
@@ -402,10 +462,11 @@ if __name__ == '__main__':
             behavEvent = 'Social approach'
             valueCatEvent = ' Nb'
             image = 'img_soc_app.jpg'
-            imgPos = (0.5, 30)
+            imgPos = (0.5, 66000)
             singlePlotPerEventProfilePairs(profileData=profileData, night=n, valueCat=valueCatEvent,
-                                      behavEvent=behavEvent, ax=axes[row, col], image=image, imgPos=imgPos)
+                                      behavEvent=behavEvent, letter=letter[k], ax=axes[row, col], image=image, imgPos=imgPos, zoom=0.23)
             axes[row, col].set_ylabel("nombre d'occurrences", fontsize=16)
+            k += 1
 
             # Fig 1D
             n = 2
@@ -414,10 +475,11 @@ if __name__ == '__main__':
             behavEvent = 'Approach contact'
             valueCatEvent = ' Nb'
             image = 'img_app_cct.jpg'
-            imgPos = (0.5, 30)
+            imgPos = (0.5, 56000)
             singlePlotPerEventProfilePairs(profileData=profileData, night=n, valueCat=valueCatEvent,
-                                      behavEvent=behavEvent, ax=axes[row, col], image=image, imgPos=imgPos)
+                                      behavEvent=behavEvent, letter=letter[k], ax=axes[row, col], image=image, imgPos=imgPos, zoom=0.3)
             axes[row, col].set_ylabel("nombre d'occurrences", fontsize=16)
+            k += 1
 
             # Fig 1E
             n = 1
@@ -426,10 +488,11 @@ if __name__ == '__main__':
             behavEvent = 'Get away'
             valueCatEvent = ' TotalLen'
             image = 'img_getaway.jpg'
-            imgPos = (0.5, 30)
+            imgPos = (0.5, 10400)
             singlePlotPerEventProfilePairs(profileData=profileData, night=n, valueCat=valueCatEvent,
-                                      behavEvent=behavEvent, ax=axes[row, col], image=image, imgPos=imgPos)
+                                      behavEvent=behavEvent, letter=letter[k], ax=axes[row, col], image=image, imgPos=imgPos, zoom=0.22)
             axes[row, col].set_ylabel('duree totale (s)', fontsize=16)
+            k += 1
 
             # Fig 1F
             n = 2
@@ -438,13 +501,14 @@ if __name__ == '__main__':
             behavEvent = 'Break contact'
             valueCatEvent = ' TotalLen'
             image = 'img_break_cct.jpg'
-            imgPos = (0.5, 30)
+            imgPos = (0.5, 1550)
             singlePlotPerEventProfilePairs(profileData=profileData, night=n, valueCat=valueCatEvent,
-                                      behavEvent=behavEvent, ax=axes[row, col], image=image, imgPos=imgPos)
+                                      behavEvent=behavEvent, letter=letter[k], ax=axes[row, col], image=image, imgPos=imgPos, zoom=0.18)
             axes[row, col].set_ylabel('duree totale (s)', fontsize=16)
 
 
             fig.tight_layout()
+            fig.show()
             fig.savefig("FigSimple_Profile_Events_night_pair_AR.pdf", dpi=300)
             plt.close(fig)
 
