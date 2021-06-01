@@ -128,17 +128,20 @@ def computeProfilePair(file, minT, maxT):
     genotype = []
     sex = []
     age = []
+    strain = []
     for animal in pool.animalDictionnary.keys():
         rfid = pool.animalDictionnary[animal].RFID
         geno = pool.animalDictionnary[animal].genotype
         sexAnimal = pool.animalDictionnary[animal].sex
         ageAnimal = pool.animalDictionnary[animal].age
+        strainAnimal = pool.animalDictionnary[animal].strain
         pair.append(rfid)
         genotype.append(geno)
         sex.append(sexAnimal)
         age.append(ageAnimal)
+        strain.append(strainAnimal)
 
-    pairName = ('{}-{}'.format(pair[0], pair[1]))
+    pairName = ('{}-{}'.format(min(pair), max(pair)))
     genoPair = ('{}-{}'.format(genotype[0], genotype[1]))
     agePair = age[0]
     if sex[0] == sex[1]:
@@ -147,6 +150,11 @@ def computeProfilePair(file, minT, maxT):
         sexPair = 'mixed'
     print('pair: ', pairName, genoPair, sexPair)
 
+    if strain[0] == strain[1]:
+        strainPair = strain[0]
+    else:
+        strainPair = '{}-{}'.format(strain[0], strain[1])
+
     animalData = {}
     animalData[pairName] = {}
     animalData[pairName]['genotype'] = genoPair
@@ -154,6 +162,7 @@ def computeProfilePair(file, minT, maxT):
     animalData[pairName]["animal"] = pairName
     animalData[pairName]['sex'] = sexPair
     animalData[pairName]['age'] = agePair
+    animalData[pairName]['strain'] = strainPair
     animalData[pairName]["totalDistance"] = "totalDistance"
 
     for animal in pool.animalDictionnary.keys():
@@ -169,6 +178,7 @@ def computeProfilePair(file, minT, maxT):
         animalData[rfid]['genotype'] = pool.animalDictionnary[animal].genotype
         animalData[rfid]['sex'] = pool.animalDictionnary[animal].sex
         animalData[rfid]['age'] = pool.animalDictionnary[animal].age
+        animalData[rfid]['strain'] = pool.animalDictionnary[animal].strain
 
         #compute the profile for single behaviours
         for behavEvent in behaviouralEventOneMouseSingle:
@@ -199,11 +209,6 @@ def computeProfilePair(file, minT, maxT):
             animalData[rfid]["totalDistance"] = "totalDistance"
 
     # Compute the profiles for both individuals of the pair together
-    animalData[pairName] = {}
-    animalData[pairName]['genotype'] = genoPair
-    animalData[pairName]["file"] = file
-    animalData[pairName]["animal"] = pairName
-    animalData[pairName]["totalDistance"] = "totalDistance"
     for behavEvent in behaviouralEventOneMouseSocial:
 
         print("computing individual event: {}".format(behavEvent))
@@ -234,6 +239,8 @@ def getProfileValues( profileData, night='0', event=None):
     dataDic["meanValue"] = []
     dataDic["exp"] = []
     dataDic['sex'] = []
+    dataDic['age'] = []
+    dataDic['strain'] = []
     
     for file in profileData.keys():
         print(profileData[file].keys())
@@ -244,6 +251,8 @@ def getProfileValues( profileData, night='0', event=None):
                 dataDic["exp"].append(profileData[file][str(night)][animal]["file"])
                 dataDic["genotype"].append(profileData[file][str(night)][animal]["genotype"])
                 dataDic["sex"].append(profileData[file][str(night)][animal]["sex"])
+                dataDic["age"].append(profileData[file][str(night)][animal]["age"])
+                dataDic["strain"].append(profileData[file][str(night)][animal]["strain"])
     
     return dataDic
 
@@ -253,6 +262,9 @@ def getProfileValuesPairs(profileData, night='0', event=None):
     dataDic["genotype"] = []
     dataDic["value"] = []
     dataDic["exp"] = []
+    dataDic["age"] = []
+    dataDic["sex"] = []
+    dataDic["strain"] = []
 
     for file in profileData.keys():
         print(profileData[file].keys())
@@ -261,6 +273,9 @@ def getProfileValuesPairs(profileData, night='0', event=None):
                 dataDic["value"].append(profileData[file][str(night)][animal][event])
                 dataDic["exp"].append(profileData[file][str(night)][animal]["file"])
                 dataDic["genotype"].append(profileData[file][str(night)][animal]["genotype"])
+                dataDic["age"].append(profileData[file][str(night)][animal]["age"])
+                dataDic["sex"].append(profileData[file][str(night)][animal]["sex"])
+                dataDic["strain"].append(profileData[file][str(night)][animal]["strain"])
 
     return dataDic
 
@@ -302,6 +317,8 @@ def singlePlotPerEventProfile(profileData, night, valueCat, behavEvent, ax):
     x = profileValueDictionary["genotype"]
     genotypeType = list(Counter(x).keys())
     print(genotypeType)
+    genotypeType.sort(reverse=True)
+    print('x labels: ', genotypeType)
     group = profileValueDictionary["exp"]
 
     if valueCat == ' TotalLen':
@@ -318,18 +335,20 @@ def singlePlotPerEventProfile(profileData, night, valueCat, behavEvent, ax):
 
     ax.set_xlim(-0.5, len(genotypeType))
     ax.set_ylim(min(y) - 0.2 * max(y), max(y) + 0.2 * max(y))
-    sns.boxplot(x, y, order=[genotypeType[1], genotypeType[0]], ax=ax, linewidth=0.5, showmeans=True,
+    sns.boxplot(x, y, order=genotypeType, ax=ax, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
-                           "markersize": '8'}, showfliers=False, width=0.4)
-    sns.stripplot(x, y, order=[genotypeType[1], genotypeType[0]], jitter=True, color='black', hue=group, s=5,
-                  ax=ax)
+                           "markersize": '8'}, color='white', showfliers=False, width=0.4)
+    #sns.stripplot(x, y, order=genotypeType, jitter=True, color='black', hue=group, s=5, ax=ax)
+    sns.stripplot(x, y, order=genotypeType, jitter=True, hue=group, s=5, ax=ax)
     ax.set_title(behavEvent)
     ax.set_ylabel("{} (s)".format(valueCat))
     ax.legend().set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
+    print('x tick labels: ', genotypeType)
+    ax.set_xticklabels(genotypeType, rotation=30, fontsize=10, horizontalalignment='right')
 
 
 
@@ -611,6 +630,7 @@ def testProfileData(profileData=None, night=0, eventListNames=None, valueCat="",
         dfData = pandas.DataFrame({'group': profileValueDictionary["exp"],
                                    'genotype': profileValueDictionary["genotype"],
                                    'value': profileValueDictionary["value"]})
+
         
         #pandas.DataFrame(dfData).info()
         #Mixed model: variable to explain: value; fixed factor = genotype; random effect: group
@@ -682,28 +702,42 @@ def mergeProfileOverNights( profileData, categoryList, behaviouralEventOneMouse 
         mergeProfile[file] = {}
         mergeProfile[file]['all nights'] = {}
         for rfid in profileData[file][nightList[0]].keys():
+            print('rfid: ', rfid)
             mergeProfile[file]['all nights'][rfid] = {}
             mergeProfile[file]['all nights'][rfid]['animal'] = profileData[file][nightList[0]][rfid]['animal']
             mergeProfile[file]['all nights'][rfid]['genotype'] = profileData[file][nightList[0]][rfid]['genotype']
             mergeProfile[file]['all nights'][rfid]['file'] = profileData[file][nightList[0]][rfid]['file']
             mergeProfile[file]['all nights'][rfid]['sex'] = profileData[file][nightList[0]][rfid]['sex']
+            mergeProfile[file]['all nights'][rfid]['age'] = profileData[file][nightList[0]][rfid]['age']
+            mergeProfile[file]['all nights'][rfid]['strain'] = profileData[file][nightList[0]][rfid]['strain']
+
+
             for cat in categoryList:
                 traitList = [trait+cat for trait in behaviouralEventOneMouse[:-2]]
                 for event in traitList:
-                    dataNight = 0
-                    for night in profileData[file].keys():
-                        dataNight += profileData[file][night][rfid][event]
+                    print('event: ', event)
+                    try:
+                        dataNight = 0
+                        for night in profileData[file].keys():
+                            dataNight += profileData[file][night][rfid][event]
 
-                    if ' MeanDur' in event:
-                        mergeProfile[file]['all nights'][rfid][event] = dataNight / len(profileData[file].keys())
-                    else:
-                        mergeProfile[file]['all nights'][rfid][event] = dataNight
-
-            distNight = 0
-            for night in profileData[file].keys():
-                distNight += profileData[file][night][rfid]['totalDistance']
+                        if ' MeanDur' in event:
+                            mergeProfile[file]['all nights'][rfid][event] = dataNight / len(profileData[file].keys())
+                        else:
+                            mergeProfile[file]['all nights'][rfid][event] = dataNight
+                    except:
+                        print('No event of this name: ', rfid, event)
+                        continue
+            try:
+                distNight = 0
+                for night in profileData[file].keys():
+                    distNight += profileData[file][night][rfid]['totalDistance']
+            except:
+                print('No calculation of distance possible.', rfid)
+                distNight = 'totalDistance'
 
             mergeProfile[file]['all nights'][rfid]['totalDistance'] = distNight
+
     return mergeProfile
 
 def extractControlData(profileData, genoControl):
@@ -818,7 +852,8 @@ if __name__ == '__main__':
     "Group 3 break", "Group 4 break",
     "totalDistance", "experiment"
     ]
-    behaviouralEventOneMouseSingle = ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact"]
+    behaviouralEventOneMouseSingle = ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact", "Oral-genital Contact", "Train2", "FollowZone Isolated",
+                                "Social approach", "Approach contact", "Get away", "Break contact"]
     behaviouralEventOneMouseSocial = ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact",
                                 "Side by side Contact", "Side by side Contact, opposite way",
                                 "Train2", "FollowZone Isolated",
@@ -936,7 +971,10 @@ if __name__ == '__main__':
                         print("Profile data saved.")
 
                     # Create a json file to store the computation
-                    with open("profile_data_pair_s3_S3_{}.json".format('over_night'), 'w') as fp:
+                    print('#############################')
+                    print(profileData)
+                    print('#############################')
+                    with open("profile_data_pair_wt_{}.json".format('over_night'), 'w') as fp:
                         json.dump(profileData, fp, indent=4)
                     print("json file with profile measurements created.")
 
