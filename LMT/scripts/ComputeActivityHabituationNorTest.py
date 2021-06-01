@@ -61,7 +61,7 @@ def plotTrajectorySingleAnimal(file, ax, color, tmin, tmax, title, xa = 111, xb 
     #plot(ax, animal, title=title, color="black") #plot the trajectory of the center of mass
     plotNoseTrajectory(ax, animal, title=title, color='black') #plot the trajectory of the nose
     plotSapNose(ax, animal, color = color, xa=xa, xb=xb, ya=ya, yb=yb) # add the frames where the animal is in SAP
-
+    connection.close()
 
 def buildFigTrajectoryMalesFemales(files, tmin, tmax, figName, colorSap, title, xa = 111, xb = 400, ya = 63, yb = 353):
 
@@ -104,6 +104,7 @@ def buildFigTrajectoryMalesFemales(files, tmin, tmax, figName, colorSap, title, 
             if nCol['female'] >= 5:
                 nCol['female'] = 0
                 nRow['female'] += 1
+        connection.close()
 
     figM.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
     # plt.show() #display the plot
@@ -348,6 +349,7 @@ if __name__ == '__main__':
                 data['rearPeriphery Nb'][sex][geno][rfid] = rearPeripheryTimeLine.getNbEvent()
                 data['rearPeriphery Duration'][sex][geno][rfid] = rearPeripheryTimeLine.getTotalLength() / 30
 
+                connection.close()
             print(data)
             #store the data dictionary in a json file
             with open('habituationDay1.json', 'w') as jFile:

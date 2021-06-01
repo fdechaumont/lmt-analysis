@@ -72,7 +72,7 @@ def computeSpeedDurationPerEvent(animalData, files, tmin, tmax, eventToTest=None
                     animalData[file][n][rfid]['speed'].append(results[1])
 
             n += 1
-
+        connection.close()
 
     with open("durationSpeedData_{}.json".format(eventToTest), 'w') as jFile:
         json.dump(animalData, jFile, indent=3)
@@ -183,6 +183,8 @@ if __name__ == '__main__':
             fig.tight_layout()
             fig.savefig('Fig_meanSpeed_{}.pdf'.format(eventToTest), dpi=300)
             plt.close(fig)
+
+            print('Job done.')
 
             break
 

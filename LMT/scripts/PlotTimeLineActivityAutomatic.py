@@ -87,7 +87,7 @@ def process( ):
             ax.text( nightEvent.startFrame+(nightEvent.endFrame-nightEvent.startFrame)/2 , 0.90*ymax , "dark phase" ,fontsize=6, ha='center')
         
         #plot the distance traveled per timeBin min time bin
-        timeBin = 10
+        timeBin = 1
         dt = {}
         totalDistance = {}
 
@@ -186,7 +186,7 @@ def process( ):
         print ("Saving figure...")
         fig.savefig( "FigActivityTimeLine_{}.pdf".format( expName ) ,dpi=100)
         plt.close( fig )
-        text_file.close()    
+    text_file.close()
     
 if __name__ == '__main__':
     

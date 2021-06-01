@@ -128,6 +128,8 @@ def plotTrajectoriesNorPhases(files, figName, title, phase, exp, colorSap, objec
                 nCol['female'] = 0
                 nRow['female'] += 1
 
+        connection.close()
+
     figM.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
     # plt.show() #display the plot
     figM.savefig('{}_males.pdf'.format(figName), dpi=200)
@@ -197,6 +199,7 @@ def computeSniffTime(files=None, tmin=None, objectDic=None):
         data['sniffLeft'][setup][sex][geno][rfid] = len(selectedFrames['left'])
         data['sniffRight'][setup][sex][geno][rfid] = len(selectedFrames['right'])
         data['totalSniff'][setup][sex][geno][rfid] = data['sniffLeft'][setup][sex][geno][rfid] + data['sniffRight'][setup][sex][geno][rfid]
+        connection.close()
 
     return data
 
@@ -282,6 +285,7 @@ if __name__ == '__main__':
                 for info in infoList:
                     text_file.write("{}\t".format(info))
                 text_file.write("\n")
+                connection.close()
 
             text_file.write("\n")
             text_file.close()
@@ -304,6 +308,7 @@ if __name__ == '__main__':
                 print(file)
                 connection = sqlite3.connect(file)
                 BuildEventObjectSniffingNor.reBuildEvent(connection, tmin=0, tmax=20*oneMinute, pool = None, exp=exp, phase=phase, objectPosition=objectPosition, radiusObjects=radiusObjects, objectDic=objectDic)
+                connection.close()
                 print('Rebuild sniff events done.')
 
             figName = 'fig_timeline_nor_{}_{}.pdf'.format(exp, phase)
@@ -389,6 +394,7 @@ if __name__ == '__main__':
                 measureData['ratio']['SniffLeft'][setup][sex][geno].append(totalDurationLeft / (totalDurationLeft + totalDurationRight))
 
                 line[sex][geno] += 1.5
+                connection.close()
 
             fig.show()
             fig.savefig(figName, dpi=300)

@@ -145,7 +145,8 @@ if __name__ == '__main__':
         n = n+1
         
         text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, animal.RFID, animal.genotype, animal.user1, d1*10/57, dt1*10/57, t1, sap1, d2*10/57, dt2*10/57, t2, sap2 ) )
-        
+        connection.close()
+
     fig.suptitle('Single object exploration', fontsize=14, fontweight='bold') 
     plt.show()
     fig.savefig('single_obj_explo.pdf', transparent=False, dpi=80, bbox_inches="tight")

@@ -105,7 +105,8 @@ if __name__ == '__main__':
             for kEvent in firstAnimal.keys():
                 text_file.write( "{}\t".format( animal[kAnimal][kEvent] ) )
             text_file.write( "\n" );
-            
+
+        connection.close()
         print ("done.")
             
          

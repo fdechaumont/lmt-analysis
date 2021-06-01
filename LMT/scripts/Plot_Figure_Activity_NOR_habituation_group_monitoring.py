@@ -3,7 +3,7 @@
 
 #@author: Elodie
 '''
-import mpimg as mpimg
+
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 from ComputeMeasuresIdentityProfileOneMouseAutomatic import singlePlotPerEventProfileBothSexes, mergeProfileOverNights

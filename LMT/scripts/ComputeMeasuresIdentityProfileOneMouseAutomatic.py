@@ -125,15 +125,21 @@ def computeProfile(file, minT, maxT, night, text_file):
         for kEvent in firstAnimal.keys():
             text_file.write( "{}\t".format( animalData[kAnimal][kEvent] ) )
         text_file.write( "\n" )
+
+    connection.close()
         
     return animalData
 
 
 def computeProfilePair(file, minT, maxT):
-    connection = sqlite3.connect(file)
+
+    print("Start computeProfilePair")
+
+    connection2 = sqlite3.connect(file)
+    print(connection2)
 
     pool = AnimalPool()
-    pool.loadAnimals(connection)
+    pool.loadAnimals(connection2)
 
     pair = []
     genotype = []
@@ -198,7 +204,7 @@ def computeProfilePair(file, minT, maxT):
 
             print("computing individual event: {}".format(behavEvent))
 
-            behavEventTimeLine = EventTimeLineCached(connection, file, behavEvent, animal, minFrame=minT, maxFrame=maxT)
+            behavEventTimeLine = EventTimeLineCached(connection2, file, behavEvent, animal, minFrame=minT, maxFrame=maxT)
 
             totalEventDuration = behavEventTimeLine.getTotalLength()
             nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame=minT, maxFrame=maxT)
@@ -215,7 +221,7 @@ def computeProfilePair(file, minT, maxT):
 
         # compute the total distance traveled per individual
         COMPUTE_TOTAL_DISTANCE = True
-        if (COMPUTE_TOTAL_DISTANCE == True):
+        if COMPUTE_TOTAL_DISTANCE == True:
             animalObject.loadDetection(start=minT, end=maxT, lightLoad=True)
             animalData[rfid]["totalDistance"] = animalObject.getDistance(tmin=minT, tmax=maxT) / 100
         else:
@@ -226,7 +232,7 @@ def computeProfilePair(file, minT, maxT):
 
         print("computing individual event: {}".format(behavEvent))
 
-        behavEventTimeLine = EventTimeLineCached(connection, file, behavEvent, minFrame=minT, maxFrame=maxT)
+        behavEventTimeLine = EventTimeLineCached(connection2, file, behavEvent, minFrame=minT, maxFrame=maxT)
 
         totalEventDuration = behavEventTimeLine.getTotalLength()
         nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame=minT, maxFrame=maxT)
@@ -241,6 +247,8 @@ def computeProfilePair(file, minT, maxT):
 
 
         print(behavEventTimeLine.eventName, genoPair, pairName, totalEventDuration, nbEvent, meanDur)
+
+    connection2.close()
 
     return animalData
 
@@ -947,6 +955,7 @@ if __name__ == '__main__':
         if answer == "cpair":
             files = getFilesToProcess()
             tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
+            print ( files )
 
             profileData = {}
             nightComputation = input("Compute profile only during night events (Y or N)? ")
@@ -954,13 +963,15 @@ if __name__ == '__main__':
             for file in files:
 
                 print(file)
+                profileData[file] = {}
+                '''
                 connection = sqlite3.connect( file )
 
-                profileData[file] = {}
+                
 
                 pool = AnimalPool( )
                 pool.loadAnimals( connection )
-
+                '''
                 if nightComputation == "N":
                     minT = tmin
                     maxT = tmax
@@ -975,7 +986,9 @@ if __name__ == '__main__':
 
 
                 else:
+                    connection = sqlite3.connect(file)
                     nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=tmin, maxFrame=tmax )
+                    connection.close()
                     n = 1
 
                     for eventNight in nightEventTimeLine.getEventList():

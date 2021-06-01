@@ -44,7 +44,7 @@ if __name__ == '__main__':
     '''behaviouralEventOneMouse = ["Group3", "Water Zone"]
     behaviouralEventTwoMice = ["Contact", "Oral-genital Contact"] '''
     
-    
+
     for file in files:
         
         print(file)
