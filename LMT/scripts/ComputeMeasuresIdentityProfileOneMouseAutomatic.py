@@ -6,7 +6,7 @@ Created on 13 sept. 2017
 
 import sqlite3
 
-from USV.figure.figParameter import getFigureBehaviouralEventsLabelsFrench
+from lmtanalysis.FileUtil import getFigureBehaviouralEventsLabelsFrench
 from lmtanalysis.Animal import *
 import numpy as np
 import matplotlib.pyplot as plt

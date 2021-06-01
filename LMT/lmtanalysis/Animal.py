@@ -425,7 +425,7 @@ class Animal():
             if b==None or a==None:
                 continue
             distance = math.hypot( a.massX - b.massX, a.massY - b.massY )
-            print('distance: ', distance)
+            #print('distance: ', distance)
             if ( distance >85.5): #if the distance calculated between two frames is too large, discard
                 continue
 

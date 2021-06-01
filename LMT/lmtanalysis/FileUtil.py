@@ -109,6 +109,28 @@ def extractPValueFromLMMResult( result, keyword ):
             print ( "SIGN :" , sign )
             return pValue, sign
 
+def getFigureBehaviouralEventsLabelsFrench(event):
+    behaviouralEventsLabels = {"Stop isolated": 'repos isole',
+                         "Move isolated": 'mouvement isole',
+                         "Break contact": 'rupture de contact',
+                         "Get away": 'echappement',
+                         "Social approach": 'approche',
+                         # "Approach rear": 'approach reared mouse',
+                         "Approach contact": 'approche avant contact',
+                         "Contact": 'contact',
+                         "Oral-oral Contact": 'nez-nez',
+                         "Oral-genital Contact": 'nez-anogenital',
+                         "Side by side Contact": 'cote-a-cote',
+                         "Side by side Contact, opposite way": 'cote-a-cote, tete beche',
+                         "seq oral oral - oral genital": 'nez-nez & nez-anogenital',
+                         "seq oral geni - oral oral": 'nez-anogenital & nez-nez',
+                         "FollowZone Isolated": 'poursuite',
+                         "Train2": 'train2'
+                         # , "longChase": 'long chase'
+                         }
+    return behaviouralEventsLabels[event]
+
+
 class TestFileUtil ( unittest.TestCase ):
     
     def test_fillBetween(self):
