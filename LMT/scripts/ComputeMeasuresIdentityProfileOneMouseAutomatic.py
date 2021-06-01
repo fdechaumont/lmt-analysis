@@ -39,8 +39,18 @@ def computeProfile(file, minT, maxT, night, text_file):
     pool = AnimalPool( )
     pool.loadAnimals( connection )
     
+    indList = []
+    for animal in pool.animalDictionnary.keys():
+        print("computing individual animal: {}".format(animal))
+        rfid = pool.animalDictionnary[animal].RFID
+        indList.append(rfid)
+
+    sortedIndList = sorted(indList)
+    groupName = sortedIndList[0]
+    for ind in sortedIndList[1:]:
+        groupName+ind
+
     animalData = {}
-    
     for animal in pool.animalDictionnary.keys():
         
         print( "computing individual animal: {}".format( animal ))
@@ -53,6 +63,7 @@ def computeProfile(file, minT, maxT, night, text_file):
         animalData[rfid]["file"] = file
         animalData[rfid]['genotype'] = pool.animalDictionnary[animal].genotype
         animalData[rfid]['sex'] = pool.animalDictionnary[animal].sex
+        animalData[rfid]['group'] = groupName
                 
         genoA = None
         try:
@@ -163,6 +174,7 @@ def computeProfilePair(file, minT, maxT):
     animalData[pairName]['sex'] = sexPair
     animalData[pairName]['age'] = agePair
     animalData[pairName]['strain'] = strainPair
+    animalData[pairName]['group'] = pairName
     animalData[pairName]["totalDistance"] = "totalDistance"
 
     for animal in pool.animalDictionnary.keys():
@@ -179,6 +191,7 @@ def computeProfilePair(file, minT, maxT):
         animalData[rfid]['sex'] = pool.animalDictionnary[animal].sex
         animalData[rfid]['age'] = pool.animalDictionnary[animal].age
         animalData[rfid]['strain'] = pool.animalDictionnary[animal].strain
+        animalData[rfid]['group'] = pairName
 
         #compute the profile for single behaviours
         for behavEvent in behaviouralEventOneMouseSingle:
@@ -241,6 +254,7 @@ def getProfileValues( profileData, night='0', event=None):
     dataDic['sex'] = []
     dataDic['age'] = []
     dataDic['strain'] = []
+    dataDic['group'] = []
     
     for file in profileData.keys():
         print(profileData[file].keys())
@@ -253,6 +267,7 @@ def getProfileValues( profileData, night='0', event=None):
                 dataDic["sex"].append(profileData[file][str(night)][animal]["sex"])
                 dataDic["age"].append(profileData[file][str(night)][animal]["age"])
                 dataDic["strain"].append(profileData[file][str(night)][animal]["strain"])
+                dataDic["group"].append(profileData[file][str(night)][animal]["group"])
     
     return dataDic
 
@@ -261,6 +276,7 @@ def getProfileValuesPairs(profileData, night='0', event=None):
     dataDic = {}
     dataDic["genotype"] = []
     dataDic["value"] = []
+    dataDic["group"] = []
     dataDic["exp"] = []
     dataDic["age"] = []
     dataDic["sex"] = []
@@ -272,6 +288,7 @@ def getProfileValuesPairs(profileData, night='0', event=None):
             if '-' in animal:
                 dataDic["value"].append(profileData[file][str(night)][animal][event])
                 dataDic["exp"].append(profileData[file][str(night)][animal]["file"])
+                dataDic["group"].append(profileData[file][str(night)][animal]["group"])
                 dataDic["genotype"].append(profileData[file][str(night)][animal]["genotype"])
                 dataDic["age"].append(profileData[file][str(night)][animal]["age"])
                 dataDic["sex"].append(profileData[file][str(night)][animal]["sex"])
@@ -710,6 +727,7 @@ def mergeProfileOverNights( profileData, categoryList, behaviouralEventOneMouse 
             mergeProfile[file]['all nights'][rfid]['sex'] = profileData[file][nightList[0]][rfid]['sex']
             mergeProfile[file]['all nights'][rfid]['age'] = profileData[file][nightList[0]][rfid]['age']
             mergeProfile[file]['all nights'][rfid]['strain'] = profileData[file][nightList[0]][rfid]['strain']
+            mergeProfile[file]['all nights'][rfid]['group'] = profileData[file][nightList[0]][rfid]['group']
 
 
             for cat in categoryList:
