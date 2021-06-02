@@ -724,6 +724,7 @@ def mergeProfileOverNights( profileData, categoryList, behaviouralEventOneMouse 
     mergeProfile = {}
     for file in profileData.keys():
         nightList = list( profileData[file].keys() )
+        print('###############night List: ', nightList)
         mergeProfile[file] = {}
         mergeProfile[file]['all nights'] = {}
         for rfid in profileData[file][nightList[0]].keys():
