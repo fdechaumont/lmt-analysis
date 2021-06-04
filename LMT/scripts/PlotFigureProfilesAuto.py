@@ -217,6 +217,7 @@ if __name__ == '__main__':
             image = 'img_cct.jpg'
             imgPos = (0.5, 23000)
             zoom = 0.7
+            
             ax = axes[row, col]
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
