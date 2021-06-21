@@ -59,6 +59,7 @@ def computeSpeedDurationPerEvent(animalData, files, tmin, tmax, eventToTest=None
                 animalData[file][n][rfid]['genotype'] = pool.animalDictionnary[animal].genotype
                 animalData[file][n][rfid]['sex'] = pool.animalDictionnary[animal].sex
                 animalData[file][n][rfid]['strain'] = pool.animalDictionnary[animal].strain
+                animalData[file][n][rfid]['age'] = pool.animalDictionnary[animal].age
 
                 print("computing individual event: {}".format(eventToTest))
 
@@ -67,7 +68,7 @@ def computeSpeedDurationPerEvent(animalData, files, tmin, tmax, eventToTest=None
                 animalData[file][n][rfid]['speed'] = []
                 for event in behavEventTimeLine.getEventList():
                     results = getDurationSpeed(event=event, animal=animalObject)
-                    print('duration, speed: ', results)
+                    #print('duration, speed: ', results)
                     animalData[file][n][rfid]['DurationSpeed'].append( results )
                     animalData[file][n][rfid]['speed'].append(results[1])
 
@@ -153,7 +154,8 @@ if __name__ == '__main__':
         answer = input(question)
 
         if answer == "c":
-            eventToTest = 'Break contact'
+            eventToTest = 'Approach contact'
+            #eventToTest = 'Get away'
             animalData = {}
             files = getFilesToProcess()
             computeSpeedDurationPerEvent(animalData=animalData, files=files, tmin=0, tmax=3*oneDay, eventToTest=eventToTest)
