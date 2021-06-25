@@ -99,6 +99,7 @@ class Animal():
             query += " AND FRAMENUMBER<={}".format(end )
 
         print( query )
+        print( self.conn )
         cursor.execute( query )
 
         rows = cursor.fetchall()

@@ -265,7 +265,7 @@ def getProfileValues( profileData, night='0', event=None):
     dataDic['group'] = []
     
     for file in profileData.keys():
-        print(profileData[file].keys())
+        #print(profileData[file].keys())
         for animal in profileData[file][str(night)].keys():
             if not '-' in animal:
                 dataDic["value"].append(profileData[file][str(night)][animal][event])
@@ -280,6 +280,33 @@ def getProfileValues( profileData, night='0', event=None):
     return dataDic
 
 
+def getProfileValuesNoGroup(profileData, night='0', event=None):
+    dataDic = {}
+    dataDic["genotype"] = []
+    dataDic["value"] = []
+    dataDic["meanValue"] = []
+    dataDic["exp"] = []
+    dataDic['sex'] = []
+    dataDic['age'] = []
+    dataDic['strain'] = []
+    dataDic['group'] = []
+
+    for file in profileData.keys():
+        # print(profileData[file].keys())
+        for animal in profileData[file][str(night)].keys():
+            if not '-' in animal:
+                dataDic["value"].append(profileData[file][str(night)][animal][event])
+                dataDic["meanValue"].append(np.mean(profileData[file][str(night)][animal][event]))
+                dataDic["exp"].append(profileData[file][str(night)][animal]["file"])
+                dataDic["genotype"].append(profileData[file][str(night)][animal]["genotype"])
+                dataDic["sex"].append(profileData[file][str(night)][animal]["sex"])
+                dataDic["age"].append(profileData[file][str(night)][animal]["age"])
+                dataDic["strain"].append(profileData[file][str(night)][animal]["strain"])
+                dataDic["group"].append(profileData[file][str(night)][animal]["file"])
+
+    return dataDic
+
+
 def getProfileValuesPairs(profileData, night='0', event=None):
     dataDic = {}
     dataDic["genotype"] = []
@@ -291,7 +318,7 @@ def getProfileValuesPairs(profileData, night='0', event=None):
     dataDic["strain"] = []
 
     for file in profileData.keys():
-        print(profileData[file].keys())
+        #print(profileData[file].keys())
         for animal in profileData[file][str(night)].keys():
             if '-' in animal:
                 dataDic["value"].append(profileData[file][str(night)][animal][event])
@@ -767,7 +794,7 @@ def mergeProfileOverNights( profileData, categoryList, behaviouralEventOneMouse 
 
     return mergeProfile
 
-def extractControlData(profileData, genoControl):
+def extractControlData(profileData, genoControl, behaviouralEventOneMouse):
     categoryList = [' TotalLen', ' Nb', ' MeanDur']
     nightList = list(profileData[list(profileData.keys())[0]].keys())
     print('nights: ', nightList)
@@ -801,7 +828,7 @@ def extractControlData(profileData, genoControl):
                     wtData[file][night]['std ' + event] = np.std(temporaryWT[event])
     return wtData
 
-def extractCageData(profileData):
+def extractCageData(profileData, behaviouralEventOneMouse):
     categoryList = [' TotalLen', ' Nb', ' MeanDur']
     nightList = list(profileData[list(profileData.keys())[0]].keys())
     print('nights: ', nightList)
@@ -861,6 +888,88 @@ def generateMutantData(profileData, genoMutant, wtData, categoryList, behavioura
                             koData[file][night][rfid][event] = (profileData[file][night][rfid][event] - wtData[file][night]['mean ' + event]) / wtData[file][night]['std '+ event]
 
     return koData
+
+
+def plotZScoreProfileAuto(ax, koDataframe, night, eventListForTest):
+    selectedDataframe = koDataframe[(koDataframe['night'] == night)]
+    pos = 0
+    colorList = []
+    for event in eventListForTest:
+        color = 'grey'
+        valList = selectedDataframe['value'][selectedDataframe['trait'] == event]
+        T, p = ttest_1samp(valList, popmean=0)
+        if p < 0.05:
+            print(night, event, T, p)
+            ax.text(-2.95, pos, s=getStarsFromPvalues(p, numberOfTests=1), fontsize=16)
+            if T > 0:
+                color = 'red'
+            elif T < 0:
+                color = 'blue'
+        colorList.append(color)
+        pos += 1
+
+    # ax.set_xlim(-0.5, 1.5)
+    # ax.set_ylim(min(selectedDataframe['value']) - 0.2 * max(selectedDataframe['value']), max(selectedDataframe['value']) + 0.2 * max(selectedDataframe['value']))
+    ax.set_xlim(-3, 3)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.legend().set_visible(False)
+    ax.set_title('night {}'.format(night))
+
+    ax.add_patch(mpatches.Rectangle((-3, -1), width=6, height=5.3, facecolor='grey', alpha=0.3))
+    ax.text(-2.6, 2.1, s='ACTIVITY', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+            verticalalignment='center')
+
+    ax.add_patch(mpatches.Rectangle((-3, 4.6), width=6, height=1.7, facecolor='grey', alpha=0.3))
+    ax.text(-2.6, 5.5, s='EXPLO', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+            verticalalignment='center')
+
+    ax.add_patch(mpatches.Rectangle((-3, 6.6), width=6, height=6.7, facecolor='grey', alpha=0.3))
+    ax.text(-2.6, 9.6, s='CONTACT', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+            verticalalignment='center')
+
+    ax.add_patch(mpatches.Rectangle((-3, 13.6), width=6, height=1.7, facecolor='grey', alpha=0.3))
+    ax.text(-2.6, 14.5, s='FOLLOW', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+            verticalalignment='center')
+
+    ax.add_patch(mpatches.Rectangle((-3, 15.6), width=6, height=3.7, facecolor='grey', alpha=0.3))
+    ax.text(-2.6, 17.4, s='APPROACH', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+            verticalalignment='center')
+
+    ax.add_patch(mpatches.Rectangle((-3, 19.6), width=6, height=3.7, facecolor='grey', alpha=0.3))
+    ax.text(-2.6, 21.6, s='ESCAPE', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+            verticalalignment='center')
+
+    meanprops = dict(marker='D', markerfacecolor='white', markeredgecolor='black')
+    bp = sns.boxplot(data=selectedDataframe, y='trait', x='value', ax=ax, width=0.5, orient='h', meanprops=meanprops,
+                     showmeans=True, linewidth=0.4)
+    sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, color='black', orient='h')
+    # this following swarmplot should be used instead of the previous one if you want to see whether animals from the same cage are similar
+    # sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, hue='exp', orient='h')
+    ax.vlines(x=0, ymin=-6, ymax=30, colors='grey', linestyles='dashed')
+    # ax.vlines(x=-1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
+    # ax.vlines(x=1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
+
+    edgeList = 'black'
+    n = 0
+    for box in bp.artists:
+        box.set_facecolor(colorList[n])
+        box.set_edgecolor(edgeList)
+        n += 1
+    # Add transparency to colors
+    for box in bp.artists:
+        r, g, b, a = box.get_facecolor()
+        box.set_facecolor((r, g, b, .7))
+
+    bp.legend().set_visible(False)
+
+    ax.set_xlabel('Z-score per cage', fontsize=18)
+    ax.set_ylabel('Behavioral events', fontsize=18)
+
+    ax.set_yticklabels(eventListForTest, rotation=0, fontsize=14,
+                       horizontalalignment='right')
+    ax.set_xticklabels([-3, -2, -1, 0, 1, 2, 3], fontsize=14)
+    ax.legend().set_visible(False)
 
 if __name__ == '__main__':
     
@@ -1193,8 +1302,8 @@ if __name__ == '__main__':
 
             #compute the data for the control animal of each cage
             genoControl = 'WT'
-            wtData = extractControlData( profileData=dataToUse, genoControl=genoControl)
-            wtData = extractCageData(profileData=dataToUse)
+            wtData = extractControlData( profileData=dataToUse, genoControl=genoControl, behaviouralEventOneMouse=behaviouralEventOneMouse)
+            wtData = extractCageData(profileData=dataToUse, behaviouralEventOneMouse=behaviouralEventOneMouse)
             #mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList )
             #wtData = extractControlData(profileData=mergeProfile, genoControl=genoControl)
             #print(wtData)
@@ -1207,7 +1316,6 @@ if __name__ == '__main__':
 
             for cat in categoryList:
                 fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(24, 12), sharey=True)
-
                 koDataDic = {}
                 for key in ['night', 'trait', 'rfid', 'exp', 'value']:
                     koDataDic[key] = []
@@ -1217,102 +1325,23 @@ if __name__ == '__main__':
                         for rfid in koData[file][night].keys():
                             eventListForTest = []
                             for event in koData[file][night][rfid].keys():
-                                if (cat in event) or (event=='totalDistance'):
+                                if (cat in event) or (event == 'totalDistance'):
                                     koDataDic['exp'].append(file)
                                     koDataDic['night'].append(night)
                                     koDataDic['rfid'].append(rfid)
                                     koDataDic['trait'].append(event)
                                     koDataDic['value'].append(koData[file][night][rfid][event])
                                     eventListForTest.append(event)
-                #print(koDataDic)
+                # print(koDataDic)
 
                 koDataframe = pd.DataFrame.from_dict(koDataDic)
-                #print(koDataframe)
+                # print(koDataframe)
 
                 nightList = list(koData[list(koData.keys())[0]].keys())
-
                 col = 0
                 for night in nightList:
                     ax = axes[col]
-                    selectedDataframe = koDataframe[(koDataframe['night'] == night)]
-                    pos = 0
-                    colorList = []
-                    for event in eventListForTest:
-                        color = 'grey'
-                        valList = selectedDataframe['value'][selectedDataframe['trait']==event]
-                        T, p = ttest_1samp( valList, popmean=0 )
-                        if p < 0.05:
-                            print(night, event, T, p)
-                            ax.text(-2.95, pos, s=getStarsFromPvalues(p, numberOfTests=1), fontsize=16)
-                            if T > 0:
-                                color = 'red'
-                            elif T < 0:
-                                color = 'blue'
-                        colorList.append(color)
-                        pos += 1
-
-
-                    #ax.set_xlim(-0.5, 1.5)
-                    #ax.set_ylim(min(selectedDataframe['value']) - 0.2 * max(selectedDataframe['value']), max(selectedDataframe['value']) + 0.2 * max(selectedDataframe['value']))
-                    ax.set_xlim(-3, 3)
-                    ax.spines['right'].set_visible(False)
-                    ax.spines['top'].set_visible(False)
-                    ax.legend().set_visible(False)
-                    ax.set_title('night {}'.format(night))
-
-                    ax.add_patch(mpatches.Rectangle((-3, -1), width=6, height=5.3, facecolor='grey', alpha=0.3))
-                    ax.text(-2.6, 2.1, s='ACTIVITY', color='white', fontsize=14, fontweight='bold', rotation='vertical', verticalalignment='center')
-
-                    ax.add_patch(mpatches.Rectangle((-3, 4.6), width=6, height=1.7, facecolor='grey', alpha=0.3))
-                    ax.text(-2.6, 5.5, s='EXPLO', color='white', fontsize=14, fontweight='bold', rotation='vertical',
-                            verticalalignment='center')
-
-                    ax.add_patch(mpatches.Rectangle((-3, 6.6), width=6, height=6.7, facecolor='grey', alpha=0.3))
-                    ax.text(-2.6, 9.6, s='CONTACT', color='white', fontsize=14, fontweight='bold', rotation='vertical',
-                            verticalalignment='center')
-
-                    ax.add_patch(mpatches.Rectangle((-3, 13.6), width=6, height=1.7, facecolor='grey', alpha=0.3))
-                    ax.text(-2.6, 14.5, s='FOLLOW', color='white', fontsize=14, fontweight='bold', rotation='vertical',
-                            verticalalignment='center')
-
-                    ax.add_patch(mpatches.Rectangle((-3, 15.6), width=6, height=3.7, facecolor='grey', alpha=0.3))
-                    ax.text(-2.6, 17.4, s='APPROACH', color='white', fontsize=14, fontweight='bold', rotation='vertical',
-                            verticalalignment='center')
-
-                    ax.add_patch(mpatches.Rectangle((-3, 19.6), width=6, height=3.7, facecolor='grey', alpha=0.3))
-                    ax.text(-2.6, 21.6, s='ESCAPE', color='white', fontsize=14, fontweight='bold', rotation='vertical',
-                            verticalalignment='center')
-
-                    meanprops = dict(marker='D', markerfacecolor='white', markeredgecolor='black')
-                    bp = sns.boxplot( data=selectedDataframe, y='trait', x='value', ax=ax, width=0.5, orient='h', meanprops=meanprops, showmeans=True, linewidth=0.4 )
-                    sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, color='black', orient='h')
-                    #this following swarmplot should be used instead of the previous one if you want to see whether animals from the same cage are similar
-                    #sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, hue='exp', orient='h')
-                    ax.vlines(x=0, ymin=-6, ymax=30, colors='grey', linestyles='dashed')
-                    #ax.vlines(x=-1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
-                    #ax.vlines(x=1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
-
-
-                    edgeList = 'black'
-                    n = 0
-                    for box in bp.artists:
-                        box.set_facecolor(colorList[n])
-                        box.set_edgecolor(edgeList)
-                        n += 1
-                    # Add transparency to colors
-                    for box in bp.artists:
-                        r, g, b, a = box.get_facecolor()
-                        box.set_facecolor((r, g, b, .7))
-
-                    bp.legend().set_visible(False)
-
-                    ax.set_xlabel('Z-score per cage', fontsize=18)
-                    ax.set_ylabel('Behavioral events', fontsize=18)
-
-                    ax.set_yticklabels(eventListForTest, rotation=0, fontsize=14,
-                                       horizontalalignment='right')
-                    ax.set_xticklabels([-3, -2, -1, 0, 1, 2, 3], fontsize=14)
-                    ax.legend().set_visible(False)
+                    plotZScoreProfileAuto(ax=ax, koDataframe=koDataframe, night=night, eventListForTest=eventListForTest)
                     col += 1
 
                 plt.tight_layout()
