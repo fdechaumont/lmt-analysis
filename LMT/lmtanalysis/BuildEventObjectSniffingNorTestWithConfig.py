@@ -20,13 +20,17 @@ def flush( connection ):
     ''' flush event in database '''
     deleteEventTimeLineInBase(connection, "SniffFamiliar" )
     deleteEventTimeLineInBase(connection, "SniffNew" )
+    deleteEventTimeLineInBase(connection, "SniffFamiliarFar")
+    deleteEventTimeLineInBase(connection, "SniffNewFar")
 
 
-def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, tmin=None, tmax=None, pool = None ):
+def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, tmin=None, tmax=None, pool = None, vibrissae=3 ):
     deleteEventTimeLineInBase(connection, "SniffFamiliar" )
     deleteEventTimeLineInBase(connection, "SniffNew")
-    deleteEventTimeLineInBase(connection, "upFamiliar")
-    deleteEventTimeLineInBase(connection, "upNew")
+    deleteEventTimeLineInBase(connection, "SniffFamiliarFar")
+    deleteEventTimeLineInBase(connection, "SniffNewFar")
+    deleteEventTimeLineInBase(connection, "UpFamiliar")
+    deleteEventTimeLineInBase(connection, "UpNew")
 
 
     ''' use the pool provided or create it'''
@@ -60,6 +64,14 @@ def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, 
         print ( "A is around new object")
         print ( eventNameSniffNew )
 
+        eventNameSniffFamiliarFar = "SniffFamiliarFar"
+        print("A is around the familiar object, at a distance")
+        print(eventNameSniffFamiliarFar)
+
+        eventNameSniffNewFar = "SniffNewFar"
+        print("A is around new object, at a distance")
+        print(eventNameSniffNewFar)
+
         eventNameUpFamiliar = "UpFamiliar"
         print("A is on the familiar object")
         print(eventNameUpFamiliar)
@@ -70,11 +82,15 @@ def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, 
                 
         sniffFamiliarTimeLine = EventTimeLine( None, eventNameSniffFamiliar , animal , None , None , None , loadEvent=False )
         sniffNewTimeLine = EventTimeLine( None, eventNameSniffNew , animal , None , None , None , loadEvent=False )
+        sniffFamiliarTimeLineFar = EventTimeLine(None, eventNameSniffFamiliarFar, animal, None, None, None, loadEvent=False)
+        sniffNewTimeLineFar = EventTimeLine(None, eventNameSniffNewFar, animal, None, None, None, loadEvent=False)
         upFamiliarTimeLine = EventTimeLine(None, eventNameUpFamiliar, animal, None, None, None, loadEvent=False)
         upNewTimeLine = EventTimeLine(None, eventNameUpNew, animal, None, None, None, loadEvent=False)
 
         resultSniffFamiliar = {}
         resultSniffNew = {}
+        resultSniffFamiliarFar = {}
+        resultSniffNewFar = {}
         resultUpFamiliar = {}
         resultUpNew = {}
         
@@ -100,12 +116,17 @@ def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, 
                 print('no nose detected for frame ', t)
 
             else:
-                if distanceNoseFamiliar <= radiusObjects[objectFamiliar] + 3 / scaleFactor:
+                if distanceNoseFamiliar <= radiusObjects[objectFamiliar] + vibrissae / scaleFactor:
                     # check if the animal is on the object:
                     if distanceMassFamiliar <= radiusObjects[objectFamiliar]:
                         resultUpFamiliar[t] = True
                     else:
                         resultSniffFamiliar[t] = True
+
+                if distanceNoseFamiliar <= radiusObjects[objectFamiliar] + 2*vibrissae / scaleFactor:
+                    # check if the animal is on the object:
+                    if distanceMassFamiliar > radiusObjects[objectFamiliar]:
+                        resultSniffFamiliarFar[t] = True
 
             distanceNoseNew = animalA.getDistanceNoseToPoint(t=t, xPoint=objectPosition[setup][sideCage[side]][0], yPoint=-objectPosition[setup][sideCage[side]][1])
             distanceMassNew = animalA.getDistanceToPoint(t=t, xPoint=objectPosition[setup][sideCage[side]][0], yPoint=-objectPosition[setup][sideCage[side]][1])
@@ -114,18 +135,29 @@ def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, 
                 print('no nose detected for frame ', t)
 
             else:
-                if distanceNoseNew <= radiusObjects[objectNew] + 3 / scaleFactor:
+                if distanceNoseNew <= radiusObjects[objectNew] + vibrissae / scaleFactor:
                     # check if the animal is on the object:
                     if distanceMassNew <= radiusObjects[objectNew]:
                         resultUpNew[t] = True
                     else:
                         resultSniffNew[t] = True
 
+                    if distanceNoseNew <= radiusObjects[objectNew] + 2*vibrissae / scaleFactor:
+                        # check if the animal is on the object:
+                        if distanceMassNew > radiusObjects[objectNew]:
+                            resultSniffNewFar[t] = True
+
         sniffFamiliarTimeLine.reBuildWithDictionnary( resultSniffFamiliar )
         sniffFamiliarTimeLine.endRebuildEventTimeLine(connection)
 
         sniffNewTimeLine.reBuildWithDictionnary(resultSniffNew)
         sniffNewTimeLine.endRebuildEventTimeLine(connection)
+
+        sniffFamiliarTimeLineFar.reBuildWithDictionnary(resultSniffFamiliarFar)
+        sniffFamiliarTimeLineFar.endRebuildEventTimeLine(connection)
+
+        sniffNewTimeLineFar.reBuildWithDictionnary(resultSniffNewFar)
+        sniffNewTimeLineFar.endRebuildEventTimeLine(connection)
 
         upFamiliarTimeLine.reBuildWithDictionnary(resultUpFamiliar)
         upFamiliarTimeLine.endRebuildEventTimeLine(connection)
@@ -138,6 +170,8 @@ def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, 
     t = TaskLogger( connection )
     t.addLog( "Build Event Sniff Familiar" , tmin=tmin, tmax=tmax )
     t.addLog( "Build Event Sniff New" , tmin=tmin, tmax=tmax )
+    t.addLog("Build Event Sniff Familiar Far", tmin=tmin, tmax=tmax)
+    t.addLog("Build Event Sniff New Far", tmin=tmin, tmax=tmax)
     t.addLog("Build Event Up Familiar", tmin=tmin, tmax=tmax)
     t.addLog("Build Event Up New", tmin=tmin, tmax=tmax)
 

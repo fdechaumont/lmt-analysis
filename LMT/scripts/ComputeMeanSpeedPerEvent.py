@@ -35,6 +35,15 @@ def computeSpeedDurationPerEvent(animalData, files, tmin, tmax, eventToTest=None
         pool = AnimalPool()
         pool.loadAnimals(connection)
         pool.loadDetection(tmin, tmax, lightLoad=True)
+        rfidList = []
+        for animal in pool.animalDictionnary.keys():
+            print("computing individual animal: {}".format(animal))
+            rfid = pool.animalDictionnary[animal].RFID
+            rfidList.append(rfid)
+
+        group = rfidList[0]
+        for n in range(1, len(rfidList)):
+            group=group+'-'+rfidList[n]
 
         animalData[file] = {}
 
@@ -60,6 +69,7 @@ def computeSpeedDurationPerEvent(animalData, files, tmin, tmax, eventToTest=None
                 animalData[file][n][rfid]['sex'] = pool.animalDictionnary[animal].sex
                 animalData[file][n][rfid]['strain'] = pool.animalDictionnary[animal].strain
                 animalData[file][n][rfid]['age'] = pool.animalDictionnary[animal].age
+                animalData[file][n][rfid]['group'] = group
 
                 print("computing individual event: {}".format(eventToTest))
 
@@ -110,6 +120,42 @@ def plotBoxplotSpeedPerEvent(dataDic, ax, eventToTest):
     ax.spines['top'].set_visible(False)
 
 
+def plotBoxplotSpeedPerEventPerSex(dataDic, ax, eventToTest, age):
+    dfData = pandas.DataFrame({'group': dataDic["exp"],
+                               'age': dataDic["age"],
+                               'sex': dataDic["sex"],
+                               'value': dataDic["meanValue"]})
+    print(dfData)
+
+    dfDataAge = dfData.loc[dfData['age'] == age, :]
+    print(dfDataAge)
+    y = dfDataAge["value"]
+    x = dfDataAge["sex"]
+
+    group = dfDataAge["group"]
+
+    print("y: ", y)
+    print("x: ", x)
+    print("group: ", group)
+    experimentType = Counter(group)
+    print("Nb of experiments: ", len(experimentType))
+
+    ax.set_xlim(-0.5, 1.5)
+    ax.set_ylim(min(y) - 0.2 * max(y), max(y) + 0.2 * max(y))
+    sns.boxplot(x, y, order=['male', 'female'], ax=ax, linewidth=0.5, showmeans=True,
+                meanprops={"marker": 'o',
+                           "markerfacecolor": 'white',
+                           "markeredgecolor": 'black',
+                           "markersize": '8'}, showfliers=False, width=0.4)
+    sns.stripplot(x, y, order=['male', 'female'], jitter=True, color='black', hue=group, s=5,
+                  ax=ax)
+    ax.set_title('{} night {}'.format(eventToTest, n))
+    ax.set_ylabel("mean speed (cm/s)")
+    ax.legend().set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+
 def testSpeedData(profileData=None, night=0, event=None ):
 
     print("event: ", event, 'night: ', night)
@@ -127,6 +173,28 @@ def testSpeedData(profileData=None, night=0, event=None ):
     result = model.fit()
     # print summary
     print(result.summary())
+
+def testSpeedDataBetweenSexes(profileData=None, night=0, event=None, age=None ):
+
+    print("event: ", event, 'night: ', night, 'age: ', age)
+
+    profileValueDictionary = getProfileValuesNoGroup(profileData=profileData, night=night, event=event)
+
+    dfData = pandas.DataFrame({'group': profileValueDictionary["exp"],
+                               'age': profileValueDictionary["age"],
+                               'sex': profileValueDictionary["sex"],
+                               'value': profileValueDictionary["meanValue"]})
+
+    dfDataAge = dfData.loc[dfData['age'] == age, :]
+
+    # Mixed model: variable to explain: value; fixed factor = genotype; random effect: group
+    # create model:
+    model = smf.mixedlm("value ~ sex", dfDataAge, groups=dfDataAge["group"])
+    # run model:
+    result = model.fit()
+    # print summary
+    print(result.summary())
+
 
 if __name__ == '__main__':
     '''
@@ -150,6 +218,7 @@ if __name__ == '__main__':
         question = "Do you want to:"
         question += "\n\t [c] compute the speed and duration for a specific event?"
         question += "\n\t [p] plot the mean speed of animals in a specific event between genotypes"
+        question += "\n\t [3] plot the mean speed of animals in a specific event between sexes for each age"
         question += "\n"
         answer = input(question)
 
@@ -190,3 +259,34 @@ if __name__ == '__main__':
 
             break
 
+        if answer == '3':
+            '''This option provides the speed of the mice for each age class to compare between sexes'''
+            jsonFile = getJsonFileToProcess()
+            with open(jsonFile) as json_data:
+                durationSpeedData = json.load(json_data)
+            print("json file re-imported.")
+
+
+            eventToTest = 'Get away'
+            nightList = ['1', '2', '3']
+
+            age = '2mo'
+
+            fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(15, 6), sharey=True)
+
+            col = 0
+
+            for n in nightList:
+                dataDic = getProfileValuesNoGroup( durationSpeedData, night = str(n), event='speed' )
+                testSpeedDataBetweenSexes(profileData=durationSpeedData, night = str(n), event='speed', age=age )
+                ax = axes[col]
+                plotBoxplotSpeedPerEventPerSex(dataDic, ax, eventToTest, age=age)
+                col += 1
+
+            fig.tight_layout()
+            fig.savefig('Fig_meanSpeed_{}_{}.pdf'.format(eventToTest, age), dpi=300)
+            plt.close(fig)
+
+            print('Job done.')
+
+            break

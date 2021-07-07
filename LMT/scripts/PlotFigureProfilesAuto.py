@@ -70,6 +70,7 @@ if __name__ == '__main__':
         question += "\n\t [2] plot figure with selected behaviours for both sexes (from json file)?"
         question += "\n\t [3] plot figure with selected behaviours for pairs of mice (from json file)?"
         question += "\n\t [4] plot figure with selected behaviours for pairs of mice (from json file) for master?"
+        question += "\n\t [5] plot figure for LMT presentation in grant application?"
         question += "\n"
         answer = input(question)
 
@@ -217,13 +218,13 @@ if __name__ == '__main__':
             image = 'img_cct.jpg'
             imgPos = (0.5, 23000)
             zoom = 0.7
-            
+
             ax = axes[row, col]
             singlePlotPerEventProfileBothSexes(profileDataM=profileDataM, profileDataF=profileDataF, night=n,
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=ax,
                                                letter=letter[k], text_file=text_file, image=image, imgPos=imgPos, zoom=zoom)
-            wtPatch = mpatches.Patch(edgecolor='black', facecolor='steelblue', label='WT-WT')
-            delPatch = mpatches.Patch(edgecolor='black', facecolor='darkorange', label='Del/+-Del/+')
+            wtPatch = mpatches.Patch(edgecolor='black', facecolor='steelblue', label='WT')
+            delPatch = mpatches.Patch(edgecolor='black', facecolor='darkorange', label='Del/+')
             handles = [wtPatch, delPatch]
             ax.legend(handles=handles, loc=(0.02, 0.1)).set_visible(True)
             ax.set_title("contact", fontsize=16)
@@ -559,3 +560,240 @@ if __name__ == '__main__':
 
             break
 
+        if answer == "5":
+            # Create general figure
+            gs = gridspec.GridSpec(3, 12)
+            fig = plt.figure(figsize=(24, 16))
+
+            #subplot for lmt setup
+            ax = fig.add_subplot(gs[0, 0:3])
+            letter = 'A'
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.spines['left'].set_visible(False)
+            ax.spines['bottom'].set_visible(False)
+            ax.set_xlim(0, 1)
+            ax.set_ylim(0, 1)
+            ax.set_xticklabels([])
+            ax.set_yticklabels([])
+            ax.tick_params(bottom=False, left=False)
+            #ax.patch.set_facecolor('white')
+
+            image = 'img_lmt_video.jpg'
+            imgPos = (0.3, 0.5)
+            zoom = 0.33
+
+            behavSchema = mpimg.imread(image)
+            imgBox = OffsetImage(behavSchema, zoom=zoom)
+            imageBox = AnnotationBbox(imgBox, imgPos, frameon=False)
+            ax.add_artist(imageBox)
+
+            ax.text(-0.4, 1.06, letter, fontsize=28, horizontalalignment='center', color='black', weight='bold')
+
+            #subplot for lmt player
+            ax = fig.add_subplot(gs[0, 3:6])
+            letter = 'B'
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.spines['left'].set_visible(False)
+            ax.spines['bottom'].set_visible(False)
+            ax.set_xlim(0, 1)
+            ax.set_ylim(0, 1)
+            ax.set_xticklabels([])
+            ax.set_yticklabels([])
+            ax.tick_params(bottom=False, left=False)
+            #ax.patch.set_facecolor('white')
+
+            image = 'img_lmt_db_player.jpg'
+            imgPos = (0.5, 0.5)
+            zoom = 0.63
+
+            behavSchema = mpimg.imread(image)
+            imgBox = OffsetImage(behavSchema, zoom=zoom)
+            imageBox = AnnotationBbox(imgBox, imgPos, frameon=False)
+            ax.add_artist(imageBox)
+
+            ax.text(-0.1, 1.06, letter, fontsize=28, horizontalalignment='center', color='black', weight='bold')
+
+            # subplot for behaviours
+            ax = fig.add_subplot(gs[1:3, 0:6])
+            letter = 'C'
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.spines['left'].set_visible(False)
+            ax.spines['bottom'].set_visible(False)
+            ax.set_xlim(0, 1)
+            ax.set_ylim(0, 1)
+            ax.set_xticklabels([])
+            ax.set_yticklabels([])
+            ax.tick_params(bottom=False, left=False)
+            ax.patch.set_facecolor('white')
+
+            image = 'img_behav_lmt.png'
+            imgPos = (0.4, 0.4)
+            zoom = 0.75
+
+            behavSchema = mpimg.imread(image)
+            imgBox = OffsetImage(behavSchema, zoom=zoom)
+            imageBox = AnnotationBbox(imgBox, imgPos, frameon=False)
+            ax.add_artist(imageBox)
+
+            ax.text(-0.2, 0.95, letter, fontsize=28, horizontalalignment='center', color='black', weight='bold')
+
+            #subplot for Z-scores profile
+            ax = fig.add_subplot(gs[0:3, 8:12])
+            letter = 'D'
+            print('Choose the profile json file to process.')
+            file = getJsonFileToProcess()
+            # create a dictionary with profile data
+            with open(file) as json_data:
+                profileData = json.load(json_data)
+            print("json file for profile data re-imported.")
+            categoryList = [' TotalLen', ' Nb', ' MeanDur']
+
+            mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList,
+                                                  behaviouralEventOneMouse=behaviouralEventOneMouse)
+            # If the profiles are computed over the nights separately as in the original json file:
+            # dataToUse = profileData
+            # If the profiles are computed over the merged nights:
+            dataToUse = mergeProfile
+
+            # compute the data for the control animal of each cage
+            genoControl = 'WT'
+            wtData = extractControlData(profileData=dataToUse, genoControl=genoControl, behaviouralEventOneMouse=behaviouralEventOneMouse)
+            wtData = extractCageData(profileData=dataToUse, behaviouralEventOneMouse=behaviouralEventOneMouse)
+
+            # compute the mutant data, centered and reduced for each cage
+            genoMutant = 'Del/+'
+            koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData,
+                                        categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse)
+
+            print(koData)
+
+            cat = ' TotalLen'
+
+            koDataDic = {}
+            for key in ['night', 'trait', 'rfid', 'exp', 'value']:
+                koDataDic[key] = []
+            night = 'all nights'
+
+            for file in koData.keys():
+                print('file: ', file)
+                for night in koData[file].keys():
+                    print('night: ', night)
+                    for rfid in koData[file][night].keys():
+                        print('rfid: ', rfid)
+                        eventListForTest = []
+                        for event in koData[file][night][rfid].keys():
+                            print('event: ', event)
+                            if (cat in event) or (event == 'totalDistance'):
+                                koDataDic['exp'].append(file)
+                                koDataDic['night'].append(night)
+                                koDataDic['rfid'].append(rfid)
+                                koDataDic['trait'].append(event)
+                                koDataDic['value'].append(koData[file][night][rfid][event])
+                                eventListForTest.append(event)
+
+            koDataframe = pd.DataFrame.from_dict(koDataDic)
+            # print(koDataframe)
+
+            night = 'all nights'
+            plotZScoreProfileAuto(ax=ax, koDataframe=koDataframe, night=night, eventListForTest=eventListForTest)
+
+            ax.text(-5, -1, letter, fontsize=28, horizontalalignment='center', color='black', weight='bold')
+
+
+            plt.tight_layout()
+            plt.show()
+            fig.savefig('figure_lmt_social.pdf', dpi=300)
+            fig.savefig('figure_lmt_social.jpg', dpi=300)
+            print('Job done.')
+            break
+
+        if answer == "6":
+            # Create general figure
+            gs = gridspec.GridSpec(1, 20)
+            fig = plt.figure(figsize=(10, 16))
+
+            # subplot for lmt setup
+            ax = fig.add_subplot(gs[0, 0])
+            letter = ''
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.spines['left'].set_visible(False)
+            ax.spines['bottom'].set_visible(False)
+            ax.set_xlim(0, 1)
+            ax.set_ylim(0, 1)
+            ax.set_xticklabels([])
+            ax.set_yticklabels([])
+            ax.tick_params(bottom=False, left=False)
+
+            # subplot for Z-scores profile
+            ax = fig.add_subplot(gs[0, 10:20])
+            letter=''
+            print('Choose the profile json file to process.')
+            file = getJsonFileToProcess()
+            # create a dictionary with profile data
+            with open(file) as json_data:
+                profileData = json.load(json_data)
+            print("json file for profile data re-imported.")
+            categoryList = [' TotalLen', ' Nb', ' MeanDur']
+
+            mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList,
+                                                  behaviouralEventOneMouse=behaviouralEventOneMouse)
+            # If the profiles are computed over the nights separately as in the original json file:
+            # dataToUse = profileData
+            # If the profiles are computed over the merged nights:
+            dataToUse = mergeProfile
+
+            # compute the data for the control animal of each cage
+            genoControl = 'WT'
+            wtData = extractControlData(profileData=dataToUse, genoControl=genoControl,
+                                        behaviouralEventOneMouse=behaviouralEventOneMouse)
+            wtData = extractCageData(profileData=dataToUse, behaviouralEventOneMouse=behaviouralEventOneMouse)
+
+            # compute the mutant data, centered and reduced for each cage
+            genoMutant = 'Del/+'
+            koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData,
+                                        categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse)
+
+            print(koData)
+
+            cat = ' TotalLen'
+
+            koDataDic = {}
+            for key in ['night', 'trait', 'rfid', 'exp', 'value']:
+                koDataDic[key] = []
+            night = 'all nights'
+
+            for file in koData.keys():
+                print('file: ', file)
+                for night in koData[file].keys():
+                    print('night: ', night)
+                    for rfid in koData[file][night].keys():
+                        print('rfid: ', rfid)
+                        eventListForTest = []
+                        for event in koData[file][night][rfid].keys():
+                            print('event: ', event)
+                            if (cat in event) or (event == 'totalDistance'):
+                                koDataDic['exp'].append(file)
+                                koDataDic['night'].append(night)
+                                koDataDic['rfid'].append(rfid)
+                                koDataDic['trait'].append(event)
+                                koDataDic['value'].append(koData[file][night][rfid][event])
+                                eventListForTest.append(event)
+
+            koDataframe = pd.DataFrame.from_dict(koDataDic)
+            # print(koDataframe)
+
+            night = 'all nights'
+            plotZScoreProfileAuto(ax=ax, koDataframe=koDataframe, night=night, eventListForTest=eventListForTest)
+
+            ax.text(-5, -1, letter, fontsize=28, horizontalalignment='center', color='black', weight='bold')
+
+            plt.tight_layout()
+            plt.show()
+            fig.savefig('figure_lmt_social_profile.pdf', dpi=300)
+            fig.savefig('figure_lmt_social_profile.jpg', dpi=300)
+            print('Job done.')
+            break

@@ -20,13 +20,17 @@ def flush( connection ):
     ''' flush event in database '''
     deleteEventTimeLineInBase(connection, "SniffRight" )
     deleteEventTimeLineInBase(connection, "SniffLeft" )
+    deleteEventTimeLineInBase(connection, "SniffRightFar")
+    deleteEventTimeLineInBase(connection, "SniffLeftFar")
 
 
-def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectTuple, tmin=None, tmax=None, pool = None ):
+def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectTuple, tmin=None, tmax=None, pool = None, vibrissae=3 ):
     deleteEventTimeLineInBase(connection, "SniffRight" )
     deleteEventTimeLineInBase(connection, "SniffLeft")
-    deleteEventTimeLineInBase(connection, "upRight")
-    deleteEventTimeLineInBase(connection, "upLeft")
+    deleteEventTimeLineInBase(connection, "SniffRightFar")
+    deleteEventTimeLineInBase(connection, "SniffLeftFar")
+    deleteEventTimeLineInBase(connection, "UpRight")
+    deleteEventTimeLineInBase(connection, "UpLeft")
 
 
     ''' use the pool provided or create it'''
@@ -60,6 +64,14 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectT
         print ( "A is around object located on the left")
         print ( eventNameSniffLeft )
 
+        eventNameSniffRightFar = "SniffRightFar"
+        print("A is around the object located on the right, at a distance")
+        print(eventNameSniffRight)
+
+        eventNameSniffLeftFar = "SniffLeftFar"
+        print("A is around object located on the left, at a distance")
+        print(eventNameSniffLeft)
+
         eventNameUpRight = "UpRight"
         print("A is on the object located on the right")
         print(eventNameUpRight)
@@ -68,13 +80,17 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectT
         print("A is on object located on the left")
         print(eventNameUpLeft)
                 
-        sniffRightTimeLine = EventTimeLine( None, eventNameSniffRight , animal , None , None , None , loadEvent=False )
-        sniffLeftTimeLine = EventTimeLine( None, eventNameSniffLeft , animal , None , None , None , loadEvent=False )
+        sniffRightTimeLine = EventTimeLine( None, eventNameSniffRight, animal , None , None , None , loadEvent=False )
+        sniffLeftTimeLine = EventTimeLine( None, eventNameSniffLeft, animal , None , None , None , loadEvent=False )
+        sniffRightTimeLineFar = EventTimeLine(None, eventNameSniffRightFar, animal, None, None, None, loadEvent=False)
+        sniffLeftTimeLineFar = EventTimeLine(None, eventNameSniffLeftFar, animal, None, None, None, loadEvent=False)
         upRightTimeLine = EventTimeLine(None, eventNameUpRight, animal, None, None, None, loadEvent=False)
         upLeftTimeLine = EventTimeLine(None, eventNameUpLeft, animal, None, None, None, loadEvent=False)
 
         resultSniffRight = {}
         resultSniffLeft = {}
+        resultSniffRightFar = {}
+        resultSniffLeftFar = {}
         resultUpRight = {}
         resultUpLeft = {}
         
@@ -94,12 +110,19 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectT
                 print('no nose detected for frame ', t)
 
             else:
-                if distanceNoseLeft <= radiusObjects[objectLeft] + 3 / scaleFactor:
+                if distanceNoseLeft <= radiusObjects[objectLeft] + vibrissae / scaleFactor:
+                    print('t: ', t, distanceNoseLeft)
                     # check if the animal is on the object:
                     if distanceMassLeft <= radiusObjects[objectLeft]:
                         resultUpLeft[t] = True
                     else:
                         resultSniffLeft[t] = True
+
+                if distanceNoseLeft <= radiusObjects[objectLeft] + 2*vibrissae / scaleFactor:
+                    print('t: ', t, distanceNoseLeft)
+                    # check if the animal is on the object:
+                    if distanceMassLeft > radiusObjects[objectLeft]:
+                        resultSniffLeftFar[t] = True
 
             distanceNoseRight = animalA.getDistanceNoseToPoint(t=t, xPoint=objectPosition[setup]['right'][0], yPoint=-objectPosition[setup]['right'][1])
             distanceMassRight = animalA.getDistanceToPoint(t=t, xPoint=objectPosition[setup]['right'][0], yPoint=-objectPosition[setup]['right'][1])
@@ -108,12 +131,17 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectT
                 print('no nose detected for frame ', t)
 
             else:
-                if distanceNoseRight <= radiusObjects[objectRight] + 3 / scaleFactor:
+                if distanceNoseRight <= radiusObjects[objectRight] + vibrissae / scaleFactor:
                     # check if the animal is on the object:
                     if distanceMassRight <= radiusObjects[objectRight]:
                         resultUpRight[t] = True
                     else:
                         resultSniffRight[t] = True
+
+                if distanceNoseRight <= radiusObjects[objectRight] + 2*vibrissae / scaleFactor:
+                    # check if the animal is on the object:
+                    if distanceMassRight > radiusObjects[objectRight]:
+                        resultSniffRightFar[t] = True
 
         sniffRightTimeLine.reBuildWithDictionnary( resultSniffRight )
         sniffRightTimeLine.endRebuildEventTimeLine(connection)
@@ -121,17 +149,26 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectT
         sniffLeftTimeLine.reBuildWithDictionnary(resultSniffLeft)
         sniffLeftTimeLine.endRebuildEventTimeLine(connection)
 
+        sniffRightTimeLineFar.reBuildWithDictionnary(resultSniffRightFar)
+        sniffRightTimeLineFar.endRebuildEventTimeLine(connection)
+
+        sniffLeftTimeLineFar.reBuildWithDictionnary(resultSniffLeftFar)
+        sniffLeftTimeLineFar.endRebuildEventTimeLine(connection)
+
         upRightTimeLine.reBuildWithDictionnary(resultUpRight)
         upRightTimeLine.endRebuildEventTimeLine(connection)
 
         upLeftTimeLine.reBuildWithDictionnary(resultUpLeft)
         upLeftTimeLine.endRebuildEventTimeLine(connection)
 
+
     # log process
     from lmtanalysis.TaskLogger import TaskLogger
     t = TaskLogger( connection )
     t.addLog( "Build Event Sniff Right" , tmin=tmin, tmax=tmax )
     t.addLog( "Build Event Sniff Left" , tmin=tmin, tmax=tmax )
+    t.addLog("Build Event Sniff Right Far", tmin=tmin, tmax=tmax)
+    t.addLog("Build Event Sniff Left Far", tmin=tmin, tmax=tmax)
     t.addLog("Build Event Up Right", tmin=tmin, tmax=tmax)
     t.addLog("Build Event Up Left", tmin=tmin, tmax=tmax)
 
