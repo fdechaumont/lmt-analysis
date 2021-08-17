@@ -170,6 +170,8 @@ class EventTimeLine:
         if ( maxFrame != None ):
             query += " AND STARTFRAME<={0}".format( maxFrame )
 
+        query += " ORDER BY STARTFRAME"
+
         ''' print( query ) '''
         c.execute( query )
         all_rows = c.fetchall()
