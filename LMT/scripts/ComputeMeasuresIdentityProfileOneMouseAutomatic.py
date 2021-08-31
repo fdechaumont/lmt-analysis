@@ -64,6 +64,8 @@ def computeProfile(file, minT, maxT, night, text_file):
         animalData[rfid]['genotype'] = pool.animalDictionnary[animal].genotype
         animalData[rfid]['sex'] = pool.animalDictionnary[animal].sex
         animalData[rfid]['group'] = groupName
+        animalData[rfid]['strain'] = pool.animalDictionnary[animal].strain
+        animalData[rfid]['age'] = pool.animalDictionnary[animal].age
                 
         genoA = None
         try:
@@ -1309,7 +1311,7 @@ if __name__ == '__main__':
             #print(wtData)
 
             #compute the mutant data, centered and reduced for each cage
-            genoMutant = 'Del/+'
+            genoMutant = 'KO'
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
 
             print(koData)
@@ -1320,10 +1322,24 @@ if __name__ == '__main__':
                 for key in ['night', 'trait', 'rfid', 'exp', 'value']:
                     koDataDic[key] = []
 
+                eventListForTest = []
+
+                file = list(koData.keys())[0]
+                print('xxx: ', koData[file].keys())
+                for night in koData[file].keys():
+                    for rfid in koData[file][night].keys():
+                        for event in koData[file][night][rfid].keys():
+                            if (cat in event) or (event == 'totalDistance'):
+                                eventListForTest.append(event)
+                        break
+                    break
+
+
+
                 for file in koData.keys():
                     for night in koData[file].keys():
                         for rfid in koData[file][night].keys():
-                            eventListForTest = []
+
                             for event in koData[file][night][rfid].keys():
                                 if (cat in event) or (event == 'totalDistance'):
                                     koDataDic['exp'].append(file)
@@ -1331,7 +1347,7 @@ if __name__ == '__main__':
                                     koDataDic['rfid'].append(rfid)
                                     koDataDic['trait'].append(event)
                                     koDataDic['value'].append(koData[file][night][rfid][event])
-                                    eventListForTest.append(event)
+
                 # print(koDataDic)
 
                 koDataframe = pd.DataFrame.from_dict(koDataDic)
