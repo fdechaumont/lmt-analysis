@@ -142,10 +142,10 @@ def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, 
                     else:
                         resultSniffNew[t] = True
 
-                    if distanceNoseNew <= radiusObjects[objectNew] + 2*vibrissae / scaleFactor:
-                        # check if the animal is on the object:
-                        if distanceMassNew > radiusObjects[objectNew]:
-                            resultSniffNewFar[t] = True
+                if distanceNoseNew <= radiusObjects[objectNew] + 2*vibrissae / scaleFactor:
+                    # check if the animal is on the object:
+                    if distanceMassNew > radiusObjects[objectNew]:
+                        resultSniffNewFar[t] = True
 
         sniffFamiliarTimeLine.reBuildWithDictionnary( resultSniffFamiliar )
         sniffFamiliarTimeLine.endRebuildEventTimeLine(connection)
