@@ -17,6 +17,9 @@ from scipy import stats
 import seaborn as sns
 
 from scripts.Novel_Object_Recognition_Test.ConfigurationNOR import *
+from scripts.Novel_Object_Recognition_Test.ComputeActivityHabituationNorTestRedCage import buildFigTrajectoryPerSetup,\
+    plotVariablesHabituationNorBoxplotsPerSetup,\
+    getCumulDistancePerTimeBinRedCage, plotDistancePerBinRedCage
 
 
 if __name__ == '__main__':
