@@ -4,34 +4,12 @@ Created on 24 Septembre 2021
 @author: Elodie
 '''
 
-import sqlite3
-from lmtanalysis.Animal import *
-import matplotlib.pyplot as plt
+
 from lmtanalysis.Event import *
-from lmtanalysis.Measure import *
-from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, BuildEventFollowZone, BuildEventRear5, BuildEventFloorSniffing,\
-    BuildEventSocialApproach, BuildEventSocialEscape, BuildEventApproachContact,BuildEventOralOralContact,\
-    BuildEventApproachRear, BuildEventGroup2, BuildEventGroup3, BuildEventGroup4, BuildEventOralGenitalContact, \
-    BuildEventStop, BuildEventWaterPoint, \
-    BuildEventMove, BuildEventGroup3MakeBreak, BuildEventGroup4MakeBreak,\
-    BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
-    BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
-    BuildEventOralSideSequence, CheckWrongAnimal,\
-    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventGetAway, BuildEventHuddling
 
-    
-from psutil import virtual_memory
 
-from tkinter.filedialog import askopenfilename
-from lmtanalysis.TaskLogger import TaskLogger
-import sys
-import traceback
 from lmtanalysis.FileUtil import getFilesToProcess
-from lmtanalysis.EventTimeLineCache import flushEventTimeLineCache,\
-    disableEventTimeLineCache
 
-
-from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
 def process( file ):
 
