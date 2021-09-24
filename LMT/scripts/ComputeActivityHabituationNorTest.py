@@ -85,7 +85,7 @@ def buildFigTrajectoryMalesFemales(files, tmin, tmax, figName, colorSap, title, 
             # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
             ax = axesM[nRow['male']][nCol['male']]  # set the subplot where to draw the plot
             plotTrajectorySingleAnimal(file, color=colorSap[animal.genotype], ax=ax, tmin=tminHab,
-                                       tmax=tmaxHab, title=title, colorTitle=getColorSetup(), xa = 111, xb = 400, ya = 63, yb = 353)  # function to draw the trajectory
+                                       tmax=tmaxHab, title=title, colorTitle='black', xa = 111, xb = 400, ya = 63, yb = 353)  # function to draw the trajectory
 
             if nCol['male'] < 5:
                 nCol['male'] += 1
@@ -97,7 +97,7 @@ def buildFigTrajectoryMalesFemales(files, tmin, tmax, figName, colorSap, title, 
             # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
             ax = axesF[nRow['female']][nCol['female']]  # set the subplot where to draw the plot
             plotTrajectorySingleAnimal(file, color=colorSap[animal.genotype], ax=ax, tmin=tminHab,
-                                       tmax=tmaxHab, title=title, xa = 111, xb = 400, ya = 63, yb = 353)  # function to draw the trajectory
+                                       tmax=tmaxHab, title=title, colorTitle='black', xa = 111, xb = 400, ya = 63, yb = 353)  # function to draw the trajectory
 
             if nCol['female'] < 5:
                 nCol['female'] += 1
