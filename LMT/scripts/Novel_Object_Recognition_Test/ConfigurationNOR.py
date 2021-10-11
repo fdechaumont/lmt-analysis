@@ -21,8 +21,10 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 from scripts.ComputeObjectRecognition import *
 
 #object positions (x,y) according to the setup:
-objectPosition = {1: {'left': (190, -152), 'right': (330, -152)},
-                  2: {'left': (192, -152), 'right': (323, -152)}
+objectPosition = {'1': {'left': (190, -152), 'right': (330, -152)},
+                  '2': {'left': (192, -152), 'right': (323, -152)},
+                    '2i': {'left': (192, -152), 'right': (323, -152)},
+                    '2s': {'left': (192, -152), 'right': (323, -152)}
                   }
 
 # object information
@@ -45,7 +47,72 @@ objectConfig = {'cc1': {'acquisition': ('cup', 'cup'), 'test': ('cup', 'shaker')
                 }
 
 organisation = {'short':
-                        {'001038125044': 'ff1',
+                        {'001038125162': 'ff1',
+                         '001038125201': 'ff1',
+                         '001038125204': 'ff1',
+                         '001038125205': 'ff1',
+                         '001038125207': 'ff1',
+                         '001038125237': 'ff1',
+                         '001038125240': 'ff1',
+                         '001038125241': 'ff1',
+                         '001038125248': 'ff1',
+                         '001038125160': 'cc1',
+                         '001038125169': 'ff1',
+                         '001038125170': 'cc1',
+                         '001038125172': 'cc1',
+                         '001038125175': 'cc1',
+                         '001038125182': 'ff1',
+                         '001038125186': 'ff1',
+                         '001038125188': 'ff1',
+                         '001038125194': 'ff1',
+                         '001038125197': 'cc1',
+                         '001038125199': 'ff1',
+                         '001038125202': 'cc1',
+                         '001038125208': 'cc1',
+                         '001038125220': 'ff1',
+                         '001038125231': 'cc1',
+                         '001038125256': 'ff1',
+                         '001038125161': 'cc1',
+                         '001038125167': 'ff1',
+                         '001038125180': 'cc1',
+                         '001038125187': 'ff1',
+                         '001038125189': 'cc1',
+                         '001038125191': 'ff1',
+                         '001038125195': 'cc1',
+                         '001038125206': 'ff1',
+                         '001038125209': 'ff1',
+                         '001038125212': 'cc1',
+                         '001038125230': 'ff1',
+                         '001038125257': 'cc1',
+                         '001038125159': 'ff1',
+                         '001038125176': 'ff1',
+                         '001038125192': 'cc1',
+                         '001038125198': 'ff1',
+                         '001038125210': 'ff1',
+                         '001038125229': 'cc1',
+                         '001038125243': 'cc1',
+                         '001038125250': 'cc1',
+                         '001038125003': 'ff1',
+                         '001038125036': 'cc1',
+                         '001038125039': 'cc1',
+                         '001038125050': 'cc1',
+                         '001038125163': 'cc1',
+                         '001038125164': 'ff1',
+                         '001038125171': 'ff1',
+                         '001038125185': 'ff1',
+                         '001038125193': 'ff1',
+                         '001038125196': 'cc1',
+                         '001038125224': 'cc1',
+                         '001038125178': 'cc1',
+                         '001038125181': 'cc1',
+                         '001038125190': 'cc1',
+                         '001038125218': 'cc1',
+                         '001038125222': 'cc1',
+                         '001038125227': 'cc1',
+                         '001038125233': 'cc1',
+                         '001038125247': 'cc1',
+                         '001038125251': 'cc1',
+                        '001038125044': 'ff1',
                         '001038125005': 'cc1',
                         '001038124994': 'kk2',
                         '001038125001': 'ss2',
@@ -65,7 +132,72 @@ organisation = {'short':
                         '001038125012': 'kk2'
                             },
                 'medium':
-                    {'001038125044': 'cc2',
+                    {'001038125162': 'cc1',
+                         '001038125201': 'cc1',
+                         '001038125204': 'cc1',
+                         '001038125205': 'cc1',
+                         '001038125207': 'cc1',
+                         '001038125237': 'cc1',
+                         '001038125240': 'cc1',
+                         '001038125241': 'cc1',
+                         '001038125248': 'cc1',
+                         '001038125160': 'ff1',
+                         '001038125169': 'cc1',
+                         '001038125170': 'ff1',
+                         '001038125172': 'ff1',
+                         '001038125175': 'ff1',
+                         '001038125182': 'cc1',
+                         '001038125186': 'cc1',
+                         '001038125188': 'cc1',
+                         '001038125194': 'cc1',
+                         '001038125197': 'ff1',
+                         '001038125199': 'cc1',
+                         '001038125202': 'ff1',
+                         '001038125208': 'ff1',
+                         '001038125220': 'cc1',
+                         '001038125231': 'ff1',
+                         '001038125256': 'cc1',
+                         '001038125161': 'ff1',
+                         '001038125167': 'cc1',
+                         '001038125180': 'ff1',
+                         '001038125187': 'cc1',
+                         '001038125189': 'ff1',
+                         '001038125191': 'cc1',
+                         '001038125195': 'ff1',
+                         '001038125206': 'cc1',
+                         '001038125209': 'cc1',
+                         '001038125212': 'ff1',
+                         '001038125230': 'cc1',
+                         '001038125257': 'ff1',
+                         '001038125159': 'cc1',
+                         '001038125176': 'cc1',
+                         '001038125192': 'ff1',
+                         '001038125198': 'cc1',
+                         '001038125210': 'cc1',
+                         '001038125229': 'ff1',
+                         '001038125243': 'ff1',
+                         '001038125250': 'ff1',
+                         '001038125003': 'cc1',
+                         '001038125036': 'ff1',
+                         '001038125039': 'ff1',
+                         '001038125050': 'ff1',
+                         '001038125163': 'ff1',
+                         '001038125164': 'cc1',
+                         '001038125171': 'cc1',
+                         '001038125185': 'cc1',
+                         '001038125193': 'cc1',
+                         '001038125196': 'ff1',
+                         '001038125224': 'ff1',
+                         '001038125178': 'ff1',
+                         '001038125181': 'ff1',
+                         '001038125190': 'ff1',
+                         '001038125218': 'ff1',
+                         '001038125222': 'ff1',
+                         '001038125227': 'ff1',
+                         '001038125233': 'ff1',
+                         '001038125247': 'ff1',
+                         '001038125251': 'ff1',
+                     '001038125044': 'cc2',
                     '001038125005': 'ff2',
                     '001038124994': 'cc1',
                     '001038125001': 'kk1',
@@ -108,8 +240,33 @@ organisation = {'short':
                      'M21': 'md1',
                      'M22': 'ck1',
                      'M23': 'md2'
-}
-                    }
+},
+                'longIso':
+                    {'M01': 'md1',
+                     'M02': 'dm1',
+                     'M03': 'md1',
+                     'M04': 'dm1',
+                     'M05': 'dm2',
+                     'M06': 'md2',
+                     'M07': 'dm2',
+                     'M08': 'md2',
+                     'M09': 'md1',
+                     'M10': 'dm1',
+                     'M11': 'md1',
+                     'M12': 'dm1',
+                     'M13': 'dm2',
+                     'M14': 'md2',
+                     'M15': 'dm2',
+                     'M16': 'md2',
+                     'M17': 'md1',
+                     'M18': 'dm1',
+                     'M19': 'md1',
+                     'M20': 'dm1',
+                     'M21': 'dm2',
+                     'M22': 'md2',
+                     'M23': 'dm2'
+                     }
+                }
 
 
 radiusObjects = {'cup': 18, 'flask': 15, 'falcon': 9, 'shaker': 11, 'marble': 7, 'dice': 6}
@@ -121,12 +278,12 @@ colorSap = {'WT': 'dodgerblue', 'Del/+': 'darkorange', '1': 'dodgerblue', '2': '
 sexList = ['female', 'male']
 genoList = ['WT', 'Del/+']
 configList = ['config1', 'config2']
-setupList = ['1', '2']
+setupList = ['2i', '2s']
 
-markerList = {'1': 'o', '2': 'v'} #for the setups
+markerList = {'1': 'o', '2': 'v', '2i': 'v', '2s': 'o'} #for the setups
 markerListConfig = {'config1': 'o', 'config2': 'v'} #for the setups
 
-xPos = {'male': {'1': 7.5, '2': 10.5},
+xPos = {'male': {setupList[0]: 1.5, setupList[1]: 4.5},
         'female': {'1': 1.5, '2': 4.5}}
 xPosConfig = {'male': {'config1': 1.5, 'config2': 4.5},
         'female': {'config1': 7.5, 'config2': 10.5}}
@@ -139,6 +296,29 @@ colorEvent = {'SniffLeft': 'dodgerblue', 'SniffRight': 'darkorange', 'SniffLeftF
                           'SniffFamiliar': 'mediumseagreen', 'SniffNew': 'blueviolet', 'SniffFamiliarFar': 'darkgreen', 'SniffNewFar': 'magenta', 'UpFamiliar': 'lightgreen', 'UpNew': 'violet'}
 
 
+def getStartTestPhase(pool):
+    cursor = pool.conn.cursor()
+    query = "SELECT FRAMENUMBER, PAUSED FROM FRAME"
+    try:
+        cursor.execute(query)
+    except:
+        print("can't access data for PAUSED")
+
+    rows = cursor.fetchall()
+    cursor.close()
+
+    frameNumberList = []
+
+    for row in rows:
+        pauseValue = row[1]
+        if pauseValue == 1:
+            frameNumberList.append(row[0])
+    sortedFrameList = sorted(frameNumberList)
+
+    lastPausedFrame = sortedFrameList[-1]
+    startFrameTestPhase = lastPausedFrame + 1
+    return startFrameTestPhase
+
 def getColorGeno(geno):
     if geno == 'WT':
         color = 'steelblue'
@@ -150,8 +330,12 @@ def getColorGeno(geno):
 def getColorSetup(setup):
     if setup == '1':
         color = 'royalblue'
-    else:
+    elif setup == '2':
         color = 'red'
+    elif setup == '2i':
+        color = 'steelblue'
+    elif setup == '2s':
+        color = 'green'
     return color
 
 
@@ -163,6 +347,7 @@ def getColorConfig(config):
     return color
 
 def getConfigCat(rfid, exp, organisation):
+    config = 'None'
     configName = organisation[exp][rfid]
     if 'md' in configName:
         config = 'config1'
@@ -171,5 +356,13 @@ def getConfigCat(rfid, exp, organisation):
     elif 'kc' in configName:
         config = 'config2'
     elif 'ck' in configName:
+        config = 'config2'
+    elif 'ff' in configName:
+        config = 'config1'
+    elif 'kk' in configName:
+        config = 'config1'
+    elif 'ss' in configName:
+        config = 'config2'
+    elif 'cc' in configName:
         config = 'config2'
     return config
