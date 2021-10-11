@@ -781,7 +781,7 @@ if __name__ == '__main__':
 
 
         if answer == '3c':
-            question1 = "Is it the short or medium retention time? (short / medium)"
+            question1 = "Is it the short or medium or long retention time? (short / medium / long / longIso)"
             exp = input(question1)
             question2 = "Is it the acquisition or test phase? (acquisition / test)"
             phase = input(question2)
@@ -1009,7 +1009,7 @@ if __name__ == '__main__':
 
         if answer == '8':
             # open the json files
-            question = "Is it the short or medium retention time? (short / medium)"
+            question = "Is it the short or medium or long retention time? (short / medium / long / longIso)"
             exp = input(question)
             question = "Is it the acquisition or the test phase? (acquisition / test)"
             phase = input(question)
@@ -1107,7 +1107,7 @@ if __name__ == '__main__':
 
         if answer == '9':
             print('Compute sniff time per time bin.')
-            question = "Is it the short or medium retention time? (short / medium)"
+            question = "Is it the short or medium or long retention time? (short / medium / long / longIso)"
             exp = input(question)
             question = "Is it the acquisition or test phase? (acquisition / test)"
             phase = input(question)
@@ -1175,7 +1175,7 @@ if __name__ == '__main__':
         if answer == '11':
             #plot ratio based on cumulated time per time bin only in the test phase
             #open the json files
-            question = "Is it the short or medium retention time? (short / medium)"
+            question = "Is it the short or medium or long retention time? (short / medium / long / longIso)"
             exp = input(question)
 
             jsonFileName = "sniff_time_timebin_test_{}.json".format(exp)
