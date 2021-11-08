@@ -15,27 +15,29 @@ def process( file ):
 
     print(file)
     #extract the name of the individual from the name of the file; adjust position!!!
-    print('ind name: ', file[46:49])
-    ind = str(file[46:49])
+    '''print('ind name: ', file[36:39])
+    ind = str(file[36:39])'''
     '''print('ind name: ', file[53:56])
     ind = str(file[53:56])'''
         
-    
+
     connection = sqlite3.connect( file )
     
     c = connection.cursor()
-    query = "UPDATE ANIMAL SET GENOTYPE = 'WT'";
-    c.execute(query)
-    query = "UPDATE ANIMAL SET AGE = '3mo'";
+    '''query = "UPDATE ANIMAL SET GENOTYPE = 'WT'";
+    c.execute(query)'''
+    query = "UPDATE ANIMAL SET AGE = '6mo'";
     c.execute( query )
-    query = "UPDATE ANIMAL SET SEX = 'male'";
+    query = "UPDATE ANIMAL SET SEX = 'female'";
     c.execute( query )
-    query = "UPDATE ANIMAL SET STRAIN = 'C57BL/6J'";
+    query = "UPDATE ANIMAL SET STRAIN = 'SHANK3'";
     c.execute( query )
-    query = "UPDATE ANIMAL SET SETUP = '2'";
+    query = "UPDATE ANIMAL SET SETUP = '1'";
     c.execute(query)
-    query = "UPDATE ANIMAL SET NAME = '{}'".format(ind);
-    c.execute(query)
+    '''query = "UPDATE ANIMAL SET NAME = '{}'".format(ind);
+    c.execute(query)'''
+    """query = "UPDATE ANIMAL SET RFID = '{}'".format(ind);
+    c.execute(query)"""
 
     connection.commit()
     c.close()

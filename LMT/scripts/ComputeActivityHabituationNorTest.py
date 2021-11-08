@@ -112,13 +112,6 @@ def buildFigTrajectoryMalesFemales(files, tmin, tmax, figName, colorSap, title, 
     figF.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
     figF.savefig('{}_females.pdf'.format(figName), dpi=200)
 
-def getColorGeno(geno):
-    if geno == 'WT':
-        color = 'steelblue'
-    else:
-        color = 'darkorange'
-    return color
-
 
 def plotVariablesHabituationNor(col, axes, sexList, genoList, data, val, unitDic, yMinDic, yMaxDic ):
     # reformate the data dictionary to get the correct format of data for plotting and statistical analyses
