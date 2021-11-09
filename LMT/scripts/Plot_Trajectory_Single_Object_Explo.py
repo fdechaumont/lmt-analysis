@@ -16,13 +16,13 @@ from lmtanalysis.Util import *
 from lmtanalysis.Measure import *
 from matplotlib import patches
 
-def plotNoseTrajectory( ax , animal, title , color = None ):
+def plotNoseTrajectory( ax , animal, title , color = None, colorTitle = 'black' ):
     xList, yList = animal.getNoseTrajectoryData( )
 
     if ( color == None ):
         color = animal.getColor()
     ax.plot( xList, yList, color=color, linestyle='-', linewidth=0.3, alpha=0.5, label= animal.name )
-    ax.set_title( title + " " + animal.RFID )
+    ax.set_title( title + " " + animal.RFID, color=colorTitle )
     ax.legend().set_visible(False)
     ax.set_xlim(90, 420)
     ax.set_ylim(-370, -40)

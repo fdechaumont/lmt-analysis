@@ -44,7 +44,7 @@ def plotObjectZone(ax, colorFill, x, y, radius, alpha):
     ax.add_artist(circle1)
 
 
-def plotTrajectorySingleAnimal(file, ax, color, tmin, tmax, title, xa = 111, xb = 400, ya = 63, yb = 353):
+def plotTrajectorySingleAnimal(file, ax, color, colorTitle, tmin, tmax, title, xa = 111, xb = 400, ya = 63, yb = 353):
     connection = sqlite3.connect(file) #connection to the database
 
     pool = AnimalPool()
@@ -59,8 +59,8 @@ def plotTrajectorySingleAnimal(file, ax, color, tmin, tmax, title, xa = 111, xb 
     plotZone(ax, colorEdge='lightgrey', colorFill='grey', xa=168, xb=343, ya=-296, yb=-120)  # draw the rectangle for the center zone
 
     #plot(ax, animal, title=title, color="black") #plot the trajectory of the center of mass
-    plotNoseTrajectory(ax, animal, title=title, color='black') #plot the trajectory of the nose
-    plotSapNose(ax, animal, color = color, xa=xa, xb=xb, ya=ya, yb=yb) # add the frames where the animal is in SAP
+    plotNoseTrajectory(ax, animal, title=title, color=color, colorTitle = colorTitle) #plot the trajectory of the nose
+    plotSapNose(ax, animal, color = colorTitle, xa=xa, xb=xb, ya=ya, yb=yb) # add the frames where the animal is in SAP
     connection.close()
 
 def buildFigTrajectoryMalesFemales(files, tmin, tmax, figName, colorSap, title, xa = 111, xb = 400, ya = 63, yb = 353):
@@ -85,7 +85,7 @@ def buildFigTrajectoryMalesFemales(files, tmin, tmax, figName, colorSap, title, 
             # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
             ax = axesM[nRow['male']][nCol['male']]  # set the subplot where to draw the plot
             plotTrajectorySingleAnimal(file, color=colorSap[animal.genotype], ax=ax, tmin=tminHab,
-                                       tmax=tmaxHab, title=title, xa = 111, xb = 400, ya = 63, yb = 353)  # function to draw the trajectory
+                                       tmax=tmaxHab, title=title, colorTitle='black', xa = 111, xb = 400, ya = 63, yb = 353)  # function to draw the trajectory
 
             if nCol['male'] < 5:
                 nCol['male'] += 1
@@ -97,7 +97,7 @@ def buildFigTrajectoryMalesFemales(files, tmin, tmax, figName, colorSap, title, 
             # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
             ax = axesF[nRow['female']][nCol['female']]  # set the subplot where to draw the plot
             plotTrajectorySingleAnimal(file, color=colorSap[animal.genotype], ax=ax, tmin=tminHab,
-                                       tmax=tmaxHab, title=title, xa = 111, xb = 400, ya = 63, yb = 353)  # function to draw the trajectory
+                                       tmax=tmaxHab, title=title, colorTitle='black', xa = 111, xb = 400, ya = 63, yb = 353)  # function to draw the trajectory
 
             if nCol['female'] < 5:
                 nCol['female'] += 1
@@ -111,13 +111,6 @@ def buildFigTrajectoryMalesFemales(files, tmin, tmax, figName, colorSap, title, 
     figM.savefig('{}_males.pdf'.format(figName), dpi=200)
     figF.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
     figF.savefig('{}_females.pdf'.format(figName), dpi=200)
-
-def getColorGeno(geno):
-    if geno == 'WT':
-        color = 'steelblue'
-    else:
-        color = 'darkorange'
-    return color
 
 
 def plotVariablesHabituationNor(col, axes, sexList, genoList, data, val, unitDic, yMinDic, yMaxDic ):

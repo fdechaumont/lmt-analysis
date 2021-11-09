@@ -22,8 +22,8 @@ def flush( connection ):
 
 def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     '''    
-    Get away: at least 1 animal shoud move, mouse A speed > mouse B speed & mouse A getting away from B.
-    start from contact
+    Get away: at least 1 animal should move, mouse A speed > mouse B speed & mouse A getting away from B.
+
     ''' 
     
     print("Escape")
