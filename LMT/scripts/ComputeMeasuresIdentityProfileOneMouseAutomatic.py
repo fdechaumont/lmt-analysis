@@ -80,7 +80,10 @@ def computeProfile(file, minT, maxT, night, text_file, behaviouralEventList):
             print( "computing individual event: {}".format(behavEvent))    
             
             behavEventTimeLine = EventTimeLineCached( connection, file, behavEvent, animal, minFrame=minT, maxFrame=maxT )
-            
+            #clean the behavioural event timeline:
+            behavEventTimeLine.mergeCloseEvents(numberOfFrameBetweenEvent=1)
+            behavEventTimeLine.removeEventsBelowLength(maxLen=3)
+
             totalEventDuration = behavEventTimeLine.getTotalLength()
             nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame = minT, maxFrame = maxT )
             print( "total event duration: " , totalEventDuration )                
@@ -209,6 +212,9 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
             print("computing individual event: {}".format(behavEvent))
 
             behavEventTimeLine = EventTimeLineCached(connection2, file, behavEvent, animal, minFrame=minT, maxFrame=maxT)
+            # clean the behavioural event timeline:
+            behavEventTimeLine.mergeCloseEvents(numberOfFrameBetweenEvent=1)
+            behavEventTimeLine.removeEventsBelowLength(maxLen=3)
 
             totalEventDuration = behavEventTimeLine.getTotalLength()
             nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame=minT, maxFrame=maxT)
@@ -237,6 +243,9 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
         print("computing individual event: {}".format(behavEvent))
 
         behavEventTimeLine = EventTimeLineCached(connection2, file, behavEvent, minFrame=minT, maxFrame=maxT)
+        # clean the behavioural event timeline:
+        behavEventTimeLine.mergeCloseEvents(numberOfFrameBetweenEvent=1)
+        behavEventTimeLine.removeEventsBelowLength(maxLen=3)
 
         totalEventDuration = behavEventTimeLine.getTotalLength()
         nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame=minT, maxFrame=maxT)
