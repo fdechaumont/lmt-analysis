@@ -80,7 +80,10 @@ def computeProfile(file, minT, maxT, night, text_file, behaviouralEventList):
             print( "computing individual event: {}".format(behavEvent))    
             
             behavEventTimeLine = EventTimeLineCached( connection, file, behavEvent, animal, minFrame=minT, maxFrame=maxT )
-            
+            #clean the behavioural event timeline:
+            behavEventTimeLine.mergeCloseEvents(numberOfFrameBetweenEvent=1)
+            behavEventTimeLine.removeEventsBelowLength(maxLen=3)
+
             totalEventDuration = behavEventTimeLine.getTotalLength()
             nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame = minT, maxFrame = maxT )
             print( "total event duration: " , totalEventDuration )                
@@ -209,6 +212,9 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
             print("computing individual event: {}".format(behavEvent))
 
             behavEventTimeLine = EventTimeLineCached(connection2, file, behavEvent, animal, minFrame=minT, maxFrame=maxT)
+            # clean the behavioural event timeline:
+            behavEventTimeLine.mergeCloseEvents(numberOfFrameBetweenEvent=1)
+            behavEventTimeLine.removeEventsBelowLength(maxLen=3)
 
             totalEventDuration = behavEventTimeLine.getTotalLength()
             nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame=minT, maxFrame=maxT)
@@ -237,6 +243,9 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
         print("computing individual event: {}".format(behavEvent))
 
         behavEventTimeLine = EventTimeLineCached(connection2, file, behavEvent, minFrame=minT, maxFrame=maxT)
+        # clean the behavioural event timeline:
+        behavEventTimeLine.mergeCloseEvents(numberOfFrameBetweenEvent=1)
+        behavEventTimeLine.removeEventsBelowLength(maxLen=3)
 
         totalEventDuration = behavEventTimeLine.getTotalLength()
         nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame=minT, maxFrame=maxT)
@@ -1196,7 +1205,7 @@ if __name__ == '__main__':
                     maxT = tmax
                     n = 0
                     #Compute profile2 data and save them in a text file
-                    profileData[file][n] = computeProfilePair(file = file, minT=minT, maxT=maxT, behaviouralEventListSingle=behaviouralEventOneMouseSingle, behaviouralEventListSocial=behaviouralEventOneMouseSocial)
+                    profileData[file][n] = computeProfilePair(file = file, minT=minT, maxT=maxT, behaviouralEventListSingle=behaviouralEventOneMouse, behaviouralEventListSocial=behaviouralEventOneMouse)
                     text_file.write( "\n" )
                     # Create a json file to store the computation
                     with open("profile_data_pair_{}.json".format('no_night'), 'w') as fp:
@@ -1224,7 +1233,7 @@ if __name__ == '__main__':
                     print('#############################')
                     print(profileData)
                     print('#############################')
-                    with open("profile_data_pair_wt_{}.json".format('over_night'), 'w') as fp:
+                    with open("profile_data_pair_{}.json".format('over_night'), 'w') as fp:
                         json.dump(profileData, fp, indent=4)
                     print("json file with profile measurements created.")
 
@@ -1500,7 +1509,7 @@ if __name__ == '__main__':
             # print(wtData)
 
             # compute the mutant data, centered and reduced for each cage
-            genoMutant = 'KO'
+            genoMutant = 'Del/+'
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData,
                                         categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse)
 
