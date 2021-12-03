@@ -38,7 +38,7 @@ def reBuildEvent( connection, tmin, tmax , pool = None ):
         print ( "A sniffs the floor")        
         print ( eventName )
                 
-        trainTimeLine = EventTimeLine( None, eventName , animal , None , None , None , loadEvent=False )
+        sniffFloorTimeLine = EventTimeLine( None, eventName , animal , None , None , None , loadEvent=False )
                 
         result={}
         
@@ -55,9 +55,9 @@ def reBuildEvent( connection, tmin, tmax , pool = None ):
                 result[t] = True
                 
         
-        trainTimeLine.reBuildWithDictionnary( result )
+        sniffFloorTimeLine.reBuildWithDictionnary( result )
                 
-        trainTimeLine.endRebuildEventTimeLine(connection)
+        sniffFloorTimeLine.endRebuildEventTimeLine(connection)
     
         
     # log process

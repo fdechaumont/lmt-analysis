@@ -17,7 +17,7 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
 def flush( connection ):
     ''' flush event in database '''
-    deleteEventTimeLineInBase(connection, "Rear in center" )
+    deleteEventTimeLineInBase(connection, "Rear in centerWindow" )
     deleteEventTimeLineInBase(connection, "Rear at periphery" )
 
 
@@ -31,9 +31,9 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None  ):
     for animal in range( 1 , 5 ):
         rear[animal] = EventTimeLineCached( connection, file, "Rear isolated", animal, minFrame=tmin, maxFrame=tmax )
     
-    center = {}
+    centerWindow = {}
     for animal in range( 1 , 5 ):
-        center[animal] = EventTimeLineCached(connection, file, "Center Zone", animal, minFrame=tmin, maxFrame=tmax )
+        centerWindow[animal] = EventTimeLineCached(connection, file, "Center Zone", animal, minFrame=tmin, maxFrame=tmax )
     
     periphery = {}
     for animal in range( 1 , 5 ):
@@ -42,7 +42,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None  ):
     
     for animal in range( 1 , 5 ):
         
-        eventName1 = "Rear in center"        
+        eventName1 = "Rear in centerWindow"        
         print ( eventName1 )
         
         eventName2 = "Rear at periphery"
@@ -54,7 +54,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None  ):
         resultCenter={}
         resultPeriphery={}
         dicRear = rear[ animal ].getDictionnary()
-        dicCenter = center[ animal ].getDictionnary()
+        dicCenter = centerWindow[ animal ].getDictionnary()
         dicPeriphery = periphery[ animal ].getDictionnary()
         
         for t in dicRear.keys():
@@ -74,7 +74,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None  ):
     # log process
     from lmtanalysis.TaskLogger import TaskLogger
     t = TaskLogger( connection )
-    t.addLog( "Build Event Rear in center" , tmin=tmin, tmax=tmax )
+    t.addLog( "Build Event Rear in centerWindow" , tmin=tmin, tmax=tmax )
     t.addLog( "Build Event Rear at periphery" , tmin=tmin, tmax=tmax ) 
                     
     print( "Rebuild event finished." )

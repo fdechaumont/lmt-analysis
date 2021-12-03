@@ -31,7 +31,8 @@ def frameToTimeTicker(x, pos):
     vals= convert_to_d_h_m_s( x )
     return "D{0} - {1:02d}:{2:02d}".format( int(vals[0])+1, int(vals[1]), int(vals[2]) )
 
-def process( ):
+def process( shiftData = True ):
+    # shiftdata to see all animal's activity timeline on y axis
 
     print("Code launched.")
     saveFile = "figTimeLineActivity"
@@ -54,18 +55,19 @@ def process( ):
         #Load the timeline of the nest4 event over all individuals
         print( "Loading all nest4 for file " + file )
         nest4TimeLine = {}
-        nest4TimeLine["all"] = EventTimeLine( connection, "Nest4", minFrame=tmin, maxFrame=tmax )
+        nest4TimeLine["all"] = EventTimeLine( connection, "Nest4_", minFrame=tmin, maxFrame=tmax )
         
         #Load the timeline of the nest3 event over all individuals
         print( "Loading all nest3 for file " + file )
         nest3TimeLine = {}
-        nest3TimeLine["all"] = EventTimeLine( connection, "Nest3", minFrame=tmin, maxFrame=tmax )
+        nest3TimeLine["all"] = EventTimeLine( connection, "Nest3_", minFrame=tmin, maxFrame=tmax )
         
         print("loading night events for file " + file)
         nightTimeLine = EventTimeLine( connection, "night" , minFrame=tmin, maxFrame=tmax )
         
         ''' build the plot '''
-        ymax=200
+        #ymax=200
+        ymax = 40
         ymin=-30
         fig, ax = plt.subplots( 1,1 , figsize=(8, 2 ) )
         ax = plt.gca() # get current axis
@@ -91,10 +93,26 @@ def process( ):
         dt = {}
         totalDistance = {}
 
+        i=0
         for animal in pool.animalDictionnary.keys():
             print ( pool.animalDictionnary[animal].RFID )
-            dt[animal] = [x/100 for x in pool.animalDictionnary[animal].getDistancePerBin(binFrameSize = timeBin*oneMinute, maxFrame = tmax )]
+            dist = pool.animalDictionnary[animal].getDistancePerBin(binFrameSize = timeBin*oneMinute, maxFrame = tmax )
+            if shiftData:
+                for i2 in range( len(dist) ):
+                    dist[i2]= dist[i2]/100
+                    
+            if shiftData:
+                for i2 in range( len(dist) ): # shift data in y
+                    dist[i2]= dist[i2]+i*40
+                            
+            dt[animal] = dist
+            '''
+            for x in pool.animalDictionnary[animal].getDistancePerBin(binFrameSize = timeBin*oneMinute, maxFrame = tmax )
+                dist.append( x )
+            '''
+            #dt[animal] = [x/100 for x in pool.animalDictionnary[animal].getDistancePerBin(binFrameSize = timeBin*oneMinute, maxFrame = tmax )]
             totalDistance[animal] = pool.animalDictionnary[animal].getDistance(tmin=tmin, tmax=tmax)
+            i+=1 # shift data
             
         
         nTimeBins = len(dt[1])
@@ -109,6 +127,7 @@ def process( ):
         print(len(abs))
         
         text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( "file", "rfid", "genotype", "user1", "tmin", "tmax", "totalDistance" ) )
+        
         
         for animal in pool.animalDictionnary.keys():
             #print(dt[animal])
@@ -128,7 +147,7 @@ def process( ):
                 line+= str( val )+ "\t"
                 
             text_file.write( line )
-            text_file.write( "\n" ) 
+            text_file.write( "\n" )
         
         
         #Print the name and genotype of the animals on the graph, with the corresponding colors and the total distance traveled over the experiment
@@ -175,6 +194,7 @@ def process( ):
  
         #draw the y axis  
         yLab=[0, 40, 80, 120, 160, 200]
+        #yLab=[0, 40]
         for i in yLab:
             yTickList.append(i)    
             yLabels.append(i)

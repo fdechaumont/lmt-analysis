@@ -12,6 +12,9 @@ import tkinter as tk
 import unittest
 from random import randrange, random
 
+
+
+
 '''
 Provide a dialog to ask for either files or folder to process.
 In case of folder, this use glob to recursively get all .sqlite files in sub folders.
