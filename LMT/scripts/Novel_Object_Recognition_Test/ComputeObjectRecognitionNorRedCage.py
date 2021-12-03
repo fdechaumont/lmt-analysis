@@ -20,12 +20,13 @@ from lmtanalysis import BuildEventObjectSniffingNor, BuildEventObjectSniffingNor
 from lmtanalysis.Event import *
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 from scripts.ComputeObjectRecognition import *
+from scripts.Novel_Object_Recognition_Test.ConfigurationNOR import *
 
 
 
 def plotTrajectoriesNorPhasesPerSetupRedCage(files, figName, organisation, objectConfig, title, phase, exp, colorObjects,
                               objectPosition, radiusObjects):
-    fig, axes = plt.subplots(nrows=4, ncols=5, figsize=(14, 12))  # building the plot for trajectories
+    fig, axes = plt.subplots(nrows=5, ncols=5, figsize=(14, 15))  # building the plot for trajectories
 
     nRow = 0  # initialisation of the row
     nCol = 0  # initialisation of the column
@@ -38,7 +39,7 @@ def plotTrajectoriesNorPhasesPerSetupRedCage(files, figName, organisation, objec
         pool.loadAnimals(connection)  # upload all the animals from the database
         animal = pool.animalDictionnary[1]
         rfid = animal.RFID
-        setup = float(animal.setup)
+        setup = animal.setup
         print('setup: ', setup)
         configName = organisation[exp][rfid]
 
@@ -116,16 +117,16 @@ def computeSniffTimeRedCage(files=None, tmin=None, phase=None):
         data[val] = {}
         for event in eventList:
             data[val][event] = {}
-            for setup in [1,2]:
+            for setup in setupList:
                 data[val][event][setup] = {}
                 for sex in ['male', 'female']:
                     data[val][event][setup][sex] = {}
 
     for ratio in ['ratio', 'ratioFar']:
         data[ratio] = {}
-        for phaseType in ['learning', 'test']:
+        for phaseType in ['acquisition', 'test']:
             data[ratio][phaseType] = {}
-            for setup in [1, 2]:
+            for setup in setupList:
                 data[ratio][phaseType][setup] = {}
                 for sex in ['male', 'female']:
                     data[ratio][phaseType][setup][sex] = {}
@@ -137,7 +138,7 @@ def computeSniffTimeRedCage(files=None, tmin=None, phase=None):
         pool.loadAnimals(connection)
         animal = pool.animalDictionnary[1]
         sex = animal.sex
-        setup = int(animal.setup)
+        setup = animal.setup
         rfid = animal.RFID
 
         if tmin==None:
@@ -204,7 +205,7 @@ def computeSniffTimePerTimeBinRedCage(files=None, tmin=None, phase=None, timeBin
         data[val] = {}
         for event in eventList:
             data[val][event] = {}
-            for setup in [1,2]:
+            for setup in setupList:
                 data[val][event][setup] = {}
                 for sex in ['male', 'female']:
                     data[val][event][setup][sex] = {}
@@ -215,7 +216,7 @@ def computeSniffTimePerTimeBinRedCage(files=None, tmin=None, phase=None, timeBin
         pool.loadAnimals(connection)
         animal = pool.animalDictionnary[1]
         sex = animal.sex
-        setup = int(animal.setup)
+        setup = animal.setup
         rfid = animal.RFID
 
         if tmin==None:
@@ -312,13 +313,13 @@ def getCumulDataSniffingPerTimeBinRedCage(val, data, eventList, sex):
     resultDic = {}
     for event in eventList:
         resultDic[event] = {}
-        for setup in ['1', '2']:
+        for setup in setupList:
             resultDic[event][setup] = {}
             for k in K:
                 resultDic[event][setup][k] = []
 
     for event in eventList:
-        for setup in ['1', '2']:
+        for setup in setupList:
             for k in K:
                 for rfid in data[val][event][setup][sex].keys():
                     resultDic[event][setup][k].append(data[val][event][setup][sex][rfid][k])
@@ -331,11 +332,11 @@ def plotCumulTimeSniffingRedCage(ax, ylabel, title, event, resultDic, timeBin):
 
     yMean = {event: {}}
     yError = {event: {}}
-    for setup in ['1', '2']:
+    for setup in setupList:
         yMean[event][setup] = {}
         yError[event][setup] = {}
 
-    for setup in ['1', '2']:
+    for setup in setupList:
         yMean[event][setup] = []
         yError[event][setup] = []
         for k in K:
@@ -356,26 +357,26 @@ def plotCumulTimeSniffingRedCage(ax, ylabel, title, event, resultDic, timeBin):
     ax.tick_params(axis='y', labelsize=14)
     ax.set_title('{} {}'.format(title, event), fontsize=16)
 
-    xList = {'1': [i+0.3 for i in K], '2': [i+0.6 for i in K]}
+    xList = {setupList[0]: [i+0.3 for i in K], setupList[1]: [i+0.6 for i in K]}
     starPos = [i+0.45 for i in K]
 
-    for setup in ['1', '2']:
+    for setup in setupList:
         ax.errorbar(x=xList[setup], y=yMean[event][setup], yerr=yError[event][setup], fmt='o',
                     ecolor=getColorSetup(setup), markerfacecolor=getColorSetup(setup), markeredgecolor=getColorSetup(setup))
 
     for k in K[:-1]:
-        print('setup1: ', resultDic[event]['1'][k])
-        print('setup2: ', resultDic[event]['2'][k])
-        W, p = stats.mannwhitneyu(resultDic[event]['1'][k], resultDic[event]['2'][k])
+        print('setup: ', setupList[0], resultDic[event][setupList[0]][k])
+        print('setup: ', setupList[1], resultDic[event][setupList[1]][k])
+        W, p = stats.mannwhitneyu(resultDic[event][setupList[0]][k], resultDic[event][setupList[1]][k])
         ax.text(x=starPos[k], y=1.05, s=getStarsFromPvalues(p, 1), ha='center')
 
 
-def plotTotalTimeSniffing(ax, phase, totalSniffList):
+def plotTotalTimeSniffing(ax, phase, totalSniffList, sex):
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     xIndex = [1, 2]
     ax.set_xticks(xIndex)
-    ax.set_xticklabels(['transparent', 'red'], rotation=45, fontsize=12, horizontalalignment='right')
+    ax.set_xticklabels([setupList[0], setupList[1]], rotation=45, fontsize=12, horizontalalignment='right')
     ax.set_ylabel('total time spent sniffing objects (s)', fontsize=13)
     ax.legend().set_visible(False)
     ax.xaxis.set_tick_params(direction="in")
@@ -384,26 +385,89 @@ def plotTotalTimeSniffing(ax, phase, totalSniffList):
     ax.set_ylim(0, 160)
     ax.tick_params(axis='y', labelsize=14)
 
-    xPos = {'1': 1, '2': 2}
+    xPos = {setupList[0]: 1, setupList[1]: 2}
 
     # plot the points for each value:
-    for setup in ['1', '2']:
-        ax.scatter(addJitter([xPos[setup]] * len(totalSniffList[phase][setup]['female']), 0.2),
-                   totalSniffList[phase][setup]['female'], color=getColorSetup(setup), marker='o',
+    for setup in setupList:
+        ax.scatter(addJitter([xPos[setup]] * len(totalSniffList[phase][setup][sex]), 0.2),
+                   totalSniffList[phase][setup][sex], color=getColorSetup(setup), marker='o',
                    alpha=0.8, label="on", s=8)
-        ax.errorbar(x=xPos[setup], y=np.mean(totalSniffList[phase][setup]['female']), yerr=np.std(totalSniffList[phase][setup]['female']), fmt='o', ecolor='black', markerfacecolor='black', markeredgecolor='black')
+        ax.errorbar(x=xPos[setup], y=np.mean(totalSniffList[phase][setup][sex]), yerr=np.std(totalSniffList[phase][setup][sex]), fmt='o', ecolor='black', markerfacecolor='black', markeredgecolor='black')
 
     # conduct statistical testing: Wilcoxon paired test:
-    st1 = totalSniffList[phase]['1']['female']
-    st2 = totalSniffList[phase]['2']['female']
+    st1 = totalSniffList[phase][setupList[0]][sex]
+    st2 = totalSniffList[phase][setupList[1]][sex]
     print(st1)
     print(st2)
     U, p = stats.mannwhitneyu(st1, st2)
     print(
-        'Mann-Whitney U test for {} versus {} females between setups: U={}, p={}'.format(len(st1), len(st2), U,
+        'Mann-Whitney U test for {} versus {} {} between setups: U={}, p={}'.format(len(st1), len(st2), sex, U,
                                                                                          p))
-    ax.text((xPos['1'] + xPos['2']) / 2, 160 * 0.90,
+    ax.text((xPos[setupList[0]] + xPos[setupList[1]]) / 2, 160 * 0.90,
             getStarsFromPvalues(pvalue=p, numberOfTests=1), fontsize=16, horizontalalignment='center')
+
+
+def getCumulDataSniffingPerTimeBinSetup(val, data, setupList, eventList, sex):
+    K = [i for i in range(10)]
+    resultDic = {}
+    for event in eventList:
+        resultDic[event] = {}
+        for setup in setupList:
+            resultDic[event][setup] = {}
+            for k in K:
+                resultDic[event][setup][k] = []
+
+    for event in eventList:
+        for setup in setupList:
+            for k in K:
+                for rfid in data[val][event][setup][sex].keys():
+                    resultDic[event][setup][k].append(data[val][event][setup][sex][rfid][k])
+
+    return resultDic
+
+
+def plotCumulTimeSniffingSetup(ax, setupList, ylabel, title, event, resultDic, timeBin):
+    K = [i for i in range(10)]
+
+    yMean = {event: {}}
+    yError = {event: {}}
+    for setup in setupList:
+        yMean[event][setup] = {}
+        yError[event][setup] = {}
+
+    for setup in setupList:
+        yMean[event][setup] = []
+        yError[event][setup] = []
+        for k in K:
+            yMean[event][setup].append(np.mean(resultDic[event][setup][k]))
+            yError[event][setup].append(np.std(resultDic[event][setup][k]))
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    xIndex = K
+    ax.set_xticks(xIndex)
+    ax.set_xticklabels(K, rotation=0, fontsize=12, horizontalalignment='right')
+    ax.set_ylabel(ylabel, fontsize=15)
+    ax.set_xlabel('time bins of {} min'.format(timeBin/oneMinute), fontsize=15)
+    ax.legend().set_visible(False)
+    ax.xaxis.set_tick_params(direction="in")
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 1.1)
+    ax.tick_params(axis='y', labelsize=14)
+    ax.set_title('{} {}'.format(title, event), fontsize=16)
+
+    xList = {setupList[0]: [i+0.3 for i in K], setupList[1]: [i+0.6 for i in K]}
+    starPos = [i+0.45 for i in K]
+
+    for setup in setupList:
+        ax.errorbar(x=xList[setup], y=yMean[event][setup], yerr=yError[event][setup], fmt='o',
+                    ecolor=getColorSetup(setup), markerfacecolor=getColorSetup(setup), markeredgecolor=getColorSetup(setup))
+
+    for k in K[:-1]:
+        print(setupList[0], resultDic[event][setupList[0]][k])
+        print(setupList[1], resultDic[event][setupList[1]][k])
+        W, p = stats.mannwhitneyu(resultDic[event][setupList[0]][k], resultDic[event][setupList[1]][k])
+        ax.text(x=starPos[k], y=1.05, s=getStarsFromPvalues(p, 1), ha='center')
 
 
 if __name__ == '__main__':
@@ -430,6 +494,7 @@ if __name__ == '__main__':
         question += "\n\t [9] compute sniffing time per time bin?"
         question += "\n\t [10] plot sniffing time per time bin?"
         question += "\n\t [11] plot ratio based on cumulated time per time bin?"
+        question += "\n\t [11b] plot ratio based on cumulated time per time bin?"
         question += "\n\t [12] compare the total time spent sniffing in the two cage types?"
         question += "\n"
         answer = input(question)
@@ -443,7 +508,8 @@ if __name__ == '__main__':
         if answer == '2':
             print('Check information entered into the databases')
             files = getFilesToProcess()
-            text_file_name = '../../lmt-analysis/LMT/scripts/file_info.text'
+            """text_file_name = '../../lmt-analysis/LMT/scripts/Novel_Object_Recognition_Test/file_info.text'"""
+            text_file_name = 'file_info.txt'
             text_file = open(text_file_name, "w")
 
             for file in files:
@@ -454,7 +520,7 @@ if __name__ == '__main__':
                 pool.loadAnimals(connection)  # upload all the animals from the database
                 animal = pool.animalDictionnary[1]
                 sex = animal.sex
-                setup = int(animal.setup)
+                setup = animal.setup
                 geno = animal.genotype
                 rfid = animal.RFID
                 age = animal.age
@@ -471,12 +537,11 @@ if __name__ == '__main__':
 
         if answer == '3':
             print("Rebuilding sniff events.")
-            question1 = "Is it the short or medium retention time? (short / medium)"
+            question1 = "Is it the short or medium or long retention time? (short / medium / long / longIso)"
             exp = input(question1)
             question2 = "Is it the acquisition or test phase? (acquisition / test)"
             phase = input(question2)
             files = getFilesToProcess()
-            VIBRISSAE = 3
 
             if phase == 'acquisition':
                 for file in files:
@@ -486,7 +551,7 @@ if __name__ == '__main__':
                     pool.loadAnimals(connection)  # upload all the animals from the database
                     animal = pool.animalDictionnary[1]
                     sex = animal.sex
-                    setup = int(animal.setup)
+                    setup = animal.setup
                     rfid = animal.RFID
                     config = organisation[exp][rfid]
                     objectType = objectConfig[config][phase]
@@ -502,7 +567,7 @@ if __name__ == '__main__':
                     pool.loadAnimals(connection)  # upload all the animals from the database
                     animal = pool.animalDictionnary[1]
                     sex = animal.sex
-                    setup = int(animal.setup)
+                    setup = animal.setup
                     rfid = animal.RFID
                     config = organisation[exp][rfid]
                     objectType = objectConfig[config][phase]
@@ -523,7 +588,7 @@ if __name__ == '__main__':
 
 
         if answer == '3b':
-            question1 = "Is it the short or medium retention time? (short / medium)"
+            question1 = "Is it the short or medium retention time? (short / medium / long / longIso)"
             exp = input(question1)
             question2 = "Is it the acquisition or test phase? (acquisition / test)"
             phase = input(question2)
@@ -534,15 +599,11 @@ if __name__ == '__main__':
             addThickness = 0
             yLim = {'nbEvent': 80, 'meanEventLength': 4, 'totalDuration': 70, 'ratio': 1.2}
 
-            setupList = ['1', '2']
-
-
-
             figName = 'fig_timeline_nor_{}_{}.pdf'.format(exp, phase)
             fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(14, 8))  # building the plot for timelines
 
-            nRow = {'male': {'1': 1, '2': 1}, 'female': {'1': 0, '2': 0}}  # initialisation of the row
-            nCol = {'male': {'1': 0, '2': 1}, 'female': {'1': 0, '2': 1}}  # initialisation of the column
+            nRow = {'male': {setupList[0]: 1, setupList[1]: 1}, 'female': {setupList[0]: 0, setupList[1]: 0}}  # initialisation of the row
+            nCol = {'male': {setupList[0]: 0, setupList[1]: 1}, 'female': {setupList[0]: 0, setupList[1]: 1}}  # initialisation of the column
             line = {}
             for sex in sexList:
                 line[sex] = {}
@@ -616,6 +677,7 @@ if __name__ == '__main__':
                     ax.broken_barh(lineData[eventType], (line[sex][setup] - 1, 1), facecolors=colorEvent[eventType])
                     print('plot for ', animal.RFID)
                     print('line: ', line[sex][setup])
+
                 if phase == 'acquisition':
                     sniffRightTimeLine = EventTimeLine(connection, 'SniffRight', minFrame=tmin, maxFrame=tmax)
                     totalDurationRight = sniffRightTimeLine.getTotalLength()
@@ -641,6 +703,7 @@ if __name__ == '__main__':
 
             fig.show()
             fig.savefig(figName, dpi=300)
+            print(measureData)
 
             labelList = {'acquisition': ['Left', 'Right', 'Left', 'Right'],
                          'test': ['Familiar', 'New', 'Familiar', 'New']}
@@ -648,6 +711,7 @@ if __name__ == '__main__':
             figName = 'fig_measures_events_{}_{}.pdf'.format(exp, phase)
             figMeasures, axesMeasures = plt.subplots(nrows=1, ncols=4, figsize=(24, 4))
             col = 0
+            sex = 'male'
             for var in ['nbEvent', 'meanEventLength', 'totalDuration', 'ratio']:
                 ax = axesMeasures[col]
                 yLabel = var
@@ -663,8 +727,8 @@ if __name__ == '__main__':
                 ax.set_xlim(0, 6)
                 ax.set_ylim(0, yLim[var])
                 ax.tick_params(axis='y', labelsize=14)
-                ax.text(1.5, yLim[var], s='setup 1', fontsize=14, horizontalalignment='center')
-                ax.text(4.5, yLim[var], s='setup 2', fontsize=14, horizontalalignment='center')
+                ax.text(1.5, yLim[var], s='setup {}'.format(setupList[0]), fontsize=14, horizontalalignment='center')
+                ax.text(4.5, yLim[var], s='setup {}'.format(setupList[1]), fontsize=14, horizontalalignment='center')
 
                 if var == 'ratio':
                     ax.hlines(0.5, xmin = 0, xmax=12, colors='grey', linestyles='dashed')
@@ -676,20 +740,20 @@ if __name__ == '__main__':
                 elif phase == 'test':
                     event1 = 'SniffFamiliar'
                     event2 = 'SniffNew'
-                setup = '1'
-                ax.scatter(addJitter([1] * len(measureData[var][event1][setup]['female']), 0.2),
-                           measureData[var][event1][setup]['female'], color='grey', marker=markerList[setup], alpha=0.8,
+                setup = setupList[0]
+                ax.scatter(addJitter([1] * len(measureData[var][event1][setup][sex]), 0.2),
+                           measureData[var][event1][setup][sex], color=getColorSetup(setup), marker=markerList[setup], alpha=0.8,
                            label="on", s=8)
-                ax.scatter(addJitter([2] * len(measureData[var][event2][setup]['female']), 0.2),
-                           measureData[var][event2][setup]['female'], color='grey', marker=markerList[setup], alpha=0.8,
+                ax.scatter(addJitter([2] * len(measureData[var][event2][setup][sex]), 0.2),
+                           measureData[var][event2][setup][sex], color=getColorSetup(setup), marker=markerList[setup], alpha=0.8,
                            label="on", s=8)
 
-                setup = '2'
-                ax.scatter(addJitter([4] * len(measureData[var][event1][setup]['female']), 0.2),
-                           measureData[var][event1][setup]['female'], color='red', marker=markerList[setup], alpha=0.8,
+                setup = setupList[1]
+                ax.scatter(addJitter([4] * len(measureData[var][event1][setup][sex]), 0.2),
+                           measureData[var][event1][setup][sex], color=getColorSetup(setup), marker=markerList[setup], alpha=0.8,
                            label="on", s=8)
-                ax.scatter(addJitter([5] * len(measureData[var][event2][setup]['female']), 0.2),
-                           measureData[var][event2][setup]['female'], color='red', marker=markerList[setup], alpha=0.8,
+                ax.scatter(addJitter([5] * len(measureData[var][event2][setup][sex]), 0.2),
+                           measureData[var][event2][setup][sex], color=getColorSetup(setup), marker=markerList[setup], alpha=0.8,
                            label="on", s=8)
 
 
@@ -701,12 +765,12 @@ if __name__ == '__main__':
                     elif phase == 'test':
                         eventToTest = 'SniffNew'
 
-                    for setup in ['1', '2']:
-                        prop = measureData['ratio'][eventToTest][setup]['female']
+                    for setup in setupList:
+                        prop = measureData['ratio'][eventToTest][setup][sex]
                         T, p = stats.ttest_1samp(a=prop, popmean=0.5)
                         print(
                             'One-sample Student T-test for {} learning {} {} {}: T={}, p={}'.format(exp, len(prop), sex, setup, T, p))
-                        ax.text(xPos['female'][setup], 1.1, getStarsFromPvalues(pvalue=p, numberOfTests=1), fontsize=14)
+                        ax.text(xPos[sex][setup], 1.1, getStarsFromPvalues(pvalue=p, numberOfTests=1), fontsize=14)
 
                 col += 1
 
@@ -717,7 +781,7 @@ if __name__ == '__main__':
 
 
         if answer == '3c':
-            question1 = "Is it the short or medium retention time? (short / medium)"
+            question1 = "Is it the short or medium or long retention time? (short / medium / long / longIso)"
             exp = input(question1)
             question2 = "Is it the acquisition or test phase? (acquisition / test)"
             phase = input(question2)
@@ -728,13 +792,13 @@ if __name__ == '__main__':
             addThickness = 0
             yLim = {'nbEvent': 80, 'meanEventLength': 4, 'totalDuration': 70, 'ratio': 1.2}
 
-            setupList = ['1', '2']
+
 
             figName = 'fig_timeline_nor_{}_{}_check.pdf'.format(exp, phase)
             fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(14, 14))  # building the plot for timelines
 
-            nRow = {'male': {'1': 1, '2': 1}, 'female': {'1': 0, '2': 0}}  # initialisation of the row
-            nCol = {'male': {'1': 0, '2': 1}, 'female': {'1': 0, '2': 1}}  # initialisation of the column
+            nRow = {'male': {setupList[0]: 1, setupList[1]: 1}, 'female': {setupList[0]: 0, setupList[1]: 0}}  # initialisation of the row
+            nCol = {'male': {setupList[0]: 0, setupList[1]: 1}, 'female': {setupList[0]: 0, setupList[1]: 1}}  # initialisation of the column
             line = {}
             for sex in sexList:
                 line[sex] = {}
@@ -804,14 +868,15 @@ if __name__ == '__main__':
             #traj of center of mass
             files = getFilesToProcess()
             buildFigTrajectoryMalesFemales(files=files, title='hab', tmin=0, tmax=4*oneMinute, figName='fig_traj_hab_long_nor', colorSap=colorSap, xa=128, xb=383, ya=80, yb=336)
+            print('Job done.')
             break
 
         if answer == '5':
             print('Plot trajectory during the acquisition phase.')
-            question = "Is it the short or medium retention time? (short / medium)"
+            question = "Is it the short or medium retention time? (short / medium / long / longIso)"
             exp = input(question)
             phase = 'acquisition'
-            VIBRISSAE = 3  # estimated size of the vibrissae to determine the contact zone with the object
+
             #traj of center of mass
             #traj of the nose position
             #sap
@@ -834,7 +899,7 @@ if __name__ == '__main__':
 
         if answer == '6':
             print('Plot trajectory in the test phase')
-            question = "Is it the short or medium retention time? (short / medium)"
+            question = "Is it the short, medium or long retention time? (short / medium / long / longIso)"
             exp = input(question)
             phase = 'test'
             #distance travelled
@@ -855,7 +920,7 @@ if __name__ == '__main__':
 
         if answer == '7':
             # open the json files
-            question = "Is it the short or medium retention time? (short / medium)"
+            question = "Is it the short, medium or long retention time? (short / medium / long / longIso)"
             exp = input(question)
 
             jsonFileName = "sniff_time_same_{}.json".format(exp)
@@ -867,12 +932,12 @@ if __name__ == '__main__':
             print("json file re-imported.")
             print(dataSame)
 
-            fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(8, 4))  # create the figure for the graphs of the computation
+            fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(8, 4))  # create the figure for the graphs of the computation
 
             col = 0  # initialise the column number
             # reformate the data dictionary to get the correct format of data for plotting and statistical analyses
 
-            xPos = {'1': 1, '2': 2}
+            xPos = {setupList[0]: 1, setupList[1]: 2}
             '''eventList = {'acquisition': ['SniffLeft', 'SniffRight', 'UpLeft', 'UpRight'],
                          'test': ['SniffFamiliar', 'SniffNew', 'UpFamiliar', 'UpNew']}'''
             eventList = {'acquisition': ['SniffLeftFar', 'SniffRightFar', 'UpLeft', 'UpRight'],
@@ -890,7 +955,7 @@ if __name__ == '__main__':
                 data = {}
                 for val in ['ratio']:
                     data[val] = {}
-                    for setup in ['1', '2']:
+                    for setup in setupList:
                         data[val][setup] = {}
                         for sex in ['male', 'female']:
                             data[val][setup][sex] = []
@@ -911,7 +976,7 @@ if __name__ == '__main__':
                 ax.spines['right'].set_visible(False)
                 xIndex = [1, 2]
                 ax.set_xticks(xIndex)
-                ax.set_xticklabels(['transparent', 'red'], rotation=45, fontsize=12, horizontalalignment='right')
+                ax.set_xticklabels([setupList[0], setupList[1]], rotation=45, fontsize=12, horizontalalignment='right')
                 ax.set_ylabel(yLabel, fontsize=15)
                 ax.set_title(phase, fontsize=15)
                 ax.legend().set_visible(False)
@@ -923,15 +988,16 @@ if __name__ == '__main__':
                 #ax.text(2, 1.2, s='red', fontsize=16, horizontalalignment='center')
                 ax.hlines(0.5, xmin = 0, xmax=12, colors='grey', linestyles='dashed')
 
-                for setup in ['1', '2']:
-                    ax.scatter(addJitter([xPos[setup]] * len(data['ratio'][setup]['female']), 0.2),
-                           data['ratio'][setup]['female'], color=getColorSetup(setup), marker='o', alpha=0.8, label="on", s=8)
-                    prop = data['ratio'][setup]['female']
-                    T, p = stats.ttest_1samp(a=prop, popmean=0.5)
-                    print('One-sample Student T-test for {} {} {} females in setup {}: T={}, p={}'.format(exp, phase, len(prop), setup, T, p))
-                    ax.text(xPos[setup], 1.1, getStarsFromPvalues(pvalue=p, numberOfTests=1), fontsize=16, horizontalalignment='center')
+                for setup in setupList:
+                    for sex in ['male']:
+                        ax.scatter(addJitter([xPos[setup]] * len(data['ratio'][setup][sex]), 0.2),
+                               data['ratio'][setup][sex], color=getColorSetup(setup), marker='o', alpha=0.8, label="on", s=8)
+                        prop = data['ratio'][setup][sex]
+                        T, p = stats.ttest_1samp(a=prop, popmean=0.5)
+                        print('One-sample Student T-test for {} {} {} {} in setup {}: T={}, p={}'.format(exp, phase, len(prop), sex, setup, T, p))
+                        ax.text(xPos[setup], 1.1, getStarsFromPvalues(pvalue=p, numberOfTests=1), fontsize=16, horizontalalignment='center')
 
-                col += 1
+                    col += 1
 
             fig.tight_layout()
             fig.show()
@@ -943,7 +1009,7 @@ if __name__ == '__main__':
 
         if answer == '8':
             # open the json files
-            question = "Is it the short or medium retention time? (short / medium)"
+            question = "Is it the short or medium or long retention time? (short / medium / long / longIso)"
             exp = input(question)
             question = "Is it the acquisition or the test phase? (acquisition / test)"
             phase = input(question)
@@ -983,7 +1049,7 @@ if __name__ == '__main__':
                 for val in eventList[phase]:
                     print(val)
                     data[val] = {}
-                    for setup in ['1', '2']:
+                    for setup in setupList:
                         data[val][setup] = {}
                         for sex in ['male', 'female']:
                             data[val][setup][sex] = []
@@ -1003,26 +1069,32 @@ if __name__ == '__main__':
                 ax.set_xlim(0, 6)
                 ax.set_ylim(0, yLim[measure])
                 ax.tick_params(axis='y', labelsize=14)
-                ax.text(1.5, yLim[measure], s='Setup 1', fontsize=16, horizontalalignment='center')
-                ax.text(4.5, yLim[measure], s='Setup 2', fontsize=16, horizontalalignment='center')
+                ax.text(1.5, yLim[measure], s='setup {}'.format(setupList[0]), fontsize=16, horizontalalignment='center')
+                ax.text(4.5, yLim[measure], s='setup {}'.format(setupList[1]), fontsize=16, horizontalalignment='center')
                 if measure == 'totalDuration':
                     ax.hlines(5, xmin=0, xmax=12, colors='grey', linestyles='dashed')
 
-                xPos = {'1': (1,2), '2': (4,5)}
+                xPos = {setupList[0]: (1,2), setupList[1]: (4,5)}
 
                 # plot the points for each value:
-                for setup in ['1', '2']:
-                    ax.scatter(addJitter([xPos[setup][0]] * len(data[eventList[phase][0]][setup]['female']), 0.2),
-                               data[eventList[phase][0]][setup]['female'], color=getColorSetup(setup), marker='o', alpha=0.8, label="on", s=8)
-                    ax.scatter(addJitter([xPos[setup][1]] * len(data[eventList[phase][1]][setup]['female']), 0.2),
-                               data[eventList[phase][1]][setup]['female'], color=getColorSetup(setup), marker='o', alpha=0.8, label="on",
-                               s=8)
-                    # conduct statistical testing: Wilcoxon paired test:
-                    obj0 = data[eventList[phase][0]][setup]['female']
-                    obj1 = data[eventList[phase][1]][setup]['female']
-                    U, p = stats.wilcoxon(obj0, obj1)
-                    print('Wilcoxon paired test for {} test {} {} setup {}: T={}, p={}'.format(exp, len(obj0), 'female', setup, U, p))
-                    ax.text((xPos[setup][0]+xPos[setup][1])/2, yLim[measure]*0.90, getStarsFromPvalues(pvalue=p, numberOfTests=1), fontsize=16, horizontalalignment='center')
+                for setup in setupList:
+                    for sex in sexList:
+                        ax.scatter(addJitter([xPos[setup][0]] * len(data[eventList[phase][0]][setup][sex]), 0.2),
+                                   data[eventList[phase][0]][setup][sex], color=getColorSetup(setup), marker='o', alpha=0.8, label="on", s=8)
+                        ax.scatter(addJitter([xPos[setup][1]] * len(data[eventList[phase][1]][setup][sex]), 0.2),
+                                   data[eventList[phase][1]][setup][sex], color=getColorSetup(setup), marker='o', alpha=0.8, label="on",
+                                   s=8)
+                        # conduct statistical testing: Wilcoxon paired test:
+                        try:
+                            obj0 = data[eventList[phase][0]][setup][sex]
+                            obj1 = data[eventList[phase][1]][setup][sex]
+                            U, p = stats.wilcoxon(obj0, obj1)
+                            print('Wilcoxon paired test for {} test {} {} setup {}: T={}, p={}'.format(exp, len(obj0), sex, setup, U, p))
+                            ax.text((xPos[setup][0]+xPos[setup][1])/2, yLim[measure]*0.90, getStarsFromPvalues(pvalue=p, numberOfTests=1), fontsize=16, horizontalalignment='center')
+                        except:
+                            print('No test')
+                            '''ax.text((xPos[setup][0] + xPos[setup][1]) / 2, yLim[measure] * 0.90,
+                                    'NA', fontsize=16, horizontalalignment='center')'''
 
                 k += 1
 
@@ -1035,7 +1107,7 @@ if __name__ == '__main__':
 
         if answer == '9':
             print('Compute sniff time per time bin.')
-            question = "Is it the short or medium retention time? (short / medium)"
+            question = "Is it the short or medium or long retention time? (short / medium / long / longIso)"
             exp = input(question)
             question = "Is it the acquisition or test phase? (acquisition / test)"
             phase = input(question)
@@ -1057,10 +1129,10 @@ if __name__ == '__main__':
         if answer == '10':
             #compute cumulated proportion of time sniffing
             # open the json files
-            question = "Is it the short or medium retention time? (short / medium)"
+            question = "Is it the short or medium or long retention time? (short / medium / long / longIso)"
             exp = input(question)
 
-            jsonFileName = "sniff_time_timebin_learning_{}.json".format(exp)
+            jsonFileName = "sniff_time_timebin_acquisition_{}.json".format(exp)
             with open(jsonFileName) as json_data:
                 dataSame = json.load(json_data)
             jsonFileName = "sniff_time_timebin_test_{}.json".format(exp)
@@ -1071,7 +1143,7 @@ if __name__ == '__main__':
             val = 'cumulPerTimeBin'
             eventSame = ['SniffLeftFar', 'SniffRightFar']
             eventTest = ['SniffFamiliarFar', 'SniffNewFar']
-
+            sex = 'male'
             for eventList in [eventSame, eventTest]:
                 if eventList == eventSame:
                     data = dataSame
@@ -1080,7 +1152,7 @@ if __name__ == '__main__':
                     data = dataTest
                     nameFig = 'test'
 
-                resultDic = getCumulDataSniffingPerTimeBinRedCage(val = val, data = data, eventList = eventList, sex ='female')
+                resultDic = getCumulDataSniffingPerTimeBinRedCage(val = val, data = data, eventList = eventList, sex = sex)
 
                 #plot for learning phase
                 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 4))  # create the figure for the graphs of the computation
@@ -1103,7 +1175,7 @@ if __name__ == '__main__':
         if answer == '11':
             #plot ratio based on cumulated time per time bin only in the test phase
             #open the json files
-            question = "Is it the short or medium retention time? (short / medium)"
+            question = "Is it the short or medium or long retention time? (short / medium / long / longIso)"
             exp = input(question)
 
             jsonFileName = "sniff_time_timebin_test_{}.json".format(exp)
@@ -1136,6 +1208,48 @@ if __name__ == '__main__':
             print('Job done.')
             break
 
+        if answer == '11b':
+            # plot ratio based on cumulated time per time bin only in the test phase
+            # open the json files
+            question = "Is it the short, medium or long retention time? (short / medium / long / longIso)"
+            exp = input(question)
+
+            jsonFileName = "sniff_time_timebin_test_{}.json".format(exp)
+            with open(jsonFileName) as json_data:
+                dataTest = json.load(json_data)
+            print("json files re-imported.")
+
+            data = dataTest
+            sex = 'male'
+            # plot for test phase
+            fig, axes = plt.subplots(nrows=1, ncols=2,
+                                     figsize=(10, 4))  # create the figure for the graphs of the computation
+
+            ax = axes[0]
+            val = 'ratioCumulPerTimeBin'
+            resultDic = getCumulDataSniffingPerTimeBinSetup(val=val, data=data, setupList=setupList,
+                                                             eventList=['ratio'], sex=sex)
+            plotCumulTimeSniffingSetup(ax, setupList=setupList, title='(restricted zone)',
+                                        ylabel='ratio based on cumulative time', resultDic=resultDic, event='ratio',
+                                        timeBin=timeBin)
+            ax.hlines(y=0.5, xmin=0, xmax=10, colors='grey', linestyles='dashed')
+
+            ax = axes[1]
+            val = 'ratioFarCumulPerTimeBin'
+            resultDic = getCumulDataSniffingPerTimeBinSetup(val=val, setupList=setupList, data=data,
+                                                             eventList=['ratioFar'], sex=sex)
+            plotCumulTimeSniffingSetup(ax, setupList=setupList, title='(extended zone)',
+                                        ylabel='ratio based on cumulative time', resultDic=resultDic, event='ratioFar',
+                                        timeBin=timeBin)
+            ax.hlines(y=0.5, xmin=0, xmax=10, colors='grey', linestyles='dashed')
+
+            fig.tight_layout()
+            fig.show()
+            fig.savefig('fig_cumul_ratio_timebin_config_{}.pdf'.format(exp), dpi=300)
+            fig.savefig('fig_cumul_ratio_timebin_config_{}.jpg'.format(exp), dpi=300)
+
+            print('Job done.')
+            break
 
         if answer == '12':
             eventList = {'acquisition': ['SniffLeft', 'SniffRight', 'UpLeft', 'UpRight'],
@@ -1147,6 +1261,7 @@ if __name__ == '__main__':
             event1 = {'acquisition': eventList['acquisition'][0], 'test': eventList['test'][0]}
             event2 = {'acquisition': eventList['acquisition'][1], 'test': eventList['test'][1]}
             expList = ['short', 'medium']
+            expList = ['longIso']
 
             # open the json files
             for exp in expList:
@@ -1161,44 +1276,46 @@ if __name__ == '__main__':
                 totalSniffTime = {}
                 for phase in ['acquisition', 'test']:
                     totalSniffTime[phase] = {}
-                    for setup in ['1', '2']:
+                    for setup in setupList:
                         totalSniffTime[phase][setup] = {}
                         for sex in ['male', 'female']:
                             totalSniffTime[phase][setup][sex] = {}
 
+                sex = 'male'
+
                 #compute total duration of sniffing objects in the acquisition phase
                 phase = 'acquisition'
                 dataToAnalyse = dataSame
-                for setup in ['1', '2']:
-                    for rfid in dataToAnalyse['totalDuration'][event1[phase]][setup]['female'].keys():
-                        totalSniffTime[phase][setup]['female'][rfid] = dataToAnalyse['totalDuration'][event1[phase]][setup]['female'][rfid] + dataToAnalyse['totalDuration'][event2[phase]][setup]['female'][rfid]
+                for setup in setupList:
+                    for rfid in dataToAnalyse['totalDuration'][event1[phase]][setup][sex].keys():
+                        totalSniffTime[phase][setup][sex][rfid] = dataToAnalyse['totalDuration'][event1[phase]][setup][sex][rfid] + dataToAnalyse['totalDuration'][event2[phase]][setup][sex][rfid]
 
                 # compute total duration of sniffing objects in the test phase
                 phase = 'test'
                 dataToAnalyse = dataTest
-                for setup in ['1', '2']:
-                    for rfid in dataToAnalyse['totalDuration'][event1[phase]][setup]['female'].keys():
-                        totalSniffTime[phase][setup]['female'][rfid] = \
-                        dataToAnalyse['totalDuration'][event1[phase]][setup]['female'][rfid] + \
-                        dataToAnalyse['totalDuration'][event2[phase]][setup]['female'][rfid]
+                for setup in setupList:
+                    for rfid in dataToAnalyse['totalDuration'][event1[phase]][setup][sex].keys():
+                        totalSniffTime[phase][setup][sex][rfid] = \
+                        dataToAnalyse['totalDuration'][event1[phase]][setup][sex][rfid] + \
+                        dataToAnalyse['totalDuration'][event2[phase]][setup][sex][rfid]
 
                 totalSniffList = {}
                 for phase in ['acquisition', 'test']:
                     totalSniffList[phase] = {}
-                    for setup in ['1', '2']:
-                        totalSniffList[phase][setup] = {'female': []}
-                        for rfid in totalSniffTime[phase][setup]['female'].keys():
-                            totalSniffList[phase][setup]['female'].append(totalSniffTime[phase][setup]['female'][rfid])
+                    for setup in setupList:
+                        totalSniffList[phase][setup] = {sex: []}
+                        for rfid in totalSniffTime[phase][setup][sex].keys():
+                            totalSniffList[phase][setup][sex].append(totalSniffTime[phase][setup][sex][rfid])
 
                 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(8, 4))  # create the figure for the graphs of the computation
 
                 phase = 'acquisition'
                 ax = axes[0]
-                plotTotalTimeSniffing(ax=ax, phase=phase, totalSniffList=totalSniffList)
+                plotTotalTimeSniffing(ax=ax, phase=phase, totalSniffList=totalSniffList, sex=sex)
 
                 phase = 'test'
                 ax = axes[1]
-                plotTotalTimeSniffing(ax=ax, phase=phase, totalSniffList=totalSniffList)
+                plotTotalTimeSniffing(ax=ax, phase=phase, totalSniffList=totalSniffList, sex=sex)
 
                 fig.tight_layout()
                 fig.show()

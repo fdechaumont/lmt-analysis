@@ -11,20 +11,19 @@ from lmtanalysis import BuildEventObjectSniffingNor, BuildEventObjectSniffingNor
 from scripts.ComputeObjectRecognition import *
 
 
-def plotTrajectoriesNorPhasesPerConfig(files, figName, organisation, objectConfig, title, phase, exp, colorObjects,
+def plotTrajectoriesNorPhasesPerGeno(files, figName, organisation, objectConfig, title, phase, exp, colorObjects,
                               objectPosition, radiusObjects):
-    fig, axes = plt.subplots(nrows=5, ncols=5, figsize=(14, 15))  # building the plot for trajectories
+    fig, axes = plt.subplots(nrows=20, ncols=5, figsize=(14, 50))  # building the plot for trajectories
 
     nRow = 0  # initialisation of the row
     nCol = 0  # initialisation of the column
-    text_file = open('data_config_config.txt', 'w')
 
     for file in files:
         connection = sqlite3.connect(file)  # connection to the database
-
         pool = AnimalPool()
         pool.loadAnimals(connection)  # upload all the animals from the database
         animal = pool.animalDictionnary[1]
+        geno = animal.genotype
         rfid = animal.RFID
         setup = float(animal.setup)
         print('setup: ', setup)
@@ -33,18 +32,18 @@ def plotTrajectoriesNorPhasesPerConfig(files, figName, organisation, objectConfi
         config = getConfigCat(rfid, exp, organisation)
 
         if phase == 'acquisition':
-            '''tmin = getStartTestPhase(pool)'''
-            tmin = 0
+            tmin = getStartTestPhase(pool)
+            '''tmin = 0'''
         else:
             tmin = 0
         tmax = tmin + 10 * oneMinute
 
-        # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
+        # set the axes. Check the number of files to get the dimension of axes and grab the correct ones.
         ax = axes[nRow][nCol]  # set the subplot where to draw the plot
-        plotTrajectorySingleAnimal(file, color='black', colorTitle=getColorConfig(config), ax=ax, tmin=tmin,
-                                   tmax=tmax, title=title, xa=128, xb=383, ya=80,
+        plotTrajectorySingleAnimal(file, color='black', colorTitle=getColorGeno(geno), ax=ax, tmin=tmin,
+                                   tmax=tmax, title='{} ({})'.format(title, config[-1:]), xa=128, xb=383, ya=80,
                                    yb=336)  # function to draw the trajectory
-        text_file.write('{}\n'.format([exp, phase, rfid, setup, configName, objectConfig[configName][phase]]))
+
         object = objectConfig[configName][phase][0]
         print('object left: ', object)
         plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
@@ -69,7 +68,7 @@ def plotTrajectoriesNorPhasesPerConfig(files, figName, organisation, objectConfi
                        alpha=0.1)  # plot a zone around the object on the left side
 
         if phase == 'test':
-            if '1'in configName:
+            if '1' in configName:
                 positionNew = 'right'
             elif '2' in configName:
                 positionNew = 'left'
@@ -84,17 +83,16 @@ def plotTrajectoriesNorPhasesPerConfig(files, figName, organisation, objectConfi
             nCol = 0
             nRow += 1
 
-        text_file.write('\n')
         connection.close()
 
     fig.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
     # plt.show() #display the plot
     fig.savefig('{}.pdf'.format(figName), dpi=200)
     fig.savefig('{}.jpg'.format(figName), dpi=200)
-    text_file.close()
 
 
-def computeSniffTimeConfig(files=None, tmin=None, phase=None):
+
+def computeSniffTimePerGeno(files=None, tmin=None, phase=None):
     print('Compute time of exploration.')
     if phase == 'acquisition':
         eventList = ['SniffLeft', 'SniffRight', 'SniffLeftFar', 'SniffRightFar','UpLeft', 'UpRight']
@@ -105,19 +103,23 @@ def computeSniffTimeConfig(files=None, tmin=None, phase=None):
         data[val] = {}
         for event in eventList:
             data[val][event] = {}
-            for config in configList:
-                data[val][event][config] = {}
+            for setup in setupList:
+                data[val][event][setup] = {}
                 for sex in ['male', 'female']:
-                    data[val][event][config][sex] = {}
+                    data[val][event][setup][sex] = {}
+                    for config in configList:
+                        data[val][event][setup][sex][config] = {}
 
     for ratio in ['ratio', 'ratioFar']:
         data[ratio] = {}
         for phaseType in ['acquisition', 'test']:
             data[ratio][phaseType] = {}
-            for config in configList:
-                data[ratio][phaseType][config] = {}
-                for sex in ['male', 'female']:
-                    data[ratio][phaseType][config][sex] = {}
+            for setup in setupList:
+                data[ratio][phaseType][setup] = {}
+                for sex in sexList:
+                    data[ratio][phaseType][setup][sex] = {}
+                    for config in configList:
+                        data[ratio][phaseType][setup][sex][config] = {}
 
 
     for file in files:
@@ -134,7 +136,6 @@ def computeSniffTimeConfig(files=None, tmin=None, phase=None):
         if tmin==None:
             tmin = getStartTestPhase(pool=pool)
         tmax = tmin + 10*oneMinute
-        print('tmin-tmax: ', tmin, tmax)
 
         for eventType in eventList:
             # upload event timeline:
@@ -147,38 +148,38 @@ def computeSniffTimeConfig(files=None, tmin=None, phase=None):
                 meanEventLength = 0
                 totalDuration = 0
             print('###############total duration: ', eventType, totalDuration)
-            data['nbEvent'][eventType][config][sex][rfid] = nbEvent
-            data['meanEventLength'][eventType][config][sex][rfid] = meanEventLength
-            data['totalDuration'][eventType][config][sex][rfid] = totalDuration
+            data['nbEvent'][eventType][setup][sex][config][rfid] = nbEvent
+            data['meanEventLength'][eventType][setup][sex][config][rfid] = meanEventLength
+            data['totalDuration'][eventType][setup][sex][config][rfid] = totalDuration
 
         if phase == 'acquisition':
             try:
-                data['ratio'][phase][config][sex][rfid] = data['totalDuration']['SniffRight'][config][sex][rfid] / (
-                            data['totalDuration']['SniffRight'][config][sex][rfid] +
-                            data['totalDuration']['SniffLeft'][config][sex][rfid])
+                data['ratio'][phase][setup][sex][config][rfid] = data['totalDuration']['SniffRight'][setup][sex][config][rfid] / (
+                            data['totalDuration']['SniffRight'][setup][sex][config][rfid] +
+                            data['totalDuration']['SniffLeft'][setup][sex][config][rfid])
             except:
-                data['ratio'][phase][config][sex][rfid] = 0
+                data['ratio'][phase][setup][sex][config][rfid] = 0
 
             try:
-                data['ratioFar'][phase][config][sex][rfid] = data['totalDuration']['SniffRightFar'][config][sex][
+                data['ratioFar'][phase][setup][sex][config][rfid] = data['totalDuration']['SniffRightFar'][setup][sex][config][
                                                                 rfid] / (data['totalDuration']['SniffRightFar'][
-                                                                             config][sex][rfid] +
+                                                                             setup][sex][config][rfid] +
                                                                          data['totalDuration']['SniffLeftFar'][
-                                                                             config][sex][rfid])
+                                                                             setup][sex][config][rfid])
             except:
-                data['ratioFar'][phase][config][sex][rfid] = 0
+                data['ratioFar'][phase][setup][sex][config][rfid] = 0
 
         if phase == 'test':
             try:
-                data['ratio'][phase][config][sex][rfid] = data['totalDuration']['SniffNew'][config][sex][rfid] / (
-                            data['totalDuration']['SniffNew'][config][sex][rfid] +
-                            data['totalDuration']['SniffFamiliar'][config][sex][rfid])
+                data['ratio'][phase][setup][sex][config][rfid] = data['totalDuration']['SniffNew'][setup][sex][config][rfid] / (
+                            data['totalDuration']['SniffNew'][setup][sex][config][rfid] +
+                            data['totalDuration']['SniffFamiliar'][setup][sex][config][rfid])
             except:
-                data['ratio'][phase][config][sex][rfid] = 0
+                data['ratio'][phase][setup][sex][config][rfid] = 0
             try:
-                data['ratioFar'][phase][config][sex][rfid] = data['totalDuration']['SniffNewFar'][config][sex][rfid] / (data['totalDuration']['SniffNewFar'][config][sex][rfid] + data['totalDuration']['SniffFamiliarFar'][config][sex][rfid])
+                data['ratioFar'][phase][setup][sex][config][rfid] = data['totalDuration']['SniffNewFar'][setup][sex][config][rfid] / (data['totalDuration']['SniffNewFar'][setup][sex][config][rfid] + data['totalDuration']['SniffFamiliarFar'][setup][sex][config][rfid])
             except:
-                data['ratioFar'][phase][config][sex][rfid] = 0
+                data['ratioFar'][phase][setup][sex][config][rfid] = 0
         connection.close()
 
     return data
@@ -441,8 +442,11 @@ if __name__ == '__main__':
             question2 = "Is it the acquisition or test phase? (acquisition / test)"
             phase = input(question2)
             files = getFilesToProcess()
+            rfidList = []
+
             text_file_name = 'file_info.text'
             text_file = open(text_file_name, "w")
+
 
             for file in files:
                 print(file)
@@ -455,6 +459,7 @@ if __name__ == '__main__':
                 setup = int(animal.setup)
                 geno = animal.genotype
                 rfid = animal.RFID
+                rfidList.append(rfid)
                 age = animal.age
                 config = organisation[exp][rfid]
                 infoList = [file, rfid, sex, geno, age, setup, phase, config]
@@ -465,6 +470,7 @@ if __name__ == '__main__':
 
             text_file.write("\n")
             text_file.close()
+            print(rfidList)
             print('Job done.')
             break
 
@@ -694,189 +700,6 @@ if __name__ == '__main__':
             figMeasures.savefig(figName, dpi=200)
             break
 
-            ################
-            figName = 'fig_timeline_nor_geno_config_{}_{}.pdf'.format(exp, phase)
-            fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(14, 8))  # building the plot for timelines
-
-            nRow = {'male': {'config1': 1, 'config2': 1}, 'female': {'config1': 0, 'config2': 0}}  # initialisation of the row
-            nCol = {'male': {'config1': 0, 'config2': 1}, 'female': {'config1': 0, 'config2': 1}}  # initialisation of the column
-            line = {}
-            for sex in sexList:
-                line[sex] = {}
-                for config in configList:
-                    line[sex][config] = 1
-
-            for row in [0,1]:
-                for col in [0,1]:
-                    ax = axes[row][col]
-                    ax.spines['top'].set_visible(False)
-                    ax.spines['right'].set_visible(False)
-                    ax.spines['left'].set_visible(False)
-                    ax.set_title('configuration {} ({})'.format(configList[col], sexList[row]), fontsize=18)
-                    ax.legend().set_visible(False)
-                    ax.xaxis.set_tick_params(direction="in")
-                    ax.get_yaxis().set_visible(False)
-                    ax.set_xlim(0, 14400)
-                    ax.set_ylim(0, 16)
-
-            measureData = {}
-            for var in ['nbEvent', 'meanEventLength', 'totalDuration', 'ratio']:
-                measureData[var] = {}
-                for eventType in eventList[phase]:
-                    measureData[var][eventType] = {}
-                    for config in configList:
-                        measureData[var][eventType][config] = {}
-                        for sex in sexList:
-                            measureData[var][eventType][config][sex] = []
-
-
-            for file in files:
-                print(file)
-                connection = sqlite3.connect(file)
-                pool = AnimalPool()
-                pool.loadAnimals(connection)
-                animal = pool.animalDictionnary[1]
-                sex = animal.sex
-                rfid = animal.RFID
-                geno = animal.genotype
-                setup = animal.setup
-                configTemporary = organisation[exp][rfid]
-                config = getConfigCat(rfid, exp, organisation)
-
-                #determine the start frame:
-                if phase == 'acquisition':
-                    '''tmin = getStartTestPhase(pool)'''
-                    tmin = 0
-                elif phase == 'test':
-                    tmin = 0
-                #determine the end of the computation
-                tmax = tmin + 10*oneMinute
-
-                ax = axes[nRow[sex][config]][nCol[sex][config]]
-                ax.text(-20, line[sex][config]-0.5, s=animal.RFID[-4:], fontsize=10, horizontalalignment='right')
-                #compute the coordinates for the drawing:
-                lineData = {}
-                for eventType in eventList[phase]:
-                    #upload event timeline:
-                    eventTypeTimeLine = EventTimeLine( connection, eventType, minFrame = tmin, maxFrame = tmax )
-                    nbEvent = eventTypeTimeLine.getNbEvent()
-                    if nbEvent != 0:
-                        meanEventLength = eventTypeTimeLine.getMeanEventLength() / 30
-                        totalDuration = eventTypeTimeLine.getTotalLength() / 30
-                    elif nbEvent == 0:
-                        meanEventLength = 0
-                        totalDuration = 0
-                    print('###############total duration: ', totalDuration)
-                    measureData['nbEvent'][eventType][config][sex].append(nbEvent)
-                    measureData['meanEventLength'][eventType][config][sex].append(meanEventLength)
-                    measureData['totalDuration'][eventType][config][sex].append(totalDuration)
-
-                    lineData[eventType] = []
-                    for event in eventTypeTimeLine.eventList:
-                        lineData[eventType].append((event.startFrame - tmin - addThickness, event.duration() + addThickness))
-
-                    ax.broken_barh(lineData[eventType], (line[sex][config] - 1, 1), facecolors=colorEvent[eventType])
-                    print('plot for ', animal.RFID)
-                    print('line: ', line[sex][config])
-                if phase == 'acquisition':
-                    sniffRightTimeLine = EventTimeLine(connection, 'SniffRight', minFrame=tmin, maxFrame=tmax)
-                    totalDurationRight = sniffRightTimeLine.getTotalLength()
-                    sniffLeftTimeLine = EventTimeLine(connection, 'SniffLeft', minFrame=tmin, maxFrame=tmax)
-                    totalDurationLeft = sniffLeftTimeLine.getTotalLength()
-
-                    measureData['ratio']['SniffRight'][config][sex].append(totalDurationRight / (totalDurationLeft + totalDurationRight))
-                    measureData['ratio']['SniffLeft'][config][sex].append(totalDurationLeft / (totalDurationLeft + totalDurationRight))
-
-                if phase == 'test':
-                    sniffNewTimeLine = EventTimeLine(connection, 'SniffNew', minFrame=tmin, maxFrame=tmax)
-                    totalDurationNew = sniffNewTimeLine.getTotalLength()
-                    sniffFamiliarTimeLine = EventTimeLine(connection, 'SniffFamiliar', minFrame=tmin, maxFrame=tmax)
-                    totalDurationFamiliar = sniffFamiliarTimeLine.getTotalLength()
-
-                    measureData['ratio']['SniffNew'][config][sex].append(
-                        totalDurationNew / (totalDurationFamiliar + totalDurationNew))
-                    measureData['ratio']['SniffFamiliar'][config][sex].append(
-                        totalDurationFamiliar / (totalDurationFamiliar + totalDurationNew))
-
-                line[sex][config] += 1.5
-                connection.close()
-
-            fig.show()
-            fig.savefig(figName, dpi=300)
-
-            labelList = {'acquisition': ['Left', 'Right', 'Left', 'Right'],
-                         'test': ['Familiar', 'New', 'Familiar', 'New']}
-
-            figName = 'fig_measures_events_config_{}_{}.pdf'.format(exp, phase)
-            figMeasures, axesMeasures = plt.subplots(nrows=1, ncols=4, figsize=(24, 4))
-            sex = 'male'
-            col = 0
-            for var in ['nbEvent', 'meanEventLength', 'totalDuration', 'ratio']:
-                ax = axesMeasures[col]
-                yLabel = var
-                ax.spines['top'].set_visible(False)
-                ax.spines['right'].set_visible(False)
-                xIndex = [1, 2, 4, 5]
-                ax.set_xticks(xIndex)
-                ax.set_xticklabels(labelList[phase], rotation=45, fontsize=12, horizontalalignment='right')
-                ax.set_ylabel(yLabel, fontsize=15)
-                ax.legend().set_visible(False)
-                ax.xaxis.set_tick_params(direction="in")
-                ax.set_xlim(0, 6)
-                ax.set_ylim(0, yLim[var])
-                ax.tick_params(axis='y', labelsize=14)
-                ax.text(1.5, yLim[var], s='config 1', fontsize=14, horizontalalignment='center')
-                ax.text(4.5, yLim[var], s='config 2', fontsize=14, horizontalalignment='center')
-
-                if var == 'ratio':
-                    ax.hlines(0.5, xmin = 0, xmax=12, colors='grey', linestyles='dashed')
-
-                # plot the points for each value:
-                if phase == 'acquisition':
-                    event1 = 'SniffLeft'
-                    event2 = 'SniffRight'
-                elif phase == 'test':
-                    event1 = 'SniffFamiliar'
-                    event2 = 'SniffNew'
-                config = 'config1'
-                ax.scatter(addJitter([1] * len(measureData[var][event1][config][sex]), 0.2),
-                           measureData[var][event1][config][sex], color='grey', marker=markerListConfig[config], alpha=0.8,
-                           label="on", s=8)
-                ax.scatter(addJitter([2] * len(measureData[var][event2][config][sex]), 0.2),
-                           measureData[var][event2][config][sex], color='grey', marker=markerListConfig[config], alpha=0.8,
-                           label="on", s=8)
-
-                config = 'config2'
-                ax.scatter(addJitter([4] * len(measureData[var][event1][config][sex]), 0.2),
-                           measureData[var][event1][config][sex], color='red', marker=markerListConfig[config], alpha=0.8,
-                           label="on", s=8)
-                ax.scatter(addJitter([5] * len(measureData[var][event2][config][sex]), 0.2),
-                           measureData[var][event2][config][sex], color='red', marker=markerListConfig[config], alpha=0.8,
-                           label="on", s=8)
-
-
-
-                if var == 'ratio':
-                    # conduct statistical testing: one sample Student t-test:
-                    if phase == 'acquisition':
-                        eventToTest = 'SniffRight'
-                    elif phase == 'test':
-                        eventToTest = 'SniffNew'
-
-                    for config in ['config1', 'config2']:
-                        prop = measureData['ratio'][eventToTest][config][sex]
-                        T, p = stats.ttest_1samp(a=prop, popmean=0.5)
-                        print(
-                            'One-sample Student T-test for {} acquisition {} {} {}: T={}, p={}'.format(exp, len(prop), sex, config, T, p))
-                        ax.text(xPosConfig[sex][config], 1.1, getStarsFromPvalues(pvalue=p, numberOfTests=1), fontsize=14)
-
-                col += 1
-
-            figMeasures.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
-            figMeasures.show() #display the plot
-            figMeasures.savefig(figName, dpi=200)
-            break
-
 
         if answer == '3c':
             print('plot sniffing events timelines to check the events')
@@ -887,34 +710,33 @@ if __name__ == '__main__':
             files = getFilesToProcess()
 
             addThickness = 0
-            yLim = {'nbEvent': 80, 'meanEventLength': 4, 'totalDuration': 70, 'ratio': 1.2}
+            yLim = {'nbEvent': 100, 'meanEventLength': 4, 'totalDuration': 100, 'ratio': 1.2}
 
-            configList = ['config1', 'config2']
-
-            figName = 'fig_timeline_nor_config_{}_{}_check.pdf'.format(exp, phase)
+            figName = 'fig_timeline_nor_{}_{}_check.pdf'.format(exp, phase)
             fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(14, 8))  # building the plot for timelines
 
-            nRow = {'male': {'config1': 1, 'config2': 1}, 'female': {'config1': 0, 'config2': 0}}  # initialisation of the row
-            nCol = {'male': {'config1': 0, 'config2': 1}, 'female': {'config1': 0, 'config2': 1}}  # initialisation of the column
+            nRow = {'male': {genoList[0]: 0, genoList[1]: 1},
+                    'female': {genoList[0]: 0, genoList[1]: 1}}  # initialisation of the row
+            nCol = {'male': {genoList[0]: 0, genoList[1]: 0},
+                    'female': {genoList[0]: 1, genoList[1]: 1}}  # initialisation of the column
             line = {}
             for sex in sexList:
                 line[sex] = {}
-                for config in configList:
-                    line[sex][config] = 1
+                for geno in genoList:
+                    line[sex][geno] = 1
 
-            for row in [0,1]:
-                for col in [0,1]:
+            for row in [0, 1]:
+                for col in [0, 1]:
                     ax = axes[row][col]
                     ax.spines['top'].set_visible(False)
                     ax.spines['right'].set_visible(False)
                     ax.spines['left'].set_visible(False)
-                    ax.set_title('configuration {} ({})'.format(configList[col], sexList[row]), fontsize=18)
+                    ax.set_title('{} {}'.format(genoList[row], sexList[col]), fontsize=18)
                     ax.legend().set_visible(False)
                     ax.xaxis.set_tick_params(direction="in")
                     ax.get_yaxis().set_visible(False)
                     ax.set_xlim(0, 14400)
-                    ax.set_ylim(0, 16)
-
+                    ax.set_ylim(0, 24)
 
             for file in files:
                 print(file)
@@ -923,38 +745,46 @@ if __name__ == '__main__':
                 pool.loadAnimals(connection)
                 animal = pool.animalDictionnary[1]
                 sex = animal.sex
-                rfid = animal.RFID
                 geno = animal.genotype
                 setup = animal.setup
-                configTemporary = organisation[exp][rfid]
+                rfid = animal.RFID
+                configName = organisation[exp][rfid]
                 config = getConfigCat(rfid, exp, organisation)
-                #determine the start frame:
+                # determine the start frame:
                 if phase == 'acquisition':
-                    '''tmin = getStartTestPhase(pool)'''
-                    tmin = 0
+                    tmin = getStartTestPhase(pool)
                 elif phase == 'test':
                     tmin = 0
-                #determine the end of the computation
-                tmax = tmin + 10*oneMinute
+                # determine the end of the computation
+                tmax = tmin + 10 * oneMinute
 
-                ax = axes[nRow[sex][config]][nCol[sex][config]]
-                ax.text(-20, line[sex][config]-0.5, s=animal.RFID[-4:], fontsize=10, horizontalalignment='right')
-                #compute the coordinates for the drawing:
+                ax = axes[nRow[sex][geno]][nCol[sex][geno]]
+                ax.text(-20, line[sex][geno] - 0.5, s=animal.RFID[-4:], fontsize=10, horizontalalignment='right')
+                ax.text(-24, line[sex][geno] - 0.5, s=config[-1:], fontsize=10, horizontalalignment='right')
+                # compute the coordinates for the drawing:
                 lineData = {}
-                for eventType in eventList[phase]:
-                    #upload event timeline:
-                    eventTypeTimeLine = EventTimeLine( connection, eventType, minFrame = tmin, maxFrame = tmax )
+                for eventType in eventList:
+                    # upload event timeline:
+                    eventTypeTimeLine = EventTimeLine(connection, eventType, minFrame=tmin, maxFrame=tmax)
+                    nbEvent = eventTypeTimeLine.getNbEvent()
+                    meanEventLength = eventTypeTimeLine.getMeanEventLength()
+                    totalDuration = eventTypeTimeLine.getTotalLength()
+                    measureData['nbEvent'][eventType][setup][sex][geno][config].append(nbEvent)
+                    measureData['meanEventLength'][eventType][setup][sex][geno][config].append(meanEventLength)
+                    measureData['totalDuration'][eventType][setup][sex][geno][config].append(totalDuration)
 
                     lineData[eventType] = []
                     for event in eventTypeTimeLine.eventList:
-                        lineData[eventType].append((event.startFrame - tmin - addThickness, event.duration() + addThickness))
+                        lineData[eventType].append(
+                            (event.startFrame - tmin - addThickness, event.duration() + addThickness))
 
-                    ax.broken_barh(lineData[eventType], (line[sex][config] - 1, 1), facecolors=colorEvent[eventType])
+                    ax.broken_barh(lineData[eventType], (line[sex][geno] - 1, 1), facecolors=colorEvent[eventType])
                     print('plot for ', animal.RFID)
-                    print('line: ', line[sex][config])
-                    line[sex][config] += 0.2
+                    print('line: ', line[sex][geno])
 
-                line[sex][config] += 1.5
+                    line[sex][geno] += 0.2
+
+                line[sex][geno] += 1.5
                 connection.close()
 
             fig.show()
@@ -978,21 +808,15 @@ if __name__ == '__main__':
             exp = input(question)
             phase = 'acquisition'
 
-            #traj of center of mass
-            #traj of the nose position
-            #sap
-            #time spent sniffing the object
             timeSniff = {}
-            #time spent around the object
-            #body orientation toward each object
             files = getFilesToProcess()
-            figName = 'fig_traj_nor_config_{}_same'.format(exp)
-            plotTrajectoriesNorPhasesPerConfig(files=files, figName=figName, organisation=organisation, objectConfig=objectConfig, title=phase, phase=phase, exp=exp, colorObjects=colorObjects, objectPosition=objectPosition, radiusObjects=radiusObjects)
+            figName = 'fig_traj_nor_{}_same'.format(exp)
+            plotTrajectoriesNorPhasesPerGeno(files=files, figName=figName, organisation=organisation, objectConfig=objectConfig, title=phase, phase=phase, exp=exp, colorObjects=colorObjects, objectPosition=objectPosition, radiusObjects=radiusObjects)
 
-            data = computeSniffTimeConfig(files, tmin=0, phase=phase)
+            data = computeSniffTimePerGeno(files, tmin=0, phase=phase)
 
             # store the data dictionary in a json file
-            with open('sniff_time_config_same_{}.json'.format(exp), 'w') as jFile:
+            with open('sniff_time_same_{}.json'.format(exp), 'w') as jFile:
                 json.dump(data, jFile, indent=4)
             print("json file created")
 
@@ -1007,13 +831,13 @@ if __name__ == '__main__':
             #space use
             #traj of center of mass
             files = getFilesToProcess()
-            figName = 'fig_traj_nor_config_{}_test'.format(exp)
-            plotTrajectoriesNorPhasesPerConfig(files=files, figName=figName, organisation=organisation, objectConfig=objectConfig, title=phase, phase=phase, exp=exp, colorObjects=colorObjects, objectPosition=objectPosition, radiusObjects=radiusObjects)
+            figName = 'fig_traj_nor_{}_test'.format(exp)
+            plotTrajectoriesNorPhasesPerGeno(files=files, figName=figName, organisation=organisation, objectConfig=objectConfig, title=phase, phase=phase, exp=exp, colorObjects=colorObjects, objectPosition=objectPosition, radiusObjects=radiusObjects)
 
-            data = computeSniffTimeConfig(files, tmin=0, phase=phase)
+            data = computeSniffTimePerGeno(files, tmin=0, phase=phase)
 
             # store the data dictionary in a json file
-            with open('sniff_time_config_test_{}.json'.format(exp), 'w') as jFile:
+            with open('sniff_time_test_{}.json'.format(exp), 'w') as jFile:
                 json.dump(data, jFile, indent=4)
             print("json file created")
 
@@ -1024,10 +848,10 @@ if __name__ == '__main__':
             question = "Is it the short, medium or long retention time? (short / medium / long)"
             exp = input(question)
 
-            jsonFileName = "sniff_time_config_same_{}.json".format(exp)
+            jsonFileName = "sniff_time_same_{}.json".format(exp)
             with open(jsonFileName) as json_data:
                 dataSame = json.load(json_data)
-            jsonFileName = "sniff_time_config_test_{}.json".format(exp)
+            jsonFileName = "sniff_time_test_{}.json".format(exp)
             with open(jsonFileName) as json_data:
                 dataTest = json.load(json_data)
             print("json file re-imported.")
@@ -1038,7 +862,7 @@ if __name__ == '__main__':
             col = 0  # initialise the column number
             # reformate the data dictionary to get the correct format of data for plotting and statistical analyses
 
-            xPos = {'config1': 1, 'config2': 2}
+            xPos = {genoList[0]: 1, genoList[1]: 2}
             ''' eventList = {'acquisition': ['SniffLeft', 'SniffRight', 'UpLeft', 'UpRight'],
                          'test': ['SniffFamiliar', 'SniffNew', 'UpFamiliar', 'UpNew']}'''
             eventList = {'acquisition': ['SniffLeftFar', 'SniffRightFar', 'UpLeft', 'UpRight'],
@@ -1058,17 +882,19 @@ if __name__ == '__main__':
                 data = {}
                 for val in ['ratio']:
                     data[val] = {}
-                    for config in configList:
-                        data[val][config] = {}
+                    for setup in setupList:
+                        data[val][setup] = {}
                         for sex in ['male', 'female']:
-                            data[val][config][sex] = []
-                            for rfid in dataToAnalyse['ratio'][phase][config][sex].keys():
-                                if (dataToAnalyse['totalDuration'][event1[phase]][config][sex][rfid] >= 3) & (
-                                        dataToAnalyse['totalDuration'][event2[phase]][config][sex][rfid] >= 3):
-                                    data[val][config][sex].append(dataToAnalyse['ratio'][phase][config][sex][rfid])
+                            data[val][setup][sex] = {}
+                            for config in configList:
+                                data[val][setup][sex][config] = []
+                                for rfid in dataToAnalyse['ratio'][setup][sex][config].keys():
+                                    if (dataToAnalyse['totalDuration'][event1[phase]][setup][sex][config][rfid] >= 3) & (
+                                            dataToAnalyse['totalDuration'][event2[phase]][setup][sex][config][rfid] >= 3):
+                                        data[val][setup][sex][config].append(dataToAnalyse['ratio'][phase][config][sex][rfid])
 
-                                else:
-                                    print('Too Short exploration time in config {} for {} {}'.format(config, sex, rfid))
+                                    else:
+                                        print('Too Short exploration time in config {} for {} {}'.format(config, sex, rfid))
 
 
                 print(data)

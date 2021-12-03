@@ -95,7 +95,7 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectT
         resultUpLeft = {}
         
         animalA = pool.animalDictionnary[animal]
-        setup = int(animalA.setup)
+        setup = animalA.setup
         objectLeft = objectTuple[0]
         objectRight = objectTuple[1]
         #print ( animalA )

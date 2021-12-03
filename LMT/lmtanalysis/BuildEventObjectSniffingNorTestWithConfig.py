@@ -95,7 +95,7 @@ def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, 
         resultUpNew = {}
         
         animalA = pool.animalDictionnary[animal]
-        setup = int(animalA.setup)
+        setup = animalA.setup
         objectFamiliar = objectTuple[side]
         objectNew = objectTuple[side]
         #print ( animalA )

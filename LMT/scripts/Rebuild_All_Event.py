@@ -63,7 +63,7 @@ eventClassList = [
                 BuildEventRearCenterPeriphery,
                 BuildEventSocialApproach,
                 BuildEventGetAway,
-                #BuildEventSocialEscape,
+                BuildEventSocialEscape,
                 BuildEventApproachRear,
                 BuildEventGroup2,
                 BuildEventGroup3,
