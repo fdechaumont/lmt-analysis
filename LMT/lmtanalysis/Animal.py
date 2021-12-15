@@ -985,6 +985,8 @@ class AnimalPool():
             query+="ID,RFID,NAME,GENOTYPE,AGE,SEX,STRAIN"
         elif ( nbField == 8 ):
             query+="ID,RFID,NAME,GENOTYPE,AGE,SEX,STRAIN,SETUP"
+        elif ( nbField == 9 ):
+            query+="ID,RFID,NAME,GENOTYPE,AGE,SEX,STRAIN,SETUP,IND"
 
         query += " FROM ANIMAL ORDER BY GENOTYPE"
         print ( "SQL Query: " + query )
@@ -1008,6 +1010,8 @@ class AnimalPool():
                 animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], conn = conn )
             if ( len( row ) == 8 ):
                 animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], setup=row[7], conn = conn )
+            if ( len( row ) == 9 ):
+                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], setup=row[7], user1=row[8], conn = conn )
 
 
 

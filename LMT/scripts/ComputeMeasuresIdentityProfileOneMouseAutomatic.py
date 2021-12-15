@@ -165,8 +165,8 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
         age.append(ageAnimal)
         strain.append(strainAnimal)
 
-    pairName = ('{}-{}'.format(min(pair), max(pair)))
-    genoPair = ('{}-{}'.format(genotype[0], genotype[1]))
+    pairName = ('{}_{}'.format(min(pair), max(pair)))
+    genoPair = ('{}_{}'.format(genotype[0], genotype[1]))
     agePair = age[0]
     if sex[0] == sex[1]:
         sexPair = sex[0]
@@ -177,7 +177,7 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
     if strain[0] == strain[1]:
         strainPair = strain[0]
     else:
-        strainPair = '{}-{}'.format(strain[0], strain[1])
+        strainPair = '{}_{}'.format(strain[0], strain[1])
 
     animalData = {}
     animalData[pairName] = {}
@@ -333,14 +333,14 @@ def getProfileValuesPairs(profileData, night='0', event=None):
     for file in profileData.keys():
         #print(profileData[file].keys())
         for animal in profileData[file][str(night)].keys():
-            if '-' in animal:
-                dataDic["value"].append(profileData[file][str(night)][animal][event])
-                dataDic["exp"].append(profileData[file][str(night)][animal]["file"])
-                dataDic["group"].append(profileData[file][str(night)][animal]["group"])
-                dataDic["genotype"].append(profileData[file][str(night)][animal]["genotype"])
-                dataDic["age"].append(profileData[file][str(night)][animal]["age"])
-                dataDic["sex"].append(profileData[file][str(night)][animal]["sex"])
-                dataDic["strain"].append(profileData[file][str(night)][animal]["strain"])
+            #if '-' in animal:
+            dataDic["value"].append(profileData[file][str(night)][animal][event])
+            dataDic["exp"].append(profileData[file][str(night)][animal]["file"])
+            dataDic["group"].append(profileData[file][str(night)][animal]["group"])
+            dataDic["genotype"].append(profileData[file][str(night)][animal]["genotype"])
+            dataDic["age"].append(profileData[file][str(night)][animal]["age"])
+            dataDic["sex"].append(profileData[file][str(night)][animal]["sex"])
+            dataDic["strain"].append(profileData[file][str(night)][animal]["strain"])
 
     return dataDic
 
@@ -583,101 +583,88 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
         ax.text(n, max(y) + 0.1 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=20, horizontalalignment='center', color='black', weight='bold')
         n += 1
 
-def plotProfileDataDurationPairs(profileData, night, valueCat):
-    fig, axes = plt.subplots(nrows=3, ncols=6, figsize=(14, 12))
-
-    row = 0
-    col = 0
-    fig.suptitle(t="{} of events (night {})".format(valueCat, night), y=1.2, fontweight='bold')
-
+def plotProfileDataDurationPairs( axes, row, col, profileData, night, valueCat, behavEvent, mode, text_file ):
     # plot the data for each behavioural event
-    for behavEvent in behaviouralEventOneMouseSocial:
-        if behavEvent != 'totalDistance':
-            event = behavEvent + valueCat
+    if behavEvent != 'totalDistance':
+        event = behavEvent + valueCat
 
-        elif behavEvent == 'totalDistance':
-            event = behavEvent
-        print("event: ", event)
+    elif behavEvent == 'totalDistance':
+        event = behavEvent
+    print("event: ", event)
 
-        profileValueDictionary = getProfileValuesPairs(profileData=profileData, night=night, event=event)
-        y = profileValueDictionary["value"]
-        x = profileValueDictionary["genotype"]
-        genotypeType = Counter(x)
-        group = profileValueDictionary["exp"]
+    profileValueDictionary = getProfileValuesPairs(profileData=profileData, night=night, event=event)
+    y = profileValueDictionary["value"]
+    x = profileValueDictionary["genotype"]
+    group = profileValueDictionary["exp"]
 
-        print("y: ", y)
-        print("x: ", x)
-        print("group: ", group)
-        experimentType = Counter(group)
-        print("Nb of experiments: ", len(experimentType))
+    print("y: ", y)
+    print("x: ", x)
+    print("group: ", group)
+    experimentType = Counter(group)
+    print("Nb of experiments: ", len(experimentType))
 
-        axes[row, col].set_xlim(-0.5, 1.5)
-        axes[row, col].set_ylim(min(y) - 0.2 * max(y), max(y) + 0.2 * max(y))
-        sns.boxplot(x, y, ax=axes[row, col], linewidth=0.5, showmeans=True,
-                    meanprops={"marker": 'o',
-                               "markerfacecolor": 'white',
-                               "markeredgecolor": 'black',
-                               "markersize": '10'})
-        #sns.stripplot(x, y, jitter=True, hue=group, s=5, ax=axes[row, col])
-        sns.stripplot(x, y, jitter=True, color='black', s=5, ax=axes[row, col])
-        axes[row, col].set_title(behavEvent)
-        axes[row, col].set_ylabel("{} (frames)".format(valueCat))
-        axes[row, col].legend().set_visible(False)
-        axes[row, col].spines['right'].set_visible(False)
-        axes[row, col].spines['top'].set_visible(False)
+    axes[row, col].set_xlim(-0.5, 1.5)
+    axes[row, col].set_ylim(min(y) - 0.2 * max(y), max(y) + 0.2 * max(y))
+    sns.boxplot(x, y, ax=axes[row, col], linewidth=0.5, showmeans=True,
+                meanprops={"marker": 'o',
+                           "markerfacecolor": 'white',
+                           "markeredgecolor": 'black',
+                           "markersize": '10'})
+    #sns.stripplot(x, y, jitter=True, hue=group, s=5, ax=axes[row, col])
+    sns.stripplot(x, y, jitter=True, color='black', s=5, ax=axes[row, col])
+    axes[row, col].set_title(behavEvent)
+    axes[row, col].set_ylabel("{} (frames)".format(valueCat))
+    axes[row, col].legend().set_visible(False)
+    axes[row, col].spines['right'].set_visible(False)
+    axes[row, col].spines['top'].set_visible(False)
 
-        if col < 5:
-            col += 1
-            row = row
-        else:
-            col = 0
-            row += 1
+    if mode == 'dyadic':
 
-    for behavEvent in behaviouralEventOneMouseSingle:
-        if behavEvent != 'totalDistance':
-            event = behavEvent + valueCat
+        print("event dyadic: ", event)
+        text_file.write("Test for the event: {} night {} ".format(event, night))
+        text_file.write('\n')
 
-        elif behavEvent == 'totalDistance':
-            event = behavEvent
-        print("event: ", event)
+        dfData = pandas.DataFrame({'group': profileValueDictionary["exp"],
+                                   'genotype': profileValueDictionary["genotype"],
+                                   'value': profileValueDictionary["value"]})
 
-        profileValueDictionary = getProfileValues(profileData=profileData, night=night, event=event)
-        y = profileValueDictionary["value"]
-        x = profileValueDictionary["genotype"]
-        genotypeType = Counter(x)
-        group = profileValueDictionary["exp"]
+        # Mann-Whitney U test, non parametric, small sample size
+        genotypeCat = list(Counter(dfData['genotype']).keys())
+        print('genotype list: ', genotypeCat)
+        data = {}
+        for k in [0,1]:
+            data[genotypeCat[k]] = dfData['value'][dfData['genotype'] == genotypeCat[k]]
+        U, p = mannwhitneyu( data[genotypeCat[0]], data[genotypeCat[1]])
+        print('means of WT_WT: ', np.mean(data['WT_WT']), 'mean of Del/+_Del/+: ', np.mean(data['Del/+_Del/+']))
+        print( 'Mann-Whitney U test ({} {} cages, {} {} cages) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
+        text_file.write('Mann-Whitney U test ({} {} cages, {} {} cages) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
+        axes[row, col].text(x=0.5, y=max(y) + 0.1 * max(y), s = getStarsFromPvalues(p,numberOfTests=1), fontsize=14, ha='center' )
+        text_file.write('\n')
 
-        print("y: ", y)
-        print("x: ", x)
-        print("group: ", group)
-        experimentType = Counter(group)
-        print("Nb of experiments: ", len(experimentType))
+    elif mode == 'single':
 
-        axes[row, col].set_xlim(-0.5, 1.5)
-        axes[row, col].set_ylim(min(y) - 0.2 * max(y), max(y) + 0.2 * max(y))
-        sns.boxplot(x, y, ax=axes[row, col], linewidth=0.5, showmeans=True, meanprops={"marker":'o',
-                       "markerfacecolor":'white',
-                       "markeredgecolor":'black',
-                      "markersize":'10'})
-        #sns.stripplot(x, y, jitter=True, hue=group, s=5, ax=axes[row, col])
-        sns.stripplot(x, y, jitter=True, color='black', s=5, ax=axes[row, col])
-        axes[row, col].set_title(behavEvent)
-        axes[row, col].set_ylabel("{} (frames)".format(valueCat))
-        axes[row, col].legend().set_visible(False)
-        axes[row, col].spines['right'].set_visible(False)
-        axes[row, col].spines['top'].set_visible(False)
+        print("event single: ", event)
+        text_file.write("Test for the event: {} night {}".format(event, night))
 
-        if col < 5:
-            col += 1
-            row = row
-        else:
-            col = 0
-            row += 1
+        dfData = pandas.DataFrame({'group': profileValueDictionary["exp"],
+                                   'genotype': profileValueDictionary["genotype"],
+                                   'value': profileValueDictionary["value"]})
+        data = {}
+        data['WT'] = dfData['value'][dfData['genotype'] == 'WT']
+        data['Del/+'] = dfData['value'][dfData['genotype'] == 'Del/+']
+        print('means of WT: ', np.mean(data['WT']), 'mean of Del/+: ', np.mean(data['Del/+']))
+        # create model: value as a function of genotype, with the factor of the cage:
+        model = smf.mixedlm("value ~ genotype", dfData, groups=dfData["group"])
+        # run model:
+        result = model.fit()
+        # print summary
+        print(result.summary())
+        p, sign = extractPValueFromLMMResult(result=result, keyword='WT')
+        axes[row, col].text(x=0.5, y=max(y)+ 0.1 * max(y),
+                            s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')
+        text_file.write(result.summary().as_text())
+        text_file.write('\n')
 
-
-    fig.tight_layout()
-    fig.savefig("FigProfilePair_{}_Events_night_{}.pdf".format(valueCat, night), dpi=100)
-    plt.close(fig)
 
 
 def testProfileData(profileData=None, night=0, eventListNames=None, valueCat="", text_file=None):
@@ -708,55 +695,6 @@ def testProfileData(profileData=None, night=0, eventListNames=None, valueCat="",
         text_file.write(result.summary().as_text())
         text_file.write('\n')
 
-
-def testProfileDataPairs(profileData=None, night=0, eventListSocial=None, eventListSingle=None, valueCat="", text_file=None):
-    for behavEvent in eventListSocial:
-        event = behavEvent + valueCat
-
-        print("event: ", event)
-        text_file.write("Test for the event: {} night {} ".format(event, night))
-        text_file.write('\n')
-
-        profileValueDictionary = getProfileValuesPairs(profileData=profileData, night=night, event=event)
-
-        dfData = pandas.DataFrame({'group': profileValueDictionary["exp"],
-                                   'genotype': profileValueDictionary["genotype"],
-                                   'value': profileValueDictionary["value"]})
-
-        # Mann-Whitney U test, non parametric, small sample size
-        genotypeCat = list(Counter(dfData['genotype']).keys())
-        data = {}
-        for k in [0,1]:
-            data[genotypeCat[k]] = dfData['value'][dfData['genotype'] == genotypeCat[k]]
-        U, p = mannwhitneyu( data[genotypeCat[0]], data[genotypeCat[1]])
-        print( 'Mann-Whitney U test ({} {} cages, {} {} cages) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
-        text_file.write('Mann-Whitney U test ({} {} cages, {} {} cages) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
-
-        text_file.write('\n')
-
-    for behavEvent in eventListSingle+['totalDistance']:
-        if behavEvent != 'totalDistance':
-            event = behavEvent + valueCat
-        elif behavEvent == 'totalDistance':
-            event = behavEvent
-
-        print("event: ", event)
-        text_file.write("Test for the event: {} night {}".format(event, night))
-
-        profileValueDictionary = getProfileValues(profileData=profileData, night=night, event=event)
-
-        dfData = pandas.DataFrame({'group': profileValueDictionary["exp"],
-                                   'genotype': profileValueDictionary["genotype"],
-                                   'value': profileValueDictionary["value"]})
-
-        # create model: value as a function of genotype, with the factor of the cage:
-        model = smf.mixedlm("value ~ genotype", dfData, groups=dfData["group"])
-        # run model:
-        result = model.fit()
-        # print summary
-        print(result.summary())
-        text_file.write(result.summary().as_text())
-        text_file.write('\n')
 
 
 def mergeProfileOverNights( profileData, categoryList, behaviouralEventOneMouse ):
@@ -1120,6 +1058,8 @@ if __name__ == '__main__':
                                 "Social approach", "Approach contact",
                                 "Get away", "Break contact"]
 
+    categoryList = [' TotalLen', ' Nb', ' MeanDur']
+
     while True:
 
         question = "Do you want to:"
@@ -1306,7 +1246,7 @@ if __name__ == '__main__':
             break
 
         if answer == "4":
-            nightComputation = input("Plot profile only during night events (Y or N)? ")
+            nightComputation = input("Plot profile only during night events (Y or N or merged)? ")
             text_file = getFileNameInput()
 
             if nightComputation == "N":
@@ -1319,16 +1259,54 @@ if __name__ == '__main__':
 
                 print("json file for profile data re-imported.")
                 #Plot profile2 data and save them in a pdf file
-                print('data: ', profileData)
-                plotProfileDataDurationPairs(profileData=profileData, night=n, valueCat=" TotalLen")
-                plotProfileDataDurationPairs(profileData=profileData, night=n, valueCat=" Nb")
-                plotProfileDataDurationPairs(profileData=profileData, night=n, valueCat=" MeanDur")
-                text_file.write( "Statistical analysis: Mann-Whitney U-tests or linear mixed models" )
-                text_file.write( "{}\n" )
-                #Test profile2 data and save results in a text file
-                testProfileDataPairs(profileData=profileData, night=n, eventListSocial=behaviouralEventOneMouseSocial, eventListSingle=behaviouralEventOneMouseSingle, valueCat=" TotalLen", text_file=text_file)
-                testProfileDataPairs(profileData=profileData, night=n, eventListSocial=behaviouralEventOneMouseSocial, eventListSingle=behaviouralEventOneMouseSingle, valueCat=" Nb", text_file=text_file)
-                testProfileDataPairs(profileData=profileData, night=n, eventListSocial=behaviouralEventOneMouseSocial, eventListSingle=behaviouralEventOneMouseSingle, valueCat=" MeanDur", text_file=text_file)
+                profileDataSingle = {}
+                profileDataDyadic = {}
+                for file in profileData.keys():
+                    profileDataSingle[file] = {}
+                    profileDataDyadic[file] = {}
+                    for night in profileData[file].keys():
+                        profileDataSingle[file][night] = {}
+                        profileDataDyadic[file][night] = {}
+                        for ind in profileData[file][night].keys():
+                            if '_' in ind:
+                                profileDataDyadic[file][night][ind] = profileData[file][night][ind]
+                            else:
+                                profileDataSingle[file][night][ind] = profileData[file][night][ind]
+
+                print('data single: ', profileDataSingle)
+                print('data dyadic: ', profileDataDyadic)
+
+                for valueCat in categoryList:
+                    fig, axes = plt.subplots(nrows=5, ncols=6, figsize=(14, 18))
+                    row = 0
+                    col = 0
+                    fig.suptitle(t="{} of events (night {})".format(valueCat, n), y=1.2, fontweight='bold')
+                    for event in behaviouralEventOneMouseSingle:
+                        plotProfileDataDurationPairs(axes=axes, row=row, col=col, profileData=profileDataSingle, night=n, valueCat=valueCat, behavEvent=event, mode='single', text_file=text_file )
+                        if col < 5:
+                            col += 1
+                            row = row
+                        else:
+                            col = 0
+                            row += 1
+
+                    for event in behaviouralEventOneMouseSocial:
+                        plotProfileDataDurationPairs(axes=axes, row=row, col=col, profileData=profileDataDyadic,
+                                                     night=n, valueCat=valueCat, behavEvent=event,
+                                                     mode='dyadic',
+                                                     text_file=text_file)
+                        if col < 5:
+                            col += 1
+                            row = row
+                        else:
+                            col = 0
+                            row += 1
+
+                    fig.tight_layout()
+                    fig.savefig("FigProfilePair_{}_Events_night_{}.pdf".format(valueCat, n), dpi=100)
+                    fig.savefig("FigProfilePair_{}_Events_night_{}.jpg".format(valueCat, n), dpi=100)
+                    plt.close(fig)
+
 
             elif nightComputation == "Y":
                 file = getJsonFileToProcess()
@@ -1340,19 +1318,130 @@ if __name__ == '__main__':
                 nightList = list(profileData[list(profileData.keys())[0]].keys())
                 print('nights: ', nightList)
 
-                for n in nightList:
+                # Plot profile2 data and save them in a pdf file
+                profileDataSingle = {}
+                profileDataDyadic = {}
+                for file in profileData.keys():
+                    profileDataSingle[file] = {}
+                    profileDataDyadic[file] = {}
+                    for night in profileData[file].keys():
+                        profileDataSingle[file][night] = {}
+                        profileDataDyadic[file][night] = {}
+                        for ind in profileData[file][night].keys():
+                            if '_' in ind:
+                                profileDataDyadic[file][night][ind] = profileData[file][night][ind]
+                            else:
+                                profileDataSingle[file][night][ind] = profileData[file][night][ind]
 
+                print('data single: ', profileDataSingle)
+                print('data dyadic: ', profileDataDyadic)
+
+                for n in nightList:
                     print("Night: ", n)
-                    #Plot profile2 data and save them in a pdf file
-                    plotProfileDataDurationPairs(profileData=profileData, night=str(n), valueCat=" TotalLen")
-                    plotProfileDataDurationPairs(profileData=profileData, night=str(n), valueCat=" Nb")
-                    plotProfileDataDurationPairs(profileData=profileData, night=str(n), valueCat=" MeanDur")
-                    text_file.write("Statistical analysis: Mann-Whitney U-tests or linear mixed models")
-                    text_file.write( "{}\n" )
-                    #Test profile2 data and save results in a text file
-                    testProfileDataPairs(profileData=profileData, night=str(n), eventListSocial=behaviouralEventOneMouseSocial, eventListSingle=behaviouralEventOneMouseSingle, valueCat=" TotalLen", text_file=text_file)
-                    testProfileDataPairs(profileData=profileData, night=str(n), eventListSocial=behaviouralEventOneMouseSocial, eventListSingle=behaviouralEventOneMouseSingle, valueCat=" Nb", text_file=text_file)
-                    testProfileDataPairs(profileData=profileData, night=str(n), eventListSocial=behaviouralEventOneMouseSocial, eventListSingle=behaviouralEventOneMouseSingle, valueCat=" MeanDur", text_file=text_file)
+                    for valueCat in categoryList:
+                        fig, axes = plt.subplots(nrows=5, ncols=6, figsize=(14, 18))
+                        row = 0
+                        col = 0
+                        fig.suptitle(t="{} of events (night {})".format(valueCat, n), y=1.2, fontweight='bold')
+                        for event in behaviouralEventOneMouseSingle:
+                            plotProfileDataDurationPairs(axes=axes, row=row, col=col, profileData=profileDataSingle,
+                                                         night=n, valueCat=valueCat, behavEvent=event,
+                                                         mode = 'single',
+                                                         text_file=text_file)
+                            if col < 5:
+                                col += 1
+                                row = row
+                            else:
+                                col = 0
+                                row += 1
+
+                        for event in behaviouralEventOneMouseSocial:
+                            plotProfileDataDurationPairs(axes=axes, row=row, col=col, profileData=profileDataDyadic,
+                                                         night=n, valueCat=valueCat, behavEvent=event,
+                                                         mode='dyadic',
+                                                         text_file=text_file)
+                            if col < 5:
+                                col += 1
+                                row = row
+                            else:
+                                col = 0
+                                row += 1
+
+                        fig.tight_layout()
+                        fig.savefig("FigProfilePair_{}_Events_night_{}.pdf".format(valueCat, n), dpi=100)
+                        fig.savefig("FigProfilePair_{}_Events_night_{}.jpg".format(valueCat, n), dpi=100)
+                        plt.close(fig)
+
+            elif nightComputation == "merged":
+                file = getJsonFileToProcess()
+                # create a dictionary with profile data
+                with open(file) as json_data:
+                    profileData = json.load(json_data)
+                print("json file for profile data re-imported.")
+
+                nightList = list(profileData[list(profileData.keys())[0]].keys())
+                print('nights: ', nightList)
+
+                # Plot profile2 data and save them in a pdf file
+                profileDataSingle = {}
+                profileDataDyadic = {}
+                for file in profileData.keys():
+                    profileDataSingle[file] = {}
+                    profileDataDyadic[file] = {}
+                    for night in profileData[file].keys():
+                        profileDataSingle[file][night] = {}
+                        profileDataDyadic[file][night] = {}
+                        for ind in profileData[file][night].keys():
+                            if '_' in ind:
+                                profileDataDyadic[file][night][ind] = profileData[file][night][ind]
+                            else:
+                                profileDataSingle[file][night][ind] = profileData[file][night][ind]
+
+                print('data single: ', profileDataSingle)
+                print('data dyadic: ', profileDataDyadic)
+
+                profileDataSingleMerged = mergeProfileOverNights(profileData=profileDataSingle, categoryList=categoryList,
+                                                      behaviouralEventOneMouse=behaviouralEventOneMouseSingle)
+                profileDataDyadicMerged = mergeProfileOverNights(profileData=profileDataDyadic,
+                                                                 categoryList=categoryList,
+                                                                 behaviouralEventOneMouse=behaviouralEventOneMouseSocial)
+                print(profileDataSingleMerged)
+
+                for n in ['all nights']:
+                    print("Night: ", n)
+                    for valueCat in categoryList:
+                        fig, axes = plt.subplots(nrows=5, ncols=6, figsize=(14, 18))
+                        row = 0
+                        col = 0
+                        fig.suptitle(t="{} of events (night {})".format(valueCat, n), y=1.2, fontweight='bold')
+                        for event in behaviouralEventOneMouseSingle:
+                            plotProfileDataDurationPairs(axes=axes, row=row, col=col, profileData=profileDataSingleMerged,
+                                                         night=n, valueCat=valueCat, behavEvent=event,
+                                                         mode = 'single',
+                                                         text_file=text_file)
+                            if col < 5:
+                                col += 1
+                                row = row
+                            else:
+                                col = 0
+                                row += 1
+
+                        for event in behaviouralEventOneMouseSocial:
+                            plotProfileDataDurationPairs(axes=axes, row=row, col=col, profileData=profileDataDyadicMerged,
+                                                         night=n, valueCat=valueCat, behavEvent=event,
+                                                         mode='dyadic',
+                                                         text_file=text_file)
+                            if col < 5:
+                                col += 1
+                                row = row
+                            else:
+                                col = 0
+                                row += 1
+
+                        fig.tight_layout()
+                        fig.savefig("FigProfilePair_{}_Events_night_{}.pdf".format(valueCat, n), dpi=100)
+                        fig.savefig("FigProfilePair_{}_Events_night_{}.jpg".format(valueCat, n), dpi=100)
+                        plt.close(fig)
 
             print ("Plots saved as pdf and analyses saved in text file.")
 
@@ -1375,13 +1464,13 @@ if __name__ == '__main__':
 
             categoryList = [' TotalLen', ' Nb', ' MeanDur']
 
-            mergeProfile = mergeProfileOverNights( profileData=profileData, categoryList=categoryList )
+            mergeProfile = mergeProfileOverNights( profileData=profileData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
 
             n = 'all nights'
 
-            plotProfileDataDuration(profileData=mergeProfile, night=n, valueCat=" TotalLen")
-            plotProfileDataDuration(profileData=mergeProfile, night=n, valueCat=" Nb")
-            plotProfileDataDuration(profileData=mergeProfile, night=n, valueCat=" MeanDur")
+            plotProfileDataDuration(profileData=mergeProfile, night=n, valueCat=" TotalLen", behaviouralEventList=behaviouralEventOneMouse)
+            plotProfileDataDuration(profileData=mergeProfile, night=n, valueCat=" Nb", behaviouralEventList=behaviouralEventOneMouse)
+            plotProfileDataDuration(profileData=mergeProfile, night=n, valueCat=" MeanDur", behaviouralEventList=behaviouralEventOneMouse)
             text_file.write("Statistical analysis: mixed linear models")
             text_file.write("{}\n")
             # Test profile data and save results in a text file
@@ -1414,12 +1503,12 @@ if __name__ == '__main__':
 
             mergeProfile = mergeProfileOverNights( profileData=profileData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
             #If the profiles are computed over the nights separately as in the original json file:
-            #dataToUse = profileData
+            dataToUse = profileData
             #If the profiles are computed over the merged nights:
-            dataToUse = mergeProfile
+            #dataToUse = mergeProfile
 
             #compute the data for the control animal of each cage
-            genoControl = 'WT'
+            genoControl = 'DlxCre wt ; Dyrk1acKO/+'
             wtData = extractControlData( profileData=dataToUse, genoControl=genoControl, behaviouralEventOneMouse=behaviouralEventOneMouse)
             wtData = extractCageData(profileData=dataToUse, behaviouralEventOneMouse=behaviouralEventOneMouse)
             #mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList )
@@ -1427,7 +1516,7 @@ if __name__ == '__main__':
             #print(wtData)
 
             #compute the mutant data, centered and reduced for each cage
-            genoMutant = 'KO'
+            genoMutant = 'DlxCre Tg ; Dyrk1acKO/+'
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
 
             print(koData)
@@ -1490,7 +1579,6 @@ if __name__ == '__main__':
             with open(file) as json_data:
                 profileData = json.load(json_data)
             print("json file for profile data re-imported.")
-            categoryList = [' TotalLen', ' Nb', ' MeanDur']
 
             mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList,
                                                   behaviouralEventOneMouse=behaviouralEventOneMouse)
