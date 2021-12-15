@@ -106,7 +106,7 @@ def computeProfile(file, minT, maxT, night, text_file, behaviouralEventList):
             animalData[rfid]["totalDistance"] = "totalDistance"
 
 
-    header = ["file", "strain", "sex", "group", "day", "exp", "RFID", "genotype", "user1", "minTime", "maxTime"]
+    header = ["file", "strain", "sex", "group", "day", "exp", "RFID", "genotype", "minTime", "maxTime"] #"user1",
     for name in header:
         text_file.write("{}\t".format(name))
 

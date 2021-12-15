@@ -9,12 +9,13 @@ from lmtanalysis.Measure import *
 
 class Detection():
 
-    __slots__ = ('massX', 'massY','massZ','massPoint','frontX','frontY','frontZ','frontPoint','backX','backY','backZ','backPoint','rearing','lookUp','lookDown','mask' )
+    __slots__ = ('massX', 'massY','massZ','massPoint','frontX','frontY','frontZ','frontPoint','backX','backY','backZ','backPoint','rearing','lookUp','lookDown','mask','frame' )
 
-    def __init__(self, massX, massY, massZ=None, frontX=None, frontY=None, frontZ=None, backX=None, backY=None, backZ=None, rearing=None, lookUp=None, lookDown=None , lightLoad = False ):
+    def __init__(self, massX, massY, massZ=None, frontX=None, frontY=None, frontZ=None, backX=None, backY=None, backZ=None, rearing=None, lookUp=None, lookDown=None , lightLoad = False , frame = None ):
         
         self.massX = massX
         self.massY = massY
+        self.frame = frame
         
         if lightLoad:
             return
@@ -35,6 +36,7 @@ class Detection():
         self.rearing = rearing
         self.lookUp = lookUp
         self.lookDown = lookDown
+        
     
     def setMask( self, mask ):
         self.mask = mask

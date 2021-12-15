@@ -3,7 +3,10 @@
 
 #@author: Elodie
 '''
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 from ComputeMeasuresIdentityProfileOneMouseAutomatic import singlePlotPerEventProfileBothSexes, mergeProfileOverNights
@@ -83,7 +86,7 @@ if __name__ == '__main__':
             delPatch = mpatches.Patch(edgecolor='black', facecolor='darkorange', label='Del/+')
             handles = [wtPatch, delPatch]
             axes[0].legend(handles=handles, loc='lower right').set_visible(True)
-            axes[0].set_ylabel('distance totale 15min hab (cm)', fontsize=16)
+            axes[0].set_ylabel('distance totale (cm)', fontsize=16)
             axes[0].set_title('openfield 15 min', fontsize=16)
             axes[1].set_ylabel('distance parcourue au centre (cm)', fontsize=16)
             axes[1].set_title('openfield 15 min', fontsize=16)
@@ -185,7 +188,7 @@ if __name__ == '__main__':
             axes[0][0].set_title('openfield 15 min', fontsize=16)
             axes[0][1].set_ylabel('nombre de redressements', fontsize=16)
             axes[0][1].set_title('openfield 15 min', fontsize=16)
-            axes[0][2].set_ylabel('duree totale des redressements', fontsize=16)
+            axes[0][2].set_ylabel('duree totale des redressements (s)', fontsize=16)
             axes[0][2].set_title('openfield 15 min', fontsize=16)
 
             # add scale on the plot
@@ -273,7 +276,7 @@ if __name__ == '__main__':
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row][col],
                                                letter=letter[k], text_file=text_file,
                                                image='img_rearing.jpg', imgPos=imgPos, zoom=zoom)
-            axes[row][col].set_ylabel('duree totale des redressements', fontsize=16)
+            axes[row][col].set_ylabel('duree totale des redressements (s)', fontsize=16)
             axes[row][col].set_title('3 nuits en groupe', fontsize=16)
             axes[row][col].set_xticklabels(['males', 'femelles'], fontsize=14)
 
@@ -289,7 +292,7 @@ if __name__ == '__main__':
                                                valueCat=valueCatEvent, behavEvent=behavEvent, ax=axes[row][col],
                                                letter=letter[k], text_file=text_file,
                                                image='img_rearing.jpg', imgPos=imgPos, zoom=zoom)
-            axes[row][col].set_ylabel('duree moyenne des redressements', fontsize=16)
+            axes[row][col].set_ylabel('duree moyenne des redressements (s)', fontsize=16)
             axes[row][col].set_xticklabels(['males', 'femelles'], fontsize=14)
             axes[row][col].set_title('3 nuits en groupe', fontsize=16)
 
