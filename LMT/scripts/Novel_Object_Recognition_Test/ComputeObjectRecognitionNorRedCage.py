@@ -3,23 +3,10 @@
 
 #@author: Elodie
 '''
-from scripts.Novel_Object_Recognition_Test.ConfigurationNOR import *
 
-from scripts.Rebuild_All_Event import *
-from scripts.Plot_Trajectory_Single_Object_Explo import *
 import numpy as np; np.random.seed(0)
-from lmtanalysis.Animal import *
-from tkinter.filedialog import askopenfilename
-from lmtanalysis.Util import *
-from lmtanalysis.Measure import *
-from matplotlib import patches
-from scipy import stats
-from scripts.ComputeActivityHabituationNorTest import *
-from lmtanalysis import BuildEventObjectSniffingNor, BuildEventObjectSniffingNorAcquisitionWithConfig, \
+from lmtanalysis import BuildEventObjectSniffingNorAcquisitionWithConfig, \
     BuildEventObjectSniffingNorTestWithConfig
-from lmtanalysis.Event import *
-from lmtanalysis.EventTimeLineCache import EventTimeLineCached
-from scripts.ComputeObjectRecognition import *
 from scripts.Novel_Object_Recognition_Test.ConfigurationNOR import *
 
 
@@ -474,7 +461,7 @@ if __name__ == '__main__':
 
     print("Code launched.")
     # set font
-    from matplotlib import rc, gridspec
+    from matplotlib import rc
 
     rc('font', **{'family': 'serif', 'serif': ['Arial']})
     #object positions (x,y) according to the setup:

@@ -4,20 +4,7 @@
 #@author: Elodie
 '''
 
-from scripts.Rebuild_All_Event import *
-from scripts.Plot_Trajectory_Single_Object_Explo import *
 import numpy as np; np.random.seed(0)
-from lmtanalysis.Animal import *
-from tkinter.filedialog import askopenfilename
-from lmtanalysis.Util import *
-from lmtanalysis.Measure import *
-from matplotlib import patches
-from scipy import stats
-from scripts.ComputeActivityHabituationNorTest import *
-from lmtanalysis import BuildEventObjectSniffingNor, BuildEventObjectSniffingNorAcquisitionWithConfig, \
-    BuildEventObjectSniffingNorTestWithConfig
-from lmtanalysis.Event import *
-from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 from scripts.ComputeObjectRecognition import *
 
 #object positions (x,y) according to the setup:

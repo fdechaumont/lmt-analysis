@@ -3,18 +3,8 @@
 
 #@author: Elodie
 '''
-from scripts.ComputeActivityHabituationNorTest import plotTrajectorySingleAnimal
-from scripts.Rebuild_All_Event import *
-from scripts.Plot_Trajectory_Single_Object_Explo import *
 import numpy as np; np.random.seed(0)
-from lmtanalysis.Animal import *
-from tkinter.filedialog import askopenfilename
-from lmtanalysis.Util import *
 from lmtanalysis.FileUtil import *
-from lmtanalysis.Measure import *
-from matplotlib import patches
-from scipy import stats
-import seaborn as sns
 
 from scripts.Novel_Object_Recognition_Test.ConfigurationNOR import *
 from scripts.Novel_Object_Recognition_Test.ComputeActivityHabituationNorTestRedCage import buildFigTrajectoryPerSetup,\
@@ -26,7 +16,7 @@ if __name__ == '__main__':
 
     print("Code launched.")
     # set font
-    from matplotlib import rc, gridspec
+    from matplotlib import rc
 
     rc('font', **{'family': 'serif', 'serif': ['Arial']})
 

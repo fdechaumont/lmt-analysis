@@ -11,7 +11,7 @@ from lmtanalysis.FileUtil import getFilesToProcess, getCsvFileToProcess
 import pandas as pd
 
 
-def process(file, dataframe, expListToCheck, expListToCheckForPause):
+def process(file, dataframe, expListToCheck, expListToCheckForPause, expListToCheckForRfid):
     print(file)
     #open the database file
     connection = sqlite3.connect(file)
@@ -48,6 +48,7 @@ def process(file, dataframe, expListToCheck, expListToCheckForPause):
             if count == 0:
                 print('This RFID is not referenced in the table.')
                 print(file, rfidDatabase)
+                expListToCheckForRfid.append(file)
 
             else:
                 #modify the PAUSED status in the database for the corresponding framenumber
@@ -73,6 +74,7 @@ def processAll():
 
     expListToCheck = []
     expListToCheckForPause = []
+    expListToCheckForRfid = []
 
     chronoFullBatch = Chronometer("Full batch")
 
@@ -80,13 +82,15 @@ def processAll():
 
         for file in files:
             print("Processing file", file)
-            process(file, df, expListToCheck, expListToCheckForPause)
+            process(file, df, expListToCheck, expListToCheckForPause, expListToCheckForRfid)
 
     chronoFullBatch.printTimeInS()
     print('Experiment files to be checked for multiple animals: ')
     print(expListToCheck)
     print('Experiment files to be checked for paused frames: ')
     print(expListToCheckForPause)
+    print('Experiment files to be checked for RFID: ')
+    print(expListToCheckForRfid)
     print("*** ALL JOBS DONE ***")
 
 

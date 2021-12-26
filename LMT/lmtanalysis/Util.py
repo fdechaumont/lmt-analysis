@@ -296,3 +296,26 @@ def getStarsFromPvalues(pvalue, numberOfTests):
             stars = "ns"
 
     return stars
+
+def getStartTestPhase(pool):
+    cursor = pool.conn.cursor()
+    query = "SELECT FRAMENUMBER, PAUSED FROM FRAME"
+    try:
+        cursor.execute(query)
+    except:
+        print("can't access data for PAUSED")
+
+    rows = cursor.fetchall()
+    cursor.close()
+
+    frameNumberList = []
+    pauseValueList = []
+    for row in rows:
+        pauseValue = row[1]
+        if pauseValue == 1:
+            frameNumberList.append(row[0])
+    sortedFrameList = sorted(frameNumberList)
+
+    lastPausedFrame = sortedFrameList[-1]
+    startFrameTestPhase = lastPausedFrame + 1
+    return startFrameTestPhase

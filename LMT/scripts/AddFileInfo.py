@@ -28,9 +28,9 @@ def process( file ):
     c.execute(query)
     query = "UPDATE ANIMAL SET AGE = '3mo'";
     c.execute( query )
-    query = "UPDATE ANIMAL SET SEX = 'female'";
+    query = "UPDATE ANIMAL SET SEX = 'male'";
     c.execute( query )
-    query = "UPDATE ANIMAL SET STRAIN = 'WSB'";
+    query = "UPDATE ANIMAL SET STRAIN = 'CC059'";
     c.execute( query )
     query = "UPDATE ANIMAL SET SETUP = 'x'";
     c.execute(query)
