@@ -105,7 +105,7 @@ def plotTrajectoriesInBothPhases(pool, animal, durationPhase1, durationPhase2, a
     plotZone(axRight, colorEdge='dimgrey', colorFill='dimgrey', xa=120, xb=250, ya=-210, yb=-340)  # object zone
     plot(axRight, animal, title="Second phase", color="black")
     # add the frames where the animal is in SAP
-    plotSapNose(axLeft, animal, color='red', xa=111, xb=400, ya=63, yb=353)  # add the frames where the animal is in SAP
+    plotSapNose(axRight, animal, color='red', xa=111, xb=400, ya=63, yb=353)  # add the frames where the animal is in SAP
     dt2 = animal.getDistance(tmin=getStartTestPhase(pool=pool), tmax=getStartTestPhase(pool=pool) + durationPhase2)
     d2 = animal.getDistanceSpecZone(tmin=getStartTestPhase(pool=pool),
                                     tmax=getStartTestPhase(pool=pool) + durationPhase2, xa=120, xb=250, ya=210, yb=340)
@@ -117,9 +117,19 @@ def plotTrajectoriesInBothPhases(pool, animal, durationPhase1, durationPhase2, a
 
 
 def buildFigTrajectorySingleObjectExploMalesFemales(files, numberMaleFiles, numberFemaleFiles, durationPhase1, durationPhase2, figName):
+    if (numberMaleFiles == 0) & (numberFemaleFiles != 0):
+        figF, axesF = plt.subplots(nrows=numberFemaleFiles, ncols=2,
+                                   figsize=(6, 4 * numberFemaleFiles))  # building the plot for trajectories
 
-    figM, axesM = plt.subplots(nrows=numberMaleFiles, ncols=2, figsize=(6, 4*numberMaleFiles))  # building the plot for trajectories
-    figF, axesF = plt.subplots(nrows=numberFemaleFiles, ncols=2, figsize=(6, 4*numberFemaleFiles))  # building the plot for trajectories
+    if (numberFemaleFiles == 0) & (numberMaleFiles != 0) :
+        figM, axesM = plt.subplots(nrows=numberMaleFiles, ncols=2,
+                                   figsize=(6, 4 * numberMaleFiles))  # building the plot for trajectories
+
+    elif (numberFemaleFiles != 0) & (numberMaleFiles != 0) :
+        figF, axesF = plt.subplots(nrows=numberFemaleFiles, ncols=2,
+                                   figsize=(6, 4 * numberFemaleFiles))  # building the plot for trajectories
+        figM, axesM = plt.subplots(nrows=numberMaleFiles, ncols=2,
+                                       figsize=(6, 4 * numberMaleFiles))  # building the plot for trajectories
 
     nRow = {'male': 0, 'female': 0}  # initialisation of the row
 
@@ -160,11 +170,21 @@ def buildFigTrajectorySingleObjectExploMalesFemales(files, numberMaleFiles, numb
 
             connection.close()
 
-    figM.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
-    # plt.show() #display the plot
-    figM.savefig('{}_{}_males.pdf'.format(figName, strain), dpi=100)
-    figF.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
-    figF.savefig('{}_{}_females.pdf'.format(figName, strain), dpi=100)
+    if (numberMaleFiles == 0) & (numberFemaleFiles != 0):
+        figF.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
+        figF.savefig('{}_{}_females.pdf'.format(figName, strain), dpi=100)
+        figF.savefig('{}_{}_females.jpg'.format(figName, strain), dpi=100)
+    if (numberFemaleFiles == 0) & (numberMaleFiles != 0):
+        figM.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
+        figM.savefig('{}_{}_males.pdf'.format(figName, strain), dpi=100)
+        figM.savefig('{}_{}_males.jpg'.format(figName, strain), dpi=100)
+    elif (numberFemaleFiles != 0) & (numberMaleFiles != 0):
+        figM.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
+        figM.savefig('{}_{}_males.pdf'.format(figName, strain), dpi=100)
+        figM.savefig('{}_{}_males.jpg'.format(figName, strain), dpi=100)
+        figF.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
+        figF.savefig('{}_{}_females.pdf'.format(figName, strain), dpi=100)
+        figF.savefig('{}_{}_females.jpg'.format(figName, strain), dpi=100)
 
 if __name__ == '__main__':
     
@@ -172,7 +192,7 @@ if __name__ == '__main__':
     
     '''
     This script draws the trajectory of the mouse in the two phases of the single object exploration test. The positions at which
-    the animal is in SAP is marked in red. The object zone is drawn in light blue.
+    the animal is in SAP is marked in red. The object zone is drawn in light grey. This script should be run per strain.
     '''
     files = getFilesToProcess()
     numberMaleFiles = 0
@@ -191,8 +211,6 @@ if __name__ == '__main__':
             print('Warning no sex!')
             quit()
 
-    text_file = getFileNameInput()
-        
     nbFiles = len(files)
     durationPhase1 = 25*oneMinute
     durationPhase2 = 20*oneMinute
