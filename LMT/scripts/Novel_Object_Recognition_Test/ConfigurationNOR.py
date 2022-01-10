@@ -262,13 +262,15 @@ objectList = ['cup', 'flask', 'falcon', 'shaker', 'marble', 'dice']
 
 colorSap = {'WT': 'dodgerblue', 'Del/+': 'darkorange', '1': 'dodgerblue', '2': 'red'}
 
-sexList = ['female', 'male']
+sexList = ['male', 'female']
 genoList = ['WT', 'Del/+']
 configList = ['config1', 'config2']
 setupList = ['2i', '2s']
+setupList = ['1', '2']
 
 markerList = {'1': 'o', '2': 'v', '2i': 'v', '2s': 'o'} #for the setups
 markerListConfig = {'config1': 'o', 'config2': 'v'} #for the setups
+markerListSex = {'male': 'v', 'female': 'o'}
 
 xPos = {'male': {setupList[0]: 1.5, setupList[1]: 4.5},
         'female': {'1': 1.5, '2': 4.5}}
