@@ -405,7 +405,6 @@ if __name__ == '__main__':
         question += "\n\t [2] check file info?"
         question += "\n\t [3] rebuild sniff events?"
         question += "\n\t [3b] plot sniffing timelines?"
-        question += "\n\t [3c] plot sniffing timelines to check the events?"
         question += "\n\t [4] plot trajectories in the habituation phase?"
         question += "\n\t [5] plot trajectories in the acquisition phase (same objects)?"
         question += "\n\t [6] plot trajectories in the test phase (different objects)?"
@@ -747,6 +746,8 @@ if __name__ == '__main__':
             figMeasures.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
             figMeasures.show()  # display the plot
             figMeasures.savefig(figName, dpi=200)
+
+            print('Job done.')
             break
 
 
@@ -891,9 +892,10 @@ if __name__ == '__main__':
                 fig.tight_layout()
                 fig.show()
 
-                fig.savefig('fig_ratio_config_{}.pdf'.format(exp, phase), dpi=200)
-                fig.savefig('fig_ratio_config_{}.jpg'.format(exp, phase), dpi=200)
+                fig.savefig('fig_ratio_geno_{}_{}.pdf'.format(exp, phase), dpi=200)
+                fig.savefig('fig_ratio_geno_{}_{}.jpg'.format(exp, phase), dpi=200)
 
+            print('Job done.')
             break
 
 
@@ -959,8 +961,8 @@ if __name__ == '__main__':
 
                     fig.tight_layout()
                     fig.show()
-                    fig.savefig('fig_cumul_timebin_config_{}_{}_{}.pdf'.format(exp, nameFig, sex), dpi=300)
-                    fig.savefig('fig_cumul_timebin_config_{}_{}_{}.jpg'.format(exp, nameFig, sex), dpi=300)
+                    fig.savefig('fig_cumul_timebin_geno_{}_{}_{}.pdf'.format(exp, nameFig, sex), dpi=300)
+                    fig.savefig('fig_cumul_timebin_geno_{}_{}_{}.jpg'.format(exp, nameFig, sex), dpi=300)
 
             print('Job done.')
             break
@@ -996,24 +998,22 @@ if __name__ == '__main__':
 
                 fig.tight_layout()
                 fig.show()
-                fig.savefig('fig_cumul_ratio_timebin_config_{}_{}.pdf'.format(exp, sex), dpi=300)
-                fig.savefig('fig_cumul_ratio_timebin_config_{}_{}.jpg'.format(exp, sex), dpi=300)
+                fig.savefig('fig_cumul_ratio_timebin_geno_{}_{}.pdf'.format(exp, sex), dpi=300)
+                fig.savefig('fig_cumul_ratio_timebin_geno_{}_{}.jpg'.format(exp, sex), dpi=300)
 
             print('Job done.')
             break
 
 
         if answer == '12':
-            print('conpare sniff time between the two configuration types')
+            print('compare sniff time between the two genotypes')
             eventList = {'acquisition': ['SniffLeft', 'SniffRight', 'UpLeft', 'UpRight'],
                          'test': ['SniffFamiliar', 'SniffNew', 'UpFamiliar', 'UpNew']}
 
-            '''eventList = {'acquisition': ['SniffLeftFar', 'SniffRightFar', 'UpLeft', 'UpRight'],
-                         'test': ['SniffFamiliarFar', 'SniffNewFar', 'UpFamiliar', 'UpNew']}'''
-
             event1 = {'acquisition': eventList['acquisition'][0], 'test': eventList['test'][0]}
             event2 = {'acquisition': eventList['acquisition'][1], 'test': eventList['test'][1]}
-            expList = ['short']
+            #expList = ['short', 'medium']
+            expList = ['medium']
 
             # open the json files
             for exp in expList:
@@ -1070,8 +1070,8 @@ if __name__ == '__main__':
 
                     fig.tight_layout()
                     fig.show()
-                    fig.savefig('fig_total_sniff_time_config_{}_close_{}.pdf'.format(exp, sex), dpi=300)
-                    fig.savefig('fig_total_sniff_time_config_{}_close_{}.jpg'.format(exp, sex), dpi=300)
+                    fig.savefig('fig_total_sniff_time_geno_{}_close_{}.pdf'.format(exp, sex), dpi=300)
+                    fig.savefig('fig_total_sniff_time_geno_{}_close_{}.jpg'.format(exp, sex), dpi=300)
 
             print('Job done.')
             break
