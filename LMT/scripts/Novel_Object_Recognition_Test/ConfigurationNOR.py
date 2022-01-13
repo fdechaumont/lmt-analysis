@@ -226,7 +226,33 @@ organisation = {'short':
                      'M20': 'kc2',
                      'M21': 'md1',
                      'M22': 'ck1',
-                     'M23': 'md2'
+                     'M23': 'md2',
+
+                     '189N3-14': 'dm1',
+                     '189N3-15': 'md1',
+                     '189N3-16': 'md1',
+                     '189N3-17': 'md1',
+                     '189N3-18': 'dm2',
+                     '189N3-19': 'dm1',
+                     '189N3-20': 'md2',
+                     '189N3-29': 'dm2',
+                     '189N3-42': 'md1',
+                     '189N3-60': 'md2',
+
+                     '189N3-11': 'dm2',
+                     '189N3-21': 'md2',
+                     '189N3-22': 'dm1',
+                     '189N3-38': 'md2',
+                     '189N3-39': 'dm1',
+                     '189N3-44': 'md1',
+                     '189N3-45': 'dm1',
+                     '189N3-46': 'dm2',
+                     '189N3-52': 'md2',
+                     '189N3-62': 'dm2',
+                     '189N3-65': 'md1',
+                     '189N3-67': 'dm1',
+                     '189N3-72': 'md2',
+                     '189N3-73': 'dm2'
 },
                 'longIso':
                     {'M01': 'md1',
@@ -260,10 +286,11 @@ radiusObjects = {'cup': 18, 'flask': 15, 'falcon': 9, 'shaker': 11, 'marble': 7,
 colorObjects = {'cup': 'gold', 'flask': 'mediumpurple', 'falcon': 'mediumseagreen', 'shaker': 'orchid', 'marble': 'royalblue', 'dice': 'red'}
 objectList = ['cup', 'flask', 'falcon', 'shaker', 'marble', 'dice']
 
-colorSap = {'WT': 'dodgerblue', 'Del/+': 'darkorange', '1': 'dodgerblue', '2': 'red'}
+colorSap = {'WT': 'dodgerblue', 'Del/+': 'darkorange', 'Tg+': 'darkorange', '1': 'dodgerblue', '2': 'red'}
 
 sexList = ['male', 'female']
-genoList = ['WT', 'Del/+']
+#genoList = ['WT', 'Del/+']
+genoList = ['WT', 'Tg+']
 configList = ['config1', 'config2']
 setupList = ['2i', '2s']
 setupList = ['1', '2']

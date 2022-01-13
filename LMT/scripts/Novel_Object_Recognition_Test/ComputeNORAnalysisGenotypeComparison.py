@@ -12,7 +12,8 @@ from scripts.ComputeObjectRecognition import *
 
 def plotTrajectoriesNorPhasesPerGeno(files, figName, organisation, objectConfig, title, phase, exp, colorObjects,
                               objectPosition, radiusObjects):
-    fig, axes = plt.subplots(nrows=20, ncols=5, figsize=(14, 50))  # building the plot for trajectories
+    nbRowFig = 1 + len(files) // 5
+    fig, axes = plt.subplots(nrows=nbRowFig, ncols=5, figsize=(14, 3*nbRowFig))  # building the plot for trajectories
 
     nRow = 0  # initialisation of the row
     nCol = 0  # initialisation of the column
@@ -758,7 +759,7 @@ if __name__ == '__main__':
             #space use
             #traj of center of mass
             files = getFilesToProcess()
-            buildFigTrajectoryMalesFemales(files=files, title='hab', tmin=0, tmax=4*oneMinute, figName='fig_traj_hab_long_nor', colorSap=colorSap, xa=128, xb=383, ya=80, yb=336)
+            buildFigTrajectoryMalesFemales(files=files, title='hab', tmin=0, tmax=15*oneMinute, figName='fig_traj_hab_long_nor', colorSap=colorSap, xa=128, xb=383, ya=80, yb=336)
             print('Job done.')
             break
 
@@ -784,7 +785,7 @@ if __name__ == '__main__':
 
         if answer == '6':
             print('Plot trajectory in the test phase')
-            question = "Is it the short or medium retention time? (short / medium)"
+            question = "Is it the short, medium or long retention time? (short / medium / long)"
             exp = input(question)
             phase = 'test'
             #distance travelled
@@ -1013,7 +1014,7 @@ if __name__ == '__main__':
             event1 = {'acquisition': eventList['acquisition'][0], 'test': eventList['test'][0]}
             event2 = {'acquisition': eventList['acquisition'][1], 'test': eventList['test'][1]}
             #expList = ['short', 'medium']
-            expList = ['medium']
+            expList = ['long']
 
             # open the json files
             for exp in expList:
