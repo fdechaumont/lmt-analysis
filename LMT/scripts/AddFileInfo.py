@@ -19,25 +19,26 @@ def process( file ):
     ind = str(file[36:39])'''
     '''print('ind name: ', file[53:56])
     ind = str(file[53:56])'''
-        
+    '''print('ind name: ', file[42:44])
+    ind = str(file[42:44])'''
 
     connection = sqlite3.connect( file )
     
     c = connection.cursor()
-    query = "UPDATE ANIMAL SET GENOTYPE = 'WT'";
-    c.execute(query)
+    '''query = "UPDATE ANIMAL SET GENOTYPE = 'WT'";
+    c.execute(query)'''
     query = "UPDATE ANIMAL SET AGE = '3mo'";
     c.execute( query )
     query = "UPDATE ANIMAL SET SEX = 'male'";
     c.execute( query )
-    query = "UPDATE ANIMAL SET STRAIN = 'CC059'";
+    query = "UPDATE ANIMAL SET STRAIN = '189N3'";
     c.execute( query )
-    query = "UPDATE ANIMAL SET SETUP = 'x'";
+    query = "UPDATE ANIMAL SET SETUP = '2'";
     c.execute(query)
-    '''query = "UPDATE ANIMAL SET NAME = '{}'".format(ind);
+    '''query = "UPDATE ANIMAL SET NAME = '189N3-{}'".format(ind);
+    c.execute(query)
+    query = "UPDATE ANIMAL SET RFID = '189N3-{}'".format(ind);
     c.execute(query)'''
-    """query = "UPDATE ANIMAL SET RFID = '{}'".format(ind);
-    c.execute(query)"""
 
     connection.commit()
     c.close()

@@ -597,23 +597,31 @@ def plotProfileDataDurationPairs( axes, row, col, profileData, night, valueCat, 
     x = profileValueDictionary["genotype"]
     group = profileValueDictionary["exp"]
 
-    print("y: ", y)
-    print("x: ", x)
-    print("group: ", group)
+    genotypeCat = list(Counter(x))
+    genotypeCat.sort(reverse=True)
+    print('genotype list: ', genotypeCat)
+
+    #print("y: ", y)
+    #print("x: ", x)
+    #print("group: ", group)
     experimentType = Counter(group)
     print("Nb of experiments: ", len(experimentType))
 
     axes[row, col].set_xlim(-0.5, 1.5)
     axes[row, col].set_ylim(min(y) - 0.2 * max(y), max(y) + 0.2 * max(y))
-    sns.boxplot(x, y, ax=axes[row, col], linewidth=0.5, showmeans=True,
+    sns.boxplot(x, y, ax=axes[row, col], order=genotypeCat, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
-                           "markersize": '10'})
+                           "markersize": '10'}, showfliers=False)
     #sns.stripplot(x, y, jitter=True, hue=group, s=5, ax=axes[row, col])
-    sns.stripplot(x, y, jitter=True, color='black', s=5, ax=axes[row, col])
+    sns.stripplot(x, y, jitter=True, order=genotypeCat, color='black', s=5, ax=axes[row, col])
     axes[row, col].set_title(behavEvent)
-    axes[row, col].set_ylabel("{} (frames)".format(valueCat))
+    if valueCat == ' Nb':
+        unit = '(occurrences)'
+    else:
+        unit = '(frames)'
+    axes[row, col].set_ylabel("{} {}".format(valueCat, unit))
     axes[row, col].legend().set_visible(False)
     axes[row, col].spines['right'].set_visible(False)
     axes[row, col].spines['top'].set_visible(False)
@@ -630,12 +638,13 @@ def plotProfileDataDurationPairs( axes, row, col, profileData, night, valueCat, 
 
         # Mann-Whitney U test, non parametric, small sample size
         genotypeCat = list(Counter(dfData['genotype']).keys())
+        genotypeCat.sort(reverse=True)
         print('genotype list: ', genotypeCat)
         data = {}
         for k in [0,1]:
             data[genotypeCat[k]] = dfData['value'][dfData['genotype'] == genotypeCat[k]]
         U, p = mannwhitneyu( data[genotypeCat[0]], data[genotypeCat[1]])
-        print('means of WT_WT: ', np.mean(data['WT_WT']), 'mean of Del/+_Del/+: ', np.mean(data['Del/+_Del/+']))
+        print('means of ', genotypeCat[0], np.mean(data[genotypeCat[0]]), 'mean of ', genotypeCat[1], np.mean(data[genotypeCat[1]]))
         print( 'Mann-Whitney U test ({} {} cages, {} {} cages) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
         text_file.write('Mann-Whitney U test ({} {} cages, {} {} cages) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
         axes[row, col].text(x=0.5, y=max(y) + 0.1 * max(y), s = getStarsFromPvalues(p,numberOfTests=1), fontsize=14, ha='center' )
@@ -649,18 +658,28 @@ def plotProfileDataDurationPairs( axes, row, col, profileData, night, valueCat, 
         dfData = pandas.DataFrame({'group': profileValueDictionary["exp"],
                                    'genotype': profileValueDictionary["genotype"],
                                    'value': profileValueDictionary["value"]})
+
+        genotypeCat = list(Counter(dfData['genotype']).keys())
+        genotypeCat.sort(reverse=True)
+        print(genotypeCat)
         data = {}
-        data['WT'] = dfData['value'][dfData['genotype'] == 'WT']
-        data['Del/+'] = dfData['value'][dfData['genotype'] == 'Del/+']
-        print('means of WT: ', np.mean(data['WT']), 'mean of Del/+: ', np.mean(data['Del/+']))
+        for k in [0,1]:
+            data[genotypeCat[k]] = dfData['value'][dfData['genotype'] == genotypeCat[k]]
+        print('means of ', genotypeCat[0], np.mean(data[genotypeCat[0]]), 'mean of ', genotypeCat[1], np.mean(data[genotypeCat[1]]))
         # create model: value as a function of genotype, with the factor of the cage:
         model = smf.mixedlm("value ~ genotype", dfData, groups=dfData["group"])
         # run model:
         result = model.fit()
         # print summary
         print(result.summary())
-        p, sign = extractPValueFromLMMResult(result=result, keyword='WT')
+        '''p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[1])
         axes[row, col].text(x=0.5, y=max(y)+ 0.1 * max(y),
+                            s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')'''
+        p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[0])
+        axes[row, col].text(x=0, y=max(y) + 0.1 * max(y),
+                            s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')
+        p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[1])
+        axes[row, col].text(x=1, y=max(y) + 0.1 * max(y),
                             s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')
         text_file.write(result.summary().as_text())
         text_file.write('\n')
