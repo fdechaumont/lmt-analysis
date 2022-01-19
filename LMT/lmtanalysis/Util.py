@@ -276,7 +276,7 @@ def addJitter(x, jit):
     return newX
 
 
-def getStarsFromPvalues(pvalue, numberOfTests):
+def getStarsFromPvalues(pvalue=None, U=None, numberOfTests=1):
     stars = "NA"
 
     s1 = 0.05 / numberOfTests
@@ -284,6 +284,12 @@ def getStarsFromPvalues(pvalue, numberOfTests):
     s3 = 0.001 / numberOfTests
     if pvalue == "NA":
         stars = "NA"
+
+    elif (pvalue == 0) & (U == 0):
+        stars = "NA"
+
+    elif (pvalue == 0) & (U != 0):
+        stars = "***'"
 
     else:
         if pvalue < s3:

@@ -119,17 +119,17 @@ def plotTrajectoriesInBothPhases(pool, animal, durationPhase1, durationPhase2, a
 def buildFigTrajectorySingleObjectExploMalesFemales(files, numberMaleFiles, numberFemaleFiles, durationPhase1, durationPhase2, figName):
     if (numberMaleFiles == 0) & (numberFemaleFiles != 0):
         figF, axesF = plt.subplots(nrows=numberFemaleFiles, ncols=2,
-                                   figsize=(6, 4 * numberFemaleFiles))  # building the plot for trajectories
+                                   figsize=(7, 4 * numberFemaleFiles))  # building the plot for trajectories
 
     if (numberFemaleFiles == 0) & (numberMaleFiles != 0) :
         figM, axesM = plt.subplots(nrows=numberMaleFiles, ncols=2,
-                                   figsize=(6, 4 * numberMaleFiles))  # building the plot for trajectories
+                                   figsize=(7, 4 * numberMaleFiles))  # building the plot for trajectories
 
     elif (numberFemaleFiles != 0) & (numberMaleFiles != 0) :
         figF, axesF = plt.subplots(nrows=numberFemaleFiles, ncols=2,
-                                   figsize=(6, 4 * numberFemaleFiles))  # building the plot for trajectories
+                                   figsize=(7, 4 * numberFemaleFiles))  # building the plot for trajectories
         figM, axesM = plt.subplots(nrows=numberMaleFiles, ncols=2,
-                                       figsize=(6, 4 * numberMaleFiles))  # building the plot for trajectories
+                                       figsize=(7, 4 * numberMaleFiles))  # building the plot for trajectories
 
     nRow = {'male': 0, 'female': 0}  # initialisation of the row
 
@@ -212,7 +212,7 @@ if __name__ == '__main__':
             quit()
 
     nbFiles = len(files)
-    durationPhase1 = 25*oneMinute
+    durationPhase1 = 20*oneMinute
     durationPhase2 = 20*oneMinute
 
     figName = 'single_object_explo_trajectory'

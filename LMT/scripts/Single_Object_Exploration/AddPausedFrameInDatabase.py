@@ -100,4 +100,19 @@ if __name__ == '__main__':
     It is meant to be used on single tracked animals, for single object exploration for instance.
     """
     print("This code allows to set to pause a specific frame within a database. It is meant to be used on single tracked animals, for single object exploration for instance.")
-    processAll()
+    #processAll()
+
+    #If the experiment starts without habituation phase:
+    files = getFilesToProcess()
+
+    for file in files:
+        print(file)
+        connection = sqlite3.connect(file)
+        c = connection.cursor()
+        query = "UPDATE FRAME SET PAUSED = '1' WHERE FRAMENUMBER = 1";
+        c.execute(query)
+        connection.commit()
+        c.close()
+        connection.close()
+
+    print('Job done.')

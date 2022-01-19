@@ -154,6 +154,6 @@ if __name__ == '__main__':
 
         connection.close()
 
-    with open("profile_data_single_object_explo.json", 'w') as fp:
+    with open("profile_data_single_object_explo_CC.json", 'w') as fp:
         json.dump(animalData, fp, indent=4)
     print("json file with profile measurements created.")

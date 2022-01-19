@@ -1,10 +1,12 @@
 '''
-Created on 13 sept. 2017
+Created on 06 Jan. 2022
 
-@author: Fab
+@author: Elodie
 '''
 
 import sqlite3
+
+from matplotlib.colors import ListedColormap
 
 from lmtanalysis.FileUtil import getFigureBehaviouralEventsLabelsFrench
 from lmtanalysis.Animal import *
@@ -27,6 +29,7 @@ import statsmodels.formula.api as smf
 import pandas
 from scipy.stats import mannwhitneyu, kruskal, ttest_1samp
 from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
+from scripts.Single_Object_Exploration.Configuration_Single_Object_Explo import *
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -61,39 +64,12 @@ if __name__ == '__main__':
 
     rc('font', **{'family': 'serif', 'serif': ['Arial']})
 
-    variableList = ["dist_tot1", "dist_center1", "time_center1", "dist_obj1", "time_obj1", "sap1", "dist_tot2", "dist_center2", "time_center2", "dist_obj2", "time_obj2", "sap2", "Stop TotalLen1", "Stop Nb1", "Stop MeanDur1", "Center Zone TotalLen1", "Center Zone Nb1",
-"Center Zone MeanDur1", "Periphery Zone TotalLen1", "Periphery Zone Nb1", "Periphery Zone MeanDur1", "Rear isolated TotalLen1", "Rear isolated Nb1", "Rear isolated MeanDur1",
-"Rear in centerWindow TotalLen1", "Rear in centerWindow Nb1", "Rear in centerWindow MeanDur1", "Rear at periphery TotalLen1", "Rear at periphery Nb1", "Rear at periphery MeanDur1", "SAP TotalLen1", "SAP Nb1", "SAP MeanDur1", "WallJump TotalLen1", "WallJump Nb1",
-"WallJump MeanDur1", "Stop TotalLen2", "Stop Nb2", "Stop MeanDur2", "Center Zone TotalLen2", "Center Zone Nb2", "Center Zone MeanDur2", "Periphery Zone TotalLen2", "Periphery Zone Nb2",
-"Periphery Zone MeanDur2", "Rear isolated TotalLen2", "Rear isolated Nb2", "Rear isolated MeanDur2", "Rear in centerWindow TotalLen2", "Rear in centerWindow Nb2", "Rear in centerWindow MeanDur2", "Rear at periphery TotalLen2",
-"Rear at periphery Nb2", "Rear at periphery MeanDur2", "SAP TotalLen2", "SAP Nb2", "SAP MeanDur2", "WallJump TotalLen2", "WallJump Nb2", "WallJump MeanDur2"]
-
-    variableListExtension = {"dist_tot1": '(cm)', "dist_center1": '(cm)', "time_center1": '(frames)', "dist_obj1": '(cm)', "time_obj1": '(frames)', "sap1": '(frames)', "dist_tot2": '(cm)',
-                    "dist_center2": '(cm)', "time_center2": '(frames)', "dist_obj2": '(cm)', "time_obj2": '(frames)', "sap2": '(frames)', "Stop TotalLen1": '(frames)', "Stop Nb1": '(nb)',
-                    "Stop MeanDur1": '(frames)', "Center Zone TotalLen1": '(frames)', "Center Zone Nb1": '(nb)',
-                    "Center Zone MeanDur1": '(frames)', "Periphery Zone TotalLen1": '(frames)', "Periphery Zone Nb1": '(nb)', "Periphery Zone MeanDur1": '(frames)',
-                    "Rear isolated TotalLen1": '(frames)', "Rear isolated Nb1": '(nb)', "Rear isolated MeanDur1": '(frames)',
-                    "Rear in centerWindow TotalLen1": '(frames)', "Rear in centerWindow Nb1": '(nb)', "Rear in centerWindow MeanDur1": '(frames)',
-                    "Rear at periphery TotalLen1": '(frames)', "Rear at periphery Nb1": '(nb)', "Rear at periphery MeanDur1": '(frames)',
-                    "SAP TotalLen1": '(frames)', "SAP Nb1": '(nb)', "SAP MeanDur1": '(frames)', "WallJump TotalLen1": '(frames)', "WallJump Nb1": '(nb)',
-                    "WallJump MeanDur1": '(frames)', "Stop TotalLen2": '(frames)', "Stop Nb2": '(nb)', "Stop MeanDur2": '(frames)', "Center Zone TotalLen2": '(frames)',
-                    "Center Zone Nb2": '(nb)', "Center Zone MeanDur2": '(frames)', "Periphery Zone TotalLen2": '(frames)', "Periphery Zone Nb2": '(nb)',
-                    "Periphery Zone MeanDur2": '(frames)', "Rear isolated TotalLen2": '(frames)', "Rear isolated Nb2": '(nb)', "Rear isolated MeanDur2": '(frames)',
-                    "Rear in centerWindow TotalLen2": '(frames)', "Rear in centerWindow Nb2": '(nb)', "Rear in centerWindow MeanDur2": '(frames)',
-                    "Rear at periphery TotalLen2": '(frames)',
-                    "Rear at periphery Nb2": '(nb)', "Rear at periphery MeanDur2": '(frames)', "SAP TotalLen2": '(frames)', "SAP Nb2": '(nb)', "SAP MeanDur2": '(frames)',
-                    "WallJump TotalLen2": '(frames)', "WallJump Nb2": '(nb)', "WallJump MeanDur2": '(frames)'}
-
-    orderedFounderStrainList = ['CAST', 'PWK', 'WSB', '129SvJ', 'AJ', 'NOD', 'NZO', 'C57BL6J']
-    orderedCCStrainList = ['CC001', 'CC002', 'CC012', 'CCO18', 'CC024', 'CC037', 'CC040', 'CC041', 'CC042', 'CC051', 'CC059', 'CC061']
-    orderedOtherStrainList = ['BTBR']
-
-    orderedFullStrainList = orderedFounderStrainList+orderedCCStrainList+orderedOtherStrainList
 
     while True:
 
         question = "Do you want to:"
         question += "\n\t [1] plot simple barplots with all founder and CC strains?"
+        question += "\n\t [2] plot heatmaps to represent sex-related variations in all founder and CC strains?"
         question += "\n"
         answer = input(question)
 
@@ -106,6 +82,12 @@ if __name__ == '__main__':
                 data = json.load(json_data)
 
             print("json file for profile data re-imported.")
+
+            statSexResults = {}
+            statSexPval = {}
+            for strain in orderedFullStrainList:
+                statSexResults[strain] = {}
+                statSexPval[strain] = {}
 
             for value in variableList:
                 print(value)
@@ -145,7 +127,7 @@ if __name__ == '__main__':
                             meanprops={"marker": 'o',
                                        "markerfacecolor": 'white',
                                        "markeredgecolor": 'black',
-                                       "markersize": '10'})
+                                       "markersize": '10'}, showfliers=False)
                 #sns.stripplot(x=x, y=y, jitter=True, hue=sex, hue_order=['male', 'female'], s=5, dodge=True, ax=ax)
                 sns.stripplot(x=x, y=y, jitter=True, hue=sex, hue_order=['male', 'female'], order=orderedFullStrainList, s=5, dodge=True, ax=ax, color='black')
 
@@ -154,9 +136,95 @@ if __name__ == '__main__':
 
                 ax.legend().set_visible(False)
 
+                #comparison between sexes:
+                df = pd.DataFrame.from_dict(dataDic)
+
+                n = 0
+                labelPos = ax.get_xticks()
+                for strain in orderedFullStrainList:
+                    dataMales = df['value'][(df['sex'] == 'male') & (df['strain'] == strain)]
+                    dataFemales = df['value'][(df['sex'] == 'female') & (df['strain'] == strain)]
+
+                    if (len(dataMales) > 0) & (len(dataFemales) > 0):
+                        try:
+                            U, p = mannwhitneyu(dataMales, dataFemales)
+                            print('Mann-Whitney U test for {} males versus {} females in {}: U={}, p={}'.format(len(dataMales), len(dataFemales), strain, U, p))
+                            ax.text(labelPos[n], max(dataDic['value']) * 1.01, getStarsFromPvalues(pvalue=p, U=U, numberOfTests=1), fontsize=16, horizontalalignment='center')
+                            #computation of Cohen's d:
+                            effectSize = (np.mean(dataMales) - np.mean(dataFemales)) / np.std( list(dataMales) + list(dataFemales))
+                            statSexPval[strain][value] = getStarsFromPvalues(pvalue=p, U=U, numberOfTests=1)
+                        except:
+                            effectSize = 0
+                            statSexPval[strain][value] = 'NA'
+                            print('problem', dataMales, dataFemales)
+
+                    else:
+                        ax.text(labelPos[n], max(dataDic['value']) * 1.01, 'NA', fontsize=16, horizontalalignment='center')
+                        effectSize = 0
+                        statSexPval[strain][value] = 'NA'
+
+
+                    # statSexResults[strain][value] = (U, p, effectSize)
+                    statSexResults[strain][value] = effectSize
+
+
+                    n += 1
+
                 plt.tight_layout()
                 plt.show()
                 fig.savefig('plot_single_object_{}.pdf'.format(value), dpi=300)
 
+            with open("single_object_explo_sex_diff_effect_size.json", 'w') as fp:
+                json.dump(statSexResults, fp, indent=4)
+            print("json file with profile measurements created.")
+
+            with open("single_object_explo_sex_diff_pval.json", 'w') as fp:
+                json.dump(statSexPval, fp, indent=4)
+            print("json file with profile measurements created.")
+
             print('Job done.')
             break
+
+        if answer == "2":
+            '''Draw heatmaps for sex differences in all founder and CC strains'''
+            print('Choose the file containing the size effect of the sex-related variations')
+            file = getJsonFileToProcess()
+            print(file)
+            # create a dictionary with profile data
+            with open(file) as json_data:
+                statSexResults = json.load(json_data)
+
+            print('Choose the file containing the p-values of the sex-related variations')
+            file = getJsonFileToProcess()
+            print(file)
+            # create a dictionary with profile data
+            with open(file) as json_data:
+                statSexPval = json.load(json_data)
+
+            print("json files for sex-related variations re-imported.")
+
+            fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(12, 10))  # building the plot for trajectories
+
+
+            sexEffect = pd.DataFrame.from_dict(statSexResults)
+            dfStatSex = np.transpose(sexEffect)
+            print(dfStatSex)
+            dfStatSexReduced = dfStatSex.loc[:, selectedVariableList ]
+
+            sexPval = pd.DataFrame.from_dict(statSexPval)
+            dfStatSexPval = np.transpose(sexPval)
+            dfStatSexPvalReduced = dfStatSexPval.loc[:, selectedVariableList]
+
+            h = sns.heatmap(dfStatSexReduced, center=0, cmap=ListedColormap(
+                ['steelblue', 'skyblue', 'powderblue', 'white', 'lemonchiffon', 'sandybrown', 'firebrick']), vmin=-1.8,
+                            vmax=1.8,
+                            cbar_kws={'ticks': [-1.2, -0.8, -0.5, 0.5, 0.8, 1.2], 'extend': 'both'},
+                            annot=dfStatSexPvalReduced, annot_kws={"fontsize":10}, fmt='')
+            plt.show()
+            figure = h.get_figure()
+            figure.savefig('single_obj_explo_CC_heatmap_sex_variations.pdf', dpi=200)
+            figure.savefig('single_obj_explo_CC_heatmap_sex_variations.jpg', dpi=200)
+            print('Job done.')
+
+            break
+

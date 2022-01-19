@@ -72,6 +72,26 @@ def getJsonFileToProcess():
 
     return file
 
+def getCsvFileToProcess():
+    root = tk.Tk()
+    root.withdraw()
+    root.update()
+
+    d = Dialog(
+        title="Select csv file for processing", text="Select csv file for processing", bitmap='question',
+        strings=('File', 'Cancel'), default=0)
+
+    root.focus_force()
+    file = None
+    if (d.num == 0):
+        file = askopenfilename(title="Choose a csv file to process", multiple=0,
+                                filetypes=(("csv files", "*.csv"), ("all files", "*.*")))
+
+    d.destroy()
+    root.destroy()
+
+    return file
+
 def addJitter(x, jit):
     newX = []
     for item in x:
@@ -80,22 +100,6 @@ def addJitter(x, jit):
 
     return newX
 
-
-def getStarsFromPvalues(pvalue, numberOfTests):
-    stars = "ns"
-
-    s1 = 0.05 / numberOfTests
-    s2 = 0.01 / numberOfTests
-    s3 = 0.001 / numberOfTests
-
-    if pvalue < s3:
-        stars = "***"
-    if pvalue >= s3 and pvalue < s2:
-        stars = "**"
-    if pvalue >= s2 and pvalue < s1:
-        stars = "*"
-
-    return stars
 
 def extractPValueFromLMMResult( result, keyword ):
     r = result.summary().as_text()
