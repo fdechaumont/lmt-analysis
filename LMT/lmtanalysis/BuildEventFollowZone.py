@@ -5,6 +5,9 @@ Created on 6 sept. 2017
 '''
 import sqlite3
 from time import *
+
+from affine import Affine
+
 from lmtanalysis.Chronometer import Chronometer
 from lmtanalysis.Animal import *
 from lmtanalysis.Detection import *
