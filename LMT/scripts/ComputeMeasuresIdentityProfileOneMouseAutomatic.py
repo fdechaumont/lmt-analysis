@@ -32,7 +32,8 @@ from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationB
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-def computeProfile(file, minT, maxT, night, text_file, behaviouralEventList):
+def computeProfile(file, minT, maxT, night, text_file, behaviouralEventList, 
+                   numberOfFrameBetweenEvent, maxLen):
     
     connection = sqlite3.connect( file )
     
@@ -81,8 +82,8 @@ def computeProfile(file, minT, maxT, night, text_file, behaviouralEventList):
             
             behavEventTimeLine = EventTimeLineCached( connection, file, behavEvent, animal, minFrame=minT, maxFrame=maxT )
             #clean the behavioural event timeline:
-            behavEventTimeLine.mergeCloseEvents(numberOfFrameBetweenEvent=1)
-            behavEventTimeLine.removeEventsBelowLength(maxLen=3)
+            behavEventTimeLine.mergeCloseEvents(numberOfFrameBetweenEvent=numberOfFrameBetweenEvent)
+            behavEventTimeLine.removeEventsBelowLength(maxLen=maxLen)
 
             totalEventDuration = behavEventTimeLine.getTotalLength()
             nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame = minT, maxFrame = maxT )
@@ -138,7 +139,8 @@ def computeProfile(file, minT, maxT, night, text_file, behaviouralEventList):
     return animalData
 
 
-def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behaviouralEventListSocial):
+def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behaviouralEventListSocial,
+                       numberOfFrameBetweenEvent, maxLen):
 
     print("Start computeProfilePair")
 
@@ -213,8 +215,8 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
 
             behavEventTimeLine = EventTimeLineCached(connection2, file, behavEvent, animal, minFrame=minT, maxFrame=maxT)
             # clean the behavioural event timeline:
-            behavEventTimeLine.mergeCloseEvents(numberOfFrameBetweenEvent=1)
-            behavEventTimeLine.removeEventsBelowLength(maxLen=3)
+            behavEventTimeLine.mergeCloseEvents(numberOfFrameBetweenEvent=numberOfFrameBetweenEvent)
+            behavEventTimeLine.removeEventsBelowLength(maxLen= maxLen)
 
             totalEventDuration = behavEventTimeLine.getTotalLength()
             nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame=minT, maxFrame=maxT)
@@ -1230,7 +1232,7 @@ def plotZScoreProfileAutoHorizontal(ax, koDataframe, night, eventListForTest, ev
     ax.legend().set_visible(False)
 
 
-if __name__ == '__main__':
+def main():
     
     print("Code launched.")
     # set font
@@ -1257,7 +1259,6 @@ if __name__ == '__main__':
     categoryList = [' TotalLen', ' Nb', ' MeanDur']
 
     while True:
-
         question = "Do you want to:"
         question += "\n\t [1] compute profile data (save json file)?"
         question += "\n\t [2] compute profile data for pairs of same genotype animals (save json file)?"
@@ -1273,6 +1274,8 @@ if __name__ == '__main__':
         if answer == "1":
             files = getFilesToProcess()
             tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
+            numberOfFrameBetweenEvent=int(input("number of frame between Event (default: 1)"))
+            maxLen = int(input("minimum lenght of Event (default: 3)"))
 
             profileData = {}
             nightComputation = input("Compute profile only during night events (Y or N)? ")
@@ -1292,7 +1295,11 @@ if __name__ == '__main__':
                     maxT = tmax
                     n = 0
                     #Compute profile2 data and save them in a text file
-                    profileData[file][n] = computeProfile(file = file, minT=minT, maxT=maxT, night=n, text_file=text_file, behaviouralEventList=behaviouralEventOneMouse)
+                    profileData[file][n] = computeProfile(file = file, minT=minT, maxT=maxT,
+                                                          night=n, text_file=text_file,
+                                                          behaviouralEventList=behaviouralEventOneMouse,
+                                                          numberOfFrameBetweenEvent=numberOfFrameBetweenEvent,
+                                                          maxLen=  maxLen)
                     text_file.write( "\n" )
                     # Create a json file to store the computation
                     with open("profile_data_{}.json".format('no_night'), 'w') as fp:
@@ -1309,7 +1316,11 @@ if __name__ == '__main__':
                         maxT = eventNight.endFrame
                         print("Night: ", n)
                         #Compute profile2 data and save them in a text file
-                        profileData[file][n] = computeProfile(file=file, minT=minT, maxT=maxT, night=n, text_file=text_file, behaviouralEventList=behaviouralEventOneMouse)
+                        profileData[file][n] = computeProfile(file=file, minT=minT, maxT=maxT,
+                                                              night=n, text_file=text_file,
+                                                              behaviouralEventList=behaviouralEventOneMouse,
+                                                              numberOfFrameBetweenEvent=numberOfFrameBetweenEvent,
+                                                              maxLen=  maxLen)
                         text_file.write( "\n" )
                         n+=1
                         print("Profile data saved.")
@@ -1327,6 +1338,8 @@ if __name__ == '__main__':
         if answer == "2":
             files = getFilesToProcess()
             tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
+            numberOfFrameBetweenEvent=int(input("number of frame between Event (default: 1)"))
+            maxLen = int(input("minimum lenght of Event (default: 3)"))
             print ( files )
 
             profileData = {}
@@ -1342,7 +1355,11 @@ if __name__ == '__main__':
                     maxT = tmax
                     n = 0
                     #Compute profile2 data and save them in a text file
-                    profileData[file][n] = computeProfilePair(file = file, minT=minT, maxT=maxT, behaviouralEventListSingle=behaviouralEventOneMouse, behaviouralEventListSocial=behaviouralEventOneMouse)
+                    profileData[file][n] = computeProfilePair(file = file, minT=minT, maxT=maxT,
+                                                              behaviouralEventListSingle=behaviouralEventOneMouse,
+                                                              behaviouralEventListSocial=behaviouralEventOneMouse,
+                                                              numberOfFrameBetweenEvent=numberOfFrameBetweenEvent,
+                                                              maxLen=  maxLen)
                     text_file.write( "\n" )
                     # Create a json file to store the computation
                     with open("profile_data_pair_{}.json".format('no_night'), 'w') as fp:
@@ -1361,7 +1378,11 @@ if __name__ == '__main__':
                         maxT = eventNight.endFrame
                         print("Night: ", n)
                         #Compute profile2 data and save them in a text file
-                        profileData[file][n] = computeProfilePair(file=file, minT=minT, maxT=maxT, behaviouralEventListSingle=behaviouralEventOneMouseSingle, behaviouralEventListSocial=behaviouralEventOneMouseSocial)
+                        profileData[file][n] = computeProfilePair(file=file, minT=minT, maxT=maxT,
+                                                            behaviouralEventListSingle=behaviouralEventOneMouseSingle,
+                                                            behaviouralEventListSocial=behaviouralEventOneMouseSocial,
+                                                            numberOfFrameBetweenEvent=numberOfFrameBetweenEvent,
+                                                            maxLen=  maxLen)
                         text_file.write( "\n" )
                         n+=1
                         print("Profile data saved.")
@@ -2057,4 +2078,5 @@ if __name__ == '__main__':
 
             break
 
-            
+if __name__ == '__main__':
+    main()
