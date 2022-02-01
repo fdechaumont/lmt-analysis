@@ -1442,6 +1442,7 @@ if __name__ == '__main__':
             text_file.close()
             break
 
+
         if answer == "4":
             nightComputation = input("Plot profile only during night events (Y or N or merged)? ")
             text_file = getFileNameInput()
@@ -1998,7 +1999,7 @@ if __name__ == '__main__':
             # print(wtData)
 
             # compute the mutant data, centered and reduced for each cage
-            genoMutant = 'Del/+'
+            genoMutant = 'HZ'
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData,
                                         categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse)
 
