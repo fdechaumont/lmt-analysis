@@ -33,7 +33,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
 def computeProfile(file, minT, maxT, night, text_file, behaviouralEventList, 
-                   numberOfFrameBetweenEvent, maxLen):
+                   numberOfFrameBetweenEvent=1, maxLen=3):
     
     connection = sqlite3.connect( file )
     
@@ -140,7 +140,7 @@ def computeProfile(file, minT, maxT, night, text_file, behaviouralEventList,
 
 
 def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behaviouralEventListSocial,
-                       numberOfFrameBetweenEvent, maxLen):
+                       numberOfFrameBetweenEvent=1, maxLen=3):
 
     print("Start computeProfilePair")
 
@@ -1274,8 +1274,12 @@ def main():
         if answer == "1":
             files = getFilesToProcess()
             tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
-            numberOfFrameBetweenEvent=int(input("number of frame between Event (default: 1)"))
-            maxLen = int(input("minimum lenght of Event (default: 3)"))
+            if(input("Would you set up the number of frame between two event and the max len of an Event (yY|nN") in "yYyesoO"):
+                numberOfFrameBetweenEvent=int(input("number of frame between Event (default: 1)"))
+                maxLen = int(input("minimum lenght of Event (default: 3)"))
+            else :
+                numberOfFrameBetweenEvent = 1
+                maxLen = 3
 
             profileData = {}
             nightComputation = input("Compute profile only during night events (Y or N)? ")
@@ -1338,8 +1342,12 @@ def main():
         if answer == "2":
             files = getFilesToProcess()
             tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
-            numberOfFrameBetweenEvent=int(input("number of frame between Event (default: 1)"))
-            maxLen = int(input("minimum lenght of Event (default: 3)"))
+            if(input("Would you set up the number of frame between two event and the max len of an Event (yY|nN") in "yYyesoO"):
+                numberOfFrameBetweenEvent=int(input("number of frame between Event (default: 1)"))
+                maxLen = int(input("minimum lenght of Event (default: 3)"))
+            else :
+                numberOfFrameBetweenEvent = 1
+                maxLen = 3
             print ( files )
 
             profileData = {}
