@@ -17,7 +17,7 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
 def flush( connection ):
     ''' flush event in database '''
-    deleteEventTimeLineInBase(connection, "Passive anogenital sniff" )
+    deleteEventTimeLineInBase(connection, "Passive oral-genital Contact" )
 
 def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ): 
 
@@ -34,7 +34,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
             if ( animal == idAnimalB ):
                 continue
             anogenitalSniffTimeLine[animal, idAnimalB] = EventTimeLineCached( connection, file, "Oral-genital Contact", animal, idAnimalB, minFrame=tmin, maxFrame=tmax )
-            passiveAnogenitalSniffTimeLine[idAnimalB, animal] = EventTimeLine(None, 'Passive anogenital sniff', idAnimalB, animal, loadEvent=False)
+            passiveAnogenitalSniffTimeLine[idAnimalB, animal] = EventTimeLine(None, 'Passive oral-genital Contact', idAnimalB, animal, loadEvent=False)
 
     anogenitalSniffDico = {}
     for animal in range(1, pool.getNbAnimals() + 1):
@@ -50,7 +50,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     # log process
     from lmtanalysis.TaskLogger import TaskLogger
     t = TaskLogger( connection )
-    t.addLog( "Build Event Passive anogenital sniffing" , tmin=tmin, tmax=tmax )
+    t.addLog( "Build Event Passive oral-genital Contact" , tmin=tmin, tmax=tmax )
                        
     print( "Rebuild event finished." )
         

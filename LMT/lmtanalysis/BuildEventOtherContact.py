@@ -38,7 +38,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
 
     ''' load the timelines of the different specific contacts '''
     timeLine = {}
-    for event in ["Oral-oral Contact", "Oral-genital Contact", "Passive anogenital sniff", "Side by side Contact", "Side by side Contact, opposite way"]:
+    for event in ["Oral-oral Contact", "Oral-genital Contact", "Passive oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way"]:
         timeLine[event] = {}
         for animal in range(1, pool.getNbAnimals() + 1):
             for idAnimalB in range(1, pool.getNbAnimals() + 1):
@@ -54,11 +54,11 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
             contactDico[animal, idAnimalB] = contactTimeLine[animal, idAnimalB].getDictionary(minFrame=tmin, maxFrame=tmax)
 
             eventDico = {}
-            for event in ["Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way"]:
+            for event in ["Oral-oral Contact", "Oral-genital Contact", "Passive oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way"]:
                 eventDico[event] = timeLine[event][animal, idAnimalB].getDictionary(minFrame=tmin, maxFrame=tmax)
                 '''remove the frames where the animals are in specific contacts'''
                 for t in eventDico[event].keys():
-                    contactDico[animal, idAnimalB].pop( t, None )
+                    contactDico[animal, idAnimalB].pop(t, None)
 
             otherContactTimeLine[animal, idAnimalB].reBuildWithDictionnary(contactDico[animal, idAnimalB])
             otherContactTimeLine[animal, idAnimalB].endRebuildEventTimeLine(connection)
