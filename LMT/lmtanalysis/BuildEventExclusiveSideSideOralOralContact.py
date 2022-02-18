@@ -26,7 +26,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     if ( pool == None ):
         pool = AnimalPool( )
         pool.loadAnimals( connection )
-        pool.loadDetection( start = tmin, end = tmax , lightLoad=True )
+        #pool.loadDetection( start = tmin, end = tmax , lightLoad=True )
 
     ''' load the existing timelines for each pair of animals '''
     timeLine = {}

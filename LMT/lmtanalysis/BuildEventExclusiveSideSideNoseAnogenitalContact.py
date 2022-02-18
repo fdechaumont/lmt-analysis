@@ -28,7 +28,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     if ( pool == None ):
         pool = AnimalPool( )
         pool.loadAnimals( connection )
-        pool.loadDetection( start = tmin, end = tmax , lightLoad=True )
+        #pool.loadDetection( start = tmin, end = tmax , lightLoad=True )
 
     ''' load the existing timelines for each pair of animals '''
     timeLine = {}
@@ -88,11 +88,13 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                 if t in framesOralGenital[animal, idAnimalB]:
                     framesToRemove['Side by side Contact, opposite way'][animal, idAnimalB].append(t)
                     framesToRemove['Oral-genital Contact'][animal, idAnimalB].append(t)
+                    framesToRemove['Passive oral-genital Contact'][idAnimalB, animal].append(t)
                     contactDicoExclusive["Oral-genital and Side-side Contact, opposite exclusive"][animal, idAnimalB][t] = True
 
                 elif t in framesOralGenitalPassive[animal, idAnimalB]:
                     framesToRemove['Side by side Contact, opposite way'][animal, idAnimalB].append(t)
                     framesToRemove['Passive oral-genital Contact'][animal, idAnimalB].append(t)
+                    framesToRemove['Oral-genital Contact'][idAnimalB, animal].append(t)
                     contactDicoExclusive["Oral-genital passive and Side-side Contact, opposite exclusive"][animal, idAnimalB][t] = True
 
                 else:

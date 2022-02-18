@@ -45,58 +45,12 @@ USE_CACHE_LOAD_DETECTION_CACHE = True
 class FileProcessException(Exception):
     pass
 
-
-eventClassList = [
-
-                BuildEventDetection,
-                BuildEventOralOralContact,
-                BuildEventOralGenitalContact,
-                BuildEventSideBySide,
-                BuildEventSideBySideOpposite,
-                BuildEventTrain2,
-                BuildEventTrain3,
-                BuildEventTrain4,
-                BuildEventMove,
-                BuildEventFollowZone,
-                BuildEventRear5,
-                BuildEventCenterPeripheryLocation,
-                BuildEventRearCenterPeriphery,
-                BuildEventSocialApproach,
-                BuildEventGetAway,
-                BuildEventSocialEscape,
-                BuildEventApproachRear,
-                BuildEventGroup2,
-                BuildEventGroup3,
-                BuildEventGroup4,
-                BuildEventGroup3MakeBreak,
-                BuildEventGroup4MakeBreak,
-                BuildEventStop,
-                BuildEventWaterPoint,
-                BuildEventApproachContact,
-                BuildEventWallJump,
-                BuildEventSAP,
-                BuildEventOralSideSequence,
-                BuildEventNest3,
-                BuildEventNest4
-                   ]
-
-#eventClassList = [BuildEventPassiveAnogenitalSniff, BuildEventOtherContact, BuildEventExclusiveSideSideNoseAnogenitalContact]
-#eventClassList = [BuildEventApproachContact2]
-
-'''eventClassList = [
-
-                BuildEventDetection,
-                BuildEventMove,
-                BuildEventRear5,
-                BuildEventCenterPeripheryLocation,
-                BuildEventRearCenterPeriphery,
-                BuildEventStop,
-                BuildEventWaterPoint,
-                BuildEventWallJump,
-                BuildEventSAP
-                   ]'''
+eventClassList = [BuildEventPassiveAnogenitalSniff, BuildEventOtherContact,
+                  BuildEventExclusiveSideSideNoseAnogenitalContact, BuildEventExclusiveSideSideOralOralContact,
+                  BuildEventExclusiveCleanSideSideNoseAnogenitalOralOralContact]
 
 
+eventClassList = [BuildEventExclusiveCleanSideSideNoseAnogenitalOralOralContact]
 
 def flushEvents( connection ):
 
