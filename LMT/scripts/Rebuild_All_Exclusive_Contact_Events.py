@@ -12,7 +12,7 @@ from lmtanalysis.Measure import *
 
 from lmtanalysis.Util import getAllEvents
 
-from lmtanalysis import BuildEventApproachContact2, BuildEventOtherContact, BuildEventPassiveAnogenitalSniff, BuildEventExclusiveSideSideOralOralContact, BuildEventExclusiveCleanOralOralSideSideNoseAnogenitalContact, BuildEventExclusiveCleanSideSideNoseAnogenitalOralOralContact, BuildEventHuddling, BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, BuildEventFollowZone, BuildEventRear5, BuildEventCenterPeripheryLocation, BuildEventRearCenterPeriphery, BuildEventFloorSniffing, BuildEventSocialApproach, BuildEventSocialEscape, BuildEventApproachContact,BuildEventOralOralContact, BuildEventApproachRear, BuildEventGroup2, BuildEventGroup3, BuildEventGroup4, BuildEventOralGenitalContact, BuildEventStop, BuildEventWaterPoint, BuildEventMove, BuildEventGroup3MakeBreak, BuildEventGroup4MakeBreak, BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection, BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP, BuildEventOralSideSequence, CheckWrongAnimal, CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventGetAway
+from lmtanalysis import BuildEventOtherContact, BuildEventPassiveAnogenitalSniff, BuildEventExclusiveMoveStopIsolated, BuildEventExclusiveCleanOralOralSideSideNoseAnogenitalContact, BuildDataBaseIndex, CheckWrongAnimal
 
 
 from psutil import virtual_memory
@@ -32,7 +32,7 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 ''' minT and maxT to process the analysis (in frame) '''
 minT = 0
 
-maxT = 2 *oneHour
+maxT = 3 *oneDay
 #maxT = 3*oneDay
 #maxT = (6+1)*oneHour
 ''' time window to compute the events. '''
@@ -46,10 +46,11 @@ class FileProcessException(Exception):
     pass
 
 eventClassList = [BuildEventPassiveAnogenitalSniff, BuildEventOtherContact,
-                  BuildEventExclusiveCleanOralOralSideSideNoseAnogenitalContact]
+                  BuildEventExclusiveCleanOralOralSideSideNoseAnogenitalContact,
+                  BuildEventExclusiveMoveStopIsolated]
 
 
-eventClassList = [BuildEventExclusiveCleanOralOralSideSideNoseAnogenitalContact]
+eventClassList = [BuildEventExclusiveMoveStopIsolated]
 
 def flushEvents( connection ):
 
