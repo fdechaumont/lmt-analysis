@@ -14,20 +14,17 @@ import numpy as np
 from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
+from lmtanalysis.BehaviouralSequencesUtil import exclusiveEventList
 
 def flush( connection ):
     ''' flush event in database '''
-    deleteEventTimeLineInBase(connection, "Move isolated exclusive")
-    deleteEventTimeLineInBase(connection, "Stop isolated exclusive" )
+    for exclusiveEvent in exclusiveEventList[-2:]:
+        deleteEventTimeLineInBase(connection, exclusiveEvent)
 
 def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     moveEventList = ['Move isolated', 'Stop isolated']
-    exclusiveEventList = ['Oral-oral Contact exclusive', 'Side-side Contact exclusive', 'Oral-genital Contact exclusive',
-                       'Passive oral-genital Contact exclusive', 'Side-side Contact, opposite exclusive',
-                       'Oral-oral and Side-side Contact exclusive',
-                       'Oral-genital and Side-side Contact, opposite exclusive',
-                       'Oral-genital passive and Side-side Contact, opposite exclusive', 'Other contact exclusive']
-    moveEventListExclusive = ['Stop isolated exclusive', 'Move isolated exclusive']
+
+    moveEventListExclusive = exclusiveEventList[-2:]
 
     eventPairs = {'Move isolated': 'Move isolated exclusive',
                   'Stop isolated': 'Stop isolated exclusive'}
@@ -39,7 +36,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     ''' load the existing timelines for animal '''
     timeLine = {}
     dicoContact = {}
-    for event in moveEventList+exclusiveEventList:
+    for event in moveEventList+exclusiveEventList[:-2]:
         timeLine[event] = {}
         dicoContact[event] = {}
         for animal in range(1, pool.getNbAnimals() + 1):
@@ -68,7 +65,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     for animal in range(1, pool.getNbAnimals() + 1):
         for moveEvent in moveEventListExclusive:
             for t in moveDicoExclusive[moveEvent][animal].keys():
-                for contactEvent in exclusiveEventList:
+                for contactEvent in exclusiveEventList[:-2]:
                     if t in dicoContact[contactEvent][animal].keys():
                         framesToRemove[moveEvent][animal].append(t)
 

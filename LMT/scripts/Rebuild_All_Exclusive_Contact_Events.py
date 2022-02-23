@@ -32,8 +32,9 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 ''' minT and maxT to process the analysis (in frame) '''
 minT = 0
 
-maxT = 3 *oneDay
-#maxT = 3*oneDay
+#maxT = 1*oneHour
+
+maxT = 3*oneDay
 #maxT = (6+1)*oneHour
 ''' time window to compute the events. '''
 windowT = 1*oneDay
