@@ -4,7 +4,7 @@
 #@author: Elodie
 '''
 
-import numpy as np; np.random.seed(0)
+import numpy as np
 from scripts.ComputeObjectRecognition import *
 
 #object positions (x,y) according to the setup:
@@ -204,56 +204,16 @@ organisation = {'short':
                     '001038125012': 'ss1'
                     },
                 'long':
-                    {'M01': 'dm1',
-                     'M02': 'kc1',
-                     'M03': 'dm2',
-                     'M04': 'kc2',
-                     'M05': 'ck1',
-                     'M06': 'md1',
-                     'M07': 'md2',
-                     'M08': 'ck2',
-                     'M09': 'dm1',
-                     'M10': 'kc1',
-                     'M11': 'dm2',
-                     'M12': 'kc2',
-                     'M13': 'md1',
-                     'M14': 'ck1',
-                     'M15': 'md2',
-                     'M16': 'ck2',
-                     'M17': 'dm1',
-                     'M18': 'kc1',
-                     'M19': 'dm2',
-                     'M20': 'kc2',
-                     'M21': 'md1',
-                     'M22': 'ck1',
-                     'M23': 'md2',
-
-                     '189N3-14': 'dm1',
-                     '189N3-15': 'md1',
-                     '189N3-16': 'md1',
-                     '189N3-17': 'md1',
-                     '189N3-18': 'dm2',
-                     '189N3-19': 'dm1',
-                     '189N3-20': 'md2',
-                     '189N3-29': 'dm2',
-                     '189N3-42': 'md1',
-                     '189N3-60': 'md2',
-
-                     '189N3-11': 'dm2',
-                     '189N3-21': 'md2',
-                     '189N3-22': 'dm1',
-                     '189N3-38': 'md2',
-                     '189N3-39': 'dm1',
-                     '189N3-44': 'md1',
-                     '189N3-45': 'dm1',
-                     '189N3-46': 'dm2',
-                     '189N3-52': 'md2',
-                     '189N3-62': 'dm2',
-                     '189N3-65': 'md1',
-                     '189N3-67': 'dm1',
-                     '189N3-72': 'md2',
-                     '189N3-73': 'dm2'
+                    {'M01': 'dm1', 'M02': 'kc1','M03': 'dm2','M04': 'kc2','M05': 'ck1',
+                     'M06': 'md1', 'M07': 'md2','M08': 'ck2','M09': 'dm1','M10': 'kc1',
+                     'M11': 'dm2','M12': 'kc2','M13': 'md1','M14': 'ck1','M15': 'md2',
+                     'M16': 'ck2','M17': 'dm1','M18': 'kc1','M19': 'dm2','M20': 'kc2',
+                     'M21': 'md1', 'M22': 'ck1','M23': 'md2',
+                     
+                     '189N3-F34': 'ff1','189N3-F38': 'cc1','189N3-F72': 'ss1','189N3-F73': 'kk1','189N3-F39': 'ff2','189N3-F44': 'ss2','189N3-F45': 'cc2','189N3-F46': 'kk1','189N3-F11': 'ff1','189N3-F12': 'cc2','189N3-F21': 'ss1','189N3-F22': 'kk2','189N3-F65': 'ff2','189N3-F67': 'ss2','189N3-F52': 'cc1','189N3-F62': 'kk1','189N3-F116': 'ff1','189N3-F117': 'ss2','189N3-F118': 'cc1','189N3-F119': 'kk2'
+                     
 },
+#'189N3-14': 'dm1','189N3-15': 'md1','189N3-16': 'md1', '189N3-17': 'md1','189N3-18': 'dm2','189N3-19': 'dm1','189N3-20': 'md2','189N3-29': 'dm2','189N3-42': 'md1','189N3-60': 'md2','189N3-11': 'dm2','189N3-21': 'md2','189N3-22': 'dm1','189N3-38': 'md2','189N3-39': 'dm1','189N3-44': 'md1','189N3-45': 'dm1','189N3-46': 'dm2','189N3-52': 'md2','189N3-62': 'dm2','189N3-65': 'md1','189N3-67': 'dm1','189N3-72': 'md2','189N3-73': 'dm2'
                 'longIso':
                     {'M01': 'md1',
                      'M02': 'dm1',
@@ -286,11 +246,16 @@ radiusObjects = {'cup': 18, 'flask': 15, 'falcon': 9, 'shaker': 11, 'marble': 7,
 colorObjects = {'cup': 'gold', 'flask': 'mediumpurple', 'falcon': 'mediumseagreen', 'shaker': 'orchid', 'marble': 'royalblue', 'dice': 'red'}
 objectList = ['cup', 'flask', 'falcon', 'shaker', 'marble', 'dice']
 
-colorSap = {'WT': 'dodgerblue', 'Del/+': 'darkorange', 'Tg+': 'darkorange', '1': 'dodgerblue', '2': 'red'}
+#mutantGeno = 'Del/+'
+#mutantGeno = 'Tg+'
+mutantGeno = 'Tg/+'
 
-sexList = ['male', 'female']
+colorSap = {'WT': 'dodgerblue', mutantGeno: 'darkorange', '1': 'dodgerblue', '2': 'red'}
+
+#sexList = ['male', 'female']
+sexList = ['female']
 #genoList = ['WT', 'Del/+']
-genoList = ['WT', 'Tg+']
+genoList = ['WT', mutantGeno]
 configList = ['config1', 'config2']
 setupList = ['2i', '2s']
 setupList = ['1', '2']

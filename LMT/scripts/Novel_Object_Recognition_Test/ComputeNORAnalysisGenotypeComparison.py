@@ -431,6 +431,7 @@ if __name__ == '__main__':
             phase = input(question2)
             files = getFilesToProcess()
             rfidList = []
+            print('##############', organisation[exp])
 
             text_file_name = 'file_info.text'
             text_file = open(text_file_name, "w")
@@ -469,6 +470,7 @@ if __name__ == '__main__':
             question2 = "Is it the acquisition or test phase? (acquisition / test)"
             phase = input(question2)
             files = getFilesToProcess()
+            
 
             if phase == 'acquisition':
                 for file in files:
@@ -940,7 +942,8 @@ if __name__ == '__main__':
             eventSame = ['SniffLeftFar', 'SniffRightFar']
             eventTest = ['SniffFamiliarFar', 'SniffNewFar']
 
-            for sex in sexList:
+            #for sex in sexList:
+            for sex in ['female']:
                 for eventList in [eventSame, eventTest]:
                     if eventList == eventSame:
                         data = dataSame
@@ -981,7 +984,8 @@ if __name__ == '__main__':
             print("json files re-imported.")
 
             data = dataTest
-            for sex in sexList:
+            #for sex in sexList:
+            for sex in ['female']:
                 #plot for test phase
                 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 4))  # create the figure for the graphs of the computation
 
