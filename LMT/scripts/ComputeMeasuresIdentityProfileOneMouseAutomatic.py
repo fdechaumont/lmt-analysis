@@ -784,9 +784,9 @@ def plotProfileDataDurationPairs( axes, row, col, profileData, night, valueCat, 
         p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[0])
         axes[row, col].text(x=0, y=max(y) + 0.1 * max(y),
                             s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')
-        p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[1])
+        '''p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[1])
         axes[row, col].text(x=1, y=max(y) + 0.1 * max(y),
-                            s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')
+                            s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')'''
         text_file.write(result.summary().as_text())
         text_file.write('\n')
 
