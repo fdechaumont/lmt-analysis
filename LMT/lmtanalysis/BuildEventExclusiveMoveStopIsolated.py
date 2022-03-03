@@ -63,22 +63,23 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     ###########################################################################
     #exclude the move and stop events where animals are in contacts
     for animal in range(1, pool.getNbAnimals() + 1):
-        for moveEvent in moveEventListExclusive:
+        for moveEvent in exclusiveEventList[-2:]:
             for t in moveDicoExclusive[moveEvent][animal].keys():
                 for contactEvent in exclusiveEventList[:-2]:
                     if t in dicoContact[contactEvent][animal].keys():
+                        print('t = ', t, 'in', moveEvent, ' and in ', contactEvent)
                         framesToRemove[moveEvent][animal].append(t)
 
     ###########################################################################
     # clean the dictionary of the move and stop events from frames that are overlapping with exclusive contacts
     for animal in range(1, pool.getNbAnimals() + 1):
-        for moveEvent in moveEventListExclusive:
+        for moveEvent in exclusiveEventList[-2:]:
             for t in framesToRemove[moveEvent][animal]:
                 moveDicoExclusive[moveEvent][animal].pop(t, None)
 
     #####################################################
     #reduild all events based on dictionary
-    for moveEvent in moveEventListExclusive:
+    for moveEvent in exclusiveEventList[-2:]:
         for animal in range(1, pool.getNbAnimals() + 1):
             timeLineExclusive[moveEvent][animal].reBuildWithDictionnary(moveDicoExclusive[moveEvent][animal])
             timeLineExclusive[moveEvent][animal].endRebuildEventTimeLine(connection)
