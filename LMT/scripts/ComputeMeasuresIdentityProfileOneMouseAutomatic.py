@@ -584,7 +584,7 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
         ax.text(n, max(y) + 0.1 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=20, horizontalalignment='center', color='black', weight='bold')
         n += 1
 
-def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, valueCat, behavEvent, ax, letter, text_file, image, imgPos, zoom):
+def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, valueCat, behavEvent, ax, letter, text_file, image, zoom, mode):
     if behavEvent != 'totalDistance':
         event = behavEvent + valueCat
 
@@ -619,6 +619,7 @@ def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, va
     print(genotypeType)
     orderedGenotypeType = list(sorted(genotypeType))
     print(orderedGenotypeType)
+    print('order graph: ', list(reversed(orderedGenotypeType)))
 
     if valueCat == ' TotalLen':
         y = [i / 30 for i in yval]
@@ -634,7 +635,7 @@ def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, va
 
     ax.text(-1, max(y) + 0.5 * (max(y) - min(y)), letter, fontsize=20, horizontalalignment='center', color='black', weight='bold')
     ax.set_ylim(min(y) - 0.2 * (max(y)-min(y)), max(y) + 0.4 * (max(y)-min(y)))
-    bp = sns.boxplot(sex, y, hue=x, hue_order=reversed(genotypeType), ax=ax, linewidth=0.5, showmeans=True,
+    bp = sns.boxplot(sex, y, hue=x, hue_order=list(reversed(orderedGenotypeType)), ax=ax, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
@@ -644,7 +645,7 @@ def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, va
         r, g, b, a = patch.get_facecolor()
         patch.set_facecolor((r, g, b, .7))'''
 
-    sns.stripplot(sex, y, hue=x, hue_order=reversed(genotypeType), jitter=True, color='black', s=5,
+    sns.stripplot(sex, y, hue=x, hue_order=list(reversed(orderedGenotypeType)), jitter=True, color='black', s=5,
                   dodge=True, ax=ax)
     ax.set_title(behavEvent, y=1, fontsize=14)
     ax.xaxis.set_tick_params(direction="in")
@@ -666,27 +667,68 @@ def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, va
 
     behavSchema = mpimg.imread(image)
     imgBox = OffsetImage(behavSchema, zoom=zoom)
-    imageBox = AnnotationBbox(imgBox, imgPos, frameon=False)
+    imageBox = AnnotationBbox(imgBox, (0.5, max(y) + 0.25 * (max(y)-min(y))), frameon=False)
     ax.add_artist(imageBox)
 
 
     #Mann-Whitney U tests:
     dataDict = {'value': y, 'sex': sex, 'genotype': x, 'group': group}
     dfDataBothSexes = pd.DataFrame(dataDict)
-    n = 0
-    dfData = {}
-    for sexClass in ['male', 'female']:
-        dfData[sexClass] = {}
-        for geno in reversed(genotypeType):
-            dfData[sexClass][geno] = dfDataBothSexes[(dfDataBothSexes['sex'] == sexClass) & (dfDataBothSexes['genotype'] == geno)]
-            print(geno, dfData[sexClass][geno])
-        U, p = mannwhitneyu(dfData[sexClass][orderedGenotypeType[-1]]['value'], dfData[sexClass][orderedGenotypeType[-2]]['value'])
-        print('means of ', orderedGenotypeType[-1], np.mean(dfData[sexClass][orderedGenotypeType[-1]]['value']), 'mean of ', orderedGenotypeType[-2],
-              np.mean(dfData[sexClass][orderedGenotypeType[-2]]['value']))
-        # add p-values on the plot
-        ax.text(n, max(y) + 0.1 * (max(y) - min(y)), getStarsFromPvalues(p, 1), fontsize=20, horizontalalignment='center', color='black', weight='bold')
+    if mode == 'dyadic':
+        n = 0
+        dfData = {}
+        for sexClass in ['male', 'female']:
+            dfData[sexClass] = {}
+            for geno in reversed(genotypeType):
+                dfData[sexClass][geno] = dfDataBothSexes[(dfDataBothSexes['sex'] == sexClass) & (dfDataBothSexes['genotype'] == geno)]
+                print(geno, dfData[sexClass][geno])
+            U, p = mannwhitneyu(dfData[sexClass][orderedGenotypeType[-1]]['value'], dfData[sexClass][orderedGenotypeType[-2]]['value'])
+            print('means of ', orderedGenotypeType[-1], np.mean(dfData[sexClass][orderedGenotypeType[-1]]['value']), 'mean of ', orderedGenotypeType[-2],
+                  np.mean(dfData[sexClass][orderedGenotypeType[-2]]['value']))
+            # add p-values on the plot
+            ax.text(n, max(y) + 0.2 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=18, horizontalalignment='center', color='black', weight='bold')
+            n += 1
 
-        n += 1
+
+    elif mode == 'single':
+        n = 0
+        for sexClass in ['male', 'female']:
+            dfData = dfDataBothSexes.loc[dfDataBothSexes['sex']==sexClass, :]
+
+            """print("event single: ", event)
+            text_file.write("Test for the event: {} night {}".format(event, night))
+
+            dfData = pandas.DataFrame({'group': profileValueDictionary["exp"],
+                                       'genotype': profileValueDictionary["genotype"],
+                                       'value': profileValueDictionary["value"]})
+"""
+            genotypeCat = list(Counter(dfData['genotype']).keys())
+            genotypeCat.sort(reverse=True)
+            print(genotypeCat)
+            data = {}
+            for k in [0, 1]:
+                data[genotypeCat[k]] = dfData['value'][dfData['genotype'] == genotypeCat[k]]
+            print('means of ', genotypeCat[0], np.mean(data[genotypeCat[0]]), 'mean of ', genotypeCat[1],
+                  np.mean(data[genotypeCat[1]]))
+            # create model: value as a function of genotype, with the factor of the cage:
+            model = smf.mixedlm("value ~ genotype", dfData, groups=dfData["group"])
+            # run model:
+            result = model.fit()
+            # print summary
+            print(result.summary())
+            '''p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[1])
+            axes[row, col].text(x=0.5, y=max(y)+ 0.1 * max(y),
+                                s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')'''
+            p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[0])
+            ax.text(x=n, y=max(y) + 0.2 * (max(y)-min(y)),
+                                s=getStarsFromPvalues(p, numberOfTests=1), fontsize=18, ha='center')
+            '''p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[1])
+            axes[row, col].text(x=1, y=max(y) + 0.1 * max(y),
+                                s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')'''
+            text_file.write(result.summary().as_text())
+            text_file.write('\n')
+
+            n += 1
 
 
 def plotProfileDataDurationPairs( axes, row, col, profileData, night, valueCat, behavEvent, mode, text_file ):
