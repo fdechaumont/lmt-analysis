@@ -14,7 +14,7 @@ from scripts.Novel_Object_Recognition_Test.ComputeActivityHabituationNorTestRedC
 
 def buildFigTrajectoryPerGenotype(files, tmin, tmax, figName, title, xa = 111, xb = 400, ya = 63, yb = 353):
 
-    fig, axes = plt.subplots(nrows=4, ncols=5, figsize=(14, 12))  # building the plot for trajectories
+    fig, axes = plt.subplots(nrows=6, ncols=5, figsize=(14, 18))  # building the plot for trajectories
     nRow = 0  # initialisation of the row
     nCol = 0  # initialisation of the column
 
@@ -162,7 +162,7 @@ if __name__ == '__main__':
                 connection.close()
             print(data)
             #store the data dictionary in a json file
-            with open('NOR_189N3_females_day1.json', 'w') as jFile:
+            with open('hab_males.json', 'w') as jFile:
                 json.dump(data, jFile, indent=4)
             print("json file created")
 
@@ -176,7 +176,7 @@ if __name__ == '__main__':
             #traj of center of mass
             files = getFilesToProcess() #upload files for the analysis
             #plot the trajectories, with SAP only in the inner zone of the cage to avoid SAP against the walls
-            buildFigTrajectoryPerGenotype(files=files, tmin=0, tmax=15*oneMinute, figName='fig_traj_hab_nor_setup', title='hab d1', xa=128, xb=383, ya=80, yb=336)
+            #buildFigTrajectoryPerGenotype(files=files, tmin=0, tmax=15*oneMinute, figName='fig_traj_hab_nor_setup', title='hab d1', xa=128, xb=383, ya=80, yb=336)
 
             print('Compute distance travelled, number of SAP displayed, and rearing.')
 
@@ -239,7 +239,7 @@ if __name__ == '__main__':
                 connection.close()
             print(data)
             #store the data dictionary in a json file
-            with open('NOR_189N3_females_day1.json', 'w') as jFile:
+            with open('hab_males.json', 'w') as jFile:
                 json.dump(data, jFile, indent=4)
             print("json file created")
 
@@ -293,6 +293,8 @@ if __name__ == '__main__':
                             'rearCenter Nb', 'rearCenter Duration', 'rearPeriphery Nb', 'rearPeriphery Duration']
             #variableList = ['rearTotal Nb', 'rearCenter Nb', 'rearPeriphery Nb']
             #variableList = ['totDistance', 'centerDistance', 'centerTime']
+            variableList = ['totDistance', 'centerDistance', 'centerTime', 'nbSap', 'rearTotal Nb',
+                            'rearTotal Duration']
 
             fig, axes = plt.subplots(nrows=1, ncols=len(variableList), figsize=(2*len(variableList), 4)) #create the figure for the graphs of the computation
 

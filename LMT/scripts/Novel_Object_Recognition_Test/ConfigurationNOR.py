@@ -248,12 +248,12 @@ objectList = ['cup', 'flask', 'falcon', 'shaker', 'marble', 'dice']
 
 #mutantGeno = 'Del/+'
 #mutantGeno = 'Tg+'
-mutantGeno = 'Tg/+'
+mutantGeno = 'KO'
 
 colorSap = {'WT': 'dodgerblue', mutantGeno: 'darkorange', '1': 'dodgerblue', '2': 'red'}
 
-#sexList = ['male', 'female']
-sexList = ['female']
+sexList = ['male', 'female']
+#sexList = ['female']
 #genoList = ['WT', 'Del/+']
 genoList = ['WT', mutantGeno]
 configList = ['config1', 'config2']
@@ -317,6 +317,8 @@ def getColorSetup(setup):
         color = 'steelblue'
     elif setup == '2s':
         color = 'green'
+    elif setup == '4':
+        color = 'darkgreen'
     return color
 
 

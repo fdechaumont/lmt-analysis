@@ -19,7 +19,7 @@ import seaborn as sns
 
 def buildFigTrajectoryPerSetup(files, tmin, tmax, figName, title, xa = 111, xb = 400, ya = 63, yb = 353):
 
-    fig, axes = plt.subplots(nrows=4, ncols=5, figsize=(14, 12))  # building the plot for trajectories
+    fig, axes = plt.subplots(nrows=6, ncols=5, figsize=(14, 18))  # building the plot for trajectories
     nRow = 0  # initialisation of the row
     nCol = 0  # initialisation of the column
 
@@ -163,7 +163,7 @@ def plotVariablesHabituationNorBoxplotsPerGenotype(ax, sexList, genoList, data, 
     ax.spines['top'].set_visible(False)
 
     # conduct statistical testing: Mann-Whitney U test (non-parametric for non normal data with small sample size):
-    xPos = {'male': 0, 'female': 0}
+    xPos = {'male': 0, 'female': 1}
     for sex in sexList:
         try:
             U, p = stats.mannwhitneyu(list(df['val'][(df['sex']==sex) & (df['geno']==genoList[0])]), list(df['val'][(df['sex']==sex) & (df['geno']==genoList[1])]))
