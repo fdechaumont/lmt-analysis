@@ -34,6 +34,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
             if ( animal == idAnimalB ):
                 continue
             anogenitalSniffTimeLine[animal, idAnimalB] = EventTimeLineCached( connection, file, "Oral-genital Contact", animal, idAnimalB, minFrame=tmin, maxFrame=tmax )
+
+            # create an empty timeline for other contacts
             passiveAnogenitalSniffTimeLine[idAnimalB, animal] = EventTimeLine(None, 'Passive oral-genital Contact', idAnimalB, animal, loadEvent=False)
 
     anogenitalSniffDico = {}

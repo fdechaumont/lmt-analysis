@@ -9,7 +9,7 @@ exclusiveEventList = ['Oral-oral Contact exclusive', 'Side by side Contact exclu
                        'Passive oral-genital Contact exclusive', 'Side by side Contact, opposite way exclusive',
                        'Oral-oral and Side by side Contact exclusive',
                        'Oral-genital and Side by side Contact, opposite way exclusive',
-                       'Oral-genital passive and Side by side Contact, opposite way exclusive', 'Other contact exclusive', 'Move isolated exclusive', 'Stop isolated exclusive']
+                       'Oral-genital passive and Side by side Contact, opposite way exclusive', 'Other contact exclusive', 'Move isolated exclusive', 'Stop isolated exclusive', 'Undetected exclusive']
 
 contactTypeList = ["Oral-oral Contact", "Oral-genital Contact", "Passive oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Other contact"]
 
@@ -18,4 +18,8 @@ exclusiveEventsLabels = {'Oral-oral Contact exclusive': 'O-O', 'Side by side Con
                        'Oral-oral and Side by side Contact exclusive': 'O-O S-S',
                        'Oral-genital and Side by side Contact, opposite way exclusive': 'O-G S-S opp',
                        'Oral-genital passive and Side by side Contact, opposite way exclusive': 'O-G pass S-S opp', 'Other contact exclusive': 'Other',
-                        'Move isolated exclusive': 'Move iso', 'Stop isolated exclusive': 'Stop iso'}
+                        'Move isolated exclusive': 'Move iso', 'Stop isolated exclusive': 'Stop iso', 'Undetected exclusive': 'undetected'}
+
+sexList = ['male', 'female']
+mutantGeno = 'KO'
+genoList = ['WT', mutantGeno]
