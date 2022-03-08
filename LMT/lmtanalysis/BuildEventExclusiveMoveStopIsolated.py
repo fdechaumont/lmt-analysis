@@ -18,13 +18,13 @@ from lmtanalysis.BehaviouralSequencesUtil import exclusiveEventList
 
 def flush( connection ):
     ''' flush event in database '''
-    for exclusiveEvent in exclusiveEventList[-2:]:
+    for exclusiveEvent in exclusiveEventList[-3:-1]:
         deleteEventTimeLineInBase(connection, exclusiveEvent)
 
 def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     moveEventList = ['Move isolated', 'Stop isolated']
 
-    moveEventListExclusive = exclusiveEventList[-2:]
+    moveEventListExclusive = exclusiveEventList[-3:-1]
 
     eventPairs = {'Move isolated': 'Move isolated exclusive',
                   'Stop isolated': 'Stop isolated exclusive'}
@@ -36,7 +36,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     ''' load the existing timelines for animal '''
     timeLine = {}
     dicoContact = {}
-    for event in moveEventList+exclusiveEventList[:-2]:
+    for event in moveEventList+exclusiveEventList[:-3]:
         timeLine[event] = {}
         dicoContact[event] = {}
         for animal in range(1, pool.getNbAnimals() + 1):
@@ -63,9 +63,9 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     ###########################################################################
     #exclude the move and stop events where animals are in contacts
     for animal in range(1, pool.getNbAnimals() + 1):
-        for moveEvent in exclusiveEventList[-2:]:
+        for moveEvent in exclusiveEventList[-3:-1]:
             for t in moveDicoExclusive[moveEvent][animal].keys():
-                for contactEvent in exclusiveEventList[:-2]:
+                for contactEvent in exclusiveEventList[:-3]:
                     if t in dicoContact[contactEvent][animal].keys():
                         print('t = ', t, 'in', moveEvent, ' and in ', contactEvent)
                         framesToRemove[moveEvent][animal].append(t)
@@ -73,13 +73,13 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     ###########################################################################
     # clean the dictionary of the move and stop events from frames that are overlapping with exclusive contacts
     for animal in range(1, pool.getNbAnimals() + 1):
-        for moveEvent in exclusiveEventList[-2:]:
+        for moveEvent in exclusiveEventList[-3:-1]:
             for t in framesToRemove[moveEvent][animal]:
                 moveDicoExclusive[moveEvent][animal].pop(t, None)
 
     #####################################################
     #reduild all events based on dictionary
-    for moveEvent in exclusiveEventList[-2:]:
+    for moveEvent in exclusiveEventList[-3:-1]:
         for animal in range(1, pool.getNbAnimals() + 1):
             timeLineExclusive[moveEvent][animal].reBuildWithDictionnary(moveDicoExclusive[moveEvent][animal])
             timeLineExclusive[moveEvent][animal].endRebuildEventTimeLine(connection)

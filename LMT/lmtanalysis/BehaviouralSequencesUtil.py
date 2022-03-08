@@ -23,3 +23,8 @@ exclusiveEventsLabels = {'Oral-oral Contact exclusive': 'O-O', 'Side by side Con
 sexList = ['male', 'female']
 mutantGeno = 'KO'
 genoList = ['WT', mutantGeno]
+
+genoListGeneral = ['{}-{}'.format(genoList[0], genoList[0]), '{}-{}'.format(genoList[0], genoList[1]),
+                   '{}-{}'.format(genoList[1], genoList[1])]
+sexListGeneral = ['{}-{}'.format(sexList[0], sexList[0]), '{}-{}'.format(sexList[0], sexList[1]),
+                  '{}-{}'.format(sexList[1], sexList[1])]
