@@ -47,9 +47,9 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                 if (animal == idAnimalB):
                     continue
                 timeLine[event][animal, idAnimalB] = EventTimeLineCached(connection, file, event, animal, idAnimalB, minFrame=tmin, maxFrame=tmax)
-                # clean the specific contact timelines:
+                '''# clean the specific contact timelines:
                 timeLine[event][animal, idAnimalB].mergeCloseEvents(numberOfFrameBetweenEvent=1)
-                timeLine[event][animal, idAnimalB].removeEventsBelowLength(maxLen=3)
+                timeLine[event][animal, idAnimalB].removeEventsBelowLength(maxLen=3)'''
 
     contactDico = {}
     for animal in range(1, pool.getNbAnimals() + 1):

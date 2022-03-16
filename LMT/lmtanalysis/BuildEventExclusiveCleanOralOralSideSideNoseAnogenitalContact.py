@@ -47,7 +47,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                     continue
                 timeLineExclusive[event][animal, idAnimalB] = EventTimeLine(None, event, animal, idAnimalB, loadEvent=False)
 
-    #generate the dico of the different contact types and initiate the list of frames to remove from each timeline
+    #generate the dico of the different contact types
     contactDico = {}
     for event in contactTypeList:
         contactDico[event] = {}
@@ -60,7 +60,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
 
     # initiate the list of frames to remove from each timeline
     framesToRemove = {}
-    for exclusiveEvent in exclusiveEventList[:-2]:
+    for exclusiveEvent in exclusiveEventList[:-3]:
         framesToRemove[exclusiveEvent] = {}
         for animal in range(1, pool.getNbAnimals() + 1):
             for idAnimalB in range(1, pool.getNbAnimals() + 1):
@@ -68,9 +68,10 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                     continue
                 framesToRemove[exclusiveEvent][animal, idAnimalB] = []
 
-    #initiate the dico that will be used to reconstruct the exclusive timelines
+    # initiate the dico that will be used to reconstruct the exclusive timelines
     contactDicoExclusive = {}
     for exclusiveEvent in exclusiveEventList[:-3]:
+        print('############# ', exclusiveEvent)
         contactDicoExclusive[exclusiveEvent] = {}
         for animal in range(1, pool.getNbAnimals() + 1):
             for idAnimalB in range(1, pool.getNbAnimals() + 1):
@@ -82,44 +83,64 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     eventPairs = {}
     for event in contactTypeList:
         eventPairs[event] = event+' exclusive'
+
     for event in eventPairs.keys():
         contactDicoExclusive[eventPairs[event]] = contactDico[event]
 
-    print('####################side by side:' , contactDicoExclusive['Side by side Contact exclusive'])
-
     ###########################################################################
-    # clean the timelines of contactTypes where different contactTypes are overlapping
+    # clean the timelines of contactTypes where different contactTypes are overlapping and are not intuitive
     for animal in range(1, pool.getNbAnimals() + 1):
         for idAnimalB in range(1, pool.getNbAnimals() + 1):
             if (animal == idAnimalB):
                 continue
-
-            for t in contactDico['Oral-oral Contact'][animal, idAnimalB].keys():
-                if t in contactDico['Oral-genital Contact'][animal, idAnimalB].keys():
+            eventA = 'Oral-oral Contact'
+            eventB = 'Oral-genital Contact'
+            for t in contactDico[eventA][animal, idAnimalB].keys():
+                if t in contactDico[eventB][animal, idAnimalB].keys():
                     contactDicoExclusive['Other contact exclusive'][animal, idAnimalB][t] = True
-                    framesToRemove['Oral-oral Contact exclusive'][animal, idAnimalB].append(t)
-                    framesToRemove['Oral-genital Contact exclusive'][animal, idAnimalB].append(t)
-                    framesToRemove['Oral-genital and Side by side Contact, opposite way exclusive'][animal, idAnimalB].append(t)
-                    framesToRemove['Oral-oral and Side by side Contact exclusive'][animal, idAnimalB].append(t)
+                    framesToRemove[eventA+' exclusive'][animal, idAnimalB].append(t)
+                    framesToRemove[eventB+' exclusive'][animal, idAnimalB].append(t)
 
-                if t in contactDico['Passive oral-genital Contact'][animal, idAnimalB].keys():
+            eventA = 'Oral-oral Contact'
+            eventB = 'Passive oral-genital Contact'
+            for t in contactDico[eventA][animal, idAnimalB].keys():
+                if t in contactDico[eventB][animal, idAnimalB].keys():
                     contactDicoExclusive['Other contact exclusive'][animal, idAnimalB][t] = True
-                    framesToRemove['Oral-oral Contact exclusive'][animal, idAnimalB].append(t)
-                    framesToRemove['Passive oral-genital Contact exclusive'][animal, idAnimalB].append(t)
-                    framesToRemove['Oral-genital passive and Side by side Contact, opposite way exclusive'][animal, idAnimalB].append(t)
-                    framesToRemove['Oral-oral and Side by side Contact exclusive'][animal, idAnimalB].append(t)
+                    framesToRemove[eventA + ' exclusive'][animal, idAnimalB].append(t)
+                    framesToRemove[eventB + ' exclusive'][animal, idAnimalB].append(t)
 
-            for t in contactDico['Side by side Contact'][animal, idAnimalB].keys():
-                if t in contactDico['Side by side Contact, opposite way'][animal, idAnimalB].keys():
+            eventA = 'Oral-oral Contact'
+            eventB = 'Side by side Contact, opposite way'
+            for t in contactDico[eventA][animal, idAnimalB].keys():
+                if t in contactDico[eventB][animal, idAnimalB].keys():
                     contactDicoExclusive['Other contact exclusive'][animal, idAnimalB][t] = True
-                    framesToRemove['Side by side Contact exclusive'][animal, idAnimalB].append(t)
-                    framesToRemove['Side by side Contact, opposite way exclusive'][animal, idAnimalB].append(t)
+                    framesToRemove[eventA + ' exclusive'][animal, idAnimalB].append(t)
+                    framesToRemove[eventB + ' exclusive'][animal, idAnimalB].append(t)
 
-            for t in contactDico['Side by side Contact, opposite way'][animal, idAnimalB].keys():
-                if t in contactDico['Side by side Contact'][animal, idAnimalB].keys():
+            eventA = 'Side by side Contact'
+            eventB = 'Side by side Contact, opposite way'
+            for t in contactDico[eventA][animal, idAnimalB].keys():
+                if t in contactDico[eventB][animal, idAnimalB].keys():
                     contactDicoExclusive['Other contact exclusive'][animal, idAnimalB][t] = True
-                    framesToRemove['Side by side Contact exclusive'][animal, idAnimalB].append(t)
-                    framesToRemove['Side by side Contact, opposite way exclusive'][animal, idAnimalB].append(t)
+                    framesToRemove[eventA + ' exclusive'][animal, idAnimalB].append(t)
+                    framesToRemove[eventB + ' exclusive'][animal, idAnimalB].append(t)
+
+            eventA = 'Side by side Contact'
+            eventB = 'Oral-genital Contact'
+            for t in contactDico[eventA][animal, idAnimalB].keys():
+                if t in contactDico[eventB][animal, idAnimalB].keys():
+                    contactDicoExclusive['Other contact exclusive'][animal, idAnimalB][t] = True
+                    framesToRemove[eventA + ' exclusive'][animal, idAnimalB].append(t)
+                    framesToRemove[eventB + ' exclusive'][animal, idAnimalB].append(t)
+
+            eventA = 'Side by side Contact'
+            eventB = 'Passive oral-genital Contact'
+            for t in contactDico[eventA][animal, idAnimalB].keys():
+                if t in contactDico[eventB][animal, idAnimalB].keys():
+                    contactDicoExclusive['Other contact exclusive'][animal, idAnimalB][t] = True
+                    framesToRemove[eventA + ' exclusive'][animal, idAnimalB].append(t)
+                    framesToRemove[eventB + ' exclusive'][animal, idAnimalB].append(t)
+
 
     ###########################################################################
     #exclude the side-side opposite contacts where animals are also in oral-genital sniffing
@@ -130,16 +151,18 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
 
             for t in contactDico["Side by side Contact, opposite way"][animal, idAnimalB].keys():
                 if t in contactDico['Oral-genital Contact'][animal, idAnimalB].keys():
-                    framesToRemove['Side by side Contact, opposite way exclusive'][animal, idAnimalB].append(t)
-                    framesToRemove['Oral-genital Contact exclusive'][animal, idAnimalB].append(t)
-                    framesToRemove['Passive oral-genital Contact exclusive'][idAnimalB, animal].append(t)
-                    contactDicoExclusive["Oral-genital and Side by side Contact, opposite way exclusive"][animal, idAnimalB][t] = True
+                    if t not in contactDicoExclusive['Other contact exclusive'][animal, idAnimalB].keys():
+                        framesToRemove['Side by side Contact, opposite way exclusive'][animal, idAnimalB].append(t)
+                        framesToRemove['Oral-genital Contact exclusive'][animal, idAnimalB].append(t)
+                        framesToRemove['Passive oral-genital Contact exclusive'][idAnimalB, animal].append(t)
+                        contactDicoExclusive["Oral-genital and Side by side Contact, opposite way exclusive"][animal, idAnimalB][t] = True
 
                 elif t in contactDico['Passive oral-genital Contact'][animal, idAnimalB].keys():
-                    framesToRemove['Side by side Contact, opposite way exclusive'][animal, idAnimalB].append(t)
-                    framesToRemove['Passive oral-genital Contact exclusive'][animal, idAnimalB].append(t)
-                    framesToRemove['Oral-genital Contact exclusive'][idAnimalB, animal].append(t)
-                    contactDicoExclusive["Oral-genital passive and Side by side Contact, opposite way exclusive"][animal, idAnimalB][t] = True
+                    if t not in contactDicoExclusive['Other contact exclusive'][animal, idAnimalB].keys():
+                        framesToRemove['Side by side Contact, opposite way exclusive'][animal, idAnimalB].append(t)
+                        framesToRemove['Passive oral-genital Contact exclusive'][animal, idAnimalB].append(t)
+                        framesToRemove['Oral-genital Contact exclusive'][idAnimalB, animal].append(t)
+                        contactDicoExclusive['Oral-genital passive and Side by side Contact, opposite way exclusive'][animal, idAnimalB][t] = True
 
                 else:
                     contactDicoExclusive["Side by side Contact, opposite way exclusive"][animal, idAnimalB][t] = True
@@ -155,34 +178,14 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                 if t in contactDico['Oral-oral Contact'][animal, idAnimalB].keys():
                     framesToRemove['Side by side Contact exclusive'][animal, idAnimalB].append(t)
                     framesToRemove['Oral-oral Contact exclusive'][animal, idAnimalB].append(t)
+                    framesToRemove['Other contact exclusive'][animal, idAnimalB].append(t)
                     contactDicoExclusive["Oral-oral and Side by side Contact exclusive"][animal, idAnimalB][t] = True
 
                 else:
                     contactDicoExclusive["Side by side Contact exclusive"][animal, idAnimalB][t] = True
 
 
-
-    ############################################################################
-    #  clean the dictionary of exclusive events that can co-occur but that are not intuitive (but link to the contact distance threshold used to reconstruct the contactTypes)
-    # selecting the frames from the side-side timelines which are also in oral-oral, oral-genital and passive oral-genital timelines
-    for animal in range(1, pool.getNbAnimals() + 1):
-        for idAnimalB in range(1, pool.getNbAnimals() + 1):
-            if (animal == idAnimalB):
-                continue
-
-            for t in contactDicoExclusive['Oral-oral Contact exclusive'][animal, idAnimalB]:
-                if t in contactDicoExclusive['Side by side Contact, opposite way exclusive'][animal, idAnimalB]:
-                    framesToRemove['Side by side Contact, opposite way exclusive'][animal, idAnimalB].append(t)
-
-            for t in contactDicoExclusive["Oral-genital Contact exclusive"][animal, idAnimalB]:
-                if t in contactDicoExclusive['Side by side Contact exclusive'][animal, idAnimalB]:
-                    framesToRemove['Side by side Contact exclusive'][animal, idAnimalB].append(t)
-
-            for t in contactDicoExclusive["Passive oral-genital Contact exclusive"][animal, idAnimalB]:
-                if t in contactDicoExclusive['Side by side Contact exclusive'][animal, idAnimalB]:
-                    framesToRemove['Side by side Contact exclusive'][animal, idAnimalB].append(t)
-
-
+    #############################################################
     # taking out the frames from the exclusive timelines
     for event in exclusiveEventList[:-3]:
         for animal in range(1, pool.getNbAnimals() + 1):
