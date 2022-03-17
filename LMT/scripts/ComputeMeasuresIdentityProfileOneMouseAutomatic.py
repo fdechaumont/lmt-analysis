@@ -1086,36 +1086,41 @@ def plotZScoreProfileAuto(ax, koDataframe, night, eventListForTest):
     for event in eventListForTest:
         valList = selectedDataframe['value'][selectedDataframe['trait'] == event]
 
-        T, p = ttest_1samp(valList, popmean=0, nan_policy='omit')
-        print('p=', p)
-        # if np.isnan(p) == True:
-        if getStarsFromPvalues(p, numberOfTests=1) == 'NA':
-            print('no test conducted.')
+        try:
+            T, p = ttest_1samp(valList, popmean=0, nan_policy='omit')
+            print('p=', p)
+            # if np.isnan(p) == True:
+            if getStarsFromPvalues(p, numberOfTests=1) == 'NA':
+                print('no test conducted.')
+                pos += 1
+                continue
+
+            else:
+                color = 'grey'
+                if p < 0.05:
+                    print(night, event, T, p)
+                    ax.text(-2.95, pos, s=getStarsFromPvalues(p, numberOfTests=1), fontsize=16)
+                    if T > 0:
+                        color = 'red'
+                    elif T < 0:
+                        color = 'blue'
+                    elif T == 0:
+                        color = 'grey'
+
+                colorList.append(color)
+                print('event position: ', event, pos, T, p, getStarsFromPvalues(p, numberOfTests=1), color)
+                pos += 1
+        except:
             pos += 1
+            colorList.append('grey')
             continue
 
-        else:
-            color = 'grey'
-            if p < 0.05:
-                print(night, event, T, p)
-                ax.text(-2.95, pos, s=getStarsFromPvalues(p, numberOfTests=1), fontsize=16)
-                if T > 0:
-                    color = 'red'
-                elif T < 0:
-                    color = 'blue'
-                elif T == 0:
-                    color = 'grey'
-
-            colorList.append(color)
-            print('event position: ', event, pos, T, p, getStarsFromPvalues(p, numberOfTests=1), color)
-            pos += 1
-
+    print('######## colorList: ', colorList)
     # ax.set_xlim(-0.5, 1.5)
     # ax.set_ylim(min(selectedDataframe['value']) - 0.2 * max(selectedDataframe['value']), max(selectedDataframe['value']) + 0.2 * max(selectedDataframe['value']))
     ax.set_xlim(-3, 3)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
-    ax.legend().set_visible(False)
     ax.set_title('night {}'.format(night))
 
     ax.add_patch(mpatches.Rectangle((-3, -1), width=6, height=5.3, facecolor='grey', alpha=0.3))
@@ -1144,7 +1149,11 @@ def plotZScoreProfileAuto(ax, koDataframe, night, eventListForTest):
 
     meanprops = dict(marker='D', markerfacecolor='white', markeredgecolor='black')
     bp = sns.boxplot(data=selectedDataframe, y='trait', x='value', ax=ax, width=0.5, orient='h', meanprops=meanprops,
-                     showmeans=True, linewidth=0.4, color='grey')
+                     showmeans=True, linewidth=0.4, palette=colorList, saturation=0.5)
+
+
+
+    #sns.stripplot(data=selectedDataframe, y='trait', x='value', ax=ax, color='black', orient='h')
     sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, color='black', orient='h')
     # this following swarmplot should be used instead of the previous one if you want to see whether animals from the same cage are similar
     # sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, hue='exp', orient='h')
@@ -1152,16 +1161,6 @@ def plotZScoreProfileAuto(ax, koDataframe, night, eventListForTest):
     # ax.vlines(x=-1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
     # ax.vlines(x=1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
 
-    edgeList = 'black'
-    n = 0
-    for box in bp.artists:
-        box.set_facecolor(colorList[n])
-        box.set_edgecolor(edgeList)
-        n += 1
-    # Add transparency to colors
-    for box in bp.artists:
-        r, g, b, a = box.get_facecolor()
-        box.set_facecolor((r, g, b, .7))
 
     bp.legend().set_visible(False)
 
@@ -1182,37 +1181,42 @@ def plotZScoreProfileAutoHorizontal(ax, koDataframe, night, eventListForTest, ev
         print('Event: ', event)
 
         valList = selectedDataframe['value'][selectedDataframe['trait'] == event]
+        try:
+            T, p = ttest_1samp(valList, popmean=0, nan_policy='omit')
+            print('p=', p)
+            #if np.isnan(p) == True:
+            if getStarsFromPvalues(p,numberOfTests=1) == 'NA':
+                print('no test conducted.')
+                pos += 1
+                continue
 
-        T, p = ttest_1samp(valList, popmean=0, nan_policy='omit')
-        print('p=', p)
-        #if np.isnan(p) == True:
-        if getStarsFromPvalues(p,numberOfTests=1) == 'NA':
-            print('no test conducted.')
+            else:
+                color = 'grey'
+                if p < 0.05:
+                    print(night, event, T, p)
+                    ax.text(pos, -1.97, s=getStarsFromPvalues(p, numberOfTests=1), fontsize=16, ha='center')
+                    if T > 0:
+                        color = 'red'
+                    elif T < 0:
+                        color = 'blue'
+                    elif T == 0:
+                        color = 'grey'
+
+                colorList.append(color)
+                print('event position: ', event, pos, T, p, getStarsFromPvalues(p, numberOfTests=1), color)
+                pos += 1
+        except:
             pos += 1
+            colorList.append('grey')
             continue
 
-        else:
-            color = 'grey'
-            if p < 0.05:
-                print(night, event, T, p)
-                ax.text(pos, -1.97, s=getStarsFromPvalues(p, numberOfTests=1), fontsize=16, ha='center')
-                if T > 0:
-                    color = 'red'
-                elif T < 0:
-                    color = 'blue'
-                elif T == 0:
-                    color = 'grey'
-
-            colorList.append(color)
-            print('event position: ', event, pos, T, p, getStarsFromPvalues(p, numberOfTests=1), color)
-            pos += 1
-
+    print('##################colorList: ', colorList)
     ax.set_xlim(-1, 30)
     # ax.set_ylim(min(selectedDataframe['value']) - 0.2 * max(selectedDataframe['value']), max(selectedDataframe['value']) + 0.2 * max(selectedDataframe['value']))
     ax.set_ylim(-2, 2.2)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
-    ax.legend().set_visible(False)
+    #ax.legend().set_visible(False)
     #ax.set_title('night {}'.format(night))
 
     ax.add_patch(mpatches.Rectangle((-1, -3), width=5.3, height=6, facecolor='grey', alpha=0.3))
@@ -1241,13 +1245,8 @@ def plotZScoreProfileAutoHorizontal(ax, koDataframe, night, eventListForTest, ev
 
     meanprops = dict(marker='D', markerfacecolor='white', markeredgecolor='black')
     bp = sns.boxplot(data=selectedDataframe, x='trait', y='value', ax=ax, width=0.5, meanprops=meanprops,
-                     showmeans=True, linewidth=0.4)
-    sns.swarmplot(data=selectedDataframe, x='trait', y='value', ax=ax, color='black')
-    # this following swarmplot should be used instead of the previous one if you want to see whether animals from the same cage are similar
-    # sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, hue='exp', orient='h')
-    ax.hlines(y=0, xmin=-6, xmax=30, colors='grey', linestyles='dashed')
-
-    edgeList = 'black'
+                     showmeans=True, linewidth=0.4, palette=colorList, saturation=0.3)
+    '''edgeList = 'black'
     n = 0
     print('################################################Number of boxes: ', len(bp.artists))
     for box in bp.artists:
@@ -1259,8 +1258,11 @@ def plotZScoreProfileAutoHorizontal(ax, koDataframe, night, eventListForTest, ev
     for box in bp.artists:
         r, g, b, a = box.get_facecolor()
         box.set_facecolor((r, g, b, .7))
-
-    bp.legend().set_visible(False)
+'''
+    sns.swarmplot(data=selectedDataframe, x='trait', y='value', ax=ax, color='black')
+    # this following swarmplot should be used instead of the previous one if you want to see whether animals from the same cage are similar
+    # sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, hue='exp', orient='h')
+    ax.hlines(y=0, xmin=-6, xmax=30, colors='grey', linestyles='dashed')
 
     ax.set_ylabel('Z-score per cage', fontsize=18)
     ax.set_xlabel('', fontsize=18)
@@ -1952,7 +1954,8 @@ if __name__ == '__main__':
             #dataToUse = mergeProfile
 
             #compute the data for the control animal of each cage
-            genoControl = 'DlxCre wt ; Dyrk1acKO/+'
+            #genoControl = 'DlxCre wt ; Dyrk1acKO/+'
+            genoControl = 'WT'
             wtData = extractControlData( profileData=dataToUse, genoControl=genoControl, behaviouralEventOneMouse=behaviouralEventOneMouse)
             wtData = extractCageData(profileData=dataToUse, behaviouralEventOneMouse=behaviouralEventOneMouse)
             #mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList )
@@ -1960,7 +1963,8 @@ if __name__ == '__main__':
             #print(wtData)
 
             #compute the mutant data, centered and reduced for each cage
-            genoMutant = 'DlxCre Tg ; Dyrk1acKO/+'
+            #genoMutant = 'DlxCre Tg ; Dyrk1acKO/+'
+            genoMutant = 'Del/+'
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
 
             print(koData)
@@ -2041,7 +2045,7 @@ if __name__ == '__main__':
             # print(wtData)
 
             # compute the mutant data, centered and reduced for each cage
-            genoMutant = 'HZ'
+            genoMutant = 'Del/+'
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData,
                                         categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse)
 
