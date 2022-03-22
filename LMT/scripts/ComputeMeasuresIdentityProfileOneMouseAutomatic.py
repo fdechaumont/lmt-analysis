@@ -586,7 +586,7 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
         ax.text(n, max(y) + 0.1 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=20, horizontalalignment='center', color='black', weight='bold')
         n += 1
 
-def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, valueCat, behavEvent, ax, letter, text_file, image, imgPos, zoom):
+def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, valueCat, behavEvent, ax, letter, text_file, image, zoom, mode):
     if behavEvent != 'totalDistance':
         event = behavEvent + valueCat
 
@@ -621,6 +621,7 @@ def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, va
     print(genotypeType)
     orderedGenotypeType = list(sorted(genotypeType))
     print(orderedGenotypeType)
+    print('order graph: ', list(reversed(orderedGenotypeType)))
 
     if valueCat == ' TotalLen':
         y = [i / 30 for i in yval]
@@ -636,7 +637,7 @@ def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, va
 
     ax.text(-1, max(y) + 0.5 * (max(y) - min(y)), letter, fontsize=20, horizontalalignment='center', color='black', weight='bold')
     ax.set_ylim(min(y) - 0.2 * (max(y)-min(y)), max(y) + 0.4 * (max(y)-min(y)))
-    bp = sns.boxplot(sex, y, hue=x, hue_order=reversed(genotypeType), ax=ax, linewidth=0.5, showmeans=True,
+    bp = sns.boxplot(sex, y, hue=x, hue_order=list(reversed(orderedGenotypeType)), ax=ax, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
@@ -646,7 +647,7 @@ def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, va
         r, g, b, a = patch.get_facecolor()
         patch.set_facecolor((r, g, b, .7))'''
 
-    sns.stripplot(sex, y, hue=x, hue_order=reversed(genotypeType), jitter=True, color='black', s=5,
+    sns.stripplot(sex, y, hue=x, hue_order=list(reversed(orderedGenotypeType)), jitter=True, color='black', s=5,
                   dodge=True, ax=ax)
     ax.set_title(behavEvent, y=1, fontsize=14)
     ax.xaxis.set_tick_params(direction="in")
@@ -668,27 +669,68 @@ def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, va
 
     behavSchema = mpimg.imread(image)
     imgBox = OffsetImage(behavSchema, zoom=zoom)
-    imageBox = AnnotationBbox(imgBox, imgPos, frameon=False)
+    imageBox = AnnotationBbox(imgBox, (0.5, max(y) + 0.25 * (max(y)-min(y))), frameon=False)
     ax.add_artist(imageBox)
 
 
     #Mann-Whitney U tests:
     dataDict = {'value': y, 'sex': sex, 'genotype': x, 'group': group}
     dfDataBothSexes = pd.DataFrame(dataDict)
-    n = 0
-    dfData = {}
-    for sexClass in ['male', 'female']:
-        dfData[sexClass] = {}
-        for geno in reversed(genotypeType):
-            dfData[sexClass][geno] = dfDataBothSexes[(dfDataBothSexes['sex'] == sexClass) & (dfDataBothSexes['genotype'] == geno)]
-            print(geno, dfData[sexClass][geno])
-        U, p = mannwhitneyu(dfData[sexClass][orderedGenotypeType[-1]]['value'], dfData[sexClass][orderedGenotypeType[-2]]['value'])
-        print('means of ', orderedGenotypeType[-1], np.mean(dfData[sexClass][orderedGenotypeType[-1]]['value']), 'mean of ', orderedGenotypeType[-2],
-              np.mean(dfData[sexClass][orderedGenotypeType[-2]]['value']))
-        # add p-values on the plot
-        ax.text(n, max(y) + 0.1 * (max(y) - min(y)), getStarsFromPvalues(p, 1), fontsize=20, horizontalalignment='center', color='black', weight='bold')
+    if mode == 'dyadic':
+        n = 0
+        dfData = {}
+        for sexClass in ['male', 'female']:
+            dfData[sexClass] = {}
+            for geno in reversed(genotypeType):
+                dfData[sexClass][geno] = dfDataBothSexes[(dfDataBothSexes['sex'] == sexClass) & (dfDataBothSexes['genotype'] == geno)]
+                print(geno, dfData[sexClass][geno])
+            U, p = mannwhitneyu(dfData[sexClass][orderedGenotypeType[-1]]['value'], dfData[sexClass][orderedGenotypeType[-2]]['value'])
+            print('means of ', orderedGenotypeType[-1], np.mean(dfData[sexClass][orderedGenotypeType[-1]]['value']), 'mean of ', orderedGenotypeType[-2],
+                  np.mean(dfData[sexClass][orderedGenotypeType[-2]]['value']))
+            # add p-values on the plot
+            ax.text(n, max(y) + 0.2 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=18, horizontalalignment='center', color='black', weight='bold')
+            n += 1
 
-        n += 1
+
+    elif mode == 'single':
+        n = 0
+        for sexClass in ['male', 'female']:
+            dfData = dfDataBothSexes.loc[dfDataBothSexes['sex']==sexClass, :]
+
+            """print("event single: ", event)
+            text_file.write("Test for the event: {} night {}".format(event, night))
+
+            dfData = pandas.DataFrame({'group': profileValueDictionary["exp"],
+                                       'genotype': profileValueDictionary["genotype"],
+                                       'value': profileValueDictionary["value"]})
+"""
+            genotypeCat = list(Counter(dfData['genotype']).keys())
+            genotypeCat.sort(reverse=True)
+            print(genotypeCat)
+            data = {}
+            for k in [0, 1]:
+                data[genotypeCat[k]] = dfData['value'][dfData['genotype'] == genotypeCat[k]]
+            print('means of ', genotypeCat[0], np.mean(data[genotypeCat[0]]), 'mean of ', genotypeCat[1],
+                  np.mean(data[genotypeCat[1]]))
+            # create model: value as a function of genotype, with the factor of the cage:
+            model = smf.mixedlm("value ~ genotype", dfData, groups=dfData["group"])
+            # run model:
+            result = model.fit()
+            # print summary
+            print(result.summary())
+            '''p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[1])
+            axes[row, col].text(x=0.5, y=max(y)+ 0.1 * max(y),
+                                s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')'''
+            p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[0])
+            ax.text(x=n, y=max(y) + 0.2 * (max(y)-min(y)),
+                                s=getStarsFromPvalues(p, numberOfTests=1), fontsize=18, ha='center')
+            '''p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[1])
+            axes[row, col].text(x=1, y=max(y) + 0.1 * max(y),
+                                s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')'''
+            text_file.write(result.summary().as_text())
+            text_file.write('\n')
+
+            n += 1
 
 
 def plotProfileDataDurationPairs( axes, row, col, profileData, night, valueCat, behavEvent, mode, text_file ):
@@ -786,9 +828,9 @@ def plotProfileDataDurationPairs( axes, row, col, profileData, night, valueCat, 
         p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[0])
         axes[row, col].text(x=0, y=max(y) + 0.1 * max(y),
                             s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')
-        p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[1])
+        '''p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[1])
         axes[row, col].text(x=1, y=max(y) + 0.1 * max(y),
-                            s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')
+                            s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')'''
         text_file.write(result.summary().as_text())
         text_file.write('\n')
 
@@ -1046,36 +1088,41 @@ def plotZScoreProfileAuto(ax, koDataframe, night, eventListForTest):
     for event in eventListForTest:
         valList = selectedDataframe['value'][selectedDataframe['trait'] == event]
 
-        T, p = ttest_1samp(valList, popmean=0, nan_policy='omit')
-        print('p=', p)
-        # if np.isnan(p) == True:
-        if getStarsFromPvalues(p, numberOfTests=1) == 'NA':
-            print('no test conducted.')
+        try:
+            T, p = ttest_1samp(valList, popmean=0, nan_policy='omit')
+            print('p=', p)
+            # if np.isnan(p) == True:
+            if getStarsFromPvalues(p, numberOfTests=1) == 'NA':
+                print('no test conducted.')
+                pos += 1
+                continue
+
+            else:
+                color = 'grey'
+                if p < 0.05:
+                    print(night, event, T, p)
+                    ax.text(-2.95, pos, s=getStarsFromPvalues(p, numberOfTests=1), fontsize=16)
+                    if T > 0:
+                        color = 'red'
+                    elif T < 0:
+                        color = 'blue'
+                    elif T == 0:
+                        color = 'grey'
+
+                colorList.append(color)
+                print('event position: ', event, pos, T, p, getStarsFromPvalues(p, numberOfTests=1), color)
+                pos += 1
+        except:
             pos += 1
+            colorList.append('grey')
             continue
 
-        else:
-            color = 'grey'
-            if p < 0.05:
-                print(night, event, T, p)
-                ax.text(-2.95, pos, s=getStarsFromPvalues(p, numberOfTests=1), fontsize=16)
-                if T > 0:
-                    color = 'red'
-                elif T < 0:
-                    color = 'blue'
-                elif T == 0:
-                    color = 'grey'
-
-            colorList.append(color)
-            print('event position: ', event, pos, T, p, getStarsFromPvalues(p, numberOfTests=1), color)
-            pos += 1
-
+    print('######## colorList: ', colorList)
     # ax.set_xlim(-0.5, 1.5)
     # ax.set_ylim(min(selectedDataframe['value']) - 0.2 * max(selectedDataframe['value']), max(selectedDataframe['value']) + 0.2 * max(selectedDataframe['value']))
     ax.set_xlim(-3, 3)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
-    ax.legend().set_visible(False)
     ax.set_title('night {}'.format(night))
 
     ax.add_patch(mpatches.Rectangle((-3, -1), width=6, height=5.3, facecolor='grey', alpha=0.3))
@@ -1104,7 +1151,11 @@ def plotZScoreProfileAuto(ax, koDataframe, night, eventListForTest):
 
     meanprops = dict(marker='D', markerfacecolor='white', markeredgecolor='black')
     bp = sns.boxplot(data=selectedDataframe, y='trait', x='value', ax=ax, width=0.5, orient='h', meanprops=meanprops,
-                     showmeans=True, linewidth=0.4, color='grey')
+                     showmeans=True, linewidth=0.4, palette=colorList, saturation=0.5)
+
+
+
+    #sns.stripplot(data=selectedDataframe, y='trait', x='value', ax=ax, color='black', orient='h')
     sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, color='black', orient='h')
     # this following swarmplot should be used instead of the previous one if you want to see whether animals from the same cage are similar
     # sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, hue='exp', orient='h')
@@ -1112,16 +1163,6 @@ def plotZScoreProfileAuto(ax, koDataframe, night, eventListForTest):
     # ax.vlines(x=-1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
     # ax.vlines(x=1, ymin=-1, ymax=30, colors='grey', linestyles='dotted')
 
-    edgeList = 'black'
-    n = 0
-    for box in bp.artists:
-        box.set_facecolor(colorList[n])
-        box.set_edgecolor(edgeList)
-        n += 1
-    # Add transparency to colors
-    for box in bp.artists:
-        r, g, b, a = box.get_facecolor()
-        box.set_facecolor((r, g, b, .7))
 
     bp.legend().set_visible(False)
 
@@ -1142,37 +1183,42 @@ def plotZScoreProfileAutoHorizontal(ax, koDataframe, night, eventListForTest, ev
         print('Event: ', event)
 
         valList = selectedDataframe['value'][selectedDataframe['trait'] == event]
+        try:
+            T, p = ttest_1samp(valList, popmean=0, nan_policy='omit')
+            print('p=', p)
+            #if np.isnan(p) == True:
+            if getStarsFromPvalues(p,numberOfTests=1) == 'NA':
+                print('no test conducted.')
+                pos += 1
+                continue
 
-        T, p = ttest_1samp(valList, popmean=0, nan_policy='omit')
-        print('p=', p)
-        #if np.isnan(p) == True:
-        if getStarsFromPvalues(p,numberOfTests=1) == 'NA':
-            print('no test conducted.')
+            else:
+                color = 'grey'
+                if p < 0.05:
+                    print(night, event, T, p)
+                    ax.text(pos, -1.97, s=getStarsFromPvalues(p, numberOfTests=1), fontsize=16, ha='center')
+                    if T > 0:
+                        color = 'red'
+                    elif T < 0:
+                        color = 'blue'
+                    elif T == 0:
+                        color = 'grey'
+
+                colorList.append(color)
+                print('event position: ', event, pos, T, p, getStarsFromPvalues(p, numberOfTests=1), color)
+                pos += 1
+        except:
             pos += 1
+            colorList.append('grey')
             continue
 
-        else:
-            color = 'grey'
-            if p < 0.05:
-                print(night, event, T, p)
-                ax.text(pos, -1.97, s=getStarsFromPvalues(p, numberOfTests=1), fontsize=16, ha='center')
-                if T > 0:
-                    color = 'red'
-                elif T < 0:
-                    color = 'blue'
-                elif T == 0:
-                    color = 'grey'
-
-            colorList.append(color)
-            print('event position: ', event, pos, T, p, getStarsFromPvalues(p, numberOfTests=1), color)
-            pos += 1
-
+    print('##################colorList: ', colorList)
     ax.set_xlim(-1, 30)
     # ax.set_ylim(min(selectedDataframe['value']) - 0.2 * max(selectedDataframe['value']), max(selectedDataframe['value']) + 0.2 * max(selectedDataframe['value']))
     ax.set_ylim(-2, 2.2)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
-    ax.legend().set_visible(False)
+    #ax.legend().set_visible(False)
     #ax.set_title('night {}'.format(night))
 
     ax.add_patch(mpatches.Rectangle((-1, -3), width=5.3, height=6, facecolor='grey', alpha=0.3))
@@ -1201,13 +1247,8 @@ def plotZScoreProfileAutoHorizontal(ax, koDataframe, night, eventListForTest, ev
 
     meanprops = dict(marker='D', markerfacecolor='white', markeredgecolor='black')
     bp = sns.boxplot(data=selectedDataframe, x='trait', y='value', ax=ax, width=0.5, meanprops=meanprops,
-                     showmeans=True, linewidth=0.4)
-    sns.swarmplot(data=selectedDataframe, x='trait', y='value', ax=ax, color='black')
-    # this following swarmplot should be used instead of the previous one if you want to see whether animals from the same cage are similar
-    # sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, hue='exp', orient='h')
-    ax.hlines(y=0, xmin=-6, xmax=30, colors='grey', linestyles='dashed')
-
-    edgeList = 'black'
+                     showmeans=True, linewidth=0.4, palette=colorList, saturation=0.3)
+    '''edgeList = 'black'
     n = 0
     print('################################################Number of boxes: ', len(bp.artists))
     for box in bp.artists:
@@ -1219,8 +1260,11 @@ def plotZScoreProfileAutoHorizontal(ax, koDataframe, night, eventListForTest, ev
     for box in bp.artists:
         r, g, b, a = box.get_facecolor()
         box.set_facecolor((r, g, b, .7))
-
-    bp.legend().set_visible(False)
+'''
+    sns.swarmplot(data=selectedDataframe, x='trait', y='value', ax=ax, color='black')
+    # this following swarmplot should be used instead of the previous one if you want to see whether animals from the same cage are similar
+    # sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, hue='exp', orient='h')
+    ax.hlines(y=0, xmin=-6, xmax=30, colors='grey', linestyles='dashed')
 
     ax.set_ylabel('Z-score per cage', fontsize=18)
     ax.set_xlabel('', fontsize=18)
@@ -1470,6 +1514,7 @@ def main():
 
             text_file.close()
             break
+
 
         if answer == "4":
             nightComputation = input("Plot profile only during night events (Y or N or merged)? ")
@@ -1938,7 +1983,8 @@ def main():
             #dataToUse = mergeProfile
 
             #compute the data for the control animal of each cage
-            genoControl = 'DlxCre wt ; Dyrk1acKO/+'
+            #genoControl = 'DlxCre wt ; Dyrk1acKO/+'
+            genoControl = 'WT'
             wtData = extractControlData( profileData=dataToUse, genoControl=genoControl, behaviouralEventOneMouse=behaviouralEventOneMouse)
             wtData = extractCageData(profileData=dataToUse, behaviouralEventOneMouse=behaviouralEventOneMouse)
             #mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList )
@@ -1946,7 +1992,8 @@ def main():
             #print(wtData)
 
             #compute the mutant data, centered and reduced for each cage
-            genoMutant = 'DlxCre Tg ; Dyrk1acKO/+'
+            #genoMutant = 'DlxCre Tg ; Dyrk1acKO/+'
+            genoMutant = 'Del/+'
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
 
             print(koData)
