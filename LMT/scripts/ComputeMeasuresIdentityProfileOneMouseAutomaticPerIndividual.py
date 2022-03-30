@@ -322,6 +322,7 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( axes, row, col, profi
 
     print("y: ", y)
     print("x: ", x)
+    print('geno other: ', genoOther)
 
     if valueCat == ' MeanDur':
         unit = '(frames)'
@@ -336,12 +337,16 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( axes, row, col, profi
 
     axes[row, col].set_xlim(-0.5, 1.5)
     axes[row, col].set_ylim( yMin, yMax)
-    sns.boxplot(x, y, ax=axes[row, col], order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], linewidth=0.5, showmeans=True,
+    colorList = ['black', 'darkgrey']
+    bp = sns.boxplot(x, y, ax=axes[row, col], order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
-                           "markersize": '10'}, showfliers=False)
-    sns.stripplot(x, y, jitter=True, order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], color='black', s=5, ax=axes[row, col])
+                           "markersize": '10'}, palette = {'same': colorList[0], 'diff': colorList[1]}, showfliers=False)
+
+    #sns.stripplot(x, y, jitter=True, order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], color='black', s=5, ax=axes[row, col])
+    sns.stripplot(x, y, jitter=True, order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], palette=['grey', 'lightgrey'], s=5, ax=axes[row, col])
+    
     axes[row, col].set_title(behavEvent)
 
     axes[row, col].set_ylabel("{} {}".format(valueCat, unit))
@@ -360,9 +365,10 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( axes, row, col, profi
                                'value': profileValueDictionary["value"]})
     genotypeCat = list(Counter(dfData['genotype']).keys())
     genotypeCat.sort(reverse=True)
+    print(dfData)
     print('genotype list: ', genotypeCat)
     otherGenoList = ['same', 'diff']
-    pos = {'same': -0.25, 'diff': 0.25, genotypeCat[0]: -0.25, genotypeCat[1]: 0.25}
+    pos = {'same': 0, 'diff': 1, genotypeCat[0]: -0.25, genotypeCat[1]: 0.75}
 
     if valueCat == ' MeanDur':
         # Mann-Whitney U test, non parametric, small sample size
@@ -371,7 +377,7 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( axes, row, col, profi
         for genoB in otherGenoList:
             data = {}
             for k in [0,1]:
-                data[genotypeCat[k]] = dfData['value'][dfData['genotype'] == genotypeCat[k] & dfData['genoOther'] == genoB]
+                data[genotypeCat[k]] = dfData['value'][(dfData['genotype'] == genotypeCat[k]) & (dfData['genoOther'] == genoB)]
             try:
                 U, p = mannwhitneyu( data[genotypeCat[0]], data[genotypeCat[1]])
             except:
@@ -387,10 +393,10 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( axes, row, col, profi
     elif valueCat in [' TotalLen', ' Nb']:
         data = {}
         for k in [0, 1]:
-            data[genotypeCat[k]] = dfData['value'][dfData['genotype'] == genotypeCat[k] & dfData['genoOther'] == 'same']
-            print('############ ', data[genotypeCat[k]])
+            data[genotypeCat[k]] = dfData['value'][(dfData['genotype'] == genotypeCat[k]) & (dfData['genoOther'] == 'same')]
+            #print('############ ', data[genotypeCat[k]])
             try:
-                results = ttest_1samp(data[genotypeCat[k]], 1/3)
+                results = ttest_1samp(data[genotypeCat[k]], 100/3)
                 T = results.statistic
                 p = results.pvalue
             except:
@@ -398,13 +404,74 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( axes, row, col, profi
                 T = 'NA'
                 p = 'NA'
             print('means of prop with same geno: ', genotypeCat[k], np.mean(data[genotypeCat[k]]))
-            print('One sample t-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]),
-                                                                                     genotypeCat[k], event, T, p))
-            text_file.write('One-sample t-test ({} {} ind, {} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]),
-                                                                                               genotypeCat[k], event, T, p))
+            print('One sample t-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, T, p))
+            text_file.write('One-sample t-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, T, p))
             axes[row, col].text(x=pos[genotypeCat[k]], y=yMin + 0.95 * (yMax - yMin), s=getStarsFromPvalues(p, numberOfTests=1),
                                 fontsize=14, ha='center')
             text_file.write('\n')
+            
+
+def plotProfileValuesPerGenotype(night, categoryList, behaviouralEventOneMouseSocial, profileData, text_file):
+                for valueCat in categoryList:
+                    fig, axes = plt.subplots(nrows=3, ncols=4, figsize=(12, 9))
+                    row = 0
+                    col = 0
+                    fig.suptitle(t="{} of events (night {})".format(valueCat, n), y=1.2, fontweight='bold')
+                    for event in behaviouralEventOneMouseSocial:
+                        plotProfilePerIndividualPerGenotype(axes=axes, row=row, col=col, profileData=profileData, night=n, valueCat=valueCat, behavEvent=event, text_file=text_file )
+                        if col < 3:
+                            col += 1
+                            row = row
+                        else:
+                            col = 0
+                            row += 1
+
+                    plt.tight_layout()
+                    #plt.show()
+                    fig.savefig('profiles_per_geno_night_{}_{}.pdf'.format(n, valueCat), dpi=300)
+
+
+def mergeProfilePerGenotypeOverNights( profileData, categoryList, behaviouralEventOneMouseSocial, genoList ):
+    #merge data from the different nights
+    mergeProfile = {}
+    for file in profileData.keys():
+        nightList = list( profileData[file].keys() )
+        print('###############night List: ', nightList)
+        mergeProfile[file] = {}
+        mergeProfile[file]['all nights'] = {}
+        for rfid in profileData[file][nightList[0]].keys():
+            print('rfid: ', rfid)
+            mergeProfile[file]['all nights'][rfid] = {}
+            mergeProfile[file]['all nights'][rfid]['animal'] = profileData[file][nightList[0]][rfid]['animal']
+            mergeProfile[file]['all nights'][rfid]['genotype'] = profileData[file][nightList[0]][rfid]['genotype']
+            mergeProfile[file]['all nights'][rfid]['file'] = profileData[file][nightList[0]][rfid]['file']
+            mergeProfile[file]['all nights'][rfid]['sex'] = profileData[file][nightList[0]][rfid]['sex']
+            mergeProfile[file]['all nights'][rfid]['age'] = profileData[file][nightList[0]][rfid]['age']
+            mergeProfile[file]['all nights'][rfid]['strain'] = profileData[file][nightList[0]][rfid]['strain']
+            mergeProfile[file]['all nights'][rfid]['group'] = profileData[file][nightList[0]][rfid]['group']
+
+
+            for cat in categoryList:
+                traitList = [trait+cat for trait in behaviouralEventOneMouseSocial]
+            
+                for trait in traitList:
+                    print(trait)
+                    mergeProfile[file]['all nights'][rfid][trait] = {}
+                    for genoInteractor in genoList:
+                        mergeProfile[file]['all nights'][rfid][trait][genoInteractor] = {}
+                        for interactor in profileData[file][nightList[0]][rfid][trait][genoInteractor].keys():
+                            dataNight = 0
+                            for night in profileData[file].keys():
+                                dataNight += profileData[file][night][rfid][trait][genoInteractor][interactor]
+                
+                            if ' MeanDur' in trait:
+                                mergeProfile[file]['all nights'][rfid][trait][genoInteractor][interactor] = dataNight / len(profileData[file].keys())
+                            else:
+                                mergeProfile[file]['all nights'][rfid][trait][genoInteractor][interactor] = dataNight
+
+    
+
+    return mergeProfile
 
 
 if __name__ == '__main__':
@@ -422,7 +489,9 @@ if __name__ == '__main__':
                                 "Social approach", "Approach contact",
                                 "Get away", "Break contact"]
 
-    genoListLocal = ['B6N', 'B6J']
+    #genoListLocal = ['B6N', 'B6J']
+    genoListLocal = genoList
+    
     categoryList = [' TotalLen', ' Nb', ' MeanDur']
 
     while True:
@@ -486,6 +555,7 @@ if __name__ == '__main__':
 
             break
 
+
         if answer == "2":
             #plot profile values according to the interaction with same or different genotypes for the totalLen and Nb of events
             print('Choose the profile json file to process.')
@@ -500,24 +570,21 @@ if __name__ == '__main__':
 
             if nightComputation == "N":
                 n = 0
-                for valueCat in categoryList:
-                    fig, axes = plt.subplots(nrows=3, ncols=4, figsize=(12, 9))
-                    row = 0
-                    col = 0
-                    fig.suptitle(t="{} of events (night {})".format(valueCat, n), y=1.2, fontweight='bold')
-                    for event in behaviouralEventOneMouseSocial:
-                        plotProfilePerIndividualPerGenotype(axes=axes, row=row, col=col, profileData=profileData, night=n, valueCat=valueCat, behavEvent=event, text_file=text_file )
-                        if col < 3:
-                            col += 1
-                            row = row
-                        else:
-                            col = 0
-                            row += 1
-
-                    plt.tight_layout()
-                    plt.show()
-                    fig.savefig('profiles_per_geno_{}.pdf'.format(valueCat), dpi=300)
-
+                plotProfileValuesPerGenotype( night=n, categoryList=categoryList, behaviouralEventOneMouseSocial=behaviouralEventOneMouseSocial, profileData=profileData, text_file=text_file)
+            
+            elif nightComputation == "Y":
+                numberOfNightList = [1, 2, 3]
+                for n in numberOfNightList:
+                    plotProfileValuesPerGenotype( night=n, categoryList=categoryList, behaviouralEventOneMouseSocial=behaviouralEventOneMouseSocial, profileData=profileData, text_file=text_file)
+            
+            elif nightComputation == 'merged':
+                mergedProfilePerGeno = mergeProfilePerGenotypeOverNights( profileData=profileData, categoryList=categoryList, behaviouralEventOneMouseSocial=behaviouralEventOneMouseSocial, genoList=genoListLocal )
+                print('merged profile: ')
+                print( mergedProfilePerGeno )
+                
+                n = 'all nights'
+                plotProfileValuesPerGenotype( night=n, categoryList=categoryList, behaviouralEventOneMouseSocial=behaviouralEventOneMouseSocial, profileData=mergedProfilePerGeno, text_file=text_file)
+              
             print('Job done.')
             break
 
@@ -551,8 +618,53 @@ if __name__ == '__main__':
                             row += 1
 
                     plt.tight_layout()
-                    plt.show()
-                    fig.savefig('profiles_per_geno_{}.pdf'.format(valueCat), dpi=300)
+                    #plt.show()
+                    fig.savefig('profiles_per_geno_all_config_night_{}_{}.pdf'.format(n, valueCat), dpi=300)
+                    
+            
+            if nightComputation == "Y":
+                numberOfNightList = [1, 2, 3]
+                for night in numberOfNightList:
+                    for valueCat in categoryList:
+                        fig, axes = plt.subplots(nrows=3, ncols=4, figsize=(16, 9))
+                        row = 0
+                        col = 0
+                        fig.suptitle(t="{} of events (night {})".format(valueCat, n), y=1.2, fontweight='bold')
+                        for event in behaviouralEventOneMouseSocial:
+                            plotProfilePerIndividualPerGenotypeFullRepresentation(axes=axes, row=row, col=col, profileData=profileData, night=night, valueCat=valueCat, behavEvent=event, text_file=text_file )
+                            if col < 3:
+                                col += 1
+                                row = row
+                            else:
+                                col = 0
+                                row += 1
+    
+                        plt.tight_layout()
+                        #plt.show()
+                        fig.savefig('profiles_per_geno_all_config_night_{}_{}.pdf'.format(night, valueCat), dpi=300)
+                        
+            
+            if nightComputation == "merged":
+                mergedProfilePerGeno = mergeProfilePerGenotypeOverNights( profileData=profileData, categoryList=categoryList, behaviouralEventOneMouseSocial=behaviouralEventOneMouseSocial, genoList=genoListLocal )
+                
+                n = 'all nights'
+                for valueCat in categoryList:
+                    fig, axes = plt.subplots(nrows=3, ncols=4, figsize=(16, 9))
+                    row = 0
+                    col = 0
+                    fig.suptitle(t="{} of events (night {})".format(valueCat, n), y=1.2, fontweight='bold')
+                    for event in behaviouralEventOneMouseSocial:
+                        plotProfilePerIndividualPerGenotypeFullRepresentation(axes=axes, row=row, col=col, profileData=mergedProfilePerGeno, night=n, valueCat=valueCat, behavEvent=event, text_file=text_file )
+                        if col < 3:
+                            col += 1
+                            row = row
+                        else:
+                            col = 0
+                            row += 1
+
+                    plt.tight_layout()
+                    #plt.show()
+                    fig.savefig('profiles_per_geno_all_config_{}_{}.pdf'.format(n, valueCat), dpi=300)
 
             print('Job done.')
             break
