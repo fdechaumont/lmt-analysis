@@ -268,7 +268,7 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
     return animalData
 
 
-def getProfileValues( profileData, night='0', event=None):
+def getProfileValues( profileData, night=None, event=None):
     dataDic = {}
     dataDic["genotype"] = []
     dataDic["value"] = []
@@ -280,7 +280,7 @@ def getProfileValues( profileData, night='0', event=None):
     dataDic['group'] = []
     
     for file in profileData.keys():
-        #print(profileData[file].keys())
+        #print('#####', profileData[file][str(night)].keys())
         for animal in profileData[file][str(night)].keys():
             if not '-' in animal:
                 dataDic["value"].append(profileData[file][str(night)][animal][event])
@@ -1454,7 +1454,7 @@ def main():
 
 
         if answer == "3":
-            nightComputation = input("Plot profile only during night events (Y or N)? ")
+            nightComputation = input("Plot profile only during night events (Y or N or merged)? ")
             text_file = getFileNameInput()
 
             if nightComputation == "N":
@@ -1509,6 +1509,32 @@ def main():
                     testProfileData(profileData=profileData, night=str(n), eventListNames=["totalDistance"], valueCat="", text_file=text_file)
 
 
+            elif nightComputation == "merged":
+                n = 'all nights'
+                file = getJsonFileToProcess()
+                print(file)
+                # create a dictionary with profile data
+                with open(file) as json_data:
+                    profileDataNotMerged = json.load(json_data)
+
+                profileData = mergeProfileOverNights(profileData=profileDataNotMerged, categoryList=categoryList,
+                                                  behaviouralEventOneMouse=behaviouralEventOneMouse)
+
+                print("json file for profile data re-imported and merged over nights.")
+                #Plot profile2 data and save them in a pdf file
+                print('data: ', profileData)
+                plotProfileDataDuration(profileData=profileData, night=n, valueCat=" TotalLen", behaviouralEventList=behaviouralEventOneMouse)
+                plotProfileDataDuration(profileData=profileData, night=n, valueCat=" Nb", behaviouralEventList=behaviouralEventOneMouse)
+                plotProfileDataDuration(profileData=profileData, night=n, valueCat=" MeanDur", behaviouralEventList=behaviouralEventOneMouse)
+                text_file.write( "Statistical analysis: mixed linear models" )
+                text_file.write( "{}\n" )
+                #Test profile2 data and save results in a text file
+                testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse, valueCat=" TotalLen", text_file=text_file)
+                testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse, valueCat=" Nb", text_file=text_file)
+                testProfileData(profileData=profileData, night=n, eventListNames=behaviouralEventOneMouse, valueCat=" MeanDur", text_file=text_file)
+
+                print("test for total distance")
+                testProfileData(profileData=profileData, night=n, eventListNames=["totalDistance"], valueCat="", text_file=text_file)
 
             print ("Plots saved as pdf and analyses saved in text file.")
 
@@ -1552,7 +1578,7 @@ def main():
                     row = 0
                     col = 0
                     fig.suptitle(t="{} of events (night {})".format(valueCat, n), y=1.2, fontweight='bold')
-                    for event in behaviouralEventOneMouseSingle:
+                    for event in behaviouralEventOneMouseSingle+['totalDistance']:
                         plotProfileDataDurationPairs(axes=axes, row=row, col=col, profileData=profileDataSingle, night=n, valueCat=valueCat, behavEvent=event, mode='single', text_file=text_file )
                         if col < 5:
                             col += 1
@@ -1614,7 +1640,7 @@ def main():
                         row = 0
                         col = 0
                         fig.suptitle(t="{} of events (night {})".format(valueCat, n), y=1.2, fontweight='bold')
-                        for event in behaviouralEventOneMouseSingle:
+                        for event in behaviouralEventOneMouseSingle+['totalDistance']:
                             plotProfileDataDurationPairs(axes=axes, row=row, col=col, profileData=profileDataSingle,
                                                          night=n, valueCat=valueCat, behavEvent=event,
                                                          mode = 'single',
@@ -1685,7 +1711,7 @@ def main():
                         row = 0
                         col = 0
                         fig.suptitle(t="{} of events (night {})".format(valueCat, n), y=1.2, fontweight='bold')
-                        for event in behaviouralEventOneMouseSingle:
+                        for event in behaviouralEventOneMouseSingle+['totalDistance']:
                             plotProfileDataDurationPairs(axes=axes, row=row, col=col, profileData=profileDataSingleMerged,
                                                          night=n, valueCat=valueCat, behavEvent=event,
                                                          mode = 'single',
@@ -2126,7 +2152,7 @@ def main():
                     col += 1
 
                 plt.tight_layout()
-                plt.show()
+                #plt.show()
                 fig.savefig('profiles_zscores_horizontal_{}.pdf'.format(cat), dpi=300)
 
             print('Job done.')

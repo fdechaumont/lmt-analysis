@@ -167,56 +167,6 @@ def getProfileValuesProportionPerGenotype( profileData, night='0', event=None):
     return dataDic
 
 
-def getProfileValuesProportionPerGenotypeFullRepresentation(profileData, night='0', event=None):
-    # extract the profile values as a proportion of total duration or total number of events; valid only for the TotalLen or Nb of events
-    dataDic = {}
-    dataDic['rfid'] = []
-    dataDic['genotype'] = []
-    dataDic['genoOther'] = []
-    dataDic['value'] = []
-    dataDic["exp"] = []
-    dataDic['sex'] = []
-    dataDic['age'] = []
-    dataDic['strain'] = []
-    dataDic['group'] = []
-
-    for file in profileData.keys():
-        # print(profileData[file].keys())
-        for rfid in profileData[file][str(night)].keys():
-            dataDic['rfid'].append(rfid)
-            genoA = profileData[file][str(night)][rfid]['genotype']
-            dataDic['genotype'].append(genoA)
-            dataDic['sex'].append(profileData[file][str(night)][rfid]['sex'])
-            dataDic['group'].append(profileData[file][str(night)][rfid]['group'])
-            dataDic['strain'].append(profileData[file][str(night)][rfid]['strain'])
-            dataDic['age'].append(profileData[file][str(night)][rfid]['age'])
-            dataDic["exp"].append(file)
-
-            for genoPossible in profileData[file][str(night)][rfid][event].keys():
-                valList = []
-                for ind in profileData[file][str(night)][rfid][event][genoPossible].keys():
-                    valList.append(profileData[file][str(night)][rfid][event][genoPossible][ind])
-
-                value = np.sum(valList)
-
-                if genoPossible == genoA:
-                    dataDic['sameGenoRaw'].append(value)
-                else:
-                    dataDic['diffGenoRaw'].append(value)
-
-    # compute the total amount (length or number) of events
-    for i in range(len(dataDic['rfid'])):
-        dataDic['totalRaw'].append(dataDic['sameGenoRaw'][i] + dataDic['diffGenoRaw'][i])
-
-    # compute the proportion of the behaviour for total length and number of events
-    for i in range(len(dataDic['rfid'])):
-        dataDic['sameGeno'].append(dataDic['sameGenoRaw'][i] / dataDic['totalRaw'][i] * 100)
-        dataDic['diffGeno'].append(dataDic['diffGenoRaw'][i] / dataDic['totalRaw'][i] * 100)
-
-    print(dataDic)
-    return dataDic
-
-
 def getProfileValuesMeanDurationPerGenotype(profileData, night='0', event=None):
     #extract profile values for mean duration only since it computes the raw values and not proportion
     dataDic = {}
@@ -342,14 +292,29 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( axes, row, col, profi
     event = behavEvent + valueCat
 
     if valueCat == ' MeanDur':
-        profileValueDictionary = getProfileValuesMeanDurationPerGenotype(profileData=profileData, night=night,
+        profileValueDictionaryTransit = getProfileValuesMeanDurationPerGenotype(profileData=profileData, night=night,
                                                                        event=event)
     else:
-        profileValueDictionary = getProfileValuesProportionPerGenotype(profileData=profileData, night=night, event=event)
+        profileValueDictionaryTransit = getProfileValuesProportionPerGenotype(profileData=profileData, night=night, event=event)
 
-    y = profileValueDictionary["sameGeno"]
-    x = profileValueDictionary["genotype"]
-    group = profileValueDictionary["exp"]
+    profileValueDictionary = {'group': [], 'rfid': [], 'genotype': [], 'genoOther': [], 'value': []}
+    for n in range(len(profileValueDictionaryTransit['rfid'])):
+        profileValueDictionary['group'].append(profileValueDictionaryTransit['exp'][n])
+        profileValueDictionary['rfid'].append(profileValueDictionaryTransit['rfid'][n])
+        profileValueDictionary['genotype'].append(profileValueDictionaryTransit['genotype'][n])
+        profileValueDictionary['genoOther'].append('same')
+        profileValueDictionary['value'].append(profileValueDictionaryTransit['sameGeno'][n])
+
+    for n in range(len(profileValueDictionaryTransit['rfid'])):
+        profileValueDictionary['group'].append(profileValueDictionaryTransit['exp'][n])
+        profileValueDictionary['rfid'].append(profileValueDictionaryTransit['rfid'][n])
+        profileValueDictionary['genotype'].append(profileValueDictionaryTransit['genotype'][n])
+        profileValueDictionary['genoOther'].append('diff')
+        profileValueDictionary['value'].append(profileValueDictionaryTransit['diffGeno'][n])
+
+    y = profileValueDictionary['value']
+    x = profileValueDictionary['genotype']
+    genoOther = profileValueDictionary['genoOther']
 
     genotypeCat = list(Counter(x))
     genotypeCat.sort(reverse=True)
@@ -357,9 +322,6 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( axes, row, col, profi
 
     print("y: ", y)
     print("x: ", x)
-    #print("group: ", group)
-    experimentType = Counter(group)
-    print("Nb of experiments: ", len(experimentType))
 
     if valueCat == ' MeanDur':
         unit = '(frames)'
@@ -369,17 +331,17 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( axes, row, col, profi
         unit = '(%)'
         yMin = 0
         yMax = 100
-        axes[row, col].axhline(100/3, ls='--', c='grey')
+        axes[row, col].axhline(100 / 3, ls='--', c='grey')
+        axes[row, col].axhline(100 * 2 / 3, ls='--', c='grey')
 
     axes[row, col].set_xlim(-0.5, 1.5)
     axes[row, col].set_ylim( yMin, yMax)
-    sns.boxplot(x, y, ax=axes[row, col], order=genotypeCat, linewidth=0.5, showmeans=True,
+    sns.boxplot(x, y, ax=axes[row, col], order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
                            "markersize": '10'}, showfliers=False)
-    #sns.stripplot(x, y, jitter=True, hue=group, s=5, ax=axes[row, col])
-    sns.stripplot(x, y, jitter=True, order=genotypeCat, color='black', s=5, ax=axes[row, col])
+    sns.stripplot(x, y, jitter=True, order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], color='black', s=5, ax=axes[row, col])
     axes[row, col].set_title(behavEvent)
 
     axes[row, col].set_ylabel("{} {}".format(valueCat, unit))
@@ -392,30 +354,57 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( axes, row, col, profi
     text_file.write("Test for the event: {} night {} ".format(event, night))
     text_file.write('\n')
 
-    dfData = pandas.DataFrame({'group': profileValueDictionary["exp"],
+    dfData = pandas.DataFrame({'group': profileValueDictionary["group"],
                                'genotype': profileValueDictionary["genotype"],
-                               'value': profileValueDictionary["sameGeno"]})
-
-    # Mann-Whitney U test, non parametric, small sample size
+                               'genoOther': profileValueDictionary['genoOther'],
+                               'value': profileValueDictionary["value"]})
     genotypeCat = list(Counter(dfData['genotype']).keys())
     genotypeCat.sort(reverse=True)
     print('genotype list: ', genotypeCat)
-    data = {}
-    for k in [0,1]:
-        data[genotypeCat[k]] = dfData['value'][dfData['genotype'] == genotypeCat[k]]
-    try:
-        U, p = mannwhitneyu( data[genotypeCat[0]], data[genotypeCat[1]])
-    except:
-        print('test not possible')
-        U = 'NA'
-        p = 'NA'
-    print('means of ', genotypeCat[0], np.mean(data[genotypeCat[0]]), 'mean of ', genotypeCat[1], np.mean(data[genotypeCat[1]]))
-    print( 'Mann-Whitney U test ({} {} cages, {} {} cages) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
-    text_file.write('Mann-Whitney U test ({} {} cages, {} {} cages) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
-    axes[row, col].text(x=0.5, y=yMin+0.95*(yMax-yMin), s = getStarsFromPvalues(p,numberOfTests=1), fontsize=14, ha='center' )
-    text_file.write('\n')
+    otherGenoList = ['same', 'diff']
+    pos = {'same': -0.25, 'diff': 0.25, genotypeCat[0]: -0.25, genotypeCat[1]: 0.25}
 
+    if valueCat == ' MeanDur':
+        # Mann-Whitney U test, non parametric, small sample size
+        # compare the two genotypes for the mean duration of events spent with same or with different genotypes
 
+        for genoB in otherGenoList:
+            data = {}
+            for k in [0,1]:
+                data[genotypeCat[k]] = dfData['value'][dfData['genotype'] == genotypeCat[k] & dfData['genoOther'] == genoB]
+            try:
+                U, p = mannwhitneyu( data[genotypeCat[0]], data[genotypeCat[1]])
+            except:
+                print('test not possible')
+                U = 'NA'
+                p = 'NA'
+            print('means of mean duration with ', genoB, ' geno: ', genotypeCat[0], np.mean(data[genotypeCat[0]]), 'versus ', genotypeCat[1], np.mean(data[genotypeCat[1]]))
+            print( 'Mann-Whitney U test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
+            text_file.write('Mann-Whitney U test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
+            axes[row, col].text(x=pos[genoB], y=yMin+0.95*(yMax-yMin), s = getStarsFromPvalues(p,numberOfTests=1), fontsize=14, ha='center' )
+            text_file.write('\n')
+
+    elif valueCat in [' TotalLen', ' Nb']:
+        data = {}
+        for k in [0, 1]:
+            data[genotypeCat[k]] = dfData['value'][dfData['genotype'] == genotypeCat[k] & dfData['genoOther'] == 'same']
+            print('############ ', data[genotypeCat[k]])
+            try:
+                results = ttest_1samp(data[genotypeCat[k]], 1/3)
+                T = results.statistic
+                p = results.pvalue
+            except:
+                print('test not possible')
+                T = 'NA'
+                p = 'NA'
+            print('means of prop with same geno: ', genotypeCat[k], np.mean(data[genotypeCat[k]]))
+            print('One sample t-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]),
+                                                                                     genotypeCat[k], event, T, p))
+            text_file.write('One-sample t-test ({} {} ind, {} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]),
+                                                                                               genotypeCat[k], event, T, p))
+            axes[row, col].text(x=pos[genotypeCat[k]], y=yMin + 0.95 * (yMax - yMin), s=getStarsFromPvalues(p, numberOfTests=1),
+                                fontsize=14, ha='center')
+            text_file.write('\n')
 
 
 if __name__ == '__main__':
@@ -441,6 +430,7 @@ if __name__ == '__main__':
         question = "Do you want to:"
         question += "\n\t [1] compute profile data for each individual taking into account the interacting individual (save json file)?"
         question += "\n\t [2] plot profile values (in proportion for TotalLen or Nb and raw values for MeanDur) according to the interaction with same or different genotype?"
+        question += "\n\t [3] plot profile values according to the interaction with same or different genotypes with all combinations?"
         question += "\n"
         answer = input(question)
 
@@ -510,7 +500,7 @@ if __name__ == '__main__':
 
             if nightComputation == "N":
                 n = 0
-                for valueCat in [' TotalLen', ' Nb']:
+                for valueCat in categoryList:
                     fig, axes = plt.subplots(nrows=3, ncols=4, figsize=(12, 9))
                     row = 0
                     col = 0
