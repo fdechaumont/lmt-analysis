@@ -55,7 +55,6 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
             for t in range(stopEvent.startFrame, stopEvent.endFrame + 1):
                 stopIsolatedResult[t] = True
 
-
         # save stop isolated at the end of the complete process for animalA
         stopIsolatedResultTimeLine = EventTimeLine(None, "Stop isolated", idA=animal, idB=None, idC=None, idD=None, loadEvent=False)
         stopIsolatedResultTimeLine.reBuildWithDictionnary(stopIsolatedResult)
@@ -78,18 +77,6 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
             
             #by default let's say that all stops are isolated; next we will extract frames which are in contact from this time line.
             stopIsolatedTimeLine[animal] = stopSourceTimeLine[animal]
-            
-            
-            '''
-            a = 2
-            b = a
-            b = 3
-            
-            a = [1,2,3]
-            b = a.copy()
-            b[0] ="choups"
-            a => ["choups",2,3]
-            '''
             
             # load contact dictionary with another animal
             for animalB in pool.animalDictionnary.keys():
@@ -123,15 +110,9 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
 
                 # save stop social at the end of the search for each animal
                 # clean the dictionary of the stop events from frames that are overlapping with exclusive contacts
-                if animal == 1 :
-                    print("--- DEBUG")
-                    print( pool.animalDictionnary[animal].RFID , pool.animalDictionnary[animalB].RFID )                
-                    print ( framesToRemoveFromStopIsolatedTimeLine )
                 
                 for t in framesToRemoveFromStopIsolatedTimeLine:
-                    
-                    stopIsolatedDic[animal].pop( t, None )
-                    
+                    stopIsolatedDic[animal].pop( t, None )                    
                     
                 stopSocialResultTimeLine = EventTimeLine( None, "Stop in contact" , idA=animal , idB=animalB , idC=None , idD=None , loadEvent=False )
                 stopSocialResultTimeLine.reBuildWithDictionnary( stopSocialResult )
