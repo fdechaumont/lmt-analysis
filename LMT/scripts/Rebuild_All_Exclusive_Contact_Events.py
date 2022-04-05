@@ -12,7 +12,7 @@ from lmtanalysis.Measure import *
 
 from lmtanalysis.Util import getAllEvents
 
-from lmtanalysis import BuildEventOtherContact, BuildEventPassiveAnogenitalSniff, BuildEventExclusiveMoveStopIsolated, BuildEventExclusiveCleanOralOralSideSideNoseAnogenitalContact, BuildDataBaseIndex, CheckWrongAnimal
+from lmtanalysis import BuildEventOtherContact, BuildEventPassiveAnogenitalSniff, BuildEventExclusiveMoveStopIsolated, BuildEventExclusiveUndetected, BuildEventExclusiveCleanOralOralSideSideNoseAnogenitalContact, BuildDataBaseIndex, CheckWrongAnimal
 
 
 from psutil import virtual_memory
@@ -32,10 +32,10 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 ''' minT and maxT to process the analysis (in frame) '''
 minT = 0
 
-#maxT = 1*oneHour
+#maxT = 6*oneHour
 
-maxT = 3*oneDay
-#maxT = (6+1)*oneHour
+maxT = 2*oneDay
+
 ''' time window to compute the events. '''
 windowT = 1*oneDay
 #windowT = 3*oneDay #int (0.5*oneDay)
@@ -48,10 +48,8 @@ class FileProcessException(Exception):
 
 eventClassList = [BuildEventPassiveAnogenitalSniff, BuildEventOtherContact,
                   BuildEventExclusiveCleanOralOralSideSideNoseAnogenitalContact,
-                  BuildEventExclusiveMoveStopIsolated]
-
-
-eventClassList = [BuildEventExclusiveMoveStopIsolated]
+                  BuildEventExclusiveMoveStopIsolated,
+                  BuildEventExclusiveUndetected]
 
 def flushEvents( connection ):
 

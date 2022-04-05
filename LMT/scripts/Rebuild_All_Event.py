@@ -12,7 +12,7 @@ from lmtanalysis.Measure import *
 
 from lmtanalysis.Util import getAllEvents
 
-from lmtanalysis import BuildEventApproachContact2, BuildEventOtherContact, BuildEventPassiveAnogenitalSniff, BuildEventExclusiveSideSideOralOralContact, BuildEventExclusiveCleanOralOralSideSideNoseAnogenitalContact, BuildEventExclusiveCleanSideSideNoseAnogenitalOralOralContact, BuildEventHuddling, BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, BuildEventFollowZone, BuildEventRear5, BuildEventCenterPeripheryLocation, BuildEventRearCenterPeriphery, BuildEventFloorSniffing, BuildEventSocialApproach, BuildEventSocialEscape, BuildEventApproachContact,BuildEventOralOralContact, BuildEventApproachRear, BuildEventGroup2, BuildEventGroup3, BuildEventGroup4, BuildEventOralGenitalContact, BuildEventStop, BuildEventWaterPoint, BuildEventMove, BuildEventGroup3MakeBreak, BuildEventGroup4MakeBreak, BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection, BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP, BuildEventOralSideSequence, CheckWrongAnimal, CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventGetAway
+from lmtanalysis import BuildEventApproachContact2, BuildEventOtherContact, BuildEventPassiveAnogenitalSniff, BuildEventHuddling, BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, BuildEventFollowZone, BuildEventRear5, BuildEventCenterPeripheryLocation, BuildEventRearCenterPeriphery, BuildEventFloorSniffing, BuildEventSocialApproach, BuildEventSocialEscape, BuildEventApproachContact,BuildEventOralOralContact, BuildEventApproachRear, BuildEventGroup2, BuildEventGroup3, BuildEventGroup4, BuildEventOralGenitalContact, BuildEventStop, BuildEventWaterPoint, BuildEventMove, BuildEventGroup3MakeBreak, BuildEventGroup4MakeBreak, BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection, BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP, BuildEventOralSideSequence, CheckWrongAnimal, CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventGetAway
 
 
 from psutil import virtual_memory
@@ -32,7 +32,7 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 ''' minT and maxT to process the analysis (in frame) '''
 minT = 0
 
-#maxT = 1 *oneHour
+#maxT = 5000
 maxT = 3*oneDay
 #maxT = (6+1)*oneHour
 ''' time window to compute the events. '''
@@ -47,7 +47,7 @@ class FileProcessException(Exception):
 
 
 eventClassList = [
-
+                #BuildEventHuddling,
                 BuildEventDetection,
                 BuildEventOralOralContact,
                 BuildEventOralGenitalContact,
@@ -80,6 +80,7 @@ eventClassList = [
                 BuildEventNest4
                    ]
 
+eventClassList = [BuildEventStop, BuildEventMove]
 #eventClassList = [BuildEventPassiveAnogenitalSniff, BuildEventOtherContact, BuildEventExclusiveSideSideNoseAnogenitalContact]
 #eventClassList = [BuildEventApproachContact2]
 
@@ -166,7 +167,6 @@ def process( file ):
         print( "METADATA field already exists" , file )
 
     BuildDataBaseIndex.buildDataBaseIndex( connection, force=False )
-
     # build sensor data
     animalPool = AnimalPool( )
     animalPool.loadAnimals( connection )
