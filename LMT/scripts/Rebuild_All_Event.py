@@ -80,7 +80,7 @@ eventClassList = [
                 BuildEventNest4
                    ]
 
-eventClassList = [BuildEventStop, BuildEventMove]
+#eventClassList = [BuildEventStop, BuildEventMove]
 #eventClassList = [BuildEventPassiveAnogenitalSniff, BuildEventOtherContact, BuildEventExclusiveSideSideNoseAnogenitalContact]
 #eventClassList = [BuildEventApproachContact2]
 
