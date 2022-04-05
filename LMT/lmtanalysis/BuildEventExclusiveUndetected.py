@@ -47,10 +47,9 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
 
     #####################################################
     #reduild all events based on dictionary
-    for moveEvent in exclusiveEventList[-2:]:
-        for animal in range(1, pool.getNbAnimals() + 1):
-            undetectedTimeLine[animal].reBuildWithDictionnary(undetectedDico[animal])
-            undetectedTimeLine[animal].endRebuildEventTimeLine(connection)
+    for animal in range(1, pool.getNbAnimals() + 1):
+        undetectedTimeLine[animal].reBuildWithDictionnary(undetectedDico[animal])
+        undetectedTimeLine[animal].endRebuildEventTimeLine(connection)
 
     # log process
     from lmtanalysis.TaskLogger import TaskLogger
