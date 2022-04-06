@@ -386,7 +386,7 @@ def singlePlotPerEventProfile(profileData, night, valueCat, behavEvent, ax):
     print('x labels: ', genotypeType)
     group = profileValueDictionary["exp"]
 
-    if valueCat == ' TotalLen':
+    if (valueCat == ' TotalLen') & (behavEvent != 'totalDistance'):
         y = [i / 30 for i in yval]
     else:
         y = yval
@@ -408,7 +408,11 @@ def singlePlotPerEventProfile(profileData, night, valueCat, behavEvent, ax):
     #sns.stripplot(x, y, order=genotypeType, jitter=True, color='black', hue=group, s=5, ax=ax)
     sns.stripplot(x, y, order=genotypeType, jitter=True, hue=group, s=5, ax=ax)
     ax.set_title(behavEvent)
-    ax.set_ylabel("{} (s)".format(valueCat))
+    labelTxtDic = {' TotalLen': 'duration (s)', ' MeanDur': 'mean duration (frames)', ' Nb': 'occurrences'}
+    labelTxt = labelTxtDic[valueCat]
+    if behavEvent == 'totalDistance':
+        labelTxt = 'total distance (m)'
+    ax.set_ylabel(labelTxt)
     ax.legend().set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -1990,7 +1994,8 @@ if __name__ == '__main__':
 
             #compute the mutant data, centered and reduced for each cage
             #genoMutant = 'DlxCre Tg ; Dyrk1acKO/+'
-            genoMutant = 'Del/+'
+            #genoMutant = 'Del/+'
+            genoMutant = 'a5SNP'
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
 
             print(koData)
@@ -2039,7 +2044,7 @@ if __name__ == '__main__':
                     col += 1
 
                 plt.tight_layout()
-                plt.show()
+                #plt.show()
                 fig.savefig('profiles_zscores_{}.pdf'.format(cat), dpi=300)
 
             print('Job done.')
