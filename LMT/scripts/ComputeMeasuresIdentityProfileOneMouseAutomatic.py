@@ -5,6 +5,7 @@ Created on 13 sept. 2017
 '''
 
 import sqlite3
+import os
 
 from lmtanalysis.FileUtil import getFigureBehaviouralEventsLabelsFrench
 from lmtanalysis.Animal import *
@@ -307,7 +308,7 @@ def getProfileValuesNoGroup(profileData, night='0', event=None):
     for file in profileData.keys():
         # print(profileData[file].keys())
         for animal in profileData[file][str(night)].keys():
-            if not '-' in animal:
+            if not '_' in animal:
                 dataDic["value"].append(profileData[file][str(night)][animal][event])
                 dataDic["meanValue"].append(np.mean(profileData[file][str(night)][animal][event]))
                 dataDic["exp"].append(profileData[file][str(night)][animal]["file"])
@@ -344,6 +345,42 @@ def getProfileValuesPairs(profileData, night='0', event=None):
 
     return dataDic
 
+def getProfileValuesPairsWithMode(profileData, night='0', event=None, mode=None):
+    dataDic = {}
+    dataDic['id'] = []
+    dataDic["genotype"] = []
+    dataDic["value"] = []
+    dataDic["group"] = []
+    dataDic["exp"] = []
+    dataDic["age"] = []
+    dataDic["sex"] = []
+    dataDic["strain"] = []
+
+    for file in profileData.keys():
+        #print(profileData[file].keys())
+        for animal in profileData[file][str(night)].keys():
+            if mode == 'dyadic':
+                if '_' in animal:
+                    dataDic['id'].append(profileData[file][str(night)][animal]["animal"])
+                    dataDic["value"].append(profileData[file][str(night)][animal][event])
+                    dataDic["exp"].append(profileData[file][str(night)][animal]["file"])
+                    dataDic["group"].append(profileData[file][str(night)][animal]["group"])
+                    dataDic["genotype"].append(profileData[file][str(night)][animal]["genotype"])
+                    dataDic["age"].append(profileData[file][str(night)][animal]["age"])
+                    dataDic["sex"].append(profileData[file][str(night)][animal]["sex"])
+                    dataDic["strain"].append(profileData[file][str(night)][animal]["strain"])
+            if mode == 'single':
+                if not '_' in animal:
+                    dataDic['id'].append(profileData[file][str(night)][animal]["animal"])
+                    dataDic["value"].append(profileData[file][str(night)][animal][event])
+                    dataDic["exp"].append(profileData[file][str(night)][animal]["file"])
+                    dataDic["group"].append(profileData[file][str(night)][animal]["group"])
+                    dataDic["genotype"].append(profileData[file][str(night)][animal]["genotype"])
+                    dataDic["age"].append(profileData[file][str(night)][animal]["age"])
+                    dataDic["sex"].append(profileData[file][str(night)][animal]["sex"])
+                    dataDic["strain"].append(profileData[file][str(night)][animal]["strain"])
+
+    return dataDic
 
 def plotProfileDataDuration( profileData, behaviouralEventList, night, valueCat ):
     fig, axes = plt.subplots(nrows=4, ncols=6, figsize=(14, 12))
@@ -1328,6 +1365,10 @@ if __name__ == '__main__':
             for file in files:
 
                 print(file)
+                head, tail = os.path.split(file)
+                extension = head[-5:]
+                print('extension: ', extension)
+                
                 connection = sqlite3.connect( file )
 
                 profileData[file] = {}
@@ -1343,8 +1384,9 @@ if __name__ == '__main__':
                     profileData[file][n] = computeProfile(file = file, minT=minT, maxT=maxT, night=n, text_file=text_file, behaviouralEventList=behaviouralEventOneMouse)
                     text_file.write( "\n" )
                     # Create a json file to store the computation
-                    with open("profile_data_{}.json".format('no_night'), 'w') as fp:
+                    with open("profile_data_{}_{}.json".format('no_night', extension), 'w') as fp:
                         json.dump(profileData, fp, indent=4)
+                    print(extension)
                     print("json file with profile measurements created.")
 
 
@@ -1363,8 +1405,9 @@ if __name__ == '__main__':
                         print("Profile data saved.")
 
                     # Create a json file to store the computation
-                    with open("profile_data_{}.json".format('over_night'), 'w') as fp:
+                    with open("profile_data_{}_{}.json".format('over_night', extension), 'w') as fp:
                         json.dump(profileData, fp, indent=4)
+                    print(extension)
                     print("json file with profile measurements created.")
 
             text_file.write( "\n" )
@@ -1984,8 +2027,8 @@ if __name__ == '__main__':
             #dataToUse = mergeProfile
 
             #compute the data for the control animal of each cage
-            #genoControl = 'DlxCre wt ; Dyrk1acKO/+'
-            genoControl = 'WT'
+            genoControl = 'DlxCre wt ; Dyrk1acKO/+'
+            #genoControl = 'WT'
             wtData = extractControlData( profileData=dataToUse, genoControl=genoControl, behaviouralEventOneMouse=behaviouralEventOneMouse)
             wtData = extractCageData(profileData=dataToUse, behaviouralEventOneMouse=behaviouralEventOneMouse)
             #mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList )
@@ -1993,9 +2036,9 @@ if __name__ == '__main__':
             #print(wtData)
 
             #compute the mutant data, centered and reduced for each cage
-            #genoMutant = 'DlxCre Tg ; Dyrk1acKO/+'
+            genoMutant = 'DlxCre Tg ; Dyrk1acKO/+'
             #genoMutant = 'Del/+'
-            genoMutant = 'a5SNP'
+            #genoMutant = 'a5SNP'
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
 
             print(koData)
@@ -2062,12 +2105,13 @@ if __name__ == '__main__':
             mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList,
                                                   behaviouralEventOneMouse=behaviouralEventOneMouse)
             # If the profiles are computed over the nights separately as in the original json file:
-            # dataToUse = profileData
+            #dataToUse = profileData
             # If the profiles are computed over the merged nights:
             dataToUse = mergeProfile
 
             # compute the data for the control animal of each cage
-            genoControl = 'WT'
+            genoControl = 'DlxCre wt ; Dyrk1acKO/+'
+            #genoControl = 'WT'
             wtData = extractControlData(profileData=dataToUse, genoControl=genoControl,
                                         behaviouralEventOneMouse=behaviouralEventOneMouse)
             wtData = extractCageData(profileData=dataToUse, behaviouralEventOneMouse=behaviouralEventOneMouse)
@@ -2076,7 +2120,8 @@ if __name__ == '__main__':
             # print(wtData)
 
             # compute the mutant data, centered and reduced for each cage
-            genoMutant = 'Del/+'
+            genoMutant = 'DlxCre Tg ; Dyrk1acKO/+'
+            #genoMutant = 'Del/+'
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData,
                                         categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse)
 

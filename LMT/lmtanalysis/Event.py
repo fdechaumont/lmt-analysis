@@ -1017,7 +1017,7 @@ def plotMultipleTimeLine( timeLineList , colorList=None , show=True , minValue=0
     '''
 
     yOffset = len( timeLineList ) -1
-    maxX = 0;
+    maxX = 0
 
     plt.figure( figsize=(10, yOffset/2 ) )
 

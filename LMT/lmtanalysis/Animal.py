@@ -5,9 +5,6 @@ Created on 7 sept. 2017
 
 from lmtanalysis.Detection import *
 
-import matplotlib
-
-
 #matplotlib fix for mac (uncomment if needed)
 #matplotlib.use('TkAgg' )
 
@@ -25,8 +22,8 @@ import time
 from lmtanalysis.Measure import *
 from lmtanalysis.Measure import ARENA_SIZE, CENTER_MARGIN
 from statistics import *
-from scipy.spatial import distance
-from scipy.ndimage.measurements import standard_deviation
+#from scipy.spatial import distance
+#from scipy.ndimage.measurements import standard_deviation
 from statistics import mean
 from lmtanalysis.Event import EventTimeLine
 from lmtanalysis.Point import Point

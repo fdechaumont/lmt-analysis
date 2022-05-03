@@ -162,7 +162,7 @@ def getNumberOfFrames(file):
     query = "SELECT MAX(FRAMENUMBER) FROM FRAME";
     c.execute( query )
     numberOfFrames = c.fetchall()
-
+    connection.close()
     return int(numberOfFrames[0][0])
 
 def getStartInDatetime(file):
@@ -175,6 +175,7 @@ def getStartInDatetime(file):
     for row in rows:
         start = datetime.datetime.fromtimestamp(row[0]/1000)
 
+    connection.close()
     return start
 
 def getEndInDatetime(file):
@@ -187,6 +188,7 @@ def getEndInDatetime(file):
     for row in rows:
         end = datetime.datetime.fromtimestamp(row[0]/1000)
 
+    connection.close()
     return end
 
 def getDatetimeFromFrame(connection, frame):
@@ -282,10 +284,10 @@ def getStarsFromPvalues(pvalue=None, U=None, numberOfTests=1):
     s1 = 0.05 / numberOfTests
     s2 = 0.01 / numberOfTests
     s3 = 0.001 / numberOfTests
-    if pvalue == "NA":
-        stars = "NA"
+    '''if pvalue == "NA":
+        stars = "NA"'''
 
-    elif (pvalue == 0) & (U == 0):
+    if (pvalue == 0) & (U == 0):
         stars = "NA"
 
     elif (pvalue == 0) & (U != 0):
