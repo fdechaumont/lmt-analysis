@@ -170,6 +170,40 @@ def getFigureBehaviouralEventsLabelsFrench(event):
                          }
     return behaviouralEventsLabels[event]
 
+def getFigureBehaviouralEventsLabels(event):
+    behaviouralEventsLabels = {"Stop isolated": 'single idle',
+                         "Move isolated": 'single move',
+                         "Move in contact": 'move in contact',
+                         "WallJump": 'jumps',
+                         "Rear isolated": 'rearing',
+                         "Rear in contact": 'rearing in contact',
+                         "Break contact": 'break contact',
+                         "Get away": 'get away',
+                         "Social approach": 'approach social range',
+                         #"Approach rear": 'approach reared mouse',
+                         "Approach contact": 'approach contact',
+                         "Contact": 'contact',
+                         "Group2": 'group of 2', 
+                         "Group3": 'group of 3', 
+                         "Oral-oral Contact": 'nose-nose',
+                         "Oral-genital Contact": 'nose-anogenital',
+                         "Side by side Contact": 'side-side',
+                         "Side by side Contact, opposite way": 'side-side, head-to-tail',
+                         "seq oral oral - oral genital": 'nose-nose & nose-anogenital',
+                         "seq oral geni - oral oral": 'nose-anogenital & nose-nose',
+                         "FollowZone Isolated": 'follow',
+                         "Train2": 'train2',
+                         "Group 3 make": 'make group 3',
+                         "Group 4 make": 'make group 4',
+                         "Break contact": 'break contact',
+                         "Group 3 break": 'break group 3',
+                         "Group 4 break": 'break group 4'
+                         # , "longChase": 'long chase'
+                         }
+    
+    return behaviouralEventsLabels[event]
+
+
 
 class TestFileUtil ( unittest.TestCase ):
     
