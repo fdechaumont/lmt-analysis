@@ -7,7 +7,7 @@ Created on 13 sept. 2017
 import sqlite3
 import os
 
-from lmtanalysis.FileUtil import getFigureBehaviouralEventsLabelsFrench
+from lmtanalysis.FileUtil import getFigureBehaviouralEventsLabelsFrench, behaviouralEventOneMouse, behaviouralEventOneMouseDic, getFigureBehaviouralEventsLabels, categoryList
 from lmtanalysis.Animal import *
 import numpy as np
 import matplotlib.pyplot as plt
@@ -1322,7 +1322,7 @@ def plotZScoreProfileAutoHorizontal(ax, cat, koDataframe, night, eventListForTes
                 horizontalalignment='center')
     
         ax.add_patch(mpatches.Rectangle((14.6, -3), width=1.8, height=6, facecolor='grey', alpha=0.3))
-        ax.text(15.5, 2, s='APPROACH', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
+        ax.text(15.5, 2, s='APP.', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
                 horizontalalignment='center')
     
         ax.add_patch(mpatches.Rectangle((16.6, -3), width=0.9, height=6, facecolor='grey', alpha=0.3))
@@ -1387,6 +1387,7 @@ def plotZScoreProfileAutoHorizontal(ax, cat, koDataframe, night, eventListForTes
     ax.legend().set_visible(False)
 
 
+
 if __name__ == '__main__':
     
     print("Code launched.")
@@ -1394,43 +1395,7 @@ if __name__ == '__main__':
     from matplotlib import rc, gridspec
 
     rc('font', **{'family': 'serif', 'serif': ['Arial']})
-    #List of events to be computed within the behavioural profile2, and header for the computation of the total distance travelled.
-    behaviouralEventOneMouse = ["Contact", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Get away", "Approach contact", "Approach rear", "Break contact", "FollowZone Isolated", "Train2", "Group2", "Group3", "Group 3 break", "Group 3 make", "Group 4 break", "Group 4 make", "Huddling", "Move isolated", "Move in contact", "Nest3_", "Nest4_", "Rearing", "Rear isolated", "Rear in contact", "Stop isolated", "WallJump", "Water Zone"]
-    behaviouralEventOneMouse = ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
-    "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
-    "Train2", "FollowZone Isolated",
-    "Social approach", "Approach contact",
-    "Group 3 make", "Group 4 make", "Get away", "Break contact",
-    "Group 3 break", "Group 4 break"
-    ]
-    behaviouralEventOneMouseDic = {' TotalLen': ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
-    "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
-    "Train2", "FollowZone Isolated"],
     
-    ' Nb': ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
-    "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
-    "Train2", "FollowZone Isolated",
-    "Social approach", "Approach contact",
-    "Group 3 make", "Group 4 make", "Break contact",
-    "Group 3 break", "Group 4 break"],
-    
-    ' MeanDur': ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
-    "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
-    "Train2", "FollowZone Isolated",
-    "Social approach", "Approach contact",
-    "Break contact"
-    ]
-    }
-    behaviouralEventOneMouseSingle = ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact", "Oral-genital Contact", "Train2", "FollowZone Isolated",
-                                "Social approach", "Approach contact", "Get away", "Break contact"]
-    behaviouralEventOneMouseSocial = ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact",
-                                "Side by side Contact", "Side by side Contact, opposite way",
-                                "Train2", "FollowZone Isolated",
-                                "Social approach", "Approach contact",
-                                "Get away", "Break contact"]
-
-    categoryList = [' TotalLen', ' Nb', ' MeanDur']
-
     while True:
 
         question = "Do you want to:"
@@ -2071,7 +2036,6 @@ if __name__ == '__main__':
             nightList = list(profileData[list(profileData.keys())[0]].keys())
             print('nights: ', nightList)
 
-            categoryList = [' TotalLen', ' Nb', ' MeanDur']
 
             mergeProfile = mergeProfileOverNights( profileData=profileData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
 
@@ -2108,7 +2072,6 @@ if __name__ == '__main__':
             with open(file) as json_data:
                 profileData = json.load(json_data)
             print("json file for profile data re-imported.")
-            categoryList = [' TotalLen', ' Nb', ' MeanDur']
 
             mergeProfile = mergeProfileOverNights( profileData=profileData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
             #If the profiles are computed over the nights separately as in the original json file:
