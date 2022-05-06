@@ -203,6 +203,42 @@ def getFigureBehaviouralEventsLabels(event):
     
     return behaviouralEventsLabels[event]
 
+behaviouralEventOneMouse = ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
+    "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
+    "Train2", "FollowZone Isolated",
+    "Social approach", "Approach contact",
+    "Group 3 make", "Group 4 make", "Get away", "Break contact",
+    "Group 3 break", "Group 4 break"
+    ]
+
+behaviouralEventOneMouseDic = {' TotalLen': ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
+    "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
+    "Train2", "FollowZone Isolated"],
+    
+    ' Nb': ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
+    "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
+    "Train2", "FollowZone Isolated",
+    "Social approach", "Approach contact",
+    "Group 3 make", "Group 4 make", "Break contact",
+    "Group 3 break", "Group 4 break"],
+    
+    ' MeanDur': ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
+    "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
+    "Train2", "FollowZone Isolated",
+    "Social approach", "Approach contact",
+    "Break contact"
+    ]
+    }
+
+behaviouralEventOneMouseSingle = ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact", "Oral-genital Contact", "Train2", "FollowZone Isolated",
+                                "Social approach", "Approach contact", "Get away", "Break contact"]
+behaviouralEventOneMouseSocial = ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact",
+                            "Side by side Contact", "Side by side Contact, opposite way",
+                            "Train2", "FollowZone Isolated",
+                            "Social approach", "Approach contact",
+                            "Get away", "Break contact"]
+
+categoryList = [' TotalLen', ' Nb', ' MeanDur']
 
 
 class TestFileUtil ( unittest.TestCase ):
