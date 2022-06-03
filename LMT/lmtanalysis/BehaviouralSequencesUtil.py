@@ -13,12 +13,14 @@ exclusiveEventList = ['Oral-oral Contact exclusive', 'Side by side Contact exclu
 
 contactTypeList = ["Oral-oral Contact", "Oral-genital Contact", "Passive oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Other contact"]
 
-exclusiveEventsLabels = {'Oral-oral Contact exclusive': 'O-O', 'Side by side Contact exclusive': 'S-S', 'Oral-genital Contact exclusive': 'O-G',
-                       'Passive oral-genital Contact exclusive': 'O-G pass', 'Side by side Contact, opposite way exclusive': 'S-S opp',
-                       'Oral-oral and Side by side Contact exclusive': 'O-O S-S',
-                       'Oral-genital and Side by side Contact, opposite way exclusive': 'O-G S-S opp',
-                       'Oral-genital passive and Side by side Contact, opposite way exclusive': 'O-G pass S-S opp', 'Other contact exclusive': 'Other',
-                        'Move isolated exclusive': 'Move iso', 'Stop isolated exclusive': 'Stop iso', 'Undetected exclusive': 'undetected'}
+exclusiveEventsLabels = {'Oral-oral Contact exclusive': 'N-N', 'Side by side Contact exclusive': 'S-S', 'Oral-genital Contact exclusive': 'N-G',
+                       'Passive oral-genital Contact exclusive': 'N-G pass', 'Side by side Contact, opposite way exclusive': 'S-S opp',
+                       'Oral-oral and Side by side Contact exclusive': 'N-N S-S',
+                       'Oral-genital and Side by side Contact, opposite way exclusive': 'N-G S-S opp',
+                       'Oral-genital passive and Side by side Contact, opposite way exclusive': 'N-G pass S-S opp', 'Other contact exclusive': 'other',
+                        'Move isolated exclusive': 'move', 'Stop isolated exclusive': 'idle', 'Undetected exclusive': 'undetected'}
+
+exclusiveEventListLabels = [exclusiveEventsLabels[x] for x in exclusiveEventList]
 
 sexList = ['male', 'female']
 mutantGeno = 'Del/+'

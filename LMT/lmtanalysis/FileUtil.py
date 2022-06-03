@@ -171,7 +171,9 @@ def getFigureBehaviouralEventsLabelsFrench(event):
     return behaviouralEventsLabels[event]
 
 def getFigureBehaviouralEventsLabels(event):
-    behaviouralEventsLabels = {"Stop isolated": 'single idle',
+    behaviouralEventsLabels = {
+                        'totalDistance': 'distance',
+                        "Stop isolated": 'single idle',
                          "Move isolated": 'single move',
                          "Move in contact": 'move in contact',
                          "WallJump": 'jumps',
