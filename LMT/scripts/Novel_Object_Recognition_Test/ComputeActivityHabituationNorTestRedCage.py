@@ -50,6 +50,41 @@ def buildFigTrajectoryPerSetup(files, tmin, tmax, figName, title, xa = 111, xb =
     # plt.show() #display the plot
     fig.savefig('{}.pdf'.format(figName), dpi=200)
     fig.savefig('{}.jpg'.format(figName), dpi=200)
+    
+
+def buildFigTrajectoryPerStrain(files, tmin, tmax, figName, title, xa = 111, xb = 400, ya = 63, yb = 353):
+
+    fig, axes = plt.subplots(nrows=6, ncols=5, figsize=(14, 18))  # building the plot for trajectories
+    nRow = 0  # initialisation of the row
+    nCol = 0  # initialisation of the column
+
+    tminHab = tmin  # start time of the computation
+    tmaxHab = tmax  # end time of the computation
+
+    for file in files:
+        connection = sqlite3.connect(file)  # connection to the database
+
+        pool = AnimalPool()
+        pool.loadAnimals(connection)  # upload all the animals from the database
+        animal = pool.animalDictionnary[1]
+
+        # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
+        ax = axes[nRow][nCol]  # set the subplot where to draw the plot
+        plotTrajectorySingleAnimal(file, color='black', colorTitle=getColorStrain(animal.strain), ax=ax, tmin=tminHab,
+                                   tmax=tmaxHab, title=title+' '+animal.setup, xa = 111, xb = 400, ya = 63, yb = 353)  # function to draw the trajectory
+
+        if nCol < 5:
+            nCol += 1
+        if nCol >= 5:
+            nCol = 0
+            nRow += 1
+
+        connection.close()
+
+    fig.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
+    # plt.show() #display the plot
+    fig.savefig('{}.pdf'.format(figName), dpi=200)
+    fig.savefig('{}.jpg'.format(figName), dpi=200)
 
 
 
@@ -106,6 +141,67 @@ def plotVariablesHabituationNorBoxplotsPerSetup(ax, sexList, setupList, data, va
     for sex in sexList:
         try:
             U, p = stats.mannwhitneyu(list(df['val'][(df['sex']==sex) & (df['setup']=='1')]), list(df['val'][(df['sex']==sex) & (df['setup']=='2')]))
+            print('Mann-Whitney U-test for {} in {}: U={}, p={}'.format(val, sex, U, p))
+            if p != 0:
+                ax.text(xPos[sex], yMaxDic[val] - 0.1 * (yMaxDic[val]-yMinDic[val]),
+                        getStarsFromPvalues(pvalue=p, numberOfTests=1), horizontalalignment='center', fontsize=20, weight='bold')
+        except:
+            print('stats problem!')
+            continue
+        
+def plotVariablesHabituationNorBoxplotsPerStrain(ax, sexList, strainList, data, val, unitDic, yMinDic, yMaxDic ):
+    # reformate the data dictionary to get the correct format of data for plotting and statistical analyses
+    dataVal = {}
+    for sex in sexList:
+        dataVal[sex] = {}
+        for strain in strainList:
+            dataVal[sex][strain] = []
+            for rfid in data[val][sex][strain].keys():
+                dataVal[sex][strain].append(data[val][sex][strain][rfid])
+
+    dic = {'strain' : [], 'sex' : [], 'val': [], 'variable': []}
+    for sex in sexList:
+        for strain in strainList:
+            dic['variable'].extend( [val] * len(dataVal[sex][strain]) )
+            dic['val'].extend(dataVal[sex][strain])
+            dic['sex'].extend( [sex] * len(dataVal[sex][strain]) )
+            dic['strain'].extend( [strain] * len(dataVal[sex][strain]) )
+
+    df = pd.DataFrame.from_dict(dic)
+    print(df)
+
+    bp = sns.boxplot(data=df, x='sex', y='val', hue='strain', hue_order=strainList, ax=ax, linewidth=0.5, showmeans=True,
+                     meanprops={"marker": 'o',
+                                "markerfacecolor": 'white',
+                                "markeredgecolor": 'black',
+                                "markersize": '8'}, showfliers=False, width=0.8, dodge=True)
+
+    # Add transparency to colors
+    k = 0
+    for patch in bp.artists:
+        patch.set_facecolor(getColorStrain(strainList[k]))
+        k += 1
+
+    sns.stripplot(data=df, x='sex', y='val', hue='strain', hue_order=strainList, jitter=True, color='black', s=5,
+                  dodge=True, ax=ax)
+    #ax.set_title(val, fontsize=14)
+    ax.xaxis.set_tick_params(direction="in")
+    ax.tick_params(axis='x', labelsize=14)
+    ax.yaxis.set_tick_params(direction="in")
+    ax.tick_params(axis='y', labelsize=12)
+    ylabel = '{} ({})'.format(val, unitDic[val])
+    ax.set_ylabel(ylabel, fontsize=14)
+    ax.set_xlabel('', fontsize=14)
+    ax.set_ylim(yMinDic[val], yMaxDic[val])
+    ax.legend().set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+    # conduct statistical testing: Mann-Whitney U test (non-parametric for non normal data with small sample size):
+    xPos = {'male': 0, 'female': 0}
+    for sex in sexList:
+        try:
+            U, p = stats.mannwhitneyu(list(df['val'][(df['sex']==sex) & (df['strain']==strainList[0])]), list(df['val'][(df['sex']==sex) & (df['strain']==strainList[1])]))
             print('Mann-Whitney U-test for {} in {}: U={}, p={}'.format(val, sex, U, p))
             if p != 0:
                 ax.text(xPos[sex], yMaxDic[val] - 0.1 * (yMaxDic[val]-yMinDic[val]),
@@ -194,7 +290,6 @@ def getCumulDistancePerTimeBinRedCage(data, eventList):
 
     return resultDic
 
-
 def plotDistancePerBinRedCage(ax, title, event, resultDic, timeBin):
     K = [i for i in range(15)]
 
@@ -234,6 +329,74 @@ def plotDistancePerBinRedCage(ax, title, event, resultDic, timeBin):
         print('setup1: ', resultDic[event]['1'][k])
         print('setup2: ', resultDic[event]['2'][k])
         W, p = stats.mannwhitneyu(resultDic[event]['1'][k], resultDic[event]['2'][k])
+        ax.text(x=starPos[k], y=1.05, s=getStarsFromPvalues(p, 1), ha='center')
+
+
+def getCumulDistancePerTimeBinPerStrain(data, tmin, tmax, timeBin, eventList, sexList, strainList):
+    nbIntervals = (tmax-tmin) / timeBin
+    K = [i for i in range(int(nbIntervals))]
+    resultDic = {}
+    for event in eventList:
+        resultDic[event] = {}
+        for sex in sexList:
+            resultDic[event][sex] = {}
+            for strain in strainList:
+                resultDic[event][sex][strain] = {}
+                for k in K:
+                    resultDic[event][sex][strain][k] = []
+
+    for event in eventList:
+        for sex in sexList:
+            for strain in strainList:
+                for k in K:
+                    for rfid in data[event][sex][strain].keys():
+                        resultDic[event][sex][strain][k].append(data[event][sex][strain][rfid][k])
+
+    return resultDic
+
+
+def plotDistancePerBinPerStrain(ax, tmin, tmax, timeBin, sex, title, event, resultDic, strainList):
+    nbIntervals = (tmax-tmin) / timeBin
+    K = [i for i in range(int(nbIntervals))]
+    
+    yMean = {event: {}}
+    yError = {event: {}}
+
+    for strain in strainList:
+        yMean[event][strain] = []
+        yError[event][strain] = []
+        for k in K:
+            yMean[event][strain].append(np.mean(resultDic[event][sex][strain][k]))
+            yError[event][strain].append(np.std(resultDic[event][sex][strain][k]))
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    xIndex = K
+    ax.set_xticks(xIndex)
+    ax.set_xticklabels(K, rotation=0, fontsize=12, horizontalalignment='right')
+    ax.set_ylabel('distance (cm) (mean+-sd)', fontsize=15)
+    ax.set_xlabel('time bins of {} min'.format(timeBin / oneMinute), fontsize=15)
+    ax.legend().set_visible(False)
+    ax.xaxis.set_tick_params(direction="in")
+    ax.set_xlim(0, 16)
+    ax.set_ylim(0, 1500)
+    ax.tick_params(axis='y', labelsize=14)
+    ax.set_title('{} {}'.format(title, event), fontsize=16)
+
+    xList = {strainList[0]: [i + 0.3 for i in K], strainList[1]: [i + 0.6 for i in K]}
+    starPos = [i + 0.45 for i in K]
+
+    for strain in strainList:
+        ax.errorbar(x=xList[strain], y=yMean[event][strain], yerr=yError[event][strain], fmt='o',
+                    ecolor=getColorStrain(strain), markerfacecolor=getColorStrain(strain),
+                    markeredgecolor=getColorStrain(strain))
+
+    for k in K:
+        print(strainList[0])
+        print(resultDic[event][sex][strainList[0]][k])
+        print(strainList[1])
+        print(resultDic[event][sex][strainList[1]][k])
+        W, p = stats.mannwhitneyu(resultDic[event][sex][strainList[0]][k], resultDic[event][sex][strainList[1]][k])
         ax.text(x=starPos[k], y=1.05, s=getStarsFromPvalues(p, 1), ha='center')
 
 

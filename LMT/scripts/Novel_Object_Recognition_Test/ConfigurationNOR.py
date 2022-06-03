@@ -321,6 +321,16 @@ def getColorSetup(setup):
         color = 'darkgreen'
     return color
 
+def getColorStrain(strain):
+    if strain == 'C57BL6J':
+        color = 'royalblue'
+    elif strain == 'BTBR':
+        color = 'red'
+    elif strain == 'Long Evans':
+        color = 'royalblue'
+    elif strain == 'Sprague Dawley':
+        color = 'darkorange'
+    return color
 
 def getColorConfig(config):
     if config == 'config1':
