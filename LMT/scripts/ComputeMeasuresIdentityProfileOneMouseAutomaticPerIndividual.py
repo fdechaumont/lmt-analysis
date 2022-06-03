@@ -287,7 +287,7 @@ def plotProfilePerIndividualPerGenotype( axes, row, col, profileData, night, val
 
 
 
-def plotProfilePerIndividualPerGenotypeFullRepresentation( axes, row, col, profileData, night, valueCat, behavEvent, text_file ):
+def plotProfilePerIndividualPerGenotypeFullRepresentation( ax, profileData, night, valueCat, behavEvent, text_file ):
     # plot the data for each behavioural event
     event = behavEvent + valueCat
 
@@ -332,27 +332,27 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( axes, row, col, profi
         unit = '(%)'
         yMin = 0
         yMax = 100
-        axes[row, col].axhline(100 / 3, ls='--', c='grey')
-        axes[row, col].axhline(100 * 2 / 3, ls='--', c='grey')
+        ax.axhline(100 / 3, ls='--', c='grey')
+        ax.axhline(100 * 2 / 3, ls='--', c='grey')
 
-    axes[row, col].set_xlim(-0.5, 1.5)
-    axes[row, col].set_ylim( yMin, yMax)
+    ax.set_xlim(-0.5, 1.5)
+    ax.set_ylim( yMin, yMax)
     colorList = ['black', 'darkgrey']
-    bp = sns.boxplot(x, y, ax=axes[row, col], order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], linewidth=0.5, showmeans=True,
+    bp = sns.boxplot(x, y, ax=ax, order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
                            "markersize": '10'}, palette = {'same': colorList[0], 'diff': colorList[1]}, showfliers=False)
 
-    #sns.stripplot(x, y, jitter=True, order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], color='black', s=5, ax=axes[row, col])
-    sns.stripplot(x, y, jitter=True, order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], palette=['grey', 'lightgrey'], s=5, ax=axes[row, col])
+    sns.stripplot(x, y, jitter=True, order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], palette=['grey', 'lightgrey'], s=5, ax=ax)
     
-    axes[row, col].set_title(behavEvent)
+    ax.set_title(getFigureBehaviouralEventsLabels(behavEvent), fontsize=16)
 
-    axes[row, col].set_ylabel("{} {}".format(valueCat, unit))
-    axes[row, col].legend().set_visible(False)
-    axes[row, col].spines['right'].set_visible(False)
-    axes[row, col].spines['top'].set_visible(False)
+    ax.set_ylabel("{} {}".format(valueCat, unit), fontsize=16)
+    ax.tick_params(axis='x', labelsize=16)
+    ax.legend().set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
 
 
     print("event dyadic: ", event)
@@ -387,7 +387,7 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( axes, row, col, profi
             print('means of mean duration with ', genoB, ' geno: ', genotypeCat[0], np.mean(data[genotypeCat[0]]), 'versus ', genotypeCat[1], np.mean(data[genotypeCat[1]]))
             print( 'Mann-Whitney U test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
             text_file.write('Mann-Whitney U test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
-            axes[row, col].text(x=pos[genoB], y=yMin+0.95*(yMax-yMin), s = getStarsFromPvalues(p,numberOfTests=1), fontsize=14, ha='center' )
+            ax.text(x=pos[genoB], y=yMin+0.95*(yMax-yMin), s = getStarsFromPvalues(p,numberOfTests=1), fontsize=15, ha='center' )
             text_file.write('\n')
 
     elif valueCat in [' TotalLen', ' Nb']:
@@ -406,7 +406,7 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( axes, row, col, profi
             print('means of prop with same geno: ', genotypeCat[k], np.mean(data[genotypeCat[k]]))
             print('One sample t-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, T, p))
             text_file.write('One-sample t-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, T, p))
-            axes[row, col].text(x=pos[genotypeCat[k]], y=yMin + 0.95 * (yMax - yMin), s=getStarsFromPvalues(p, numberOfTests=1),
+            ax.text(x=pos[genotypeCat[k]], y=yMin + 0.95 * (yMax - yMin), s=getStarsFromPvalues(p, numberOfTests=1),
                                 fontsize=14, ha='center')
             text_file.write('\n')
             
