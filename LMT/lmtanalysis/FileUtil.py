@@ -199,7 +199,20 @@ def getFigureBehaviouralEventsLabels(event):
                          "Group 4 make": 'make group 4',
                          "Break contact": 'break contact',
                          "Group 3 break": 'break group 3',
-                         "Group 4 break": 'break group 4'
+                         "Group 4 break": 'break group 4',
+                         
+                         'Oral-oral Contact exclusive': 'nose-nose (x)',
+                           'Side by side Contact exclusive': 'side-side (x)',
+                           'Oral-genital Contact exclusive': 'nose-anogenital (x)',
+                           'Passive oral-genital Contact exclusive': 'passive nose-anogenital (x)',
+                           'Side by side Contact, opposite way exclusive': 'side-side head-to-tail (x)',
+                           'Oral-oral and Side by side Contact exclusive': 'nose-nose & side-side (x)',
+                           'Oral-genital and Side by side Contact, opposite way exclusive': 'nose-anogenital & side-side head-to-tail (x)',
+                           'Oral-genital passive and Side by side Contact, opposite way exclusive':
+                               'passive nose-anogenital & side-side head-to-tail (x)', 'Other contact exclusive': 'other contacts (x)',
+                           'Move isolated exclusive': 'single move (x)',
+                           'Stop isolated exclusive': 'single idle (x)',
+                           'Undetected exclusive': 'undetected (x)'
                          # , "longChase": 'long chase'
                          }
     
