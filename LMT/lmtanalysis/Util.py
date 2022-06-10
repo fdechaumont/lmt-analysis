@@ -11,6 +11,7 @@ import sqlite3
 import datetime
 import contextlib
 from random import randrange, random
+import string
 
 class DummyFile(object):
     def write(self, x): pass
@@ -327,3 +328,19 @@ def getStartTestPhase(pool):
     lastPausedFrame = sortedFrameList[-1]
     startFrameTestPhase = lastPausedFrame + 1
     return startFrameTestPhase
+
+def getColorGeno(geno):
+    if geno=="WT-WT":
+        return 'steelblue'
+    if geno=="KO-KO":
+        return 'darkorange'
+    if geno=="Del/+-Del/+":
+        return 'darkorange'
+    if geno == 'WT':
+        return 'steelblue'
+    if geno == 'Del/+':
+        return 'darkorange'
+
+def getLetterList():
+    letterList = list(string.ascii_uppercase)
+    return letterList
