@@ -350,6 +350,7 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( ax, profileData, nigh
 
     ax.set_ylabel("{} {}".format(valueCat, unit), fontsize=16)
     ax.tick_params(axis='x', labelsize=16)
+    ax.tick_params(axis='y', labelsize=14)
     ax.legend().set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
