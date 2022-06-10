@@ -98,7 +98,7 @@ def computeProfile(file, minT, maxT, night, text_file, behaviouralEventList):
             
             print(behavEventTimeLine.eventName, genoA, behavEventTimeLine.idA, totalEventDuration, nbEvent, meanDur)
 
-        #compute the total distance traveled
+        #compute the total distance traveled (unit = m)
         COMPUTE_TOTAL_DISTANCE = True
         if ( COMPUTE_TOTAL_DISTANCE == True ):
             animalObject.loadDetection( start=minT, end=maxT, lightLoad = True )
@@ -566,7 +566,7 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
     experimentType = Counter(group)
     print("Nb of experiments: ", len(experimentType))
 
-    ax.text(-1, max(y) + 0.5 * (max(y) - min(y)), letter, fontsize=20, horizontalalignment='center', color='black', weight='bold')
+    ax.text(-1, max(y) + 0.5 * (max(y) - min(y)), letter, fontsize=18, horizontalalignment='center', color='black', weight='bold')
     ax.set_ylim(min(y) - 0.2 * (max(y)-min(y)), max(y) + 0.4 * (max(y)-min(y)))
     bp = sns.boxplot(sex, y, hue=x, hue_order=reversed(genotypeType), ax=ax, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
@@ -592,7 +592,11 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
     if valueCat == ' MeanDur':
         ylabel = 'mean duration (s)'
     elif valueCat == '':
-        ylabel = event+' (m)'
+        if event == 'totalDistance':
+            ylabel = 'distance (m)'
+        else:
+            ylabel = event+' (m)'
+        
     ax.set_ylabel(ylabel, fontsize=14)
     ax.legend().set_visible(False)
     ax.spines['right'].set_visible(False)
@@ -622,7 +626,7 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
         text_file.write('\n')
         p, sign = extractPValueFromLMMResult(result=result, keyword='WT')
         #add p-values on the plot
-        ax.text(n, max(y) + 0.1 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=20, horizontalalignment='center', color='black', weight='bold')
+        ax.text(n, max(y) + 0.1 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=16, horizontalalignment='center', color='black', weight='bold')
         n += 1
 
 def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, valueCat, behavEvent, ax, letter, text_file, image, zoom, mode):
@@ -772,7 +776,7 @@ def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, va
             n += 1
 
 
-def plotProfileDataDurationPairs( axes, row, col, profileData, night, valueCat, behavEvent, mode, text_file ):
+def plotProfileDataDurationPairs( ax, profileData, night, valueCat, behavEvent, mode, text_file, letter=None ):
     # plot the data for each behavioural event
     if behavEvent != 'totalDistance':
         event = behavEvent + valueCat
@@ -796,24 +800,27 @@ def plotProfileDataDurationPairs( axes, row, col, profileData, night, valueCat, 
     experimentType = Counter(group)
     print("Nb of experiments: ", len(experimentType))
 
-    axes[row, col].set_xlim(-0.5, 1.5)
-    axes[row, col].set_ylim(min(y) - 0.2 * max(y), max(y) + 0.2 * max(y))
-    sns.boxplot(x, y, ax=axes[row, col], order=genotypeCat, linewidth=0.5, showmeans=True,
+    ax.set_xlim(-0.5, 1.5)
+    ax.set_ylim(min(y) - 0.2 * max(y), max(y) + 0.2 * max(y))
+    sns.boxplot(x, y, ax=ax, order=genotypeCat, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
                            "markersize": '10'}, showfliers=False)
-    #sns.stripplot(x, y, jitter=True, hue=group, s=5, ax=axes[row, col])
-    sns.stripplot(x, y, jitter=True, order=genotypeCat, color='black', s=5, ax=axes[row, col])
-    axes[row, col].set_title(behavEvent)
+    #sns.stripplot(x, y, jitter=True, hue=group, s=5, ax=ax)
+    sns.stripplot(x, y, jitter=True, order=genotypeCat, color='black', s=5, ax=ax)
+    ax.set_title(getFigureBehaviouralEventsLabels(behavEvent), y=1, fontsize=16, weight='bold')
     if valueCat == ' Nb':
         unit = '(occurrences)'
+    if behavEvent == 'totalDistance':
+        unit = '(m)'
     else:
         unit = '(frames)'
-    axes[row, col].set_ylabel("{} {}".format(valueCat, unit))
-    axes[row, col].legend().set_visible(False)
-    axes[row, col].spines['right'].set_visible(False)
-    axes[row, col].spines['top'].set_visible(False)
+    ax.set_ylabel("{} {}".format(getFigureBehaviouralEventsLabels(behavEvent), unit), fontsize=14)
+    ax.legend().set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.text(x=-1, y=max(y) + 0.2 * max(y), s=letter, fontsize=18, weight='bold')
 
     if mode == 'dyadic':
 
@@ -836,7 +843,7 @@ def plotProfileDataDurationPairs( axes, row, col, profileData, night, valueCat, 
         print('means of ', genotypeCat[0], np.mean(data[genotypeCat[0]]), 'mean of ', genotypeCat[1], np.mean(data[genotypeCat[1]]))
         print( 'Mann-Whitney U test ({} {} cages, {} {} cages) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
         text_file.write('Mann-Whitney U test ({} {} cages, {} {} cages) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
-        axes[row, col].text(x=0.5, y=max(y) + 0.1 * max(y), s = getStarsFromPvalues(p,numberOfTests=1), fontsize=14, ha='center' )
+        ax.text(x=0.5, y=max(y) + 0.1 * max(y), s = getStarsFromPvalues(p,numberOfTests=1), fontsize=14, ha='center' , weight='bold')
         text_file.write('\n')
 
     elif mode == 'single':
@@ -862,13 +869,13 @@ def plotProfileDataDurationPairs( axes, row, col, profileData, night, valueCat, 
         # print summary
         print(result.summary())
         '''p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[1])
-        axes[row, col].text(x=0.5, y=max(y)+ 0.1 * max(y),
+        ax.text(x=0.5, y=max(y)+ 0.1 * max(y),
                             s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')'''
         p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[0])
-        axes[row, col].text(x=0, y=max(y) + 0.1 * max(y),
-                            s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')
+        ax.text(x=0.5, y=max(y) + 0.1 * max(y),
+                            s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center', weight='bold')
         '''p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[1])
-        axes[row, col].text(x=1, y=max(y) + 0.1 * max(y),
+        ax.text(x=1, y=max(y) + 0.1 * max(y),
                             s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')'''
         text_file.write(result.summary().as_text())
         text_file.write('\n')
@@ -1652,7 +1659,8 @@ if __name__ == '__main__':
                     col = 0
                     fig.suptitle(t="{} of events (night {})".format(valueCat, n), y=1.2, fontweight='bold')
                     for event in behaviouralEventOneMouseSingle+['totalDistance']:
-                        plotProfileDataDurationPairs(axes=axes, row=row, col=col, profileData=profileDataSingle, night=n, valueCat=valueCat, behavEvent=event, mode='single', text_file=text_file )
+                        ax = axes[row][col]
+                        plotProfileDataDurationPairs(ax=ax, profileData=profileDataSingle, night=n, valueCat=valueCat, behavEvent=event, mode='single', text_file=text_file )
                         if col < 5:
                             col += 1
                             row = row
@@ -1661,7 +1669,8 @@ if __name__ == '__main__':
                             row += 1
 
                     for event in behaviouralEventOneMouseSocial:
-                        plotProfileDataDurationPairs(axes=axes, row=row, col=col, profileData=profileDataDyadic,
+                        ax = axes[row][col]
+                        plotProfileDataDurationPairs(ax=ax, profileData=profileDataDyadic,
                                                      night=n, valueCat=valueCat, behavEvent=event,
                                                      mode='dyadic',
                                                      text_file=text_file)
@@ -1714,7 +1723,8 @@ if __name__ == '__main__':
                         col = 0
                         fig.suptitle(t="{} of events (night {})".format(valueCat, n), y=1.2, fontweight='bold')
                         for event in behaviouralEventOneMouseSingle+['totalDistance']:
-                            plotProfileDataDurationPairs(axes=axes, row=row, col=col, profileData=profileDataSingle,
+                            ax = axes[row][col]
+                            plotProfileDataDurationPairs(ax=ax, profileData=profileDataSingle,
                                                          night=n, valueCat=valueCat, behavEvent=event,
                                                          mode = 'single',
                                                          text_file=text_file)
@@ -1726,7 +1736,8 @@ if __name__ == '__main__':
                                 row += 1
 
                         for event in behaviouralEventOneMouseSocial:
-                            plotProfileDataDurationPairs(axes=axes, row=row, col=col, profileData=profileDataDyadic,
+                            ax = axes[row][col]
+                            plotProfileDataDurationPairs(ax=ax, profileData=profileDataDyadic,
                                                          night=n, valueCat=valueCat, behavEvent=event,
                                                          mode='dyadic',
                                                          text_file=text_file)
@@ -1785,7 +1796,8 @@ if __name__ == '__main__':
                         col = 0
                         fig.suptitle(t="{} of events (night {})".format(valueCat, n), y=1.2, fontweight='bold')
                         for event in behaviouralEventOneMouseSingle+['totalDistance']:
-                            plotProfileDataDurationPairs(axes=axes, row=row, col=col, profileData=profileDataSingleMerged,
+                            ax = axes[row][col]
+                            plotProfileDataDurationPairs(ax=ax, profileData=profileDataSingleMerged,
                                                          night=n, valueCat=valueCat, behavEvent=event,
                                                          mode = 'single',
                                                          text_file=text_file)
@@ -1797,7 +1809,8 @@ if __name__ == '__main__':
                                 row += 1
 
                         for event in behaviouralEventOneMouseSocial:
-                            plotProfileDataDurationPairs(axes=axes, row=row, col=col, profileData=profileDataDyadicMerged,
+                            ax = axes[row][col]
+                            plotProfileDataDurationPairs(ax=ax, profileData=profileDataDyadicMerged,
                                                          night=n, valueCat=valueCat, behavEvent=event,
                                                          mode='dyadic',
                                                          text_file=text_file)
