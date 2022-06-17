@@ -1428,7 +1428,7 @@ if __name__ == '__main__':
 
                 print(file)
                 head, tail = os.path.split(file)
-                extension = head[-5:]
+                extension = head[-4:]
                 print('extension: ', extension)
                 
                 connection = sqlite3.connect( file )
