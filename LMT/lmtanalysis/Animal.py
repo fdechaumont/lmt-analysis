@@ -20,7 +20,7 @@ import matplotlib.ticker
 import math
 import time
 from lmtanalysis.Measure import *
-from lmtanalysis.Measure import ARENA_SIZE, CENTER_MARGIN
+
 from statistics import *
 #from scipy.spatial import distance
 #from scipy.ndimage.measurements import standard_deviation
@@ -33,15 +33,24 @@ import matplotlib.patches as mpatches
 from lxml import etree
 import matplotlib.ticker as ticker
 from lmtanalysis.Util import convert_to_d_h_m_s, getDatetimeFromFrame, mute_prints
+from lmtanalysis.ParametersMouse import ParametersMouse
+from lmtanalysis.ParametersRat import ParametersRat
 
 idAnimalColor = [ None, "red","green","blue","orange"]
+
+from enum import Enum
+
+class AnimalType(Enum):
+    MOUSE = 1
+    RAT = 2
+
 
 def getAnimalColor( animalId ):
     return idAnimalColor[ animalId ]
 
 class Animal():
 
-    def __init__(self, baseId , RFID , name=None, genotype=None , user1 = None, age=None, sex=None, strain=None, setup=None, conn = None ):
+    def __init__(self, baseId , RFID , name=None, genotype=None , user1 = None, age=None, sex=None, strain=None, setup=None, conn = None , animalType = AnimalType.MOUSE ):
         self.baseId = baseId
         self.RFID = RFID
         self.name = name
@@ -53,6 +62,13 @@ class Animal():
         self.setup = setup
         self.conn = conn
         self.detectionDictionnary = {}
+        self.animalType = animalType
+        if self.animalType == AnimalType.MOUSE:
+            self.parameters = ParametersMouse()
+            
+        if self.animalType == AnimalType.RAT:
+            self.parameters = ParametersRat()
+            
 
     def setGenotype(self, genotype ):
         self.genotype = genotype
@@ -161,7 +177,7 @@ class Animal():
             if ( b==None or a==None):
                 continue
 
-            speed = math.hypot( a.massX - b.massX, a.massY - b.massY )*scaleFactor/(1/30)
+            speed = math.hypot( a.massX - b.massX, a.massY - b.massY )*self.parameters.scaleFactor/(1/30)
 
             if ( speed > maxSpeed or speed < minSpeed ):
                 self.detectionDictionnary.pop( key )
@@ -180,8 +196,8 @@ class Animal():
             if ( a==None):
                 continue
 
-            x = (a.massX - cornerCoordinates50x50Area[0][0] )* scaleFactor
-            y = (a.massY - cornerCoordinates50x50Area[0][1] )* scaleFactor
+            x = (a.massX - self.parameters.cornerCoordinatesOpenFieldArea[0][0] )* self.parameters.scaleFactor
+            y = (a.massY - self.parameters.cornerCoordinatesOpenFieldArea[0][1] )* self.parameters.scaleFactor
 
             if ( x < x1 or x > x2 or y < y1 or y > y2 ):
                 self.detectionDictionnary.pop( key )
@@ -429,7 +445,8 @@ class Animal():
 
             totalDistance += distance
 
-        totalDistance *= scaleFactor
+        
+        totalDistance *= self.parameters.scaleFactor
 
         return totalDistance
 
@@ -525,7 +542,7 @@ class Animal():
 
             distance += math.hypot( a.massX - b.massX, a.massY - b.massY ) #add the distance to the previously calculated distance
 
-        distance *= scaleFactor #convert the distance in cm
+        distance *= self.parameters.scaleFactor #convert the distance in cm
 
         return distance
 
@@ -563,7 +580,7 @@ class Animal():
         if ( not ( t in self.detectionDictionnary ) ):
             return None
 
-        if (math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint ) > MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
+        if (math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint ) > self.parameters.MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
             return None
 
         else:
@@ -580,7 +597,7 @@ class Animal():
             return None
         if (self.detectionDictionnary[t].frontX < 0):
             return None
-        if (math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint ) > MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
+        if (math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint ) > self.parameters.MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
             return None
 
         else:
@@ -750,7 +767,7 @@ class Animal():
         if ( b==None or a==None):
             return None
 
-        speed = math.hypot( a.massX - b.massX, a.massY - b.massY )*scaleFactor/(2/30)
+        speed = math.hypot( a.massX - b.massX, a.massY - b.massY )*self.parameters.scaleFactor/(2/30)
 
         return speed
 
@@ -801,7 +818,7 @@ class Animal():
                 #print ( 3 )
                 continue
 
-            if (detection.getBodySize( ) >=self.bodyThreshold and speed<SPEED_THRESHOLD_LOW and detection.massZ<self.medianBodyHeight):
+            if (detection.getBodySize( ) >=self.bodyThreshold and speed<self.parameters.SPEED_THRESHOLD_LOW and detection.massZ<self.medianBodyHeight):
                 #print ( 4 )
                 sapList.append( detection )
 
@@ -831,7 +848,7 @@ class Animal():
             if ( speed == None ):
                 continue
 
-            if (detection.getBodySize( ) >=self.bodyThreshold and speed<SPEED_THRESHOLD_LOW and detection.massZ<self.medianBodyHeight):
+            if (detection.getBodySize( ) >=self.bodyThreshold and speed<self.parameters.SPEED_THRESHOLD_LOW and detection.massZ<self.medianBodyHeight):
                 sapDictionnary[key] = True
 
         return sapDictionnary
@@ -1113,6 +1130,7 @@ class AnimalPool():
 
     def getNbAnimals(self):
         return len(self.animalDictionnary)
+
 
     def getMaxDetectionT(self):
         """
@@ -1417,13 +1435,13 @@ class AnimalPool():
         df = pd.DataFrame(data)
 
 
-        df["x_cm"] = (df.x - cornerCoordinates50x50Area[0][0]) / (cornerCoordinates50x50Area[1][0] - cornerCoordinates50x50Area[0][0]) * ARENA_SIZE
-        df["y_cm"] = (df.y - cornerCoordinates50x50Area[1][1]) / (cornerCoordinates50x50Area[2][1] - cornerCoordinates50x50Area[1][1]) * ARENA_SIZE
+        df["x_cm"] = (df.x - self.parameters.cornerCoordinatesOpenFieldArea[0][0]) / (self.parameters.cornerCoordinatesOpenFieldArea[1][0] - self.parameters.cornerCoordinatesOpenFieldArea[0][0]) * self.parameters.ARENA_SIZE
+        df["y_cm"] = (df.y - self.parameters.cornerCoordinatesOpenFieldArea[1][1]) / (self.parameters.cornerCoordinatesOpenFieldArea[2][1] - self.parameters.cornerCoordinatesOpenFieldArea[1][1]) * self.parameters.ARENA_SIZE
 
-        df[f"in_arena_center"] = (df["x_cm"] > CENTER_MARGIN) & \
-                                 (df["y_cm"] > CENTER_MARGIN) & \
-                                 (df["x_cm"] < (ARENA_SIZE - CENTER_MARGIN)) & \
-                                 (df["y_cm"] < (ARENA_SIZE - CENTER_MARGIN))
+        df[f"in_arena_center"] = (df["x_cm"] > self.parameters.CENTER_MARGIN) & \
+                                 (df["y_cm"] > self.parameters.CENTER_MARGIN) & \
+                                 (df["x_cm"] < (self.parameters.ARENA_SIZE - self.parameters.CENTER_MARGIN)) & \
+                                 (df["y_cm"] < (self.parameters.ARENA_SIZE - self.parameters.CENTER_MARGIN))
 
         df.insert(3, "time", pd.to_timedelta(df.sec, unit="s"))
 

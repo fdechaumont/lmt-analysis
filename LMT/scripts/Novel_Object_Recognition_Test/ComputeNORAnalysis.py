@@ -5,6 +5,7 @@
 '''
 
 from scripts.Novel_Object_Recognition_Test.ConfigurationNOR import *
+from lmtanalysis.Util import getParametersForAnimalType
 np.random.seed(0)
 from lmtanalysis import BuildEventObjectSniffingNor, BuildEventObjectSniffingNorAcquisitionWithConfig, \
     BuildEventObjectSniffingNorTestWithConfig
@@ -12,7 +13,9 @@ from scripts.ComputeObjectRecognition import *
 
 
 def plotTrajectoriesNorPhasesPerGeno(files, figName, organisation, objectConfig, title, phase, exp, colorObjects,
-                              objectPosition, radiusObjects):
+                              objectPosition, radiusObjects , animalType ):
+    
+    parameters = getParametersForAnimalType( animalType )
     fig, axes = plt.subplots(nrows=20, ncols=5, figsize=(14, 50))  # building the plot for trajectories
 
     nRow = 0  # initialisation of the row
@@ -50,10 +53,10 @@ def plotTrajectoriesNorPhasesPerGeno(files, figName, organisation, objectConfig,
                        y=objectPosition[setup]['left'][1], radius=radiusObjects[object],
                        alpha=0.5)  # plot the object on the right side
         plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
-                       y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + VIBRISSAE / scaleFactor,
+                       y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + VIBRISSAE / parameters.scaleFactor,
                        alpha=0.2)
         plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
-                       y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + 2 * VIBRISSAE / scaleFactor,
+                       y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + 2 * VIBRISSAE / parameters.scaleFactor,
                        alpha=0.1)
         object = objectConfig[configName][phase][1]
         print('object right: ', object)
@@ -61,10 +64,10 @@ def plotTrajectoriesNorPhasesPerGeno(files, figName, organisation, objectConfig,
                        y=objectPosition[setup]['right'][1], radius=radiusObjects[object],
                        alpha=0.5)  # plot the object on the left side
         plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['right'][0],
-                       y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + VIBRISSAE / scaleFactor,
+                       y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + VIBRISSAE / parameters.scaleFactor,
                        alpha=0.2)  # plot a zone around the object on the left side
         plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['right'][0],
-                       y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + 2 * VIBRISSAE / scaleFactor,
+                       y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + 2 * VIBRISSAE / parameters.scaleFactor,
                        alpha=0.1)  # plot a zone around the object on the left side
 
         if phase == 'test':

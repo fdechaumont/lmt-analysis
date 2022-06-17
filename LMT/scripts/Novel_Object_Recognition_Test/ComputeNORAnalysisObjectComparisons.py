@@ -5,6 +5,8 @@
 '''
 import numpy as np; np.random.seed(0)
 from scripts.Novel_Object_Recognition_Test.ConfigurationNOR import *
+from lmtanalysis import BuildEventObjectSniffingNorAcquisitionWithConfig,\
+    BuildEventObjectSniffingNorTestWithConfig
 
 
 def plotTrajectoriesNorPhasesPerConfig(files, figName, organisation, objectConfig, title, phase, exp, colorObjects,
