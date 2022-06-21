@@ -12,6 +12,10 @@ import datetime
 import contextlib
 from random import randrange, random
 import string
+#from lmtanalysis import Animal
+#from lmtanalysis import ParametersMouse, ParametersRat
+
+
 
 class DummyFile(object):
     def write(self, x): pass
@@ -344,3 +348,4 @@ def getColorGeno(geno):
 def getLetterList():
     letterList = list(string.ascii_uppercase)
     return letterList
+

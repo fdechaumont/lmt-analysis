@@ -28,13 +28,14 @@ from statistics import mean
 from lmtanalysis.Event import EventTimeLine
 from lmtanalysis.Point import Point
 from lmtanalysis.Mask import Mask
-from lmtanalysis.Util import getAllEvents
+from lmtanalysis.Util import *
 import matplotlib.patches as mpatches
 from lxml import etree
 import matplotlib.ticker as ticker
-from lmtanalysis.Util import convert_to_d_h_m_s, getDatetimeFromFrame, mute_prints
+#from lmtanalysis.Util import convert_to_d_h_m_s, getDatetimeFromFrame, mute_prints
 from lmtanalysis.ParametersMouse import ParametersMouse
 from lmtanalysis.ParametersRat import ParametersRat
+from pickle import NONE
 
 idAnimalColor = [ None, "red","green","blue","orange"]
 
@@ -50,7 +51,7 @@ def getAnimalColor( animalId ):
 
 class Animal():
 
-    def __init__(self, baseId , RFID , name=None, genotype=None , user1 = None, age=None, sex=None, strain=None, setup=None, conn = None , animalType = AnimalType.MOUSE ):
+    def __init__(self, baseId , RFID , name=None, genotype=None , user1 = None, age=None, sex=None, strain=None, setup=None, conn = None , animalType = None ):
         self.baseId = baseId
         self.RFID = RFID
         self.name = name
@@ -77,6 +78,14 @@ class Animal():
         cursor.execute( query )
         self.conn.commit()
         cursor.close()
+        
+    def setAnimalType(self, animalType ):
+        self.animalType = animalType
+        '''cursor = self.conn.cursor()
+        query = "UPDATE `ANIMAL` SET `ANIMALTYPE`='{}' WHERE `ID`='{}';".format( animalType, self.baseId )
+        cursor.execute( query )
+        self.conn.commit()
+        cursor.close()'''
 
     def __str__(self):
         return "Animal Id:{id} Name:{name} RFID:{rfid} Genotype:{genotype} User1:{user1}"\
@@ -768,8 +777,34 @@ class Animal():
             return None
 
         speed = math.hypot( a.massX - b.massX, a.massY - b.massY )*self.parameters.scaleFactor/(2/30)
+        
 
         return speed
+    
+    
+    def getSpeedOverTimePeriod(self, tmin, tmax):
+        '''Compute the speed of the animal over a time period'''          
+        duration = tmax - tmin
+        sum = 0
+        speedList = []
+        
+        for t in range ( tmin, tmax+1 ) :
+            speed = self.getSpeed(t)
+            #print('speed: ', speed)
+            if ( speed != None ):
+                sum+= speed
+                speedList.append( speed )
+        
+        if speedList != []:
+            meanSpeed = sum / duration
+            maxSpeed = max(speedList)
+            minSpeed = min(speedList)
+        else:
+            meanSpeed = None
+            maxSpeed = None
+            minSpeed = None
+        
+        return ( duration, meanSpeed, minSpeed, maxSpeed )
 
 
     def getVerticalSpeed(self , t ):
