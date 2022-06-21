@@ -11,8 +11,9 @@ from tkinter.filedialog import askopenfilename, askdirectory
 import tkinter as tk
 import unittest
 from random import randrange, random
-from lmtanalysis.Animal import AnimalType
+
 from lmtanalysis import ParametersMouse, ParametersRat
+from lmtanalysis.AnimalType import AnimalType
 
 '''
 Provide a dialog to ask for either files or folder to process.
@@ -218,17 +219,7 @@ def getFigureBehaviouralEventsLabels(event):
     return behaviouralEventsLabels[event]
 
 
-def getParametersForAnimalType( animalType ):
-    
-    if animalType == AnimalType.MOUSE:
-        return ParametersMouse.ParametersMouse()
-    
-    if animalType == AnimalType.RAT:
-        return ParametersRat.ParametersRat()
-    
-    print( "Error: unknown animal type. Quit().")
-    quit()
-    return None
+
 
 
 

@@ -36,20 +36,19 @@ import matplotlib.ticker as ticker
 from lmtanalysis.ParametersMouse import ParametersMouse
 from lmtanalysis.ParametersRat import ParametersRat
 from pickle import NONE
+from lmtanalysis.AnimalType import AnimalType
 
 idAnimalColor = [ None, "red","green","blue","orange"]
 
 from enum import Enum
 
-class AnimalType(Enum):
-    MOUSE = 1
-    RAT = 2
 
 
 def getAnimalColor( animalId ):
     return idAnimalColor[ animalId ]
 
 class Animal():
+
 
     def __init__(self, baseId , RFID , name=None, genotype=None , user1 = None, age=None, sex=None, strain=None, setup=None, conn = None , animalType = None ):
         self.baseId = baseId
@@ -63,12 +62,18 @@ class Animal():
         self.setup = setup
         self.conn = conn
         self.detectionDictionnary = {}
+        
+        
+        self.setAnimalType( animalType )
+            
+        '''
         self.animalType = animalType
         if self.animalType == AnimalType.MOUSE:
             self.parameters = ParametersMouse()
             
         if self.animalType == AnimalType.RAT:
             self.parameters = ParametersRat()
+        '''
             
 
     def setGenotype(self, genotype ):
@@ -80,12 +85,21 @@ class Animal():
         cursor.close()
         
     def setAnimalType(self, animalType ):
+        
         self.animalType = animalType
-        '''cursor = self.conn.cursor()
-        query = "UPDATE `ANIMAL` SET `ANIMALTYPE`='{}' WHERE `ID`='{}';".format( animalType, self.baseId )
-        cursor.execute( query )
-        self.conn.commit()
-        cursor.close()'''
+        self.parameters = None
+        if self.animalType == AnimalType.MOUSE:
+            self.parameters = ParametersMouse()
+            
+        if self.animalType == AnimalType.RAT:
+            self.parameters = ParametersRat()
+        
+        if self.parameters == None:
+            print( "Error in animal: the animalType does not exists. Quit(). Animal type requested is : " + str( animalType ))
+            quit()
+        
+        
+        
 
     def __str__(self):
         return "Animal Id:{id} Name:{name} RFID:{rfid} Genotype:{genotype} User1:{user1}"\
@@ -454,7 +468,8 @@ class Animal():
 
             totalDistance += distance
 
-        
+        print( "The animal type seen here is : " , self.animalType )
+        print( "The scale factor is: " , self.parameters.scaleFactor )
         totalDistance *= self.parameters.scaleFactor
 
         return totalDistance
@@ -1015,6 +1030,35 @@ class AnimalPool():
         cursor = conn.cursor()
         self.conn = conn
 
+        # check experiment parameters
+        
+        
+        animalType = AnimalType.MOUSE
+        
+        '''
+        try:
+            print( "Checking animal type.")
+            query = "SELECT * FROM EXPERIMENT"
+            print("2")
+            cursor.execute( query )
+            print("3")
+            rows = cursor.fetchall()
+            print("4")
+            print( rows )
+            for row in rows:
+                print("test -- sdlqsfhldjk")
+                print( str(row[1]).lower() )
+                if ( "rat" in str(row[1]).lower() ):
+                    animalType = AnimalType.RAT
+                    
+                if ( "mouse" in str(row[1]).lower() ):
+                    animalType = AnimalType.RAT
+        
+            
+        except:
+            print("Failed to load experiment data. Mouse by default.")
+        '''
+
         # Check the number of row available in base
         query = "SELECT * FROM ANIMAL"
         cursor.execute( query )
@@ -1050,17 +1094,17 @@ class AnimalPool():
 
             animal = None
             if ( len( row ) == 3 ):
-                animal = Animal( row[0] , row[1] , name=row[2] , conn = conn )
+                animal = Animal( row[0] , row[1] , name=row[2] , conn = conn , animalType = animalType )
             if ( len( row ) == 4 ):
-                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , conn = conn )
+                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , conn = conn , animalType = animalType)
             if ( len( row ) == 5 ):
-                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , user1=row[4] , conn = conn )
+                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , user1=row[4] , conn = conn , animalType = animalType)
             if ( len( row ) == 7 ):
-                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], conn = conn )
+                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], conn = conn , animalType = animalType)
             if ( len( row ) == 8 ):
-                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], setup=row[7], conn = conn )
+                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], setup=row[7], conn = conn , animalType = animalType)
             if ( len( row ) == 9 ):
-                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], setup=row[7], user1=row[8], conn = conn )
+                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], setup=row[7], user1=row[8], conn = conn , animalType = animalType)
 
 
 
