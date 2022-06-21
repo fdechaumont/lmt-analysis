@@ -95,8 +95,10 @@ class Animal():
             self.parameters = ParametersRat()
         
         if self.parameters == None:
-            print( "Error in animal: the animalType does not exists. Quit(). Animal type requested is : " + str( animalType ))
-            quit()
+            self.parameters = ParametersMouse()
+            print("Animal's Type is set to Mouse by default")
+            #print( "Error in animal: the animalType does not exists. Quit(). Animal type requested is : " + str( animalType ))
+            #quit()
         
         
         
