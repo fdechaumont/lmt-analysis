@@ -96,7 +96,9 @@ class Animal():
         
         if self.parameters == None:
             self.parameters = ParametersMouse()
-            print("Animal Type is set to Mouse by default")
+
+            print("Animal's type is set to Mouse by default")
+
             #print( "Error in animal: the animalType does not exists. Quit(). Animal type requested is : " + str( animalType ))
             #quit()
         
