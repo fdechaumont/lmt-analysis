@@ -119,3 +119,5 @@ LMT/scripts/outNewChip.txt.txt
 LMT/scripts/outOldChip-F13-F14.txt
 LMT/scripts/outOldChipF17-F18.txt
 LMT/scripts/paire new.txt
+*.json
+*.txt
