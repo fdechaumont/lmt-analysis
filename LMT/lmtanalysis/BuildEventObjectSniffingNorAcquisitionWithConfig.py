@@ -110,7 +110,7 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectT
                 print('no nose detected for frame ', t)
 
             else:
-                if distanceNoseLeft <= radiusObjects[objectLeft] + vibrissae / scaleFactor:
+                if distanceNoseLeft <= radiusObjects[objectLeft] + animalA.parameters.DISTANCE_TO_OBJECT_NOR:
                     print('t: ', t, distanceNoseLeft)
                     # check if the animal is on the object:
                     if distanceMassLeft <= radiusObjects[objectLeft]:
@@ -118,7 +118,7 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectT
                     else:
                         resultSniffLeft[t] = True
 
-                if distanceNoseLeft <= radiusObjects[objectLeft] + 2*vibrissae / scaleFactor:
+                if distanceNoseLeft <= radiusObjects[objectLeft] + 2*animalA.parameters.DISTANCE_TO_OBJECT_NOR:
                     print('t: ', t, distanceNoseLeft)
                     # check if the animal is on the object:
                     if distanceMassLeft > radiusObjects[objectLeft]:
@@ -131,14 +131,14 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectT
                 print('no nose detected for frame ', t)
 
             else:
-                if distanceNoseRight <= radiusObjects[objectRight] + vibrissae / scaleFactor:
+                if distanceNoseRight <= radiusObjects[objectRight] + animalA.parameters.DISTANCE_TO_OBJECT_NOR:
                     # check if the animal is on the object:
                     if distanceMassRight <= radiusObjects[objectRight]:
                         resultUpRight[t] = True
                     else:
                         resultSniffRight[t] = True
 
-                if distanceNoseRight <= radiusObjects[objectRight] + 2*vibrissae / scaleFactor:
+                if distanceNoseRight <= radiusObjects[objectRight] + 2*animalA.parameters.DISTANCE_TO_OBJECT_NOR:
                     # check if the animal is on the object:
                     if distanceMassRight > radiusObjects[objectRight]:
                         resultSniffRightFar[t] = True

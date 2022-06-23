@@ -65,15 +65,7 @@ class Animal():
         
         
         self.setAnimalType( animalType )
-            
-        '''
-        self.animalType = animalType
-        if self.animalType == AnimalType.MOUSE:
-            self.parameters = ParametersMouse()
-            
-        if self.animalType == AnimalType.RAT:
-            self.parameters = ParametersRat()
-        '''
+
             
 
     def setGenotype(self, genotype ):

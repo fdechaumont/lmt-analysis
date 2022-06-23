@@ -154,7 +154,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
                     if (speedA == None or speedB == None):
                         continue
                     
-                    if ( speedA>SPEED_THRESHOLD_LOW and speedB>SPEED_THRESHOLD_LOW ):
+                    if ( speedA>animalA.parameters.SPEED_THRESHOLD_LOW and speedB>animalB.parameters.SPEED_THRESHOLD_LOW ):
 
                         time = t
                         angleB = pool.animalDictionnary[idAnimalB].getDirection(time)

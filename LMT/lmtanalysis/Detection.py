@@ -6,6 +6,7 @@ Created on 12 sept. 2017
 
 import math
 from lmtanalysis.Measure import *
+from lmtanalysis import ParametersMouse
 
 class Detection():
 
@@ -95,7 +96,7 @@ class Detection():
         if (detectionB.massX == None):
             return None
         
-        if (math.hypot( self.massX - detectionB.massX, self.massY - detectionB.massY ) > MAX_DISTANCE_THRESHOLD): #if the distance calculated between the two individuals is too large, discard
+        if (math.hypot( self.massX - detectionB.massX, self.massY - detectionB.massY ) > ParametersMouse.ParametersMouse.MAX_DISTANCE_THRESHOLD): #if the distance calculated between the two individuals is too large, discard
             print("WARNING: Detection.getDistanceTo : Distance Max reached. returning None")
             return None
         
@@ -136,7 +137,7 @@ class Detection():
         if (self.getBodySlope() == None):
             return False
                 
-        if (self.getBodySlope() > -BODY_SLOPE_THRESHOLD and self.getBodySlope() < BODY_SLOPE_THRESHOLD):
+        if (self.getBodySlope() > -ParametersMouse.ParametersMouse.BODY_SLOPE_THRESHOLD and self.getBodySlope() < ParametersMouse.ParametersMouse.BODY_SLOPE_THRESHOLD):
             return False
         
         else:
@@ -149,7 +150,7 @@ class Detection():
         if (self.frontZ == None):
             return False
                 
-        if (self.frontZ < FRONT_REARING_THRESHOLD):
+        if (self.frontZ < ParametersMouse.ParametersMouse.FRONT_REARING_THRESHOLD):
             return False
         
         else:

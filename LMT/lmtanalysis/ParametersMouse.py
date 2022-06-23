@@ -4,6 +4,7 @@ Created on 13 sept. 2017
 @author: Fab
 '''
 from lmtanalysis.Point import Point
+from lmtanalysis.Measure import oneSecond
 
 class ParametersMouse():
 
@@ -35,11 +36,23 @@ class ParametersMouse():
     ''' threshold for the presence within the water zone '''
     MAX_DISTANCE_TO_POINT = 5/scaleFactor
     
+    ''' distance to an object, to take into account the vibrissae length '''
+    DISTANCE_TO_OBJECT_NOR = 3 / scaleFactor
+    
     ''' threshold to classify the detection as a rearing; height of the front point'''
     FRONT_REARING_THRESHOLD = 50
     
     ''' threshold to compute head-genital events '''
     MAX_DISTANCE_HEAD_HEAD_GENITAL_THRESHOLD = 15
+    
+    ''' time window for oral-side sequences '''
+    TIME_WINDOW_ORAL_SIDE_SEQUENCE = 60
+    
+    ''' minimal duration of events to be considered (for example in oral-side sequences) '''
+    EVENT_MIN_DURATION = 10
+    
+    ''' Minimum duration for the animal to stop at the water point to be classified as drinking '''
+    MIN_WATER_STOP_DURATION = 2*oneSecond
         
     ''' Cage center in 100x100cm area'''
     cageCenterCoordinatesOpenFieldArea = Point( 256, 208 )

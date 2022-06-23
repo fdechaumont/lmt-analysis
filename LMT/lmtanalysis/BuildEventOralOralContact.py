@@ -79,7 +79,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
                             
                   
                                      
-                    if distHeadHead( detA, detB ) < MAX_DISTANCE_HEAD_HEAD_GENITAL_THRESHOLD:
+                    if distHeadHead( detA, detB ) < animalA.parameters.MAX_DISTANCE_HEAD_HEAD_GENITAL_THRESHOLD:
                         result[t] = True
             
             OralOralTimeLine.reBuildWithDictionnary( result )

@@ -65,7 +65,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
             if ( slope == None):
                 continue
             
-            if ( abs( slope ) < BODY_SLOPE_THRESHOLD ):
+            if ( abs( slope ) < animalA.parameters.BODY_SLOPE_THRESHOLD ):
                 continue;
                 
             if (t in contactDico.keys()):

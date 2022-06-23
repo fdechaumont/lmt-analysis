@@ -72,7 +72,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
                 if ( speedB > speedA ):
                     continue
                 
-                if ( speedA > SPEED_THRESHOLD_LOW or speedB > SPEED_THRESHOLD_LOW ):
+                if ( speedA > animalA.parameters.SPEED_THRESHOLD_LOW or speedB > animalB.parameters.SPEED_THRESHOLD_LOW ):
                     
                     dAStart = animalA.detectionDictionnary[t-1]
                     dAEnd = animalA.detectionDictionnary[t+1]

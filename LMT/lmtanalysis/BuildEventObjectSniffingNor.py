@@ -92,7 +92,7 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectD
                 print('no nose detected for frame ', t)
 
             else:
-                if distanceNoseLeft <= radiusObjects[objectLeft] + 3 / scaleFactor:
+                if distanceNoseLeft <= radiusObjects[objectLeft] + animalA.parameters.DISTANCE_TO_OBJECT_NOR:
                     # check if the animal is on the object:
                     if distanceMassLeft <= radiusObjects[objectLeft]:
                         resultUpLeft[t] = True
@@ -106,7 +106,7 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectD
                 print('no nose detected for frame ', t)
 
             else:
-                if distanceNoseRight <= radiusObjects[objectRight] + 3 / scaleFactor:
+                if distanceNoseRight <= radiusObjects[objectRight] + animalA.parameters.DISTANCE_TO_OBJECT_NOR:
                     # check if the animal is on the object:
                     if distanceMassRight <= radiusObjects[objectRight]:
                         resultUpRight[t] = True

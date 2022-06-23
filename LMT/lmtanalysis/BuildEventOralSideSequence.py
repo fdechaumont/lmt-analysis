@@ -40,7 +40,7 @@ def reBuildEvent( connection, file,  tmin=None, tmax=None, pool = None ):
     oralOralDico = {}
     oralGenitalDico = {}
     
-    EVENT_MIN_LEN = 10
+    EVENT_MIN_LEN = pool.animalDictionnary[1].parameters.EVENT_MIN_DURATION
     
     for idAnimalB in pool.animalDictionnary.keys():
         print(pool.animalDictionnary[idAnimalB])
@@ -62,7 +62,7 @@ def reBuildEvent( connection, file,  tmin=None, tmax=None, pool = None ):
     
     
 
-    window = 60
+    window = pool.animalDictionnary[1].parameters.TIME_WINDOW_ORAL_SIDE_SEQUENCE
 
     '''    
     oral oral followed by a oral-genital
@@ -90,7 +90,7 @@ def reBuildEvent( connection, file,  tmin=None, tmax=None, pool = None ):
                 
                 endFrame = event.endFrame
                 
-                if ( event.duration() >= EVENT_MIN_LEN ):
+                if ( event.duration() >= EVENT_MIN_LEN ): #is this condition the right one? shouldn'it be: <= EVENT_MIN_LEN to avoid too short events?
                     continue
 
                 for t in range ( endFrame , endFrame+window+1 ):
@@ -108,9 +108,7 @@ def reBuildEvent( connection, file,  tmin=None, tmax=None, pool = None ):
                             break
                 
             selOO_OG_TimeLine.endRebuildEventTimeLine(connection)
-                    
-    
-    window = 60
+
 
     '''    
     oral A genital B followed by oral oral
@@ -138,7 +136,7 @@ def reBuildEvent( connection, file,  tmin=None, tmax=None, pool = None ):
                 
                 endFrame = event.endFrame
                 
-                if ( event.duration() >= EVENT_MIN_LEN ):
+                if ( event.duration() >= EVENT_MIN_LEN ): #is this condition the right one? shouldn'it be: <= EVENT_MIN_LEN to avoid too short events?
                     continue
                                 
                 for t in range ( endFrame , endFrame+window+1 ):

@@ -116,14 +116,14 @@ def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, 
                 print('no nose detected for frame ', t)
 
             else:
-                if distanceNoseFamiliar <= radiusObjects[objectFamiliar] + vibrissae / scaleFactor:
+                if distanceNoseFamiliar <= radiusObjects[objectFamiliar] + animalA.parameters.DISTANCE_TO_OBJECT_NOR:
                     # check if the animal is on the object:
                     if distanceMassFamiliar <= radiusObjects[objectFamiliar]:
                         resultUpFamiliar[t] = True
                     else:
                         resultSniffFamiliar[t] = True
 
-                if distanceNoseFamiliar <= radiusObjects[objectFamiliar] + 2*vibrissae / scaleFactor:
+                if distanceNoseFamiliar <= radiusObjects[objectFamiliar] + 2*animalA.parameters.DISTANCE_TO_OBJECT_NOR:
                     # check if the animal is on the object:
                     if distanceMassFamiliar > radiusObjects[objectFamiliar]:
                         resultSniffFamiliarFar[t] = True
@@ -135,14 +135,14 @@ def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, 
                 print('no nose detected for frame ', t)
 
             else:
-                if distanceNoseNew <= radiusObjects[objectNew] + vibrissae / scaleFactor:
+                if distanceNoseNew <= radiusObjects[objectNew] + animalA.parameters.DISTANCE_TO_OBJECT_NOR:
                     # check if the animal is on the object:
                     if distanceMassNew <= radiusObjects[objectNew]:
                         resultUpNew[t] = True
                     else:
                         resultSniffNew[t] = True
 
-                if distanceNoseNew <= radiusObjects[objectNew] + 2*vibrissae / scaleFactor:
+                if distanceNoseNew <= radiusObjects[objectNew] + 2*animalA.parameters.DISTANCE_TO_OBJECT_NOR:
                     # check if the animal is on the object:
                     if distanceMassNew > radiusObjects[objectNew]:
                         resultSniffNewFar[t] = True

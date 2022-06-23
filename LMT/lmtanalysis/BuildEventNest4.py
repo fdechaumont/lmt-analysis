@@ -155,7 +155,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                     if detectionA != detectionB:
                         distance = detectionA.getDistanceTo( detectionB )
                         if distance != None:
-                            if distance < DISTANCE_CONTACT_MASS_CENTER:
+                            if distance < ParametersMouse.ParametersMouse.DISTANCE_CONTACT_MASS_CENTER:
                                 graph.add_edge( detectionA, detectionB )
                                 #print("Adding edge with mask (det anonymous to det anonymous)")
                     
@@ -163,7 +163,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                 for animal in animalDetectedList:
                     distance = detection.getDistanceTo(animal.getDetectionAt( t ) )
                     if distance != None:
-                        if distance < DISTANCE_CONTACT_MASS_CENTER:
+                        if distance < ParametersMouse.ParametersMouse.DISTANCE_CONTACT_MASS_CENTER:
                             #if detection.getMask().isInContactWithMask( animal.getDetectionAt ( t ).getMask() ):
                             graph.add_edge( animal, detection )
                             #print("Adding edge with mask")

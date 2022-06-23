@@ -71,7 +71,7 @@ def isSameWay( detA, detB ):
     return False
     
 
-def isSideBySide( detA, detB ):
+def isSideBySide( animalA, detA, detB ):
     
     if not detA.isHeadAndTailDetected():
         return False
@@ -82,10 +82,10 @@ def isSideBySide( detA, detB ):
     if isSameWay( detA, detB ):
         return False
     
-    if distHeadBack( detA, detB ) > MAX_DISTANCE_HEAD_HEAD_GENITAL_THRESHOLD*2:
+    if distHeadBack( detA, detB ) > animalA.parameters.MAX_DISTANCE_HEAD_HEAD_GENITAL_THRESHOLD*2:
         return False
 
-    if distHeadBack( detB, detA ) > MAX_DISTANCE_HEAD_HEAD_GENITAL_THRESHOLD*2:
+    if distHeadBack( detB, detA ) > animalA.parameters.MAX_DISTANCE_HEAD_HEAD_GENITAL_THRESHOLD*2:
         return False
     
     return True
@@ -121,7 +121,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
                     detA = animalA.detectionDictionnary[t]
                     detB = animalB.detectionDictionnary[t]
                     
-                    if ( isSideBySide( detA, detB ) == True ):
+                    if ( isSideBySide( animalA, detA, detB ) == True ):
                                                 
                         result[t] = True
                         

@@ -65,7 +65,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                 speedB = pool.animalDictionnary[idAnimalB].getSpeed(t)
                         
                 if ( speedA != None and speedB != None ):
-                    if ( speedA > SPEED_THRESHOLD_HIGH and speedB > SPEED_THRESHOLD_HIGH ):
+                    if ( speedA > pool.animalDictionnary[animal].parameters.SPEED_THRESHOLD_HIGH and speedB > pool.animalDictionnary[idAnimalB].parameters.SPEED_THRESHOLD_HIGH ):
                         result[t]=True
             
             trainTimeLine.reBuildWithDictionnary( result )

@@ -80,7 +80,7 @@ eventClassList = [
                 BuildEventNest4
                    ]
 
-#eventClassList = [BuildEventStop, BuildEventMove]
+eventClassList = [BuildEventOralOralContact]
 #eventClassList = [BuildEventPassiveAnogenitalSniff, BuildEventOtherContact, BuildEventExclusiveSideSideNoseAnogenitalContact]
 #eventClassList = [BuildEventApproachContact2]
 
@@ -128,6 +128,8 @@ def processTimeWindow( connection, file, currentMinT , currentMaxT ):
         animalPool = AnimalPool( )
         animalPool.loadAnimals( connection )
         animalPool.loadDetection( start = currentMinT, end = currentMaxT )
+        for animal in animalPool.getAnimalList():
+            animal.setAnimalType( localAnimalType)
         print("Caching load of animal detection done.")
 
     for ev in eventClassList:
@@ -171,6 +173,7 @@ def process( file ):
     animalPool = AnimalPool( )
     animalPool.loadAnimals( connection )
     #animalPool.buildSensorData(file)
+    
 
     currentT = minT
 
@@ -269,7 +272,8 @@ def processAll():
 if __name__ == '__main__':
 
     print("Code launched.")
-    processAll()
+    localAnimalType = AnimalType.MOUSE
+    processAll( )
     print('Job done.')
 
 

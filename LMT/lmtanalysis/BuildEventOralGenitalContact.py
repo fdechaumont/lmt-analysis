@@ -61,7 +61,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
                     detA = animalA.detectionDictionnary[t]
                     detB = animalB.detectionDictionnary[t]
                     
-                    if distHeadBack( detA, detB ) < MAX_DISTANCE_HEAD_HEAD_GENITAL_THRESHOLD:
+                    if distHeadBack( detA, detB ) < animalA.parameters.MAX_DISTANCE_HEAD_HEAD_GENITAL_THRESHOLD:
                         result[t] = True
             
             OralGenitalTimeLine.reBuildWithDictionnary( result )
