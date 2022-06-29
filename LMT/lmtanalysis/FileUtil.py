@@ -12,8 +12,7 @@ import tkinter as tk
 import unittest
 from random import randrange, random
 
-from lmtanalysis import ParametersMouse, ParametersRat
-from lmtanalysis.AnimalType import AnimalType
+
 
 '''
 Provide a dialog to ask for either files or folder to process.

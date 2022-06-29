@@ -33,10 +33,8 @@ import matplotlib.patches as mpatches
 from lxml import etree
 import matplotlib.ticker as ticker
 #from lmtanalysis.Util import convert_to_d_h_m_s, getDatetimeFromFrame, mute_prints
-from lmtanalysis.ParametersMouse import ParametersMouse
-from lmtanalysis.ParametersRat import ParametersRat
 from pickle import NONE
-from lmtanalysis.AnimalType import AnimalType
+
 
 idAnimalColor = [ None, "red","green","blue","orange"]
 
@@ -50,7 +48,7 @@ def getAnimalColor( animalId ):
 class Animal():
 
 
-    def __init__(self, baseId , RFID , name=None, genotype=None , user1 = None, age=None, sex=None, strain=None, setup=None, conn = None , animalType = None ):
+    def __init__(self, baseId , RFID , name=None, genotype=None , user1 = None, age=None, sex=None, strain=None, setup=None, conn = None ):
         self.baseId = baseId
         self.RFID = RFID
         self.name = name
@@ -63,17 +61,6 @@ class Animal():
         self.conn = conn
         self.detectionDictionnary = {}
         
-        
-        self.setAnimalType( animalType )
-            
-        '''
-        self.animalType = animalType
-        if self.animalType == AnimalType.MOUSE:
-            self.parameters = ParametersMouse()
-            
-        if self.animalType == AnimalType.RAT:
-            self.parameters = ParametersRat()
-        '''
             
 
     def setGenotype(self, genotype ):
@@ -84,21 +71,6 @@ class Animal():
         self.conn.commit()
         cursor.close()
         
-    def setAnimalType(self, animalType ):
-        
-        self.animalType = animalType
-        self.parameters = None
-        if self.animalType == AnimalType.MOUSE:
-            self.parameters = ParametersMouse()
-            
-        if self.animalType == AnimalType.RAT:
-            self.parameters = ParametersRat()
-        
-        if self.parameters == None:
-            self.parameters = ParametersMouse()
-            print("Animal's type is set to Mouse by default master")
-            #print( "Error in animal: the animalType does not exists. Quit(). Animal type requested is : " + str( animalType ))
-            #quit()
         
         
         
@@ -202,7 +174,7 @@ class Animal():
             if ( b==None or a==None):
                 continue
 
-            speed = math.hypot( a.massX - b.massX, a.massY - b.massY )*self.parameters.scaleFactor/(1/30)
+            speed = math.hypot( a.massX - b.massX, a.massY - b.massY )*scaleFactor/(1/30)
 
             if ( speed > maxSpeed or speed < minSpeed ):
                 self.detectionDictionnary.pop( key )
@@ -221,8 +193,8 @@ class Animal():
             if ( a==None):
                 continue
 
-            x = (a.massX - self.parameters.cornerCoordinatesOpenFieldArea[0][0] )* self.parameters.scaleFactor
-            y = (a.massY - self.parameters.cornerCoordinatesOpenFieldArea[0][1] )* self.parameters.scaleFactor
+            x = (a.massX - cornerCoordinates50x50Area[0][0] )* scaleFactor
+            y = (a.massY - cornerCoordinates50x50Area[0][1] )* scaleFactor
 
             if ( x < x1 or x > x2 or y < y1 or y > y2 ):
                 self.detectionDictionnary.pop( key )
@@ -470,9 +442,7 @@ class Animal():
 
             totalDistance += distance
 
-        print( "The animal type seen here is : " , self.animalType )
-        print( "The scale factor is: " , self.parameters.scaleFactor )
-        totalDistance *= self.parameters.scaleFactor
+        totalDistance *= scaleFactor
 
         return totalDistance
 
@@ -568,7 +538,7 @@ class Animal():
 
             distance += math.hypot( a.massX - b.massX, a.massY - b.massY ) #add the distance to the previously calculated distance
 
-        distance *= self.parameters.scaleFactor #convert the distance in cm
+        distance *= scaleFactor #convert the distance in cm
 
         return distance
 
@@ -606,7 +576,7 @@ class Animal():
         if ( not ( t in self.detectionDictionnary ) ):
             return None
 
-        if (math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint ) > self.parameters.MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
+        if (math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint ) > MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
             return None
 
         else:
@@ -623,7 +593,7 @@ class Animal():
             return None
         if (self.detectionDictionnary[t].frontX < 0):
             return None
-        if (math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint ) > self.parameters.MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
+        if (math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint ) > MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
             return None
 
         else:
@@ -793,7 +763,7 @@ class Animal():
         if ( b==None or a==None):
             return None
 
-        speed = math.hypot( a.massX - b.massX, a.massY - b.massY )*self.parameters.scaleFactor/(2/30)
+        speed = math.hypot( a.massX - b.massX, a.massY - b.massY )*scaleFactor/(2/30)
         
 
         return speed
@@ -870,7 +840,7 @@ class Animal():
                 #print ( 3 )
                 continue
 
-            if (detection.getBodySize( ) >=self.bodyThreshold and speed<self.parameters.SPEED_THRESHOLD_LOW and detection.massZ<self.medianBodyHeight):
+            if (detection.getBodySize( ) >=self.bodyThreshold and speed<SPEED_THRESHOLD_LOW and detection.massZ<self.medianBodyHeight):
                 #print ( 4 )
                 sapList.append( detection )
 
@@ -900,7 +870,7 @@ class Animal():
             if ( speed == None ):
                 continue
 
-            if (detection.getBodySize( ) >=self.bodyThreshold and speed<self.parameters.SPEED_THRESHOLD_LOW and detection.massZ<self.medianBodyHeight):
+            if (detection.getBodySize( ) >=self.bodyThreshold and speed<SPEED_THRESHOLD_LOW and detection.massZ<self.medianBodyHeight):
                 sapDictionnary[key] = True
 
         return sapDictionnary
@@ -1035,8 +1005,6 @@ class AnimalPool():
         # check experiment parameters
         
         
-        animalType = AnimalType.MOUSE
-        
         '''
         try:
             print( "Checking animal type.")
@@ -1096,19 +1064,17 @@ class AnimalPool():
 
             animal = None
             if ( len( row ) == 3 ):
-                animal = Animal( row[0] , row[1] , name=row[2] , conn = conn , animalType = animalType )
+                animal = Animal( row[0] , row[1] , name=row[2] , conn = conn )
             if ( len( row ) == 4 ):
-                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , conn = conn , animalType = animalType)
+                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , conn = conn )
             if ( len( row ) == 5 ):
-                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , user1=row[4] , conn = conn , animalType = animalType)
+                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , user1=row[4] , conn = conn )
             if ( len( row ) == 7 ):
-                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], conn = conn , animalType = animalType)
+                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], conn = conn )
             if ( len( row ) == 8 ):
-                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], setup=row[7], conn = conn , animalType = animalType)
+                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], setup=row[7], conn = conn )
             if ( len( row ) == 9 ):
-                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], setup=row[7], user1=row[8], conn = conn , animalType = animalType)
-
-
+                animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], setup=row[7], user1=row[8], conn = conn )
 
             if ( animal!= None):
                 self.animalDictionnary[animal.baseId] = animal
@@ -1516,13 +1482,13 @@ class AnimalPool():
         df = pd.DataFrame(data)
 
 
-        df["x_cm"] = (df.x - self.parameters.cornerCoordinatesOpenFieldArea[0][0]) / (self.parameters.cornerCoordinatesOpenFieldArea[1][0] - self.parameters.cornerCoordinatesOpenFieldArea[0][0]) * self.parameters.ARENA_SIZE
-        df["y_cm"] = (df.y - self.parameters.cornerCoordinatesOpenFieldArea[1][1]) / (self.parameters.cornerCoordinatesOpenFieldArea[2][1] - self.parameters.cornerCoordinatesOpenFieldArea[1][1]) * self.parameters.ARENA_SIZE
+        df["x_cm"] = (df.x - cornerCoordinates50x50Area[0][0]) / (cornerCoordinates50x50Area[1][0] - cornerCoordinates50x50Area[0][0]) * ARENA_SIZE
+        df["y_cm"] = (df.y - cornerCoordinates50x50Area[1][1]) / (cornerCoordinates50x50Area[2][1] - cornerCoordinates50x50Area[1][1]) * ARENA_SIZE
 
-        df[f"in_arena_center"] = (df["x_cm"] > self.parameters.CENTER_MARGIN) & \
-                                 (df["y_cm"] > self.parameters.CENTER_MARGIN) & \
-                                 (df["x_cm"] < (self.parameters.ARENA_SIZE - self.parameters.CENTER_MARGIN)) & \
-                                 (df["y_cm"] < (self.parameters.ARENA_SIZE - self.parameters.CENTER_MARGIN))
+        df[f"in_arena_center"] = (df["x_cm"] > CENTER_MARGIN) & \
+                                 (df["y_cm"] > CENTER_MARGIN) & \
+                                 (df["x_cm"] < (ARENA_SIZE - CENTER_MARGIN)) & \
+                                 (df["y_cm"] < (ARENA_SIZE - CENTER_MARGIN))
 
         df.insert(3, "time", pd.to_timedelta(df.sec, unit="s"))
 

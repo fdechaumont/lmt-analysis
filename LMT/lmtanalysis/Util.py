@@ -13,11 +13,7 @@ import contextlib
 from random import randrange, random
 import string
 
-from lmtanalysis.ParametersMouse import ParametersMouse
-from lmtanalysis.ParametersRat import ParametersRat
-from lmtanalysis.AnimalType import AnimalType
-#from lmtanalysis import Animal
-#from lmtanalysis import ParametersMouse, ParametersRat
+
 
 
 
@@ -353,15 +349,3 @@ def getLetterList():
     letterList = list(string.ascii_uppercase)
     return letterList
 
-# FIXME should be in utils
-def getParametersForAnimalType( animalType ):
-    
-    if animalType == AnimalType.MOUSE:
-        return ParametersMouse()
-    
-    if animalType == AnimalType.RAT:
-        return ParametersRat()
-    
-    print( "Error: unknown animal type. Quit().")
-    quit()
-    return None
