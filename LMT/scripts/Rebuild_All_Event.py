@@ -29,15 +29,7 @@ from lmtanalysis.EventTimeLineCache import flushEventTimeLineCache,\
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 
 
-''' minT and maxT to process the analysis (in frame) '''
-minT = 0
 
-#maxT = 5000
-maxT = 3*oneDay
-#maxT = (6+1)*oneHour
-''' time window to compute the events. '''
-windowT = 1*oneDay
-#windowT = 3*oneDay #int (0.5*oneDay)
 
 
 USE_CACHE_LOAD_DETECTION_CACHE = True
@@ -46,71 +38,22 @@ class FileProcessException(Exception):
     pass
 
 
-eventClassList = [
-                #BuildEventHuddling,
-                BuildEventDetection,
-                BuildEventOralOralContact,
-                BuildEventOralGenitalContact,
-                BuildEventSideBySide,
-                BuildEventSideBySideOpposite,
-                BuildEventTrain2,
-                BuildEventTrain3,
-                BuildEventTrain4,
-                BuildEventMove,
-                BuildEventFollowZone,
-                BuildEventRear5,
-                BuildEventCenterPeripheryLocation,
-                BuildEventRearCenterPeriphery,
-                BuildEventSocialApproach,
-                BuildEventGetAway,
-                BuildEventSocialEscape,
-                BuildEventApproachRear,
-                BuildEventGroup2,
-                BuildEventGroup3,
-                BuildEventGroup4,
-                BuildEventGroup3MakeBreak,
-                BuildEventGroup4MakeBreak,
-                BuildEventStop,
-                BuildEventWaterPoint,
-                BuildEventApproachContact,
-                BuildEventWallJump,
-                BuildEventSAP,
-                BuildEventOralSideSequence,
-                BuildEventNest3,
-                BuildEventNest4
-                   ]
-
-eventClassList = [BuildEventOralOralContact]
-#eventClassList = [BuildEventPassiveAnogenitalSniff, BuildEventOtherContact, BuildEventExclusiveSideSideNoseAnogenitalContact]
-#eventClassList = [BuildEventApproachContact2]
-
-'''eventClassList = [
-
-                BuildEventDetection,
-                BuildEventMove,
-                BuildEventRear5,
-                BuildEventCenterPeripheryLocation,
-                BuildEventRearCenterPeriphery,
-                BuildEventStop,
-                BuildEventWaterPoint,
-                BuildEventWallJump,
-                BuildEventSAP
-                   ]'''
 
 
 
-def flushEvents( connection ):
+
+def flushEvents( connection, listOfEvents ):
 
     print("Flushing events...")
 
-    for ev in eventClassList:
+    for ev in listOfEvents:
 
         chrono = Chronometer( "Flushing event " + str(ev) )
         ev.flush( connection );
         chrono.printTimeInS()
 
 
-def processTimeWindow( connection, file, currentMinT , currentMaxT ):
+def processTimeWindow( connection, file, currentMinT , currentMaxT, listOfEvents, localAnimalType ):
 
     CheckWrongAnimal.check( connection, tmin=currentMinT, tmax=currentMaxT )
 
@@ -130,9 +73,10 @@ def processTimeWindow( connection, file, currentMinT , currentMaxT ):
         animalPool.loadDetection( start = currentMinT, end = currentMaxT )
         for animal in animalPool.getAnimalList():
             animal.setAnimalType( localAnimalType)
+        print('animal type: ', animal.animalType)
         print("Caching load of animal detection done.")
 
-    for ev in eventClassList:
+    for ev in listOfEvents:
 
         chrono = Chronometer( str( ev ) )
         ev.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT, pool = animalPool )
@@ -140,7 +84,7 @@ def processTimeWindow( connection, file, currentMinT , currentMaxT ):
 
 
 
-def process( file ):
+def process( file, listOfEvents, localAnimalType, minT, maxT, windowT ):
 
     print(file)
 
@@ -179,7 +123,7 @@ def process( file ):
 
     try:
 
-        flushEvents( connection )
+        flushEvents( connection, listOfEvents )
 
         while currentT < maxT:
 
@@ -189,7 +133,7 @@ def process( file ):
                 currentMaxT = maxT
 
             chronoTimeWindowFile = Chronometer("File "+ file+ " currentMinT: "+ str(currentMinT)+ " currentMaxT: " + str(currentMaxT) );
-            processTimeWindow( connection, file, currentMinT, currentMaxT )
+            processTimeWindow( connection, file, currentMinT, currentMaxT , listOfEvents, localAnimalType)
             chronoTimeWindowFile.printTimeInS()
 
             currentT += windowT
@@ -249,7 +193,7 @@ def process( file ):
 
 
 
-def processAll():
+def processAll( listOfEvents, localAnimalType, minT, maxT, windowT ):
 
 
     files = getFilesToProcess()
@@ -261,7 +205,7 @@ def processAll():
         for file in files:
             try:
                 print ( "Processing file" , file )
-                process( file )
+                process( file, listOfEvents, localAnimalType, minT, maxT, windowT )
             except FileProcessException:
                 print ( "STOP PROCESSING FILE " + file , file=sys.stderr  )
 
@@ -272,8 +216,68 @@ def processAll():
 if __name__ == '__main__':
 
     print("Code launched.")
+    
+    ''' minT and maxT to process the analysis (in frame) '''
+    minT = 0
+    
+    #maxT = 5000
+    maxT = 3*oneDay
+    #maxT = (6+1)*oneHour
+    ''' time window to compute the events. '''
+    windowT = 1*oneDay
+    #windowT = 3*oneDay #int (0.5*oneDay)
+    
+    eventClassList = [
+                #BuildEventHuddling,
+                BuildEventDetection,
+                BuildEventOralOralContact,
+                BuildEventOralGenitalContact,
+                BuildEventSideBySide,
+                BuildEventSideBySideOpposite,
+                BuildEventTrain2,
+                BuildEventTrain3,
+                BuildEventTrain4,
+                BuildEventMove,
+                BuildEventFollowZone,
+                BuildEventRear5,
+                BuildEventCenterPeripheryLocation,
+                BuildEventRearCenterPeriphery,
+                BuildEventSocialApproach,
+                BuildEventGetAway,
+                BuildEventSocialEscape,
+                BuildEventApproachRear,
+                BuildEventGroup2,
+                BuildEventGroup3,
+                BuildEventGroup4,
+                BuildEventGroup3MakeBreak,
+                BuildEventGroup4MakeBreak,
+                BuildEventStop,
+                BuildEventWaterPoint,
+                BuildEventApproachContact,
+                #BuildEventWallJump,
+                BuildEventSAP,
+                BuildEventOralSideSequence,
+                BuildEventNest3,
+                BuildEventNest4
+                   ]
+
+    #eventClassList = [BuildEventPassiveAnogenitalSniff, BuildEventOtherContact, BuildEventExclusiveSideSideNoseAnogenitalContact]
+    
+    '''eventClassList = [
+    
+                    BuildEventDetection,
+                    BuildEventMove,
+                    BuildEventRear5,
+                    BuildEventCenterPeripheryLocation,
+                    BuildEventRearCenterPeriphery,
+                    BuildEventStop,
+                    BuildEventWaterPoint,
+                    BuildEventWallJump,
+                    BuildEventSAP
+                       ]'''
+    
     localAnimalType = AnimalType.MOUSE
-    processAll( )
+    processAll( eventClassList, localAnimalType, minT, maxT, windowT )
     print('Job done.')
 
 

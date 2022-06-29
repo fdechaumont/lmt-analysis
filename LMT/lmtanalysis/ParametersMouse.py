@@ -15,6 +15,9 @@ class ParametersMouse():
     SPEED_THRESHOLD_LOW = 5
     SPEED_THRESHOLD_HIGH = 10
     
+    ''' speed threshold to define high speed movements '''
+    HIGH_SPEED_MOVE_THRESHOLD = 20
+    
     ''' slope of the body between the nose and the tail basis '''
     BODY_SLOPE_THRESHOLD = 40
     
