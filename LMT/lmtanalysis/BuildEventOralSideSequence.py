@@ -90,7 +90,7 @@ def reBuildEvent( connection, file,  tmin=None, tmax=None, pool = None ):
                 
                 endFrame = event.endFrame
                 
-                if ( event.duration() >= EVENT_MIN_LEN ):
+                if ( event.duration() <= EVENT_MIN_LEN ):  # discard too short events
                     continue
 
                 for t in range ( endFrame , endFrame+window+1 ):
@@ -138,7 +138,7 @@ def reBuildEvent( connection, file,  tmin=None, tmax=None, pool = None ):
                 
                 endFrame = event.endFrame
                 
-                if ( event.duration() >= EVENT_MIN_LEN ):
+                if ( event.duration() <= EVENT_MIN_LEN ): # discard too short events
                     continue
                                 
                 for t in range ( endFrame , endFrame+window+1 ):
