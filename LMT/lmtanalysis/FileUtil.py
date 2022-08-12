@@ -52,6 +52,28 @@ def getFilesToProcess():
     return files
 
 
+def getSingleFileToProcess():
+
+
+    root = tk.Tk()
+    root.withdraw()
+    root.update()
+
+    d = Dialog(
+        title="Select input for processing", text="Select file for processing", bitmap = 'question',
+        strings=('File', 'Cancel'), default=0 )
+
+    root.focus_force()
+    file = None    
+    if(  d.num == 0 ):
+        file = askopenfilename( title="Choose a file to process", multiple=0, filetypes = (("sqlite files","*.sqlite"),("all files","*.*") )  )
+
+    d.destroy()
+    root.destroy()
+    
+    return file
+
+
 def getJsonFileToProcess():
     root = tk.Tk()
     root.withdraw()
