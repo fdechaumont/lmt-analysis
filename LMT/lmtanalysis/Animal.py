@@ -622,7 +622,9 @@ class Animal():
                 continue
 
             a = self.detectionDictionnary.get( key )
-            bodySizeList.append(a.getBodySize())
+            
+            if (a.isHeadAndTailDetected()):
+                bodySizeList.append(a.getBodySize())
 
         mean = np.nanmean(bodySizeList)
         print( "mean animal bodysize: "  , mean )

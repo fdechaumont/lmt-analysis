@@ -228,7 +228,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                 if isinstance( animal , Animal ):
                     if not ( t in stopDictionnary[animal.baseId] ):
                         allStoppedInBiggestGroup = False
-                break
+                        break
 
             if allStoppedInBiggestGroup:
                 isNest= True                     

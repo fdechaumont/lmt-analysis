@@ -83,7 +83,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     
     for idAnimalB in pool.animalDictionnary.keys():
         print(pool.animalDictionnary[idAnimalB])
-        meanSizeB = pool.animalDictionnary[idAnimalB].getMeanBodyLength( tmax = tmax )
+        #meanSizeB = pool.animalDictionnary[idAnimalB].getMeanBodyLength( tmax = tmax )
         
         for animal in pool.animalDictionnary.keys():
             if( idAnimalB == animal ):
@@ -93,6 +93,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
             #contact[idAnimalB] = EventTimeLine( connection, "Contact", idAnimalB )
     
     for idAnimalB in pool.animalDictionnary.keys():
+        
+        meanSizeB = pool.animalDictionnary[idAnimalB].getMeanBodyLength( tmax = tmax )
         
         for animal in pool.animalDictionnary.keys():
             if( animal == idAnimalB ):

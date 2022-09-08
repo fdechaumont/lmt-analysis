@@ -88,8 +88,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, showGraph
                 
                 if ( tt in dicA ):
                 
-                    directionAnimalA = dicA[t].getDirection()
-                    directionCenterAnimal = math.atan2( centerY - dicA[t].massY, centerX - dicA[t].massX )
+                    directionAnimalA = dicA[tt].getDirection()
+                    directionCenterAnimal = math.atan2( centerY - dicA[tt].massY, centerX - dicA[tt].massX )
                     
                     #same direction
                     angleDif1 = math.atan2( math.sin(directionCenterAnimal-directionAnimalA), math.cos(directionCenterAnimal-directionAnimalA) )
