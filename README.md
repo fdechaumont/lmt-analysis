@@ -2,6 +2,20 @@
 
 Live Mouse Tracker analysis
 
-Analysis of data produced by [live mouse tracker](https://livemousetracker.org)
+# What can you do with this package ?
 
-Get information on how to use this package [in this google doc](https://docs.google.com/presentation/d/1wR7JM2vq5ZjugrwDe4YuuKJm0MWIvkHAvrOH7mQNOEk/edit?usp=sharing)
+lmt-analysis provides all the analysis tools needed to extract information from the tracking performed by [live mouse tracker](https://livemousetracker.org).
+
+With this package, you can
+
+- draw trajectories of the animals
+- filter trajectories
+- access the detection at each frame and the masks of the animals
+- access your lmt .sqlite database files and query them to get the graph or output you need
+- compute the following events (and create your own)
+
+![alt text](https://github.com/fdechaumont/lmt-analysis/image/lmt-analysis.jpg"LMT analysis figure")
+
+# Tutorial
+
+A full tutorial is available [in this google doc](https://docs.google.com/presentation/d/1wR7JM2vq5ZjugrwDe4YuuKJm0MWIvkHAvrOH7mQNOEk/edit?usp=sharing)
