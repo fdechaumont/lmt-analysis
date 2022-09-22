@@ -19,6 +19,7 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 def flush( connection ):
     ''' flush event in database '''
     deleteEventTimeLineInBase(connection, "Approach contact" )
+    deleteEventTimeLineInBase(connection, "Approach contact filtered" )
 
 def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ): 
     
