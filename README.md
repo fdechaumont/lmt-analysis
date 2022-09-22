@@ -14,7 +14,7 @@ With this package, you can
 - access your lmt .sqlite database files and query them to get the graph or output you need
 - compute the following events (and create your own)
 
-![alt text](https://github.com/fdechaumont/lmt-analysis/image/lmt-analysis.jpg"LMT analysis figure")
+![Alt text](/LMT/images/lmt-analysis.jpg?raw=true "Title")
 
 # Tutorial
 
