@@ -206,6 +206,7 @@ def getFigureBehaviouralEventsLabels(event):
                          "Social approach": 'approach social range',
                          #"Approach rear": 'approach reared mouse',
                          "Approach contact": 'approach contact',
+                         "Approach contact filtered": 'approach contact new',
                          "Contact": 'contact',
                          "Group2": 'group of 2', 
                          "Group3": 'group of 3', 
@@ -249,10 +250,11 @@ def getFigureBehaviouralEventsLabels(event):
 behaviouralEventOneMouse = ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
     "Train2", "FollowZone Isolated",
-    "Social approach", "Approach contact",
+    "Social approach", "Approach contact", "Approach contact filtered",
     "Group 3 make", "Group 4 make", "Get away", "Break contact",
     "Group 3 break", "Group 4 break"
     ]
+
 
 behaviouralEventOneMouseDic = {' TotalLen': ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
@@ -261,24 +263,24 @@ behaviouralEventOneMouseDic = {' TotalLen': ["Move isolated", "Move in contact",
     ' Nb': ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
     "Train2", "FollowZone Isolated",
-    "Social approach", "Approach contact",
+    "Social approach", "Approach contact", "Approach contact filtered",
     "Group 3 make", "Group 4 make", "Break contact",
     "Group 3 break", "Group 4 break"],
     
     ' MeanDur': ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
     "Train2", "FollowZone Isolated",
-    "Social approach", "Approach contact",
+    "Social approach", "Approach contact", "Approach contact filtered",
     "Break contact"
     ]
     }
 
 behaviouralEventOneMouseSingle = ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact", "Oral-genital Contact", "Train2", "FollowZone Isolated",
-                                "Social approach", "Approach contact", "Get away", "Break contact"]
+                                "Social approach", "Approach contact", "Approach contact filtered", "Get away", "Break contact"]
 behaviouralEventOneMouseSocial = ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact",
                             "Side by side Contact", "Side by side Contact, opposite way",
                             "Train2", "FollowZone Isolated",
-                            "Social approach", "Approach contact",
+                            "Social approach", "Approach contact", "Approach contact filtered",
                             "Get away", "Break contact"]
 
 categoryList = [' TotalLen', ' Nb', ' MeanDur']
