@@ -6,6 +6,9 @@ Live Mouse Tracker analysis
 
 lmt-analysis provides all the analysis tools needed to extract information from the tracking performed by [live mouse tracker](https://livemousetracker.org).
 
+![Alt text](/LMT/images/lmt-mice-tracking.jpg?raw=true "live mouse tracker")
+This view shows the basic output of live mouse tracker, and this package let you get the juice of it :)
+
 With this package, you can
 
 - draw trajectories of the animals
@@ -14,7 +17,7 @@ With this package, you can
 - access your lmt .sqlite database files and query them to get the graph or output you need
 - compute the following events (and create your own)
 
-![Alt text](/LMT/images/lmt-analysis.jpg?raw=true "Title")
+![Alt text](/LMT/images/events.jpg?raw=true "live mouse tracker events")
 
 # Tutorial
 
