@@ -1127,7 +1127,7 @@ def generateMutantData(profileData, genoMutant, wtData, categoryList, behavioura
     return koData
 
 
-def plotZScoreProfileAuto(ax, koDataframe, night, eventListForTest):
+def plotZScoreProfileAuto(ax, koDataframe, night, eventListForTest, eventListForLabels, cat):
     selectedDataframe = koDataframe[(koDataframe['night'] == night)]
     pos = 0
     colorList = []
@@ -1147,13 +1147,14 @@ def plotZScoreProfileAuto(ax, koDataframe, night, eventListForTest):
                 color = 'grey'
                 if p < 0.05:
                     print(night, event, T, p)
-                    ax.text(-2.95, pos, s=getStarsFromPvalues(p, numberOfTests=1), fontsize=16)
+                    
                     if T > 0:
                         color = 'red'
                     elif T < 0:
                         color = 'blue'
                     elif T == 0:
                         color = 'grey'
+                    ax.text(-2.95, pos, s=getStarsFromPvalues(p, numberOfTests=1), c=color, fontsize=21)
 
                 colorList.append(color)
                 print('event position: ', event, pos, T, p, getStarsFromPvalues(p, numberOfTests=1), color)
@@ -1171,34 +1172,77 @@ def plotZScoreProfileAuto(ax, koDataframe, night, eventListForTest):
     ax.spines['top'].set_visible(False)
     ax.set_title('night {}'.format(night))
 
-    ax.add_patch(mpatches.Rectangle((-3, -1), width=6, height=5.3, facecolor='grey', alpha=0.3))
-    ax.text(-2.6, 2.1, s='ACTIVITY', color='white', fontsize=14, fontweight='bold', rotation='vertical',
-            verticalalignment='center')
+    if cat == ' TotalLen':
+        ax.add_patch(mpatches.Rectangle((-3, -1), width=6, height=4.4, facecolor='grey', alpha=0.3))
+        ax.text(-2.6, 1.6, s='ACTIVITY', color='white', fontsize=16, fontweight='bold', rotation='vertical',
+                verticalalignment='center')
+    
+        ax.add_patch(mpatches.Rectangle((-3, 3.6), width=6, height=1.8, facecolor='grey', alpha=0.3))
+        ax.text(-2.6, 4.5, s='EXPLO', color='white', fontsize=16, fontweight='bold', rotation='vertical',
+                verticalalignment='center')
+    
+        ax.add_patch(mpatches.Rectangle((-3, 5.6), width=6, height=6.8, facecolor='grey', alpha=0.3))
+        ax.text(-2.6, 8.8, s='CONTACT', color='white', fontsize=16, fontweight='bold', rotation='vertical',
+                verticalalignment='center')
+    
+        ax.add_patch(mpatches.Rectangle((-3, 12.6), width=6, height=1.8, facecolor='grey', alpha=0.3))
+        ax.text(-2.6, 13.55, s='FOLLOW', color='white', fontsize=16, fontweight='bold', rotation='vertical',
+                verticalalignment='center')
+    
+    elif cat == ' Nb':
+        ax.add_patch(mpatches.Rectangle((-3, -1), width=6, height=3.4, facecolor='grey', alpha=0.3))
+        ax.text(-2.6, 1.1, s='ACTIVITY', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+                verticalalignment='center')
+    
+        ax.add_patch(mpatches.Rectangle((-3, 2.6), width=6, height=1.8, facecolor='grey', alpha=0.3))
+        ax.text(-2.6, 3.5, s='EXPLO', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+                verticalalignment='center')
+    
+        ax.add_patch(mpatches.Rectangle((-3, 4.6), width=6, height=6.8, facecolor='grey', alpha=0.3))
+        ax.text(-2.6, 7.9, s='CONTACT', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+                verticalalignment='center')
+    
+        ax.add_patch(mpatches.Rectangle((-3, 11.6), width=6, height=1.8, facecolor='grey', alpha=0.3))
+        ax.text(-2.6, 12.4, s='FOLLOW', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+                verticalalignment='center')
+    
+        ax.add_patch(mpatches.Rectangle((-3, 13.6), width=6, height=2.8, facecolor='grey', alpha=0.3))
+        ax.text(-2.6, 15.05, s='APPROACH', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+                verticalalignment='center')
+    
+        ax.add_patch(mpatches.Rectangle((-3, 16.6), width=6, height=4.3, facecolor='grey', alpha=0.3))
+        ax.text(-2.6, 18, s='ESCAPE', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+                verticalalignment='center')
 
-    ax.add_patch(mpatches.Rectangle((-3, 4.6), width=6, height=1.7, facecolor='grey', alpha=0.3))
-    ax.text(-2.6, 5.5, s='EXPLO', color='white', fontsize=14, fontweight='bold', rotation='vertical',
-            verticalalignment='center')
+    elif cat == ' MeanDur':
+        ax.add_patch(mpatches.Rectangle((-3, -1), width=6, height=3.4, facecolor='grey', alpha=0.3))
+        ax.text(-2.6, 1.1, s='ACTIVITY', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+                verticalalignment='center')
+    
+        ax.add_patch(mpatches.Rectangle((-3, 2.6), width=6, height=1.8, facecolor='grey', alpha=0.3))
+        ax.text(-2.6, 3.45, s='EXPLO', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+                verticalalignment='center')
+    
+        ax.add_patch(mpatches.Rectangle((-3, 4.6), width=6, height=6.8, facecolor='grey', alpha=0.3))
+        ax.text(-2.6, 7.8, s='CONTACT', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+                verticalalignment='center')
+    
+        ax.add_patch(mpatches.Rectangle((-3, 11.6), width=6, height=1.8, facecolor='grey', alpha=0.3))
+        ax.text(-2.6, 12.55, s='FOLLOW', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+                verticalalignment='center')
+    
+        ax.add_patch(mpatches.Rectangle((-3, 13.6), width=6, height=0.8, facecolor='grey', alpha=0.3))
+        ax.text(-2.6, 14, s='APP.', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+                verticalalignment='center')
+    
+        ax.add_patch(mpatches.Rectangle((-3, 14.6), width=6, height=0.9, facecolor='grey', alpha=0.3))
+        ax.text(-2.6, 15.05, s='ESC.', color='white', fontsize=14, fontweight='bold', rotation='vertical',
+                verticalalignment='center')
 
-    ax.add_patch(mpatches.Rectangle((-3, 6.6), width=6, height=6.7, facecolor='grey', alpha=0.3))
-    ax.text(-2.6, 9.6, s='CONTACT', color='white', fontsize=14, fontweight='bold', rotation='vertical',
-            verticalalignment='center')
-
-    ax.add_patch(mpatches.Rectangle((-3, 13.6), width=6, height=1.7, facecolor='grey', alpha=0.3))
-    ax.text(-2.6, 14.5, s='FOLLOW', color='white', fontsize=14, fontweight='bold', rotation='vertical',
-            verticalalignment='center')
-
-    ax.add_patch(mpatches.Rectangle((-3, 15.6), width=6, height=3.7, facecolor='grey', alpha=0.3))
-    ax.text(-2.6, 17.4, s='APPROACH', color='white', fontsize=14, fontweight='bold', rotation='vertical',
-            verticalalignment='center')
-
-    ax.add_patch(mpatches.Rectangle((-3, 19.6), width=6, height=3.7, facecolor='grey', alpha=0.3))
-    ax.text(-2.6, 21.6, s='ESCAPE', color='white', fontsize=14, fontweight='bold', rotation='vertical',
-            verticalalignment='center')
 
     meanprops = dict(marker='D', markerfacecolor='white', markeredgecolor='black')
     bp = sns.boxplot(data=selectedDataframe, y='trait', x='value', ax=ax, width=0.5, orient='h', meanprops=meanprops,
                      showmeans=True, linewidth=0.4, palette=colorList, saturation=0.5)
-
 
 
     #sns.stripplot(data=selectedDataframe, y='trait', x='value', ax=ax, color='black', orient='h')
@@ -1213,10 +1257,9 @@ def plotZScoreProfileAuto(ax, koDataframe, night, eventListForTest):
     bp.legend().set_visible(False)
 
     ax.set_xlabel('Z-score per cage', fontsize=18)
-    ax.set_ylabel('Behavioral events', fontsize=18)
-
-    ax.set_yticklabels(eventListForTest, rotation=0, fontsize=14,
-                       horizontalalignment='right')
+    ax.set_ylabel('Behavioral events {}'.format(cat), fontsize=18)
+    
+    ax.set_yticklabels(eventListForLabels, rotation=0, fontsize=15, horizontalalignment='right')
     ax.set_xticklabels([-3, -2, -1, 0, 1, 2, 3], fontsize=14)
     ax.legend().set_visible(False)
 
@@ -2115,7 +2158,7 @@ if __name__ == '__main__':
                 for key in ['night', 'trait', 'rfid', 'exp', 'value']:
                     koDataDic[key] = []
 
-                eventListForTest = []
+                '''eventListForTest = []
 
                 file = list(koData.keys())[0]
                 print('xxx: ', koData[file].keys())
@@ -2125,20 +2168,23 @@ if __name__ == '__main__':
                             if (cat in event) or (event == 'totalDistance'):
                                 eventListForTest.append(event)
                         break
-                    break
+                    break'''
 
-
+                eventListForTest = [x+cat for x in behaviouralEventOneMouseDic[cat]]
+                eventListForLabels = [getFigureBehaviouralEventsLabels(x) for x in behaviouralEventOneMouseDic[cat]]
+                if cat == ' TotalLen':
+                    eventListForTest = ['totalDistance'] + eventListForTest
+                    eventListForLabels = ['distance'] + eventListForLabels
 
                 for file in koData.keys():
                     for night in koData[file].keys():
                         for rfid in koData[file][night].keys():
-                            for event in koData[file][night][rfid].keys():
-                                if (cat in event) or (event == 'totalDistance'):
-                                    koDataDic['exp'].append(file)
-                                    koDataDic['night'].append(night)
-                                    koDataDic['rfid'].append(rfid)
-                                    koDataDic['trait'].append(event)
-                                    koDataDic['value'].append(koData[file][night][rfid][event])
+                            for event in eventListForTest:
+                                koDataDic['exp'].append(file)
+                                koDataDic['night'].append(night)
+                                koDataDic['rfid'].append(rfid)
+                                koDataDic['trait'].append(event)
+                                koDataDic['value'].append(koData[file][night][rfid][event])
 
                 # print(koDataDic)
 
@@ -2149,7 +2195,7 @@ if __name__ == '__main__':
                 col = 0
                 for night in nightList:
                     ax = axes[col]
-                    plotZScoreProfileAuto(ax=ax, koDataframe=koDataframe, night=night, eventListForTest=eventListForTest)
+                    plotZScoreProfileAuto(ax=ax, koDataframe=koDataframe, night=night, eventListForTest=eventListForTest, eventListForLabels=eventListForLabels, cat=cat)
                     col += 1
 
                 plt.tight_layout()
