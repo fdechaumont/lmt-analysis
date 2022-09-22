@@ -18,9 +18,9 @@ from lmtanalysis.FileUtil import getFilesToProcess, getJsonFileToProcess
 
 from scripts.ComputeMeasuresIdentityProfileOneMouseAutomatic import *
 
-from LMT.USV.usvEventsCorrelations.Compute_Speed_Duration_Events_With_USV import *
+
 from scipy.spatial.transform import rotation
-from LMT.USV.figure.figParameter import *
+
 from _collections import OrderedDict
 
 from lmtanalysis.Util import getFileNameInput, getStarsFromPvalues, addJitter
@@ -406,7 +406,7 @@ if __name__ == '__main__':
         answer = input(question)
 
         if answer == "c":
-            eventToTest = 'Approach contact'
+            eventToTest = 'Approach contact filtered'
             #eventToTest = 'Get away'
             animalData = {}
             files = getFilesToProcess()
