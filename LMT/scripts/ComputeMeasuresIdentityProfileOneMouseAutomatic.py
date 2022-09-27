@@ -1471,7 +1471,7 @@ if __name__ == '__main__':
 
                 print(file)
                 head, tail = os.path.split(file)
-                extension = head[-4:]
+                extension = tail[-4:]
                 print('extension: ', extension)
                 
                 connection = sqlite3.connect( file )
@@ -1510,7 +1510,7 @@ if __name__ == '__main__':
                         print("Profile data saved.")
 
                     # Create a json file to store the computation
-                    with open("profile_data_{}_{}.json".format('over_night', extension), 'w') as fp:
+                    with open( f"profile_data_over_night_{extension}.json", 'w') as fp:
                         json.dump(profileData, fp, indent=4)
                     print(extension)
                     print("json file with profile measurements created.")
