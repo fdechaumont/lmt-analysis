@@ -84,6 +84,9 @@ def reBuildEvent( connection ):
             if ( speedX == None or speedY == None ):
                 continue
             
+            if not pool.animalDictionnary[animal].getDetectionAt( t ).isHeadAndTailDetected():
+                continue
+                    
             angleA = pool.animalDictionnary[animal].getDirection(t)
             
             vectorSideX, vectorSideY = getVectorFromAngle( angleA + math.pi / 2 )
