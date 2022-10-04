@@ -406,7 +406,7 @@ if __name__ == '__main__':
         answer = input(question)
 
         if answer == "c":
-            eventToTest = 'Approach contact filtered'
+            eventToTest = 'Approach contact'
             #eventToTest = 'Get away'
             animalData = {}
             files = getFilesToProcess()
@@ -420,7 +420,7 @@ if __name__ == '__main__':
                 durationSpeedData = json.load(json_data)
             print("json file re-imported.")
 
-            eventToTest = 'Approach contact'
+            eventToTest = 'Approach contact filtered'
             nightList = ['1', '2']
 
             fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(15, 6), sharey=True)
@@ -431,7 +431,7 @@ if __name__ == '__main__':
                 dataDic = getProfileValues( durationSpeedData, night = str(n), event='distance' )
                 testSpeedData(profileData=durationSpeedData, night = str(n), event='distance' )
                 ax = axes[col]
-                plotBoxplotSpeedPerEvent(dataDic, ax, eventToTest)
+                plotBoxplotSpeedPerEvent(dataDic, ax, eventToTest, n)
                 col += 1
 
             fig.tight_layout()
@@ -478,15 +478,15 @@ if __name__ == '__main__':
         if answer == '4':
             durationSpeedData = {}
             print('Choose the file for short term experiments.')
-            #jsonFileShort = getJsonFileToProcess()
-            jsonFileShort = 'durationSpeedData_Approach contact_16p11_female_pairs_15min.json'
+            jsonFileShort = getJsonFileToProcess()
+            #jsonFileShort = 'durationSpeedData_Approach contact_16p11_female_pairs_15min.json'
             with open(jsonFileShort) as json_data:
                 durationSpeedData['short'] = json.load(json_data)
             print("json file re-imported.")
             
             print('Choose the file for long term experiments.')
-            #jsonFileLong = getJsonFileToProcess()
-            jsonFileLong = 'durationSpeedData_Approach contact_16p11_female_pairs_2days.json'
+            jsonFileLong = getJsonFileToProcess()
+            #jsonFileLong = 'durationSpeedData_Approach contact_16p11_female_pairs_2days.json'
             with open(jsonFileLong) as json_data:
                 durationSpeedDataLongPerNight = json.load(json_data)
             print("json file re-imported.")
@@ -518,7 +518,7 @@ if __name__ == '__main__':
             letterList = ['A', 'B', 'C', 'D', 'E', 'F']
             yLabelDic = {'speed': 'speed (cm/s)', 'distance': 'distance travelled (cm)'}
             yMin = {'speed': 0, 'distance': 0}
-            yMax = {'speed': 25, 'distance': 8}
+            yMax = {'speed': 50, 'distance': 40}
             strain = 'B6C3B16p11.2'
             sex = 'female'
             
