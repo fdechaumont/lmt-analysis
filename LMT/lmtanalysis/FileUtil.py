@@ -271,7 +271,7 @@ behaviouralEventOneMouseDic = {' TotalLen': ["Move isolated", "Move in contact",
     ]
     }
 
-behaviouralEventOneMouseSingle = ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact", "Oral-genital Contact", "Train2", "FollowZone Isolated",
+behaviouralEventOneMouseSingle = ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact", "Oral-genital Contact", "Train2", "FollowZone Isolated",
                                 "Approach contact", "Break contact"]
 behaviouralEventOneMouseSocial = ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact",
                             "Side by side Contact", "Side by side Contact, opposite way",
