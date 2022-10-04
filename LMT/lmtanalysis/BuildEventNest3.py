@@ -48,7 +48,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
         
     for idAnimalA in range( 1 , 5 ):
         stopDictionnary[idAnimalA] = EventTimeLineCached( 
-            connection, file, "Stop", minFrame=tmin, maxFrame=tmax ).getDictionnary()
+            connection, file, "Stop", idAnimalA, minFrame=tmin, maxFrame=tmax ).getDictionnary()
     
     nest3TimeLine = {}
     
