@@ -175,7 +175,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
                         for time in range( t-15, t+1, 2):
                         #time = t
                             try:
-                                if not pool.animalDictionnary[idAnimalB].getDetectionAt( time ).isHeadAndTailDetected():
+                                if pool.animalDictionnary[idAnimalB].getDetectionAt( time ).isHeadAndTailDetected():
                                     angleB = pool.animalDictionnary[idAnimalB].getDirection(time)
                                     if ( checkZone( dicA[t].massX, dicA[t].massY, angleA, meanSizeB, dicB[time].massX, dicB[time].massY, angleB ) == True):
              
