@@ -19,10 +19,13 @@ from lmtanalysis.Measure import *
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
+import copy
+from copy import deepcopy
+
 
 def flush( connection ):
     ''' flush event in database '''
-    deleteEventTimeLineInBase(connection, "FollowZone Isolated" )
+    deleteEventTimeLineInBase(connection, "FollowZone Isolated New" )
 
 
 def line( x1, x2 , y1, y2 ):
@@ -80,40 +83,48 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     '''
     
     contact = {}
-    
-    for idAnimalB in pool.animalDictionnary.keys():
+    anogenitalContact = {}
+    sideSideContact = {}
+    for idAnimalB in pool.animalDictionnary:
         print(pool.animalDictionnary[idAnimalB])
         meanSizeB = pool.animalDictionnary[idAnimalB].getMeanBodyLength( tmax = tmax )
-        
-        for animal in pool.animalDictionnary.keys():
-            if( idAnimalB == animal ):
-                continue
+        anogenitalContact[idAnimalB] = EventTimeLineCached( connection, file, "Oral-genital Contact", idAnimalB, minFrame=tmin, maxFrame=tmax )
             
-            contact[animal, idAnimalB] = EventTimeLineCached( connection, file, "Contact", animal, idAnimalB, minFrame=tmin, maxFrame=tmax )
-            #contact[idAnimalB] = EventTimeLine( connection, "Contact", idAnimalB )
-    
-    for idAnimalB in pool.animalDictionnary.keys():
         
-        for animal in pool.animalDictionnary.keys():
-            if( animal == idAnimalB ):
+        for idAnimalA in pool.animalDictionnary:
+            if( idAnimalB == idAnimalA ):
                 continue
-    
-            allAnimals = list( pool.animalDictionnary.keys() )
-            allAnimals.remove( animal )
-            allAnimals.remove( idAnimalB )
-            allOtherAnimals = allAnimals 
-    
-            eventName = "FollowZone Isolated"
-        
+            contact[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax )
+            
+            
+    #initiate empty timelines
+    followIsolatedTimeLine = {}
+    for idAnimalA in pool.animalDictionnary:
+        for idAnimalB in pool.animalDictionnary:
+            if( idAnimalA == idAnimalB ):
+                continue
+            eventName = "FollowZone Isolated New"
             print ( "A follow B")        
             print ( eventName )
-                    
-            followIsolatedTimeLine = EventTimeLine( None, eventName , animal , idAnimalB , None , None , loadEvent=False )
-            print( followIsolatedTimeLine.eventNameWithId ) 
-                    
+            followIsolatedTimeLine[idAnimalA, idAnimalB] = EventTimeLine( None, eventName , idAnimalA , idAnimalB , None , None , loadEvent=False )
+            
+    
+    followIsolatedTimeLineDic = {}
+    #generate the list of all animals in the experiment
+    allAnimals = list( pool.animalDictionnary.keys() )
+    dicAnogenitalContactAToOtherAnimal = {}
+    for idAnimalA in pool.animalDictionnary:
+        dicAnogenitalContactAToOtherAnimal[ idAnimalA ] = anogenitalContact[ idAnimalA ].getDictionnary()
+        
+        for idAnimalB in pool.animalDictionnary:
+            if( idAnimalA == idAnimalB ):
+                continue
+            allOtherAnimals = allAnimals.copy()
+            allOtherAnimals.remove( idAnimalB )
+
             resultIso={}
             
-            animalA = pool.animalDictionnary[animal]
+            animalA = pool.animalDictionnary[idAnimalA]
             animalB = pool.animalDictionnary[idAnimalB]
 
             dicA = animalA.detectionDictionnary
@@ -121,12 +132,9 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
             
             dicContactBToOtherAnimal = {}
             for idOtherAnimal in allOtherAnimals :                
-                dicContactBToOtherAnimal[ idOtherAnimal ] = contact[ idAnimalB, idOtherAnimal ].getDictionnary() 
-            
-            #dicContactBC = contact[ idAnimalB, idAnimalC ].getDictionnary()
-            #dicContactBD = contact[ idAnimalB, idAnimalD ].getDictionnary()
-            
-            for t in dicB.keys():
+                dicContactBToOtherAnimal[ idOtherAnimal ] = contact[ idAnimalB, idOtherAnimal ].getDictionnary()
+
+            for t in dicB:
                 
                 testContactWithOtherAnimal=False
 
@@ -134,22 +142,18 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
                     if ( t in dicContactBToOtherAnimal[ idOtherAnimal ] ):
                         testContactWithOtherAnimal = True
                         break
+                    if ( t in dicAnogenitalContactAToOtherAnimal[ idAnimalA ]):
+                        testContactWithOtherAnimal = True
+                        break
                 
                 if testContactWithOtherAnimal==True:
                     continue
-                
-                '''
-                if ( t in dicContactBC.keys() or t in dicContactBD ):
-                    continue
-                '''
                
-                if ( t in dicA.keys() ):
-                
-                    
-                    speedA = pool.animalDictionnary[animal].getSpeed(t)
+                if ( t in dicA ):
+                    speedA = pool.animalDictionnary[idAnimalA].getSpeed(t)
                     speedB = pool.animalDictionnary[idAnimalB].getSpeed(t)
                     #angleB = pool.animalList[idAnimalB].getDirection(t)
-                    angleA = pool.animalDictionnary[animal].getDirection(t)
+                    angleA = pool.animalDictionnary[idAnimalA].getDirection(t)
                     
                     if (speedA == None or speedB == None):
                         continue
@@ -157,15 +161,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
                     if ( speedA>animalA.parameters.SPEED_THRESHOLD_LOW and speedB>animalB.parameters.SPEED_THRESHOLD_LOW ):
 
                         time = t
-                        angleB = pool.animalDictionnary[idAnimalB].getDirection(time)
-
-                        '''
-                        try:                                    
-                            if( animalA.getDistanceTo( t, animalB ) > 80 ):
-                                continue
-                        except:
-                            continue
-                        '''
+                        #angleB = pool.animalDictionnary[idAnimalB].getDirection(time)
                         
                         
                         for time in range( t-15, t+1, 2):
@@ -178,13 +174,42 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
                                     break
                             except:
                                 pass                
-                    
-                        
-                    
-            followIsolatedTimeLine.reBuildWithDictionnary( resultIso )
-            
-            followIsolatedTimeLine.endRebuildEventTimeLine(connection)
+
+            followIsolatedTimeLineDic[idAnimalA, idAnimalB] = resultIso 
     
+    #exclude events where both animals are in reciprocal follow
+    cleanFollowDictionary = copy.deepcopy( followIsolatedTimeLineDic ) #copy the existing timeline before cleaning it from follow events that are occurring in contact
+    for idAnimalA in pool.animalDictionnary:
+        remainingAnimals = list( pool.animalDictionnary.keys() )
+        remainingAnimals.remove(idAnimalA)
+        
+        for idAnimalB in remainingAnimals:
+            for t in followIsolatedTimeLineDic[idAnimalA, idAnimalB]:
+                if t in followIsolatedTimeLineDic[idAnimalB, idAnimalA]:
+                    cleanFollowDictionary[idAnimalA, idAnimalB].pop(t)
+                    
+                animalA = pool.animalDictionnary[idAnimalA]
+                animalB = pool.animalDictionnary[idAnimalB]
+                speedA = animalA.getSpeed(t)
+                speedB = animalB.getSpeed(t)
+                if (speedA<=animalA.parameters.SPEED_THRESHOLD_LOW+2 and speedB<=animalB.parameters.SPEED_THRESHOLD_LOW):
+                    cleanFollowDictionary[idAnimalA, idAnimalB].pop(t)
+                    
+                else:
+                    continue
+            
+            print('########end remaining animals: ', remainingAnimals)
+            
+    
+    #rebuild timelines with dictionaries
+    for idAnimalA in pool.animalDictionnary:
+        for idAnimalB in pool.animalDictionnary:
+            if( idAnimalB == idAnimalA ):
+                continue
+            followIsolatedTimeLine[idAnimalA, idAnimalB].reBuildWithDictionnary( cleanFollowDictionary[idAnimalA, idAnimalB] )
+            
+            followIsolatedTimeLine[idAnimalA, idAnimalB].endRebuildEventTimeLine(connection)
+            
         
     # log process
     from lmtanalysis.TaskLogger import TaskLogger
