@@ -160,6 +160,15 @@ class Animal():
         return len ( self.detectionDictionnary.keys() )
 
 
+    def filterDetectionToKeepOnlyHeadTailDetection(self):
+        nbRemoved = 0
+        for key in sorted(self.detectionDictionnary.keys()):
+            a = self.detectionDictionnary.get( key )
+            if not a.isHeadAndTailDetected():
+                self.detectionDictionnary.pop( key )
+                nbRemoved+=1
+        print( "Filtering head tail detection. number of detection removed:", nbRemoved )
+        
     def filterDetectionByInstantSpeed(self , minSpeed, maxSpeed ):
         """
         speed function in LMT use t-1 and t+1 detection to provide a result.
@@ -1145,6 +1154,10 @@ class AnimalPool():
     def filterDetectionByInstantSpeed(self, minSpeed, maxSpeed):
         for animal in self.animalDictionnary.keys():
             self.animalDictionnary[animal].filterDetectionByInstantSpeed( minSpeed, maxSpeed )
+
+    def filterDetectionToKeepOnlyHeadTailDetection(self):
+        for animal in self.animalDictionnary.keys():
+            self.animalDictionnary[animal].filterDetectionToKeepOnlyHeadTailDetection( )
 
     def filterDetectionByArea(self, x1, y1, x2, y2 ):
         for animal in self.animalDictionnary.keys():
