@@ -11,6 +11,10 @@ class ParametersMouse():
     ''' scale to convert distances from pixels to cm '''
     scaleFactor = 10/57
     
+    FOLLOW_CORRIDOR_WIDTH = 8/scaleFactor
+    FOLLOW_CORRIDOR_LENGTH = 24/scaleFactor 
+    FOLLOW_CORRIDOR_DURATION = 30
+    
     ''' '''
     SPEED_THRESHOLD_LOW = 5
     SPEED_THRESHOLD_HIGH = 10

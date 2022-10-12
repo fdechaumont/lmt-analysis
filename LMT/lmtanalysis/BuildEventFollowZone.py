@@ -65,7 +65,7 @@ def transformPoint(angleB, massA_x, massA_y, massB_x, massB_y):
 
 def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
     
-    ''' use the pool provided or create it'''
+    # use the pool provided or create it
     if ( pool == None ):
         pool = AnimalPool( )
         pool.loadAnimals( connection )
@@ -73,10 +73,13 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
 
     '''
     Event FollowZone:
-    - the two animals are moving at a speed >5 cm/s (SPEED_THRESHOLD_LOW)
-    - the angles between the two animals are less than 45° apart
-    - the mass center of the follower is within a follow zone of one mean body length of width and two mean body lengths of length
-    - either the animal B is in contact with another one (FollowZone Social) or the animal B is not in contact with any other animal (except A at the end of the follow event; FollowZone Isolated)
+    - ok: the two animals are moving at a speed >5 cm/s (SPEED_THRESHOLD_LOW)
+    - ok: animals must not be in contact
+    - not ok: the angles between the two animals are less than 45� apart considering head tail direction
+    - ok: the mass center of the follower is within a follow zone of one mean body length of width and two mean body lengths of length
+    
+    
+    NOT CONSIDERED YET: - either the animal B is in contact with another one (FollowZone Social) or the animal B is not in contact with any other animal (except A at the end of the follow event; FollowZone Isolated)
     
     - update 17 may 2018: now works with n animals    
     
@@ -84,7 +87,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     
     contact = {}
     anogenitalContact = {}
-    sideSideContact = {}
+    
     for idAnimalB in pool.animalDictionnary:
         print(pool.animalDictionnary[idAnimalB])
         meanSizeB = pool.animalDictionnary[idAnimalB].getMeanBodyLength( tmax = tmax )
