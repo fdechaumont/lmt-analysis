@@ -110,6 +110,9 @@ def isAFollowingB( t , animalA , dicA , animalB , dicB ):
         distance = detectionA.getDistanceTo( detectionB )  
         
         # discard if distance is too large between detections
+        if distance == None:
+            continue
+        
         if distance > 10: # PLEASE FIX: THIS IS TO DEFINE
             continue
                          
