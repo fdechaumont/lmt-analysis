@@ -164,6 +164,7 @@ def getFigureBehaviouralEventsLabelsFrench(event):
                          "seq oral oral - oral genital": 'nez-nez & nez-anogenital',
                          "seq oral geni - oral oral": 'nez-anogenital & nez-nez',
                          "FollowZone Isolated": 'poursuite',
+                         "FollowZone": 'poursuite',
                          "Train2": 'train2'
                          # , "longChase": 'long chase'
                          }
@@ -192,7 +193,8 @@ def getFigureBehaviouralEventsLabels(event):
                          "Side by side Contact, opposite way": 'side-side, head-to-tail',
                          "seq oral oral - oral genital": 'nose-nose & nose-anogenital',
                          "seq oral geni - oral oral": 'nose-anogenital & nose-nose',
-                         "FollowZone Isolated": 'follow',
+                         "FollowZone Isolated": 'follow0',
+                         "FollowZone": 'follow',
                          "Train2": 'train2',
                          "Group 3 make": 'make group 3',
                          "Group 4 make": 'make group 4',
@@ -225,7 +227,7 @@ def getFigureBehaviouralEventsLabels(event):
 
 behaviouralEventOneMouse = ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
-    "Train2", "FollowZone Isolated",
+    "Train2", "FollowZone",
     "Social approach", "Approach contact",
     "Group 3 make", "Group 4 make", "Get away", "Break contact",
     "Group 3 break", "Group 4 break"
@@ -233,28 +235,28 @@ behaviouralEventOneMouse = ["Move isolated", "Move in contact", "WallJump", "Sto
 
 behaviouralEventOneMouseDic = {' TotalLen': ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
-    "Train2", "FollowZone Isolated"],
+    "Train2", "FollowZone"],
     
     ' Nb': ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
-    "Train2", "FollowZone Isolated",
+    "Train2", "FollowZone",
     "Social approach", "Approach contact",
     "Group 3 make", "Group 4 make", "Break contact",
     "Group 3 break", "Group 4 break"],
     
     ' MeanDur': ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
-    "Train2", "FollowZone Isolated",
+    "Train2", "FollowZone",
     "Social approach", "Approach contact",
     "Break contact"
     ]
     }
 
-behaviouralEventOneMouseSingle = ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact", "Oral-genital Contact", "Train2", "FollowZone Isolated",
+behaviouralEventOneMouseSingle = ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact", "Oral-genital Contact", "Train2", "FollowZone",
                                 "Social approach", "Approach contact", "Get away", "Break contact"]
 behaviouralEventOneMouseSocial = ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact",
                             "Side by side Contact", "Side by side Contact, opposite way",
-                            "Train2", "FollowZone Isolated",
+                            "Train2", "FollowZone",
                             "Social approach", "Approach contact",
                             "Get away", "Break contact"]
 
