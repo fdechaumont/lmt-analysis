@@ -22,7 +22,8 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 import copy
 from copy import deepcopy
 
-eventName = "FollowZone New4"
+#eventName = "FollowZone New4"
+eventName = "FollowZone"
 
 FOLLOW_CORRIDOR_DURATION = 30 # in frames
 FOLLOW_MAX_ANGLE = math.pi/4 # in radians
@@ -85,6 +86,7 @@ def isAFollowingB( t , dicA , dicB ):
                 
         # discard if distance is too large between detections
         if distance > FOLLOW_DISTANCE_MAX_PIX:
+
             continue
                          
         # discard if animals are not going the same way ( scalar test )
