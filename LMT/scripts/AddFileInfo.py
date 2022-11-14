@@ -25,15 +25,15 @@ def process( file ):
     connection = sqlite3.connect( file )
     
     c = connection.cursor()
-    query = "UPDATE ANIMAL SET GENOTYPE = 'DlxCre wt ; Dyrk1acKO/+'";
+    query = "UPDATE ANIMAL SET GENOTYPE = 'Del/+'";
     c.execute(query)
-    query = "UPDATE ANIMAL SET AGE = '7we'";
+    query = "UPDATE ANIMAL SET AGE = '14we'";
     c.execute( query )
     query = "UPDATE ANIMAL SET SEX = 'female'";
     c.execute( query )
-    query = "UPDATE ANIMAL SET STRAIN = 'Dlx5/6-Cre ; Dyrk1a cKO'";
+    query = "UPDATE ANIMAL SET STRAIN = 'B6C3B17p21.31'";
     c.execute( query )
-    query = "UPDATE ANIMAL SET SETUP = 'x'";
+    query = "UPDATE ANIMAL SET SETUP = '2'";
     c.execute(query)
     '''query = "UPDATE ANIMAL SET NAME = '189N3-{}'".format(ind);
     c.execute(query)
