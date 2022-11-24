@@ -36,7 +36,7 @@ import matplotlib.image as mpimg
 import random
 from random import randint
 
-def computeProfile(file, minT, maxT, night, behaviouralEventList):
+def computeProfile(file, minT, maxT, behaviouralEventList):
     
     connection = sqlite3.connect( file )
     
@@ -1465,7 +1465,7 @@ if __name__ == '__main__':
                     maxT = tmax
                     n = 0
                     #Compute profile2 data and save them in a text file
-                    profileData[file][n] = computeProfile(file = file, minT=minT, maxT=maxT, night=n, behaviouralEventList=behaviouralEventOneMouse)
+                    profileData[file][n] = computeProfile(file = file, minT=minT, maxT=maxT, behaviouralEventList=behaviouralEventOneMouse)
                     
                     # Create a json file to store the computation
                     with open("profile_data_{}_{}.json".format('no_night', extension), 'w') as fp:
@@ -1483,7 +1483,7 @@ if __name__ == '__main__':
                         maxT = eventNight.endFrame
                         print("Night: ", n)
                         #Compute profile2 data and save them in a text file
-                        profileData[file][n] = computeProfile(file=file, minT=minT, maxT=maxT, night=n, behaviouralEventList=behaviouralEventOneMouse)
+                        profileData[file][n] = computeProfile(file=file, minT=minT, maxT=maxT, behaviouralEventList=behaviouralEventOneMouse)
                         
                         n+=1
                         print("Profile data saved.")
