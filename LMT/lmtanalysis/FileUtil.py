@@ -14,6 +14,9 @@ from random import randrange, random
 
 from lmtanalysis import ParametersMouse, ParametersRat
 from lmtanalysis.AnimalType import AnimalType
+import scipy
+from scipy import stats
+
 
 '''
 Provide a dialog to ask for either files or folder to process.
@@ -170,6 +173,17 @@ def extractPValueFromLMMResult( result, keyword ):
             print ( "P VALUE :" , pValue )
             print ( "SIGN :" , sign )
             return pValue, sign
+        
+def testNormalityFromData( data ):
+    statistic, pvalue = scipy.stats.shapiro( data )
+    if pvalue < 0.05:
+        print( '             The null hypothesis is rejected: we cannot say that the data are normally distributed (use Levene s test for equal variances).' )
+        #Levene's test for equal variances
+    else:
+        print( '   The null hypothesis cannot be rejected: we can consider the data as normally distributed (use Bartlett s test for equal variances).' )
+        #Bartlett's test for equal variances
+        
+    return statistic, pvalue
 
 def getFigureBehaviouralEventsLabelsFrench(event):
     behaviouralEventsLabels = {"Stop isolated": 'repos isole',

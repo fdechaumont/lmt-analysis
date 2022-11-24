@@ -858,6 +858,7 @@ def plotProfileDataDurationPairs( ax, profileData, night, valueCat, behavEvent, 
         genotypeCat = list(Counter(dfData['genotype']).keys())
         genotypeCat.sort(reverse=True)
         print(genotypeCat)
+        
         data = {}
         for k in [0,1]:
             data[genotypeCat[k]] = dfData['value'][dfData['genotype'] == genotypeCat[k]]
@@ -1272,6 +1273,8 @@ def plotZScoreProfileAutoHorizontal(ax, cat, koDataframe, night, eventListForTes
         print('Event: ', event)
 
         valList = selectedDataframe['value'][selectedDataframe['trait'] == event]
+        S, pnorm = testNormalityFromData(valList)
+        print('Normality test: statistics = {}, pvalue = {}'.format(S, pnorm))
         try:
             T, p = ttest_1samp(valList, popmean=0, nan_policy='omit')
             print('p=', p)

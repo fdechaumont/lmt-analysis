@@ -32,6 +32,8 @@ from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationB
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from lmtanalysis.BehaviouralSequencesUtil import genoList
+from scipy.stats._morestats import wilcoxon
+from scipy.stats._stats_py import ttest_ind
 
 
 def computeProfilePerIndividual(file, minT, maxT, genoList, categoryList, behaviouralEventListTwoMice):
@@ -323,7 +325,7 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( ax, profileData, nigh
     print("y: ", y)
     print("x: ", x)
     print('geno other: ', genoOther)
-
+    
     if valueCat == ' MeanDur':
         unit = '(frames)'
         yMin = min(y) - 0.2 * max(y)
@@ -370,44 +372,58 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( ax, profileData, nigh
     print('genotype list: ', genotypeCat)
     otherGenoList = ['same', 'diff']
     pos = {'same': 0, 'diff': 1, genotypeCat[0]: -0.25, genotypeCat[1]: 0.75}
-
+    
+    
     if valueCat == ' MeanDur':
-        # Mann-Whitney U test, non parametric, small sample size
-        # compare the two genotypes for the mean duration of events spent with same or with different genotypes
-
-        for genoB in otherGenoList:
+        
+        # compare for each genotype the mean duration of events spent with same or with different genotypes
+        for k in [0, 1]:
+            statNormality, pNormality = testNormalityFromData(data=dfData['value'][(dfData['genotype'] == genotypeCat[k])])
             data = {}
-            for k in [0,1]:
-                data[genotypeCat[k]] = dfData['value'][(dfData['genotype'] == genotypeCat[k]) & (dfData['genoOther'] == genoB)]
-            try:
+            for genoB in otherGenoList:
+                data[genoB] = dfData['value'][(dfData['genotype'] == genotypeCat[k]) & (dfData['genoOther'] == genoB)]
+            
+            #print('means of mean duration with ', genoB, ' geno: ', genotypeCat[0], np.mean(data[genotypeCat[0]]), 'versus ', genotypeCat[1], np.mean(data[genotypeCat[1]]))
+            ############TO FIX refaire les tests, ils sont faux
+            if pNormality < 0.05:
+                #data are not normally distributed => non parametric tests
                 U, p = mannwhitneyu( data[genotypeCat[0]], data[genotypeCat[1]])
-            except:
-                print('test not possible')
-                U = 'NA'
-                p = 'NA'
-            print('means of mean duration with ', genoB, ' geno: ', genotypeCat[0], np.mean(data[genotypeCat[0]]), 'versus ', genotypeCat[1], np.mean(data[genotypeCat[1]]))
-            print( 'Mann-Whitney U test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
-            text_file.write('Mann-Whitney U test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
+                print('non parametric')
+                print( 'Mann-Whitney U test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
+                text_file.write('Mann-Whitney U test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
+            
+            else:
+                #data are normally distributed => parametric tests
+                U, p = ttest_ind( data[genotypeCat[0]], data[genotypeCat[1]] )
+                print('parametric')
+                print( 'T-test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
+                text_file.write('T-test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
+            
             ax.text(x=pos[genoB], y=yMin+0.95*(yMax-yMin), s = getStarsFromPvalues(p,numberOfTests=1), fontsize=15, ha='center' )
             text_file.write('\n')
+
 
     elif valueCat in [' TotalLen', ' Nb']:
         data = {}
         for k in [0, 1]:
+            statNormality, pNormality = testNormalityFromData(data=dfData['value'][(dfData['genotype'] == genotypeCat[k]) & (dfData['genoOther'] == 'same')])
+            
             data[genotypeCat[k]] = dfData['value'][(dfData['genotype'] == genotypeCat[k]) & (dfData['genoOther'] == 'same')]
-            #print('############ ', data[genotypeCat[k]])
-            try:
-                results = ttest_1samp(data[genotypeCat[k]], 100/3)
-                T = results.statistic
-                p = results.pvalue
-            except:
-                print('test not possible')
-                T = 'NA'
-                p = 'NA'
+            
             print('means of prop with same geno: ', genotypeCat[k], np.mean(data[genotypeCat[k]]))
-            print('One sample t-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, T, p))
-            text_file.write('One-sample t-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, T, p))
-            ax.text(x=pos[genotypeCat[k]], y=yMin + 0.95 * (yMax - yMin), s=getStarsFromPvalues(p, numberOfTests=1),
+            if pNormality < 0.05:
+                #wilcoxon test, non parametric, small sample size, not normally distributed
+                results = wilcoxon([val-100/3 for val in data[genotypeCat[k]]])
+                print('Wilcoxon test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, results.statistic, results.pvalue))
+                text_file.write('Wilcoxon test ({} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, T, p))
+            
+            else:
+                #t-test is data are normally distributed
+                results = ttest_1samp(data[genotypeCat[k]], 100/3)
+                print('T-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, results.statistic, results.pvalue))
+                text_file.write('T-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, results.statistic, results.pvalue))
+                   
+            ax.text(x=pos[genotypeCat[k]], y=yMin + 0.95 * (yMax - yMin), s=getStarsFromPvalues(results.pvalue, numberOfTests=1),
                                 fontsize=14, ha='center')
             text_file.write('\n')
             
