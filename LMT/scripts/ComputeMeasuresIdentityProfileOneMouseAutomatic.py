@@ -33,7 +33,10 @@ from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationB
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-def computeProfile(file, minT, maxT, night, text_file, behaviouralEventList):
+import random
+from random import randint
+
+def computeProfile(file, minT, maxT, night, behaviouralEventList):
     
     connection = sqlite3.connect( file )
     
@@ -51,7 +54,8 @@ def computeProfile(file, minT, maxT, night, text_file, behaviouralEventList):
     groupName = sortedIndList[0]
     for ind in sortedIndList[1:]:
         print('ind: ', ind)
-        groupName+ind
+        groupName+='_'
+        groupName+=ind
 
     animalData = {}
     for animal in pool.animalDictionnary.keys():
@@ -64,6 +68,7 @@ def computeProfile(file, minT, maxT, night, text_file, behaviouralEventList):
         animalData[rfid]["animal"] = pool.animalDictionnary[animal].name
         animalObject = pool.animalDictionnary[animal]
         animalData[rfid]["file"] = file
+        animalData[rfid]["rfid"] = rfid
         animalData[rfid]['genotype'] = pool.animalDictionnary[animal].genotype
         animalData[rfid]['sex'] = pool.animalDictionnary[animal].sex
         animalData[rfid]['group'] = groupName
@@ -106,33 +111,6 @@ def computeProfile(file, minT, maxT, night, text_file, behaviouralEventList):
         else:
             animalData[rfid]["totalDistance"] = "totalDistance"
 
-
-    header = ["file", "strain", "sex", "group", "day", "exp", "RFID", "genotype", "minTime", "maxTime"] #"user1",
-    for name in header:
-        text_file.write("{}\t".format(name))
-
-    #write event keys
-    firstAnimalKey = next(iter(animalData))
-    firstAnimal = animalData[firstAnimalKey]
-    for k in firstAnimal.keys():
-        text_file.write( "{}\t".format( k.replace(" ", "") ) )
-    text_file.write("\n")
-    
-    for kAnimal in animalData:
-        text_file.write( "{}\t".format( file ) )
-        text_file.write( "{}\t".format( "strain" ) )
-        text_file.write( "{}\t".format( animalData[kAnimal]["sex"] ) )
-        text_file.write( "{}\t".format( "group" ) )
-        text_file.write( "{}\t".format( night ) )
-        text_file.write( "{}\t".format( "exp" ) )
-        text_file.write( "{}\t".format( kAnimal ) )
-        text_file.write( "{}\t".format( animalData[kAnimal]["genotype"] ) )
-        text_file.write( "{}\t".format( minT ) )
-        text_file.write( "{}\t".format( maxT ) )
-
-        for kEvent in firstAnimal.keys():
-            text_file.write( "{}\t".format( animalData[kAnimal][kEvent] ) )
-        text_file.write( "\n" )
 
     connection.close()
         
@@ -1462,7 +1440,7 @@ if __name__ == '__main__':
 
         if answer == "1":
             files = getFilesToProcess()
-            tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
+            tmin, tmax = getMinTMaxTInput()
 
             profileData = {}
             nightComputation = input("Compute profile only during night events (Y or N)? ")
@@ -1471,7 +1449,8 @@ if __name__ == '__main__':
 
                 print(file)
                 head, tail = os.path.split(file)
-                extension = tail[-4:]
+                #extension = tail[-24:-6]
+                extension = randint(0, 9999)
                 print('extension: ', extension)
                 
                 connection = sqlite3.connect( file )
@@ -1486,8 +1465,8 @@ if __name__ == '__main__':
                     maxT = tmax
                     n = 0
                     #Compute profile2 data and save them in a text file
-                    profileData[file][n] = computeProfile(file = file, minT=minT, maxT=maxT, night=n, text_file=text_file, behaviouralEventList=behaviouralEventOneMouse)
-                    text_file.write( "\n" )
+                    profileData[file][n] = computeProfile(file = file, minT=minT, maxT=maxT, night=n, behaviouralEventList=behaviouralEventOneMouse)
+                    
                     # Create a json file to store the computation
                     with open("profile_data_{}_{}.json".format('no_night', extension), 'w') as fp:
                         json.dump(profileData, fp, indent=4)
@@ -1504,8 +1483,8 @@ if __name__ == '__main__':
                         maxT = eventNight.endFrame
                         print("Night: ", n)
                         #Compute profile2 data and save them in a text file
-                        profileData[file][n] = computeProfile(file=file, minT=minT, maxT=maxT, night=n, text_file=text_file, behaviouralEventList=behaviouralEventOneMouse)
-                        text_file.write( "\n" )
+                        profileData[file][n] = computeProfile(file=file, minT=minT, maxT=maxT, night=n, behaviouralEventList=behaviouralEventOneMouse)
+                        
                         n+=1
                         print("Profile data saved.")
 
@@ -1515,14 +1494,11 @@ if __name__ == '__main__':
                     print(extension)
                     print("json file with profile measurements created.")
 
-            text_file.write( "\n" )
-            text_file.close()
-
             break
 
         if answer == "2":
             files = getFilesToProcess()
-            tmin, tmax, text_file = getMinTMaxTAndFileNameInput()
+            tmin, tmax = getMinTMaxTInput()
             print ( files )
 
             profileData = {}
@@ -1539,7 +1515,7 @@ if __name__ == '__main__':
                     n = 0
                     #Compute profile2 data and save them in a text file
                     profileData[file][n] = computeProfilePair(file = file, minT=minT, maxT=maxT, behaviouralEventListSingle=behaviouralEventOneMouse, behaviouralEventListSocial=behaviouralEventOneMouse)
-                    text_file.write( "\n" )
+                    
                     # Create a json file to store the computation
                     with open("profile_data_pair_{}.json".format('no_night'), 'w') as fp:
                         json.dump(profileData, fp, indent=4)
@@ -1558,7 +1534,7 @@ if __name__ == '__main__':
                         print("Night: ", n)
                         #Compute profile2 data and save them in a text file
                         profileData[file][n] = computeProfilePair(file=file, minT=minT, maxT=maxT, behaviouralEventListSingle=behaviouralEventOneMouseSingle, behaviouralEventListSocial=behaviouralEventOneMouseSocial)
-                        text_file.write( "\n" )
+                        
                         n+=1
                         print("Profile data saved.")
 
@@ -1570,8 +1546,6 @@ if __name__ == '__main__':
                         json.dump(profileData, fp, indent=4)
                     print("json file with profile measurements created.")
 
-            text_file.write( "\n" )
-            text_file.close()
 
             break
 
