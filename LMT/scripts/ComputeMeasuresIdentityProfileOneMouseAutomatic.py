@@ -179,6 +179,7 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
         animalData[rfid]["animal"] = pool.animalDictionnary[animal].name
         animalObject = pool.animalDictionnary[animal]
         animalData[rfid]["file"] = file
+        animalData[rfid]["rfid"] = rfid
         animalData[rfid]['genotype'] = pool.animalDictionnary[animal].genotype
         animalData[rfid]['sex'] = pool.animalDictionnary[animal].sex
         animalData[rfid]['age'] = pool.animalDictionnary[animal].age
@@ -1449,9 +1450,6 @@ if __name__ == '__main__':
 
                 print(file)
                 head, tail = os.path.split(file)
-                #extension = tail[-24:-6]
-                extension = randint(0, 9999)
-                print('extension: ', extension)
                 
                 connection = sqlite3.connect( file )
 
@@ -1464,19 +1462,20 @@ if __name__ == '__main__':
                     minT = tmin
                     maxT = tmax
                     n = 0
+                    #extension = tail[-24:-6]
+                    extension = 'no_night_{}'.format(randint(0, 9999))
+                    print('extension: ', extension)
+                
                     #Compute profile2 data and save them in a text file
                     profileData[file][n] = computeProfile(file = file, minT=minT, maxT=maxT, behaviouralEventList=behaviouralEventOneMouse)
                     
-                    # Create a json file to store the computation
-                    with open("profile_data_{}_{}.json".format('no_night', extension), 'w') as fp:
-                        json.dump(profileData, fp, indent=4)
-                    print(extension)
-                    print("json file with profile measurements created.")
-
 
                 else:
                     nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=tmin, maxFrame=tmax )
                     n = 1
+                    #extension = tail[-24:-6]
+                    extension = 'over_night_{}'.format(randint(0, 9999))
+                    print('extension: ', extension)
 
                     for eventNight in nightEventTimeLine.getEventList():
                         minT = eventNight.startFrame
@@ -1488,11 +1487,11 @@ if __name__ == '__main__':
                         n+=1
                         print("Profile data saved.")
 
-                    # Create a json file to store the computation
-                    with open( f"profile_data_over_night_{extension}.json", 'w') as fp:
-                        json.dump(profileData, fp, indent=4)
-                    print(extension)
-                    print("json file with profile measurements created.")
+            # Create a json file to store the computation
+            with open( f"profile_data_over_night_{extension}.json", 'w') as fp:
+                json.dump(profileData, fp, indent=4)
+            print(extension)
+            print("json file with profile measurements created.")
 
             break
 
@@ -1513,21 +1512,17 @@ if __name__ == '__main__':
                     minT = tmin
                     maxT = tmax
                     n = 0
+                    extension = 'no_night_{}'.format(randint(0,9999))
                     #Compute profile2 data and save them in a text file
                     profileData[file][n] = computeProfilePair(file = file, minT=minT, maxT=maxT, behaviouralEventListSingle=behaviouralEventOneMouse, behaviouralEventListSocial=behaviouralEventOneMouse)
                     
-                    # Create a json file to store the computation
-                    with open("profile_data_pair_{}.json".format('no_night'), 'w') as fp:
-                        json.dump(profileData, fp, indent=4)
-                    print("json file with profile measurements created.")
-
-
+                    
                 else:
                     connection = sqlite3.connect(file)
                     nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=tmin, maxFrame=tmax )
                     connection.close()
                     n = 1
-
+                    extension = 'over_night_{}'.format(randint(0,9999))
                     for eventNight in nightEventTimeLine.getEventList():
                         minT = eventNight.startFrame
                         maxT = eventNight.endFrame
@@ -1538,14 +1533,13 @@ if __name__ == '__main__':
                         n+=1
                         print("Profile data saved.")
 
-                    # Create a json file to store the computation
-                    print('#############################')
-                    print(profileData)
-                    print('#############################')
-                    with open("profile_data_pair_{}.json".format('over_night'), 'w') as fp:
-                        json.dump(profileData, fp, indent=4)
-                    print("json file with profile measurements created.")
-
+            # Create a json file to store the computation
+            print('#############################')
+            print(profileData)
+            print('#############################')
+            with open("profile_data_pair_{}.json".format(extension), 'w') as fp:
+                json.dump(profileData, fp, indent=4)
+            print("json file with profile measurements created.")
 
             break
 
