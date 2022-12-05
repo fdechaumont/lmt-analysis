@@ -18,9 +18,9 @@ from lmtanalysis.FileUtil import getFilesToProcess, getJsonFileToProcess
 
 from scripts.ComputeMeasuresIdentityProfileOneMouseAutomatic import *
 
-from LMT.USV.usvEventsCorrelations.Compute_Speed_Duration_Events_With_USV import *
+#from LMT.USV.usvEventsCorrelations.Compute_Speed_Duration_Events_With_USV import *
 from scipy.spatial.transform import rotation
-from LMT.USV.figure.figParameter import *
+#from LMT.USV.figure.figParameter import *
 from _collections import OrderedDict
 
 from lmtanalysis.Util import getFileNameInput, getStarsFromPvalues, addJitter
@@ -389,11 +389,11 @@ if __name__ == '__main__':
 
     rc('font', **{'family': 'serif', 'serif': ['Arial']})
 
-    eventListToTest = ["Contact", "Approach contact", "Break contact", "Get away", "FollowZone Isolated",
+    eventListToTest = ["Contact", "Approach contact", "Break contact", "Get away", "FollowZone",
                        "Oral-genital Contact", "Train2", "longChase"]
-    behavEventListShort = ["Contact", "Approach contact", "Break contact", "FollowZone Isolated",
+    behavEventListShort = ["Contact", "Approach contact", "Break contact", "FollowZone",
                            "Oral-genital Contact", "Train2"]
-    behavEventListShortPoints = ["Train2", "FollowZone Isolated", "Approach contact", "Break contact"]
+    behavEventListShortPoints = ["Train2", "FollowZone", "Approach contact", "Break contact"]
 
     while True:
 
@@ -406,11 +406,11 @@ if __name__ == '__main__':
         answer = input(question)
 
         if answer == "c":
-            eventToTest = 'Approach contact'
+            eventToTest = 'FollowZone'
             #eventToTest = 'Get away'
             animalData = {}
             files = getFilesToProcess()
-            computeSpeedDurationPerEvent(animalData=animalData, files=files, tmin=0, tmax=2*oneDay, eventToTest=eventToTest)
+            computeSpeedDurationPerEvent(animalData=animalData, files=files, tmin=0, tmax=15*oneMinute, eventToTest=eventToTest)
 
             break
 
@@ -479,14 +479,16 @@ if __name__ == '__main__':
             durationSpeedData = {}
             print('Choose the file for short term experiments.')
             #jsonFileShort = getJsonFileToProcess()
-            jsonFileShort = 'durationSpeedData_Approach contact_16p11_female_pairs_15min.json'
+            #jsonFileShort = 'durationSpeedData_Approach contact_16p11_female_pairs_15min.json'
+            jsonFileShort = 'durationSpeedData_FollowZone_16p11_female_pairs_15min.json'
             with open(jsonFileShort) as json_data:
                 durationSpeedData['short'] = json.load(json_data)
             print("json file re-imported.")
             
             print('Choose the file for long term experiments.')
             #jsonFileLong = getJsonFileToProcess()
-            jsonFileLong = 'durationSpeedData_Approach contact_16p11_female_pairs_2days.json'
+            #jsonFileLong = 'durationSpeedData_Approach contact_16p11_female_pairs_2days.json'
+            jsonFileLong = 'durationSpeedData_FollowZone_16p11_female_pairs_2nights.json'
             with open(jsonFileLong) as json_data:
                 durationSpeedDataLongPerNight = json.load(json_data)
             print("json file re-imported.")
@@ -511,14 +513,14 @@ if __name__ == '__main__':
             
             selectedVariable = 'distance'
             
-            eventToTest = 'Approach contact'
+            eventToTest = 'FollowZone'
             termList = ['short', 'long']
             nightDic = {'short': '0', 'long': 'all nights'}
             variableList = ['speed', 'distance']
             letterList = ['A', 'B', 'C', 'D', 'E', 'F']
             yLabelDic = {'speed': 'speed (cm/s)', 'distance': 'distance travelled (cm)'}
             yMin = {'speed': 0, 'distance': 0}
-            yMax = {'speed': 25, 'distance': 8}
+            yMax = {'speed': 60, 'distance': 25}
             strain = 'B6C3B16p11.2'
             sex = 'female'
             

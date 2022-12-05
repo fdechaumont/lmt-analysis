@@ -258,7 +258,7 @@ def getProfileValues( profileData, night=None, event=None):
     dataDic['group'] = []
     
     for file in profileData.keys():
-        #print('#####', profileData[file][str(night)].keys())
+        print('#####', profileData[file][str(night)].keys())
         for animal in profileData[file][str(night)].keys():
             if not '-' in animal:
                 dataDic["value"].append(profileData[file][str(night)][animal][event])
@@ -385,6 +385,51 @@ def plotProfileDataDuration( profileData, behaviouralEventList, night, valueCat 
     plt.close( fig )
 
 
+def plotProfileDataDurationPerGroup( profileData, behaviouralEventList, night, valueCat, genoRef, text_file ):
+    if valueCat == ' TotalLen':
+        nRow = 3
+        nCol = 5
+    elif valueCat == ' Nb':
+        nRow = 4
+        nCol = 5
+    elif valueCat == ' MeanDur':
+        nRow = 4
+        nCol = 4
+        
+    fig, axes = plt.subplots(nrows=nRow, ncols=nCol, figsize=(nCol*2.2, nRow*3))
+    
+    row=0
+    col=0
+    fig.suptitle(t="{} of events (night {})".format(valueCat, night), y=1.2, fontweight= 'bold')
+    letterList = list(string.ascii_uppercase)
+    k = 0
+    #plot the data for each behavioural event
+    for behavEvent in behaviouralEventList:
+        ax = axes[row, col]
+        singlePlotPerEventProfilePerGroup(profileData, night, valueCat, behavEvent, ax=ax, genoRef=genoRef, letter = letterList[k], text_file=text_file)
+           
+        text_file.write("Test for the event: {} night {}".format( behavEvent, night ) )
+        
+        profileValueDictionary = getProfileValues(profileData=profileData, night=night, event=behavEvent)
+        k += 1
+        dfData = pandas.DataFrame({'group': profileValueDictionary["exp"],
+                                   'genotype': profileValueDictionary["genotype"],
+                                   'value': profileValueDictionary["value"]})
+
+        maxCol = nCol - 1
+        if col<maxCol:
+            col+=1
+            row=row
+        else:
+            col=0
+            row+=1
+
+    fig.tight_layout()    
+    fig.savefig( "FigProfile{}_Events_night_{}.pdf".format( valueCat, night ) ,dpi=100)
+    fig.savefig( "FigProfile{}_Events_night_{}.jpg".format( valueCat, night ) ,dpi=300)
+    plt.close( fig )
+
+
 def singlePlotPerEventProfile(profileData, night, valueCat, behavEvent, ax):
     if behavEvent != 'totalDistance':
         event = behavEvent + valueCat
@@ -436,6 +481,87 @@ def singlePlotPerEventProfile(profileData, night, valueCat, behavEvent, ax):
     ax.set_xticklabels(genotypeType, rotation=30, fontsize=10, horizontalalignment='right')
 
 
+def singlePlotPerEventProfilePerGroup(profileData, night, valueCat, behavEvent, genoRef, ax, letter, text_file):
+    
+    event = behavEvent
+    print("event: ", event)
+
+    profileValueDictionary = getProfileValues(profileData=profileData, night=night, event=event)
+    yval = profileValueDictionary["value"]
+    x = profileValueDictionary["genotype"]
+    genotypeType = list(Counter(x).keys())
+    print(genotypeType)
+    genotypeType.sort(reverse=True)
+    print('x labels: ', genotypeType)
+    group = profileValueDictionary["exp"]
+
+    if (valueCat == ' TotalLen') & (behavEvent != 'totalDistance'):
+        y = [i / 30 for i in yval]
+    else:
+        y = yval
+
+
+    print("y: ", y)
+    print("x: ", x)
+    print("group: ", group)
+    experimentType = Counter(group)
+    print("Nb of experiments: ", len(experimentType))
+
+    ax.set_xlim(-0.5, len(genotypeType))
+    yMin = min(y) - 0.2 * max(y)
+    yMax = max(y) + 0.2 * max(y)
+    ax.set_ylim(yMin, yMax)
+    sns.boxplot(x, y, order=genotypeType, ax=ax, linewidth=0.5, showmeans=True,
+                meanprops={"marker": 'o',
+                           "markerfacecolor": 'white',
+                           "markeredgecolor": 'black',
+                           "markersize": '8'}, color='white', showfliers=False, width=0.4)
+    #sns.stripplot(x, y, order=genotypeType, jitter=True, color='black', hue=group, s=5, ax=ax)
+    sns.stripplot(x, y, order=genotypeType, jitter=True, hue=group, s=5, ax=ax)
+    if behavEvent == 'totalDistance':
+        titleEvent = behavEvent
+    else:
+        titleEvent = behavEvent[0:behavEvent.find(valueCat)]
+    ax.set_title(getFigureBehaviouralEventsLabels(titleEvent))
+    labelTxtDic = {' TotalLen': 'duration (s)', ' MeanDur': 'mean duration (frames)', ' Nb': 'occurrences'}
+    labelTxt = labelTxtDic[valueCat]
+    if behavEvent == 'totalDistance':
+        labelTxt = 'total distance (m)'
+    ax.set_ylabel(labelTxt)
+    ax.legend().set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    print('x tick labels: ', genotypeType)
+    ax.set_xticklabels(genotypeType, rotation=30, fontsize=10, horizontalalignment='right')
+      
+    
+    text_file.write("Test for the event: {} night {}".format( event, night ) )
+        
+    profileValueDictionary = getProfileValues(profileData=profileData, night=night, event=event)
+    
+    dfData = pandas.DataFrame({'group': profileValueDictionary["exp"],
+                               'genotype': profileValueDictionary["genotype"],
+                               'value': profileValueDictionary["value"]})
+
+    
+    #pandas.DataFrame(dfData).info()
+    #Mixed model: variable to explain: value; fixed factor = genotype; random effect: group
+    #create model:
+    model = smf.mixedlm("value ~ genotype", dfData, groups = dfData["group"])
+    #run model: 
+    result = model.fit()
+    #print summary
+    print(result.summary())
+    p = extractPValueFromLMMResult(result, keyword=genoRef)
+    print(p)
+    
+    ax.text(0.5, yMax-0.1*(yMax-yMin), getStarsFromPvalues(p[0], 1), fontsize=18, horizontalalignment='center', color='black', weight='bold')
+
+    #ax.text(x=-0.1, y = yMax, s=letter, fontsize=22, fontweight='bold', horizontalalignment='left', transform=ax.transAxes)
+    
+    text_file.write(result.summary().as_text())
+    text_file.write('\n')
+    
 
 def singlePlotPerEventProfilePairs(profileData, night, valueCat, behavEvent, ax, image, imgPos, zoom, letter):
     if behavEvent != 'totalDistance':
@@ -607,6 +733,121 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
         #add p-values on the plot
         ax.text(n, max(y) + 0.1 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=16, horizontalalignment='center', color='black', weight='bold')
         n += 1
+
+
+def singlePlotPerEventProfileBothSexesPerGroup(profileDataM, profileDataF, night, valueCat, behavEvent, ax, letter, text_file, image, imgPos, zoom):
+    
+    event = behavEvent
+    print("event: ", event)
+
+    #upload data for males:
+    profileValueDictionaryM = getProfileValues(profileData=profileDataM, night=night, event=event)
+    yvalM = profileValueDictionaryM["value"]
+    xM = profileValueDictionaryM["genotype"]
+    genotypeTypeM = list(Counter(xM).keys())
+    print(genotypeTypeM)
+    groupM = profileValueDictionaryM["exp"]
+    sexM = ['male'] * len(xM)
+
+    # upload data for females:
+    profileValueDictionaryF = getProfileValues(profileData=profileDataF, night=night, event=event)
+    yvalF = profileValueDictionaryF["value"]
+    xF = profileValueDictionaryF["genotype"]
+    genotypeTypeF = list(Counter(xF).keys())
+    print(genotypeTypeF)
+    groupF = profileValueDictionaryF["exp"]
+    sexF = ['female'] * len(xF)
+
+    #merge data for males and females:
+    yval = yvalM + yvalF
+    x = xM + xF
+    group = groupM + groupF
+    sex = sexM + sexF
+    genotypeType = list(Counter(x).keys())
+    print(genotypeType)
+
+
+    if valueCat == ' TotalLen':
+        y = [i / 30 for i in yval]
+    else:
+        y = yval
+
+
+    print("y: ", y)
+    print("x: ", x)
+    print("group: ", group)
+    experimentType = Counter(group)
+    print("Nb of experiments: ", len(experimentType))
+
+    ax.text(-1.2, max(y) + 0.5 * (max(y) - min(y)), letter, fontsize=18, horizontalalignment='center', color='black', weight='bold')
+    ax.set_ylim(min(y) - 0.2 * (max(y)-min(y)), max(y) + 0.4 * (max(y)-min(y)))
+    bp = sns.boxplot(sex, y, hue=x, hue_order=reversed(genotypeType), ax=ax, linewidth=0.5, showmeans=True,
+                meanprops={"marker": 'o',
+                           "markerfacecolor": 'white',
+                           "markeredgecolor": 'black',
+                           "markersize": '8'}, showfliers=False, width=0.8, dodge=True)
+    # Add transparency to colors
+    '''for patch in bp.artists:
+        r, g, b, a = patch.get_facecolor()
+        patch.set_facecolor((r, g, b, .7))'''
+
+    sns.stripplot(sex, y, hue=x, hue_order=reversed(genotypeType), jitter=True, color='black', s=5,
+                  dodge=True, ax=ax)
+    
+    if event == 'totalDistance':
+        titleEvent = event
+    else:
+        titleEvent = event[0:event.find(valueCat)]
+    print('###########title: ', titleEvent)
+    ax.set_title(getFigureBehaviouralEventsLabels(titleEvent), y=1, fontsize=12)
+    
+    ax.xaxis.set_tick_params(direction="in")
+    ax.tick_params(axis='x', labelsize=14)
+    ax.yaxis.set_tick_params(direction="in")
+    ax.tick_params(axis='y', labelsize=12)
+    if valueCat == ' TotalLen':
+        ylabel = 'total duration (s)'
+    if valueCat == ' Nb':
+        ylabel = 'occurrences'
+    if valueCat == ' MeanDur':
+        ylabel = 'mean duration (s)'
+    
+    if event == 'totalDistance':
+        ylabel = 'distance (m)'
+        
+        
+    ax.set_ylabel(ylabel, fontsize=14)
+    ax.legend().set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+    behavSchema = mpimg.imread(image)
+    imgBox = OffsetImage(behavSchema, zoom=zoom)
+    imageBox = AnnotationBbox(imgBox, imgPos, frameon=False)
+    ax.add_artist(imageBox)
+
+
+    # Mixed model: variable to explain: value; fixed factor = genotype; random effect: group
+    dataDict = {'value': y, 'sex': sex, 'genotype': x, 'group': group}
+    dfDataBothSexes = pd.DataFrame(dataDict)
+    n = 0
+    for sexClass in ['male', 'female']:
+        dfData = dfDataBothSexes[dfDataBothSexes['sex'] == sexClass]
+        # create model:
+        model = smf.mixedlm("value ~ genotype", dfData, groups=dfData["group"])
+        # run model:
+        result = model.fit()
+        # print summary
+        print(behavEvent, sexClass)
+        print(result.summary())
+        text_file.write('{} {} {}'.format(behavEvent, valueCat, sexClass))
+        text_file.write(result.summary().as_text())
+        text_file.write('\n')
+        p, sign = extractPValueFromLMMResult(result=result, keyword='WT')
+        #add p-values on the plot
+        ax.text(n, max(y) + 0.1 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=16, horizontalalignment='center', color='black', weight='bold')
+        n += 1
+        
 
 def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, valueCat, behavEvent, ax, letter, text_file, image, zoom, mode):
     if behavEvent != 'totalDistance':
@@ -960,6 +1201,30 @@ def testProfileData(profileData=None, night=0, eventListNames=None, valueCat="",
         text_file.write(result.summary().as_text())
         text_file.write('\n')
 
+def testProfileDataPerGroup(profileData=None, night=0, eventListNames=None, valueCat="", text_file=None):
+    for behavEvent in eventListNames:
+        event = behavEvent
+
+        print("event: ", event)
+        text_file.write("Test for the event: {} night {}".format( event, night ) )
+        
+        profileValueDictionary = getProfileValues(profileData=profileData, night=night, event=event)
+        
+        dfData = pandas.DataFrame({'group': profileValueDictionary["exp"],
+                                   'genotype': profileValueDictionary["genotype"],
+                                   'value': profileValueDictionary["value"]})
+
+        
+        #pandas.DataFrame(dfData).info()
+        #Mixed model: variable to explain: value; fixed factor = genotype; random effect: group
+        #create model:
+        model = smf.mixedlm("value ~ genotype", dfData, groups = dfData["group"])
+        #run model: 
+        result = model.fit()
+        #print summary
+        print(result.summary())
+        text_file.write(result.summary().as_text())
+        text_file.write('\n')
 
 
 def mergeProfileOverNights( profileData, categoryList, behaviouralEventOneMouse ):
@@ -2087,7 +2352,7 @@ if __name__ == '__main__':
             print('Job done.')
 
             break
-
+        
 
         if answer == "6":
             print('Choose the profile json file to process.')

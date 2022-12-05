@@ -233,21 +233,21 @@ behaviouralEventOneMouse = ["Move isolated", "Move in contact", "WallJump", "Sto
     "Group 3 break", "Group 4 break"
     ]
 
-behaviouralEventOneMouseDic = {' TotalLen': ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
+behaviouralEventOneMouseDic = {' TotalLen': ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
     "Train2", "FollowZone"],
     
-    ' Nb': ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
+    ' Nb': ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
     "Train2", "FollowZone",
-    "Social approach", "Approach contact",
+    "Approach contact",
     "Group 3 make", "Group 4 make", "Break contact",
     "Group 3 break", "Group 4 break"],
     
-    ' MeanDur': ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
+    ' MeanDur': ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
     "Train2", "FollowZone",
-    "Social approach", "Approach contact",
+    "Approach contact",
     "Break contact"
     ]
     }

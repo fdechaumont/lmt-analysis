@@ -296,7 +296,7 @@ def getStarsFromPvalues(pvalue=None, U=None, numberOfTests=1):
         stars = "NA"
 
     elif (pvalue == 0) & (U != 0):
-        stars = "***'"
+        stars = "***"
 
     else:
         if pvalue < s3:

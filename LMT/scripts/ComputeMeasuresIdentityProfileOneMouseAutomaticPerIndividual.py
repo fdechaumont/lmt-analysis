@@ -19,7 +19,8 @@ import matplotlib.patches as mpatches
 
 
 from tkinter.filedialog import askopenfilename
-from lmtanalysis.Util import getMinTMaxTAndFileNameInput, getMinTMaxTInput
+from lmtanalysis.Util import getMinTMaxTAndFileNameInput, getMinTMaxTInput,\
+    getColorGeno
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 from lmtanalysis.FileUtil import *
 from lmtanalysis.Util import getFileNameInput, getStarsFromPvalues
@@ -32,6 +33,7 @@ from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationB
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from lmtanalysis.BehaviouralSequencesUtil import genoList
+from scipy.stats._morestats import wilcoxon
 
 
 def computeProfilePerIndividual(file, minT, maxT, genoList, categoryList, behaviouralEventListTwoMice):
@@ -372,7 +374,7 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( ax, profileData, nigh
     pos = {'same': 0, 'diff': 1, genotypeCat[0]: -0.25, genotypeCat[1]: 0.75}
 
     if valueCat == ' MeanDur':
-        # Mann-Whitney U test, non parametric, small sample size
+        # Wilcoxon paired test, non parametric, small sample size
         # compare the two genotypes for the mean duration of events spent with same or with different genotypes
 
         for genoB in otherGenoList:
@@ -380,18 +382,182 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( ax, profileData, nigh
             for k in [0,1]:
                 data[genotypeCat[k]] = dfData['value'][(dfData['genotype'] == genotypeCat[k]) & (dfData['genoOther'] == genoB)]
             try:
-                U, p = mannwhitneyu( data[genotypeCat[0]], data[genotypeCat[1]])
+                U, p = wilcoxon( data[genotypeCat[0]], data[genotypeCat[1]])
             except:
                 print('test not possible')
                 U = 'NA'
                 p = 'NA'
             print('means of mean duration with ', genoB, ' geno: ', genotypeCat[0], np.mean(data[genotypeCat[0]]), 'versus ', genotypeCat[1], np.mean(data[genotypeCat[1]]))
-            print( 'Mann-Whitney U test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
-            text_file.write('Mann-Whitney U test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
+            print( 'Wilcoxon paired test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
+            text_file.write('Wilcoxon paired test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
             ax.text(x=pos[genoB], y=yMin+0.95*(yMax-yMin), s = getStarsFromPvalues(p,numberOfTests=1), fontsize=15, ha='center' )
             text_file.write('\n')
 
     elif valueCat in [' TotalLen', ' Nb']:
+        data = {}
+        for k in [0, 1]:
+            data[genotypeCat[k]] = dfData['value'][(dfData['genotype'] == genotypeCat[k]) & (dfData['genoOther'] == 'same')]
+            #print('############ ', data[genotypeCat[k]])
+            try:
+                results = ttest_1samp(data[genotypeCat[k]], 100/3)
+                T = results.statistic
+                p = results.pvalue
+            except:
+                print('test not possible')
+                T = 'NA'
+                p = 'NA'
+            print('means of prop with same geno: ', genotypeCat[k], np.mean(data[genotypeCat[k]]))
+            print('One sample t-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, T, p))
+            text_file.write('One-sample t-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, T, p))
+            ax.text(x=pos[genotypeCat[k]], y=yMin + 0.95 * (yMax - yMin), s=getStarsFromPvalues(p, numberOfTests=1),
+                                fontsize=14, ha='center')
+            text_file.write('\n')
+
+
+def plotProfilePerIndividualPerGenotypeOnlySameGenotype( ax, profileData, night, valueCat, behavEvent, text_file ):
+    # plot the data for each behavioural event
+    
+    event = behavEvent + valueCat
+
+    if valueCat == ' MeanDur':
+        profileValueDictionaryTransit = getProfileValuesMeanDurationPerGenotype(profileData=profileData, night=night,
+                                                                       event=event)
+    else:
+        profileValueDictionaryTransit = getProfileValuesProportionPerGenotype(profileData=profileData, night=night, event=event)
+
+    profileValueDictionary = {'group': [], 'rfid': [], 'genotype': [], 'genoOther': [], 'value': []}
+    for n in range(len(profileValueDictionaryTransit['rfid'])):
+        profileValueDictionary['group'].append(profileValueDictionaryTransit['exp'][n])
+        profileValueDictionary['rfid'].append(profileValueDictionaryTransit['rfid'][n])
+        profileValueDictionary['genotype'].append(profileValueDictionaryTransit['genotype'][n])
+        profileValueDictionary['genoOther'].append('same')
+        profileValueDictionary['value'].append(profileValueDictionaryTransit['sameGeno'][n])
+
+    for n in range(len(profileValueDictionaryTransit['rfid'])):
+        profileValueDictionary['group'].append(profileValueDictionaryTransit['exp'][n])
+        profileValueDictionary['rfid'].append(profileValueDictionaryTransit['rfid'][n])
+        profileValueDictionary['genotype'].append(profileValueDictionaryTransit['genotype'][n])
+        profileValueDictionary['genoOther'].append('diff')
+        profileValueDictionary['value'].append(profileValueDictionaryTransit['diffGeno'][n])
+
+    y = profileValueDictionary['value']
+    x = profileValueDictionary['genotype']
+    genoOther = profileValueDictionary['genoOther']
+
+    genotypeCat = list(Counter(x))
+    genotypeCat.sort(reverse=True)
+    print('genotype list: ', genotypeCat)
+
+    print("y: ", y)
+    print("x: ", x)
+    print('geno other: ', genoOther)
+
+    if valueCat == ' MeanDur':
+        unit = '(frames)'
+        yMin = min(y) - 0.2 * max(y)
+        yMax = max(y) + 0.2 * max(y)
+    
+
+        ax.set_xlim(-0.5, 1.5)
+        ax.set_ylim( yMin, yMax)
+        colorList = ['black', 'darkgrey']
+        bp = sns.boxplot(x, y, ax=ax, order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], linewidth=0.5, showmeans=True,
+                    meanprops={"marker": 'o',
+                               "markerfacecolor": 'white',
+                               "markeredgecolor": 'black',
+                               "markersize": '10'}, palette = {'same': colorList[0], 'diff': colorList[1]}, showfliers=False)
+    
+        sns.stripplot(x, y, jitter=True, order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], palette=['grey', 'lightgrey'], dodge=True, s=5, ax=ax)
+        
+        ax.set_title(getFigureBehaviouralEventsLabels(behavEvent), fontsize=16)
+    
+        ax.set_ylabel("{} {}".format(valueCat, unit), fontsize=16)
+        ax.tick_params(axis='x', labelsize=16)
+        ax.tick_params(axis='y', labelsize=14)
+        ax.legend().set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+    
+    
+        print("event dyadic: ", event)
+        text_file.write("Test for the event: {} night {} ".format(event, night))
+        text_file.write('\n')
+    
+        dfData = pandas.DataFrame({'group': profileValueDictionary["group"],
+                                   'genotype': profileValueDictionary["genotype"],
+                                   'genoOther': profileValueDictionary['genoOther'],
+                                   'value': profileValueDictionary["value"]})
+        genotypeCat = list(Counter(dfData['genotype']).keys())
+        genotypeCat.sort(reverse=True)
+        print(dfData)
+        print('genotype list: ', genotypeCat)
+        otherGenoList = ['same', 'diff']
+        pos = {'same': 0, 'diff': 1, genotypeCat[0]: -0.25, genotypeCat[1]: 0.75}
+
+    
+        # Wilcoxon test, non parametric, small sample size
+        # compare the two genotypes for the mean duration of events spent with same or with different genotypes
+
+        for genoB in otherGenoList:
+            data = {}
+            for k in [0,1]:
+                data[genotypeCat[k]] = dfData['value'][(dfData['genotype'] == genotypeCat[k]) & (dfData['genoOther'] == genoB)]
+            try:
+                U, p = wilcoxon( data[genotypeCat[0]], data[genotypeCat[1]])
+            except:
+                print('test not possible')
+                U = 'NA'
+                p = 'NA'
+            print('means of mean duration with ', genoB, ' geno: ', genotypeCat[0], np.mean(data[genotypeCat[0]]), 'versus ', genotypeCat[1], np.mean(data[genotypeCat[1]]))
+            print( 'Wilcoxon paired test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
+            text_file.write('Wilcoxon paired test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
+            ax.text(x=pos[genoB], y=yMin+0.95*(yMax-yMin), s = getStarsFromPvalues(p,numberOfTests=1), fontsize=15, ha='center' )
+            text_file.write('\n')
+
+    elif valueCat in [' TotalLen', ' Nb']:
+        unit = '(%)'
+        #yMin = min(y) - 0.2 * max(y)
+        #yMax = max(y) + 0.2 * max(y)
+        yMin = 10
+        yMax = 60
+        ax.set_xlim(-0.5, 0.5)
+        ax.set_ylim( yMin, yMax)
+        
+        ax.axhline(100 / 3, ls='--', c='grey')
+                
+        colorList = ['black', 'darkgrey']
+        bp = sns.boxplot(x, y, ax=ax, order=genotypeCat, hue=genoOther, hue_order=['same'], linewidth=0.5, showmeans=True,
+                    meanprops={"marker": 'o',
+                               "markerfacecolor": 'white',
+                               "markeredgecolor": 'black',
+                               "markersize": '10'}, palette = {'same': colorList[0]}, showfliers=False)
+    
+        sns.stripplot(x, y, jitter=True, order=genotypeCat, hue=genoOther, color=[getColorGeno(genotypeCat[0]), getColorGeno(genotypeCat[1])], hue_order=['same'], palette=['grey'], s=5, ax=ax)
+        
+        ax.set_title(getFigureBehaviouralEventsLabels(behavEvent), fontsize=16)
+    
+        ax.set_ylabel("{} {}".format(valueCat, unit), fontsize=16)
+        ax.tick_params(axis='x', labelsize=16)
+        ax.tick_params(axis='y', labelsize=14)
+        ax.legend().set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+    
+    
+        print("event dyadic: ", event)
+        text_file.write("Test for the event: {} night {} ".format(event, night))
+        text_file.write('\n')
+    
+        dfData = pandas.DataFrame({'group': profileValueDictionary["group"],
+                                   'genotype': profileValueDictionary["genotype"],
+                                   'genoOther': profileValueDictionary['genoOther'],
+                                   'value': profileValueDictionary["value"]})
+        genotypeCat = list(Counter(dfData['genotype']).keys())
+        genotypeCat.sort(reverse=True)
+        print(dfData)
+        print('genotype list: ', genotypeCat)
+        otherGenoList = ['same', 'diff']
+        pos = {'same': 0, 'diff': 1, genotypeCat[0]: 0, genotypeCat[1]: 1}
         data = {}
         for k in [0, 1]:
             data[genotypeCat[k]] = dfData['value'][(dfData['genotype'] == genotypeCat[k]) & (dfData['genoOther'] == 'same')]
