@@ -246,9 +246,9 @@ radiusObjects = {'cup': 18, 'flask': 15, 'falcon': 9, 'shaker': 11, 'marble': 7,
 colorObjects = {'cup': 'gold', 'flask': 'mediumpurple', 'falcon': 'mediumseagreen', 'shaker': 'orchid', 'marble': 'royalblue', 'dice': 'red'}
 objectList = ['cup', 'flask', 'falcon', 'shaker', 'marble', 'dice']
 
-#mutantGeno = 'Del/+'
+mutantGeno = 'Del/+'
 #mutantGeno = 'Tg+'
-mutantGeno = 'KO'
+#mutantGeno = 'KO'
 
 colorSap = {'WT': 'dodgerblue', mutantGeno: 'darkorange', '1': 'dodgerblue', '2': 'red'}
 

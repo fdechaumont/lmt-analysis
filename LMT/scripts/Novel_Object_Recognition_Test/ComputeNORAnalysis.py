@@ -889,10 +889,10 @@ if __name__ == '__main__':
                             data[val][setup][sex] = {}
                             for config in configList:
                                 data[val][setup][sex][config] = []
-                                for rfid in dataToAnalyse['ratio'][setup][sex][config].keys():
+                                for rfid in dataToAnalyse['ratio'][phase][setup][sex][config].keys():
                                     if (dataToAnalyse['totalDuration'][event1[phase]][setup][sex][config][rfid] >= 3) & (
                                             dataToAnalyse['totalDuration'][event2[phase]][setup][sex][config][rfid] >= 3):
-                                        data[val][setup][sex][config].append(dataToAnalyse['ratio'][phase][config][sex][rfid])
+                                        data[val][setup][sex][config].append(dataToAnalyse['ratio'][phase][setup][sex][config][rfid])
 
                                     else:
                                         print('Too Short exploration time in config {} for {} {}'.format(config, sex, rfid))
@@ -921,9 +921,9 @@ if __name__ == '__main__':
                 ax.hlines(0.5, xmin = 0, xmax=12, colors='grey', linestyles='dashed')
 
                 for config in configList:
-                    ax.scatter(addJitter([xPos[config]] * len(data['ratio'][config][sex]), 0.2),
-                           data['ratio'][config][sex], color=getColorConfig(config), marker='o', alpha=0.8, label="on", s=8)
-                    prop = data['ratio'][config][sex]
+                    ax.scatter(addJitter([xPos[config]] * len(data['ratio'][setup][sex][config]), 0.2),
+                           data['ratio'][setup][sex][config], color=getColorConfig(config), marker='o', alpha=0.8, label="on", s=8)
+                    prop = data['ratio'][setup][sex][config]
                     T, p = stats.ttest_1samp(a=prop, popmean=0.5)
                     print('One-sample Student T-test for {} {} {} {} in config {}: T={}, p={}'.format(exp, phase, len(prop), sex, config, T, p))
                     ax.text(xPos[config], 1.1, getStarsFromPvalues(pvalue=p, numberOfTests=1), fontsize=16, horizontalalignment='center')
