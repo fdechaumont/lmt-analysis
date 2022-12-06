@@ -9,6 +9,7 @@ from lmtanalysis.Event import *
 
 
 from lmtanalysis.FileUtil import getFilesToProcess
+from lmtanalysis.Animal import AnimalPool
 
 
 def process( file ):
@@ -24,6 +25,10 @@ def process( file ):
 
     connection = sqlite3.connect( file )
     
+    '''pool = AnimalPool( )
+    pool.loadAnimals( connection )
+    rfid = pool.animalDictionnary[1].RFID'''
+    
     c = connection.cursor()
     query = "UPDATE ANIMAL SET GENOTYPE = 'DlxCre wt ; Dyrk1acKO/+'";
     c.execute(query)
@@ -35,7 +40,8 @@ def process( file ):
     c.execute( query )
     query = "UPDATE ANIMAL SET SETUP = 'x'";
     c.execute(query)
-    '''query = "UPDATE ANIMAL SET NAME = '189N3-{}'".format(ind);
+    '''
+    query = "UPDATE ANIMAL SET NAME = '{}'".format(rfid);
     c.execute(query)
     query = "UPDATE ANIMAL SET RFID = '189N3-{}'".format(ind);
     c.execute(query)'''
