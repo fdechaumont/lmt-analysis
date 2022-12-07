@@ -413,6 +413,7 @@ if __name__ == '__main__':
         question += "\n\t [5] plot trajectories in the acquisition phase (same objects)?"
         question += "\n\t [6] plot trajectories in the test phase (different objects)?"
         question += "\n\t [7] plot ratio for sniffing?"
+        question += "\n\t [8] plot raw values?"
         question += "\n\t [9] compute sniffing time per time bin?"
         question += "\n\t [10] plot sniffing time per time bin?"
         question += "\n\t [11] plot ratio based on cumulated time per time bin?"
@@ -902,6 +903,121 @@ if __name__ == '__main__':
                 fig.savefig('fig_ratio_geno_{}_{}.jpg'.format(exp, phase), dpi=200)
 
             print('Job done.')
+            break
+
+        
+        if answer == '8':
+            print('Compute and plot raw values for sniffing time')
+            # open the json files
+            question = "Is it the short, medium or long retention time? (short / medium / long)"
+            exp = input(question)
+            question = "Is it the acquisition or the test phase? (acquisition / test)"
+            phase = input(question)
+
+            jsonFileName = "sniff_time_same_{}.json".format(exp)
+            with open(jsonFileName) as json_data:
+                dataSame = json.load(json_data)
+            jsonFileName = "sniff_time_test_{}.json".format(exp)
+            with open(jsonFileName) as json_data:
+                dataTest = json.load(json_data)
+            print("json file re-imported.")
+            print(dataSame)
+
+            if phase == 'acquisition':
+                dataToAnalyse = dataSame
+            elif phase == 'test':
+                dataToAnalyse = dataTest
+
+            eventList = {'acquisition': ['SniffLeft', 'SniffRight', 'UpLeft', 'UpRight'],
+                         'test': ['SniffFamiliar', 'SniffNew', 'UpFamiliar', 'UpNew']}
+
+            '''eventList = {'acquisition': ['SniffLeftFar', 'SniffRightFar', 'UpLeft', 'UpRight'],
+                         'test': ['SniffFamiliarFar', 'SniffNewFar', 'UpFamiliar', 'UpNew']}'''
+            
+            xPos = {genoList[0]: 1, genoList[1]: 2}
+            
+            event1 = {'acquisition': eventList['acquisition'][0], 'test': eventList['test'][0]}
+            event2 = {'acquisition': eventList['acquisition'][1], 'test': eventList['test'][1]}
+
+            for sex in ['male', 'female']:
+                fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))  # create the figure for the graphs of the computation
+        
+                data = {}
+        
+                yLim = {'totalDuration': 60, 'nbEvent': 60, 'meanEventLength': 5}
+                yLabel = {'totalDuration': 'total sniff (s)', 'nbEvent': 'nb of sniff events', 'meanEventLength': 'mean event duration (s)'}
+        
+                k = 0
+                for measure in ['totalDuration', 'nbEvent', 'meanEventLength']:
+                    for val in eventList[phase]:
+                        print(val)
+                        data[val] = {}
+                        
+                        for sex in ['male', 'female']:
+                            data[val][sex] = {}
+                            for geno in genoList:
+                                data[val][sex][geno] = []
+                                for rfid in dataToAnalyse[measure][val][sex][geno].keys():
+                                    data[val][sex][geno].append(dataToAnalyse[measure][val][sex][geno][rfid])
+            
+        
+                    ax = axes[k]
+                    ax.spines['top'].set_visible(False)
+                    ax.spines['right'].set_visible(False)
+                    xIndex = [1, 2]
+                    ax.set_xticks(xIndex)
+                    ax.set_xticklabels(genoList, rotation=45, fontsize=12, horizontalalignment='right')
+                    ax.set_ylabel(yLabel[measure], fontsize=15)
+                    ax.legend().set_visible(False)
+                    ax.xaxis.set_tick_params(direction="in")
+                    ax.set_xlim(0, 3)
+                    ax.set_ylim(0, yLim[measure])
+                    ax.tick_params(axis='y', labelsize=14)
+                    
+                    if measure == 'totalDuration':
+                        ax.hlines(5, xmin=0, xmax=12, colors='grey', linestyles='dashed')
+        
+                    
+        
+                    # plot the points for each value:
+                    for geno in genoList:
+                    
+                        ax.scatter(addJitter([xPos[geno]-0.25] * len(data[eventList[phase][0]][sex][geno]), 0.1),
+                                   data[eventList[phase][0]][sex][geno], color=getColorGeno(geno), marker='o', alpha=0.8, label="on", s=8)
+                        ax.scatter(addJitter([xPos[geno]+0.25] * len(data[eventList[phase][1]][sex][geno]), 0.1),
+                                   data[eventList[phase][1]][sex][geno], color=getColorGeno(geno), marker='s', alpha=0.8, label="on", s=8)
+                    
+                        # conduct statistical testing: Wilcoxon paired test:
+                        obj0 = data[eventList[phase][0]][sex][geno]
+                        obj1 = data[eventList[phase][1]][sex][geno]
+                        U, p = stats.wilcoxon(obj0, obj1)
+                        print('Wilcoxon paired test for {} test {} {}: T={}, p={}'.format(exp, len(obj0), sex, U, p))
+                        ax.text(xPos[geno], yLim[measure]*0.90, getStarsFromPvalues(pvalue=p, numberOfTests=1), fontsize=16, horizontalalignment='center')
+        
+                    k += 1
+                
+                if phase == 'acquisition':
+                    points1 = matplotlib.lines.Line2D([0], [0], marker='o', color='w',
+                                                  markerfacecolor='black', markersize=8, alpha=0.9,
+                                                  label='right object')
+                    points2 = matplotlib.lines.Line2D([0], [0], marker='s', color='w',
+                                                  markerfacecolor='grey', markersize=8, alpha=0.9,
+                                                  label='left object')
+                if phase == 'test':
+                    points1 = matplotlib.lines.Line2D([0], [0], marker='o', color='w',
+                                                  markerfacecolor='black', markersize=8, alpha=0.9,
+                                                  label='familiar object')
+                    points2 = matplotlib.lines.Line2D([0], [0], marker='s', color='w',
+                                                  markerfacecolor='black', markersize=8, alpha=0.9,
+                                                  label='new object')
+                ax.legend(handles=[points1, points2], frameon=True, fontsize=14, loc='upper right', bbox_to_anchor=(1, 0.85))
+            
+            
+                fig.tight_layout()
+                fig.show()
+                fig.savefig('fig_raw_values_config_{}_{}_{}.pdf'.format(exp, phase, sex), dpi=300)
+                fig.savefig('fig_raw_values_config_{}_{}_{}.jpg'.format(exp, phase, sex), dpi=300)
+
             break
 
 
