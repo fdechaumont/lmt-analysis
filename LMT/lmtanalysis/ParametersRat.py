@@ -27,6 +27,9 @@ class ParametersRat():
     ''' threshold for the maximum distance allowed between two points '''
     MAX_DISTANCE_THRESHOLD = 71/scaleFactor
     
+    '''distance between the two animals to compute the follow behaviour'''
+    FOLLOW_DISTANCE_MAX_PIX = 2.5/scaleFactor # numeric value in cm to obtain pixels #2.5
+    
     ''' threshold min time after a first rearing to detect the second rearing (frames)'''
     SEQUENTIAL_REARING_MIN_TIME_THRESHOLD = 10
     

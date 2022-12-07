@@ -11,7 +11,8 @@ from affine import Affine
 from lmtanalysis.Chronometer import Chronometer
 from lmtanalysis.Animal import *
 from lmtanalysis.Detection import *
-from lmtanalysis.Measure import  SPEED_THRESHOLD_LOW
+from lmtanalysis.ParametersMouse import *
+from lmtanalysis.ParametersRat import *
 import numpy as np
 from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
@@ -27,7 +28,7 @@ eventName = "FollowZone"
 
 FOLLOW_CORRIDOR_DURATION = 30 # in frames
 FOLLOW_MAX_ANGLE = math.pi/4 # in radians
-FOLLOW_DISTANCE_MAX_PIX = 2.5/scaleFactor # numeric value in cm to obtain pixels #2.5
+#FOLLOW_DISTANCE_MAX_PIX = 2.5/AnimalType.parameters.scaleFactor # numeric value in cm to obtain pixels #2.5
 FOLLOW_SPEED_MULTIPLICATOR_THRESHOLD = 2
 FOLLOW_REMOVE_EVENT_BELOW_LEN = 7 # in frames        
 FOLLOW_MERGE_EVENT_LEN_CRITERIA = 10 # in frames
@@ -53,7 +54,7 @@ def isSameWay( detA, detB ):
     
     return False
 
-def isAFollowingB( t , dicA , dicB ):
+def isAFollowingB( t , dicA , dicB, animalObjectA ):
     
     # False is detection A does not exist at t
     if t not in dicA:
@@ -85,7 +86,7 @@ def isAFollowingB( t , dicA , dicB ):
             continue
                 
         # discard if distance is too large between detections
-        if distance > FOLLOW_DISTANCE_MAX_PIX:
+        if distance > animalObjectA.parameters.FOLLOW_DISTANCE_MAX_PIX:
 
             continue
                          
@@ -127,11 +128,12 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     pool = AnimalPool( )
     pool.loadAnimals( connection )
     pool.loadDetection( start = tmin, end = tmax )
+
     
     # filter detection by speed. Keep only the detection that are over SPEED_THRESHOLD_LOW.
     #pool.filterDetectionByInstantSpeed( pool.getAnimalList()[0].parameters.SPEED_THRESHOLD_LOW , 1000 ) # for the rat compatible version
     #pool.filterDetectionByInstantSpeed( SPEED_THRESHOLD_LOW*2 , 1000 )
-    pool.filterDetectionByInstantSpeed( SPEED_THRESHOLD_LOW*FOLLOW_SPEED_MULTIPLICATOR_THRESHOLD , 1000 )
+    pool.filterDetectionByInstantSpeed( pool.animalDictionnary[1].parameters.SPEED_THRESHOLD_LOW * FOLLOW_SPEED_MULTIPLICATOR_THRESHOLD , 1000 )
     
     # remove all detection where head and tail are missing
     pool.filterDetectionToKeepOnlyHeadTailDetection()
@@ -179,7 +181,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
             # Starting "is A following B ?"
                         
             for t in dicB:            
-                if isAFollowingB( t , dicA , dicB ):
+                if isAFollowingB( t , dicA , dicB, animalA ):
                     resultDic[t]=True
 
             # remove all contact situation
