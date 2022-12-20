@@ -82,7 +82,7 @@ class Detection():
         return angleDir
             
     
-    def getDistanceTo (self, detectionB):
+    def getDistanceTo(self, detectionB, parameters ):
         '''
         determine the distance between the focal animal and animalB at one specified time point t
         check before that both animals are detected at this time point
@@ -95,7 +95,7 @@ class Detection():
         if (detectionB.massX == None):
             return None
         
-        if (math.hypot( self.massX - detectionB.massX, self.massY - detectionB.massY ) > MAX_DISTANCE_THRESHOLD): #if the distance calculated between the two individuals is too large, discard
+        if (math.hypot( self.massX - detectionB.massX, self.massY - detectionB.massY ) > parameters.MAX_DISTANCE_THRESHOLD): #if the distance calculated between the two individuals is too large, discard
             print("WARNING: Detection.getDistanceTo : Distance Max reached. returning None")
             return None
         
@@ -128,11 +128,12 @@ class Detection():
         
         return False
     
-    
+    '''
+    # TODAY:
     def isRearing(self):
-        '''
-        determine whether the animal is rearing at this detection
-        '''
+        
+        #determine whether the animal is rearing at this detection
+        
         if (self.getBodySlope() == None):
             return False
                 
@@ -141,16 +142,5 @@ class Detection():
         
         else:
             return True
+    '''
         
-    def isRearingZ(self):
-        '''
-        determine whether the animal is rearing at this detection, using the old criteria from the first version
-        '''
-        if (self.frontZ == None):
-            return False
-                
-        if (self.frontZ < FRONT_REARING_THRESHOLD):
-            return False
-        
-        else:
-            return True

@@ -22,7 +22,7 @@ def flush( connection ):
     deleteEventTimeLineInBase(connection, "Move in contact" )
 
 
-def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None  ):
+def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalType = None  ):
     ''' 
     Animal A is stopped (built-in event): revert the event to have move events
     Move social: animal A is moving and in contact with another animal.

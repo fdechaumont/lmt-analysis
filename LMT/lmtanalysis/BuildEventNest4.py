@@ -15,6 +15,7 @@ from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 import networkx as nx
+from lmtanalysis.Parameters import getAnimalTypeParameters
 
 def flush( connection ):
     ''' flush event in database '''
@@ -28,7 +29,7 @@ def flush( connection ):
     '''
 
 
-def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
+def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None , animalType=None ):
     '''
     Nest 3
     Nest 4
@@ -37,6 +38,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
     Group 4
     ''' 
     print("[NEST 4] : Assume that there is no occlusion")
+    
+    parameters = getAnimalTypeParameters( animalType )
     
     if ( pool == None ):
         pool = AnimalPool( )
@@ -153,17 +156,17 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
             for detectionA in anonymousDetectionList: # anonymous with anonymous
                 for detectionB in anonymousDetectionList: # anonymous with anonymous
                     if detectionA != detectionB:
-                        distance = detectionA.getDistanceTo( detectionB )
+                        distance = detectionA.getDistanceTo( detectionB, parameters )
                         if distance != None:
-                            if distance < DISTANCE_CONTACT_MASS_CENTER:
+                            if distance < parameters.DISTANCE_CONTACT_MASS_CENTER:
                                 graph.add_edge( detectionA, detectionB )
                                 #print("Adding edge with mask (det anonymous to det anonymous)")
                     
             for detection in anonymousDetectionList:
                 for animal in animalDetectedList:
-                    distance = detection.getDistanceTo(animal.getDetectionAt( t ) )
+                    distance = detection.getDistanceTo(animal.getDetectionAt( t ) , parameters )
                     if distance != None:
-                        if distance < DISTANCE_CONTACT_MASS_CENTER:
+                        if distance < parameters.DISTANCE_CONTACT_MASS_CENTER:
                             #if detection.getMask().isInContactWithMask( animal.getDetectionAt ( t ).getMask() ):
                             graph.add_edge( animal, detection )
                             #print("Adding edge with mask")

@@ -20,7 +20,7 @@ def flush( connection ):
     ''' flush event in database '''
     deleteEventTimeLineInBase(connection, "Approach contact" )
 
-def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalType = None ): 
     
     '''
     This event represents the approaches that is just before a contact (longer than 3 frames); if the speeds of the two animals

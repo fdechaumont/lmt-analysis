@@ -22,7 +22,7 @@ def flush( connection ):
 
 
 
-def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
+def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalType = None ):
     
     
     ''' 

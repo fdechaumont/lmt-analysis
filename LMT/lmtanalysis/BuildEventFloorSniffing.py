@@ -21,7 +21,7 @@ def flush( connection ):
     deleteEventTimeLineInBase(connection, "Floor sniffing" )
 
 
-def reBuildEvent( connection, tmin, tmax , pool = None ): 
+def reBuildEvent( connection, tmin, tmax , pool = None, animalType = None ): 
     '''
     Event Floor sniffing:
     - the animal is sniffing the floor

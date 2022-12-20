@@ -15,6 +15,7 @@ from lmtanalysis.Measure import *
 #from affine import Affine
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+from lmtanalysis.Parameters import getAnimalTypeParameters
 
 def flush( connection ):
     ''' flush event in database '''
@@ -24,7 +25,10 @@ def flush( connection ):
     deleteEventTimeLineInBase(connection, "SniffNewFar")
 
 
-def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, tmin=None, tmax=None, pool = None, vibrissae=3 ):
+def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, tmin=None, tmax=None, pool = None, animalType = None ):
+    
+    parameters = getAnimalTypeParameters( animalType )
+    
     deleteEventTimeLineInBase(connection, "SniffFamiliar" )
     deleteEventTimeLineInBase(connection, "SniffNew")
     deleteEventTimeLineInBase(connection, "SniffFamiliarFar")
@@ -116,14 +120,14 @@ def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, 
                 print('no nose detected for frame ', t)
 
             else:
-                if distanceNoseFamiliar <= radiusObjects[objectFamiliar] + vibrissae / scaleFactor:
+                if distanceNoseFamiliar <= radiusObjects[objectFamiliar] + parameters.VIBRISSAE / parameters.scaleFactor:
                     # check if the animal is on the object:
                     if distanceMassFamiliar <= radiusObjects[objectFamiliar]:
                         resultUpFamiliar[t] = True
                     else:
                         resultSniffFamiliar[t] = True
 
-                if distanceNoseFamiliar <= radiusObjects[objectFamiliar] + 2*vibrissae / scaleFactor:
+                if distanceNoseFamiliar <= radiusObjects[objectFamiliar] + 2*parameters.VIBRISSAE / parameters.scaleFactor:
                     # check if the animal is on the object:
                     if distanceMassFamiliar > radiusObjects[objectFamiliar]:
                         resultSniffFamiliarFar[t] = True
@@ -135,14 +139,14 @@ def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, 
                 print('no nose detected for frame ', t)
 
             else:
-                if distanceNoseNew <= radiusObjects[objectNew] + vibrissae / scaleFactor:
+                if distanceNoseNew <= radiusObjects[objectNew] + parameters.VIBRISSAE / parameters.scaleFactor:
                     # check if the animal is on the object:
                     if distanceMassNew <= radiusObjects[objectNew]:
                         resultUpNew[t] = True
                     else:
                         resultSniffNew[t] = True
 
-                if distanceNoseNew <= radiusObjects[objectNew] + 2*vibrissae / scaleFactor:
+                if distanceNoseNew <= radiusObjects[objectNew] + 2*parameters.VIBRISSAE / parameters.scaleFactor:
                     # check if the animal is on the object:
                     if distanceMassNew > radiusObjects[objectNew]:
                         resultSniffNewFar[t] = True

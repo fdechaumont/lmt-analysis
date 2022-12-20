@@ -33,7 +33,7 @@ from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationB
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from lmtanalysis.BehaviouralSequencesUtil import genoList
-from scipy.stats._morestats import wilcoxon
+from scipy.stats.morestats import wilcoxon
 
 
 def computeProfilePerIndividual(file, minT, maxT, genoList, categoryList, behaviouralEventListTwoMice):

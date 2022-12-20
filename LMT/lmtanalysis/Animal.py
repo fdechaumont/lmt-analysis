@@ -34,6 +34,9 @@ from lxml import etree
 import matplotlib.ticker as ticker
 #from lmtanalysis.Util import convert_to_d_h_m_s, getDatetimeFromFrame, mute_prints
 from pickle import NONE
+from lmtanalysis.AnimalType import AnimalType
+from lmtanalysis.ParametersMouse import ParametersMouse
+from lmtanalysis.ParametersRat import ParametersRat
 
 
 idAnimalColor = [ None, "red","green","blue","orange"]
@@ -48,7 +51,7 @@ def getAnimalColor( animalId ):
 class Animal():
 
 
-    def __init__(self, baseId , RFID , name=None, genotype=None , user1 = None, age=None, sex=None, strain=None, setup=None, conn = None ):
+    def __init__(self, baseId , RFID , name=None, genotype=None , user1 = None, age=None, sex=None, strain=None, setup=None, conn = None, animalType = AnimalType.MOUSE ):
         self.baseId = baseId
         self.RFID = RFID
         self.name = name
@@ -60,8 +63,22 @@ class Animal():
         self.setup = setup
         self.conn = conn
         self.detectionDictionnary = {}
+        self.parameters = None
+        self.setAnimalType(animalType)
         
-            
+    def setAnimalType(self, animalType ):
+        self.animalType = animalType
+
+        if self.animalType == AnimalType.MOUSE:
+            self.parameters = ParametersMouse()
+
+        if self.animalType == AnimalType.RAT:
+            self.parameters = ParametersRat()
+
+        if self.parameters == None:
+            self.parameters = ParametersMouse()
+            print("Animal's type is set to Mouse by default rat compatibility")
+        
 
     def setGenotype(self, genotype ):
         self.genotype = genotype
@@ -182,7 +199,7 @@ class Animal():
             if ( b==None or a==None):
                 continue
 
-            speed = math.hypot( a.massX - b.massX, a.massY - b.massY )*scaleFactor/(1/30)
+            speed = math.hypot( a.massX - b.massX, a.massY - b.massY )*self.parameters.scaleFactor/(1/30)
 
             if ( speed > maxSpeed or speed < minSpeed ):
                 self.detectionDictionnary.pop( key )
@@ -201,8 +218,8 @@ class Animal():
             if ( a==None):
                 continue
 
-            x = (a.massX - cornerCoordinates50x50Area[0][0] )* scaleFactor
-            y = (a.massY - cornerCoordinates50x50Area[0][1] )* scaleFactor
+            x = (a.massX - self.parameters.cornerCoordinates50x50Area[0][0] )* self.parameters.scaleFactor
+            y = (a.massY - self.parameters.cornerCoordinates50x50Area[0][1] )* self.parameters.scaleFactor
 
             if ( x < x1 or x > x2 or y < y1 or y > y2 ):
                 self.detectionDictionnary.pop( key )
@@ -450,7 +467,7 @@ class Animal():
 
             totalDistance += distance
 
-        totalDistance *= scaleFactor
+        totalDistance *= self.parameters.scaleFactor
 
         return totalDistance
 
@@ -546,7 +563,7 @@ class Animal():
 
             distance += math.hypot( a.massX - b.massX, a.massY - b.massY ) #add the distance to the previously calculated distance
 
-        distance *= scaleFactor #convert the distance in cm
+        distance *= self.parameters.scaleFactor #convert the distance in cm
 
         return distance
 
@@ -567,12 +584,11 @@ class Animal():
         if (animalB.detectionDictionnary[t].massX == None):
             return None
 
-        if (math.hypot( self.detectionDictionnary[t].massX - animalB.detectionDictionnary[t].massX, self.detectionDictionnary[t].massY - animalB.detectionDictionnary[t].massY ) > 71*57/10): #if the distance calculated between the two individuals is too large, discard
+        dist = math.hypot( self.detectionDictionnary[t].massX - animalB.detectionDictionnary[t].massX, self.detectionDictionnary[t].massY - animalB.detectionDictionnary[t].massY ) 
+        if dist > self.parameters.MAX_DISTANCE_THRESHOLD:
             return None
 
-        else:
-            distanceTo = math.hypot( self.detectionDictionnary[t].massX - animalB.detectionDictionnary[t].massX, self.detectionDictionnary[t].massY - animalB.detectionDictionnary[t].massY )
-            return distanceTo
+        return dist
 
 
     def getDistanceToPoint (self, t, xPoint, yPoint):
@@ -580,11 +596,11 @@ class Animal():
         determine the distance between the focal animal and a specific point in the arena at one specified time point t
         '''
         distanceToPoint = None
-
+        
         if ( not ( t in self.detectionDictionnary ) ):
             return None
 
-        if (math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint ) > MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
+        if (math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint ) > self.parameters.MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
             return None
 
         else:
@@ -601,7 +617,7 @@ class Animal():
             return None
         if (self.detectionDictionnary[t].frontX < 0):
             return None
-        if (math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint ) > MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
+        if (math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint ) > self.parameters.MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
             return None
 
         else:
@@ -773,7 +789,7 @@ class Animal():
         if ( b==None or a==None):
             return None
 
-        speed = math.hypot( a.massX - b.massX, a.massY - b.massY )*scaleFactor/(2/30)
+        speed = math.hypot( a.massX - b.massX, a.massY - b.massY )*self.parameters.scaleFactor/(2/30)
         
 
         return speed
@@ -850,7 +866,7 @@ class Animal():
                 #print ( 3 )
                 continue
 
-            if (detection.getBodySize( ) >=self.bodyThreshold and speed<SPEED_THRESHOLD_LOW and detection.massZ<self.medianBodyHeight):
+            if (detection.getBodySize( ) >=self.bodyThreshold and speed<self.parameters.SPEED_THRESHOLD_LOW and detection.massZ<self.medianBodyHeight):
                 #print ( 4 )
                 sapList.append( detection )
 
@@ -880,7 +896,7 @@ class Animal():
             if ( speed == None ):
                 continue
 
-            if (detection.getBodySize( ) >=self.bodyThreshold and speed<SPEED_THRESHOLD_LOW and detection.massZ<self.medianBodyHeight):
+            if (detection.getBodySize( ) >=self.bodyThreshold and speed<self.parameters.SPEED_THRESHOLD_LOW and detection.massZ<self.medianBodyHeight):
                 sapDictionnary[key] = True
 
         return sapDictionnary
@@ -1496,13 +1512,13 @@ class AnimalPool():
         df = pd.DataFrame(data)
 
 
-        df["x_cm"] = (df.x - cornerCoordinates50x50Area[0][0]) / (cornerCoordinates50x50Area[1][0] - cornerCoordinates50x50Area[0][0]) * ARENA_SIZE
-        df["y_cm"] = (df.y - cornerCoordinates50x50Area[1][1]) / (cornerCoordinates50x50Area[2][1] - cornerCoordinates50x50Area[1][1]) * ARENA_SIZE
+        df["x_cm"] = (df.x - self.parameters.cornerCoordinates50x50Area[0][0]) / (self.parameters.cornerCoordinates50x50Area[1][0] - self.parameters.cornerCoordinates50x50Area[0][0]) * self.parameters.ARENA_SIZE
+        df["y_cm"] = (df.y - self.parameters.cornerCoordinates50x50Area[1][1]) / (self.parameters.cornerCoordinates50x50Area[2][1] - self.parameters.cornerCoordinates50x50Area[1][1]) * self.parameters.ARENA_SIZE
 
-        df[f"in_arena_center"] = (df["x_cm"] > CENTER_MARGIN) & \
-                                 (df["y_cm"] > CENTER_MARGIN) & \
-                                 (df["x_cm"] < (ARENA_SIZE - CENTER_MARGIN)) & \
-                                 (df["y_cm"] < (ARENA_SIZE - CENTER_MARGIN))
+        df[f"in_arena_center"] = (df["x_cm"] > self.parameters.CENTER_MARGIN) & \
+                                 (df["y_cm"] > self.parameters.CENTER_MARGIN) & \
+                                 (df["x_cm"] < (self.parameters.ARENA_SIZE - self.parameters.CENTER_MARGIN)) & \
+                                 (df["y_cm"] < (self.parameters.ARENA_SIZE - self.parameters.CENTER_MARGIN))
 
         df.insert(3, "time", pd.to_timedelta(df.sec, unit="s"))
 

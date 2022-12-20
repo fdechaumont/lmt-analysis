@@ -15,6 +15,7 @@ from lmtanalysis.Measure import *
 #from affine import Affine
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+from lmtanalysis.Parameters import getAnimalTypeParameters
 
 def flush( connection ):
     ''' flush event in database '''
@@ -24,7 +25,10 @@ def flush( connection ):
     deleteEventTimeLineInBase(connection, "SniffLeftFar")
 
 
-def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectTuple, tmin=None, tmax=None, pool = None, vibrissae=3 ):
+def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectTuple, tmin=None, tmax=None, pool = None, animalType = None ):
+    
+    parameters = getAnimalTypeParameters( animalType )
+    
     deleteEventTimeLineInBase(connection, "SniffRight" )
     deleteEventTimeLineInBase(connection, "SniffLeft")
     deleteEventTimeLineInBase(connection, "SniffRightFar")
@@ -110,7 +114,7 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectT
                 print('no nose detected for frame ', t)
 
             else:
-                if distanceNoseLeft <= radiusObjects[objectLeft] + vibrissae / scaleFactor:
+                if distanceNoseLeft <= radiusObjects[objectLeft] + parameters.VIBRISSAE / parameters.scaleFactor:
                     print('t: ', t, distanceNoseLeft)
                     # check if the animal is on the object:
                     if distanceMassLeft <= radiusObjects[objectLeft]:
@@ -118,7 +122,7 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectT
                     else:
                         resultSniffLeft[t] = True
 
-                if distanceNoseLeft <= radiusObjects[objectLeft] + 2*vibrissae / scaleFactor:
+                if distanceNoseLeft <= radiusObjects[objectLeft] + 2*parameters.VIBRISSAE / parameters.scaleFactor:
                     print('t: ', t, distanceNoseLeft)
                     # check if the animal is on the object:
                     if distanceMassLeft > radiusObjects[objectLeft]:
@@ -131,14 +135,14 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectT
                 print('no nose detected for frame ', t)
 
             else:
-                if distanceNoseRight <= radiusObjects[objectRight] + vibrissae / scaleFactor:
+                if distanceNoseRight <= radiusObjects[objectRight] + parameters.VIBRISSAE / parameters.scaleFactor:
                     # check if the animal is on the object:
                     if distanceMassRight <= radiusObjects[objectRight]:
                         resultUpRight[t] = True
                     else:
                         resultSniffRight[t] = True
 
-                if distanceNoseRight <= radiusObjects[objectRight] + 2*vibrissae / scaleFactor:
+                if distanceNoseRight <= radiusObjects[objectRight] + 2*parameters.VIBRISSAE / parameters.scaleFactor:
                     # check if the animal is on the object:
                     if distanceMassRight > radiusObjects[objectRight]:
                         resultSniffRightFar[t] = True

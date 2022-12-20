@@ -13,13 +13,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 from lmtanalysis.Event import *
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
+from lmtanalysis.Parameters import getAnimalTypeParameters
 
 def flush( connection ):
     ''' flush event in database '''
     deleteEventTimeLineInBase(connection, "Train2" )
 
 
-def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalType=None ): 
+
+    parameters = getAnimalTypeParameters( animalType )
 
     ''' use pool cache if available '''
     if ( pool == None ):
@@ -65,7 +68,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
                 speedB = pool.animalDictionnary[idAnimalB].getSpeed(t)
                         
                 if ( speedA != None and speedB != None ):
-                    if ( speedA > SPEED_THRESHOLD_HIGH and speedB > SPEED_THRESHOLD_HIGH ):
+                    if ( speedA > parameters.SPEED_THRESHOLD_HIGH and speedB > parameters.SPEED_THRESHOLD_HIGH ):
                         result[t]=True
             
             trainTimeLine.reBuildWithDictionnary( result )

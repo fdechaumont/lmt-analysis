@@ -16,6 +16,7 @@ from lmtanalysis.Measure import *
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
+from lmtanalysis.Parameters import getAnimalTypeParameters
 
 def flush( connection ):
     ''' flush event in database '''
@@ -23,7 +24,9 @@ def flush( connection ):
     deleteEventTimeLineInBase(connection, "Water Stop" )
 
 
-def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalType=None ): 
+    
+    parameters = getAnimalTypeParameters( animalType )
     
     ''' use the pool provided or create it'''
     if ( pool == None ):
@@ -63,11 +66,11 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
                 continue
             
             #Check if the animal is entering the zone around the water point:
-            if (dicA[t].getDistanceToPoint(xPoint = 398, yPoint = 353) <= MAX_DISTANCE_TO_POINT*2):
+            if (dicA[t].getDistanceToPoint(xPoint = 398, yPoint = 353) <= parameters.MAX_DISTANCE_TO_POINT*2):
                 resultWaterZone[t] = True
             
             #Check if the animal is drinking (the animal should be in a tight zone around the water point and be stopped):      
-            if (dicA[t].getDistanceToPoint(xPoint = 398, yPoint = 353) <= MAX_DISTANCE_TO_POINT):
+            if (dicA[t].getDistanceToPoint(xPoint = 398, yPoint = 353) <= parameters.MAX_DISTANCE_TO_POINT):
                 if t in stopTimeLineDictionary.keys():
                     resultWaterStop[t] = True
                 
@@ -76,7 +79,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
         waterZoneTimeLine.endRebuildEventTimeLine(connection)
         
         waterStopTimeLine.reBuildWithDictionnary( resultWaterStop )
-        waterStopTimeLine.removeEventsBelowLength( maxLen = MIN_WATER_STOP_DURATION )    
+        waterStopTimeLine.removeEventsBelowLength( maxLen = parameters.MIN_WATER_STOP_DURATION )    
         waterStopTimeLine.endRebuildEventTimeLine(connection)
     
         

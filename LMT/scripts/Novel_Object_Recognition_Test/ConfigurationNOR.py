@@ -269,7 +269,7 @@ xPos = {'male': {setupList[0]: 1.5, setupList[1]: 4.5},
 xPosConfig = {'male': {'config1': 1.5, 'config2': 4.5},
         'female': {'config1': 7.5, 'config2': 10.5}}
 
-VIBRISSAE = 3 #estimated size of the vibrissae to determine the contact zone with the object
+#VIBRISSAE = 3 #estimated size of the vibrissae to determine the contact zone with the object
 timeBin = 1 * oneMinute
 
 eventList = {'acquisition': ['SniffLeftFar', 'SniffRightFar', 'SniffLeft', 'SniffRight', 'UpLeft', 'UpRight'], 'test': ['SniffFamiliarFar', 'SniffNewFar', 'SniffFamiliar', 'SniffNew', 'UpFamiliar', 'UpNew']}

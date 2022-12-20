@@ -27,6 +27,7 @@ from lmtanalysis.EventTimeLineCache import flushEventTimeLineCache,\
 
 
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
+from lmtanalysis.AnimalType import AnimalType
 
 
 ''' minT and maxT to process the analysis (in frame) '''
@@ -38,7 +39,6 @@ maxT = 3*oneDay
 ''' time window to compute the events. '''
 windowT = 1*oneDay
 #windowT = 3*oneDay #int (0.5*oneDay)
-
 
 USE_CACHE_LOAD_DETECTION_CACHE = True
 
@@ -113,6 +113,7 @@ def flushEvents( connection ):
 
 def processTimeWindow( connection, file, currentMinT , currentMaxT ):
 
+    global animalType
     CheckWrongAnimal.check( connection, tmin=currentMinT, tmax=currentMaxT )
 
     # Warning: enabling this process (CorrectDetectionIntegrity) will alter the database permanently
@@ -134,7 +135,7 @@ def processTimeWindow( connection, file, currentMinT , currentMaxT ):
     for ev in eventClassList:
 
         chrono = Chronometer( str( ev ) )
-        ev.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT, pool = animalPool )
+        ev.reBuildEvent( connection, file, tmin=currentMinT, tmax=currentMaxT, pool = animalPool, animalType = animalType )
         chrono.printTimeInS()
 
 
@@ -270,6 +271,9 @@ def processAll():
 if __name__ == '__main__':
 
     print("Code launched.")
+    global animalType
+    animalType = AnimalType.MOUSE
+    
     processAll()
     print('Job done.')
 

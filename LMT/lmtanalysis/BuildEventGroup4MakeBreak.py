@@ -21,7 +21,7 @@ def flush( connection ):
     deleteEventTimeLineInBase(connection, "Group 4 break" )
 
 
-def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
+def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalType = None ):
     
 
     pool = AnimalPool( )

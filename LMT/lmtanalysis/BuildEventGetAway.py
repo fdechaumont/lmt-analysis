@@ -14,17 +14,19 @@ import numpy as np
 from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
+from lmtanalysis.Parameters import getAnimalTypeParameters
 
 def flush( connection ):
     ''' flush event in database '''
     deleteEventTimeLineInBase(connection, "Get away" )
 
 
-def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
+def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalType=None ):
     '''    
     Get away: at least 1 animal should move, mouse A speed > mouse B speed & mouse A getting away from B.
 
     ''' 
+    parameters = getAnimalTypeParameters( animalType )
     
     print("Escape")
     
@@ -72,15 +74,15 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
                 if ( speedB > speedA ):
                     continue
                 
-                if ( speedA > SPEED_THRESHOLD_LOW or speedB > SPEED_THRESHOLD_LOW ):
+                if ( speedA > parameters.SPEED_THRESHOLD_LOW or speedB > parameters.SPEED_THRESHOLD_LOW ):
                     
                     dAStart = animalA.detectionDictionnary[t-1]
                     dAEnd = animalA.detectionDictionnary[t+1]
                     dBStart = animalB.detectionDictionnary[t-1]
                     dBEnd = animalB.detectionDictionnary[t+1]
                     
-                    distStart = dAStart.getDistanceTo( dBStart )
-                    distEnd = dAEnd.getDistanceTo( dBEnd )
+                    distStart = dAStart.getDistanceTo( dBStart, parameters )
+                    distEnd = dAEnd.getDistanceTo( dBEnd , parameters )
                     
                     if distStart != None and distEnd != None:
                         if( distStart < distEnd ):

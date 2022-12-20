@@ -20,7 +20,7 @@ def flush( connection ):
     deleteEventTimeLineInBase(connection, "Group4" )
 
 
-def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
+def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalType = None ):
     '''
     four animals are in contact. (equivalent to group2 and group3)
     ''' 

@@ -22,7 +22,7 @@ def flush( connection ):
     deleteEventTimeLineInBase(connection, "seq oral oral - oral genital" )
     deleteEventTimeLineInBase(connection, "seq oral geni - oral oral" )
 
-def reBuildEvent( connection, file,  tmin=None, tmax=None, pool = None ): 
+def reBuildEvent( connection, file,  tmin=None, tmax=None, pool = None, animalType = None ): 
     
     ''' use the pool provided or create it'''
     if ( pool == None ):

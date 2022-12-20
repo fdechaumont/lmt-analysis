@@ -11,7 +11,7 @@ from affine import Affine
 from lmtanalysis.Chronometer import Chronometer
 from lmtanalysis.Animal import *
 from lmtanalysis.Detection import *
-from lmtanalysis.Measure import  SPEED_THRESHOLD_LOW
+#from lmtanalysis.Measure import  SPEED_THRESHOLD_LOW
 import numpy as np
 from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
@@ -21,16 +21,10 @@ import matplotlib.lines as mlines
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 import copy
 from copy import deepcopy
+from lmtanalysis.Parameters import getAnimalTypeParameters
 
 #eventName = "FollowZone New4"
 eventName = "FollowZone"
-
-FOLLOW_CORRIDOR_DURATION = 30 # in frames
-FOLLOW_MAX_ANGLE = math.pi/4 # in radians
-FOLLOW_DISTANCE_MAX_PIX = 2.5/scaleFactor # numeric value in cm to obtain pixels #2.5
-FOLLOW_SPEED_MULTIPLICATOR_THRESHOLD = 2
-FOLLOW_REMOVE_EVENT_BELOW_LEN = 7 # in frames        
-FOLLOW_MERGE_EVENT_LEN_CRITERIA = 10 # in frames
             
 def flush( connection ):
     ''' flush event in database '''
@@ -53,7 +47,7 @@ def isSameWay( detA, detB ):
     
     return False
 
-def isAFollowingB( t , dicA , dicB ):
+def isAFollowingB( t , dicA , dicB, parameters ):
     
     # False is detection A does not exist at t
     if t not in dicA:
@@ -70,7 +64,7 @@ def isAFollowingB( t , dicA , dicB ):
     detectionA = dicA[t]
     
     # check if in the past B was in A location
-    for timeB in range( t-FOLLOW_CORRIDOR_DURATION,t+1 ):
+    for timeB in range( t-parameters.FOLLOW_CORRIDOR_DURATION,t+1 ):
         
         # check if detection B exists:
         if not timeB in dicB:
@@ -78,14 +72,14 @@ def isAFollowingB( t , dicA , dicB ):
         
         detectionB = dicB[timeB]
         
-        distance = detectionA.getDistanceTo( detectionB )  
+        distance = detectionA.getDistanceTo( detectionB, parameters )  
 
         # discard invalid distances
         if distance == None:
             continue
                 
         # discard if distance is too large between detections
-        if distance > FOLLOW_DISTANCE_MAX_PIX:
+        if distance > parameters.FOLLOW_DISTANCE_MAX_PIX:
 
             continue
                          
@@ -98,7 +92,7 @@ def isAFollowingB( t , dicA , dicB ):
         angleB = detectionB.getDirection()
         dbDif= math.atan2( math.sin(angleB-angleA), math.cos(angleB-angleA) )
         dif = math.fabs( dbDif )
-        if ( dif > FOLLOW_MAX_ANGLE ):
+        if ( dif > parameters.FOLLOW_MAX_ANGLE ):
             continue
         
         
@@ -110,7 +104,7 @@ def isAFollowingB( t , dicA , dicB ):
     return False
     
 
-def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalType = None ): 
     
     '''
     Event FollowZone:
@@ -120,6 +114,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     - ok: the angles between the two animals are less than 45 degrees apart considering head tail direction
     
     '''
+    
+    parameters = getAnimalTypeParameters( animalType )
     
     
     # create dedicated pool as we will alter detection pool with filters (I.e: we don't use the pool cache)
@@ -131,7 +127,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
     # filter detection by speed. Keep only the detection that are over SPEED_THRESHOLD_LOW.
     #pool.filterDetectionByInstantSpeed( pool.getAnimalList()[0].parameters.SPEED_THRESHOLD_LOW , 1000 ) # for the rat compatible version
     #pool.filterDetectionByInstantSpeed( SPEED_THRESHOLD_LOW*2 , 1000 )
-    pool.filterDetectionByInstantSpeed( SPEED_THRESHOLD_LOW*FOLLOW_SPEED_MULTIPLICATOR_THRESHOLD , 1000 )
+    pool.filterDetectionByInstantSpeed( parameters.SPEED_THRESHOLD_LOW*parameters.FOLLOW_SPEED_MULTIPLICATOR_THRESHOLD , 1000 )
     
     # remove all detection where head and tail are missing
     pool.filterDetectionToKeepOnlyHeadTailDetection()
@@ -179,7 +175,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
             # Starting "is A following B ?"
                         
             for t in dicB:            
-                if isAFollowingB( t , dicA , dicB ):
+                if isAFollowingB( t , dicA , dicB, parameters ):
                     resultDic[t]=True
 
             # remove all contact situation
@@ -206,9 +202,9 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
             followIsolatedTimeLine[idAnimalA, idAnimalB].reBuildWithDictionnary( followIsolatedTimeLineDic[idAnimalA, idAnimalB] )
                         
             # filter out accidental events
-            followIsolatedTimeLine[idAnimalA, idAnimalB].removeEventsBelowLength( FOLLOW_REMOVE_EVENT_BELOW_LEN )
+            followIsolatedTimeLine[idAnimalA, idAnimalB].removeEventsBelowLength( parameters.FOLLOW_REMOVE_EVENT_BELOW_LEN )
             # create continuity in the events
-            followIsolatedTimeLine[idAnimalA, idAnimalB].mergeCloseEvents( FOLLOW_MERGE_EVENT_LEN_CRITERIA )
+            followIsolatedTimeLine[idAnimalA, idAnimalB].mergeCloseEvents( parameters.FOLLOW_MERGE_EVENT_LEN_CRITERIA )
                         
             followIsolatedTimeLine[idAnimalA, idAnimalB].endRebuildEventTimeLine(connection)
                 

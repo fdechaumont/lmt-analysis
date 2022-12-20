@@ -23,7 +23,7 @@ def flush( connection ):
     ''' flush event in database '''
     deleteEventTimeLineInBase(connection, "onHouse" )
 
-def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, showGraph = False ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalType = None, showGraph = False ): 
     
     ''' use the pool provided or create it'''
     if ( pool == None ):

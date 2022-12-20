@@ -15,6 +15,7 @@ from lmtanalysis.Measure import *
 #from affine import Affine
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+from lmtanalysis.Parameters import getAnimalTypeParameters
 
 def flush( connection ):
     ''' flush event in database '''
@@ -22,7 +23,10 @@ def flush( connection ):
     deleteEventTimeLineInBase(connection, "SniffLeft" )
     
 
-def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectDic, tmin=None, tmax=None, pool = None ):
+def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectDic, tmin=None, tmax=None, pool = None, animalType = None ):
+    
+    parameters = getAnimalTypeParameters( animalType )
+    
     deleteEventTimeLineInBase(connection, "SniffRight" )
     deleteEventTimeLineInBase(connection, "SniffLeft")
     deleteEventTimeLineInBase(connection, "upRight")
@@ -92,7 +96,7 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectD
                 print('no nose detected for frame ', t)
 
             else:
-                if distanceNoseLeft <= radiusObjects[objectLeft] + 3 / scaleFactor:
+                if distanceNoseLeft <= radiusObjects[objectLeft] + 3 / parameters.scaleFactor:
                     # check if the animal is on the object:
                     if distanceMassLeft <= radiusObjects[objectLeft]:
                         resultUpLeft[t] = True
@@ -106,7 +110,7 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectD
                 print('no nose detected for frame ', t)
 
             else:
-                if distanceNoseRight <= radiusObjects[objectRight] + 3 / scaleFactor:
+                if distanceNoseRight <= radiusObjects[objectRight] + 3 / parameters.scaleFactor:
                     # check if the animal is on the object:
                     if distanceMassRight <= radiusObjects[objectRight]:
                         resultUpRight[t] = True

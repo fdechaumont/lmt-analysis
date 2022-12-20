@@ -19,7 +19,7 @@ def flush( connection ):
     ''' flush event in database '''
     deleteEventTimeLineInBase(connection, "Approach rear" )
 
-def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
+def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalType = None ):
     ''' 
     Animal A is approaching the animal B, that is in a reared posture at the end of the approach of animal A.
     Social approaches are considered, meaning that the two animals are within 2 body lengths of one another.

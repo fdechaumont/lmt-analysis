@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
+from lmtanalysis.Parameters import getAnimalTypeParameters
 
 def flush( connection ):
     ''' flush event in database '''
@@ -30,7 +31,9 @@ def distHeadBack( detA, detB ):
     
     return math.hypot( hx-bx, hy-by )
     
-def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalType=None ): 
+    
+    parameters = getAnimalTypeParameters( animalType )
     
     ''' use the pool provided or create it'''
     if ( pool == None ):
@@ -61,7 +64,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
                     detA = animalA.detectionDictionnary[t]
                     detB = animalB.detectionDictionnary[t]
                     
-                    if distHeadBack( detA, detB ) < MAX_DISTANCE_HEAD_HEAD_GENITAL_THRESHOLD:
+                    if distHeadBack( detA, detB ) < parameters.MAX_DISTANCE_HEAD_HEAD_GENITAL_THRESHOLD:
                         result[t] = True
             
             OralGenitalTimeLine.reBuildWithDictionnary( result )

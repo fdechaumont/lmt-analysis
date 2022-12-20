@@ -16,6 +16,7 @@ from lmtanalysis.Measure import *
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
+from lmtanalysis.Parameters import getAnimalTypeParameters
 
 def flush( connection ):
     ''' flush event in database '''
@@ -23,7 +24,9 @@ def flush( connection ):
     deleteEventTimeLineInBase(connection, "Rear in contact" )
 
 
-def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalType=None ): 
+    
+    parameters = getAnimalTypeParameters( animalType)
     
     ''' use the pool provided or create it'''
     if ( pool == None ):
@@ -65,7 +68,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ):
             if ( slope == None):
                 continue
             
-            if ( abs( slope ) < BODY_SLOPE_THRESHOLD ):
+            if ( abs( slope ) < parameters.BODY_SLOPE_THRESHOLD ):
                 continue;
                 
             if (t in contactDico.keys()):

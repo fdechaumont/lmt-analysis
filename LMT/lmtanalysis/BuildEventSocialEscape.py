@@ -20,7 +20,7 @@ def flush( connection ):
     deleteEventTimeLineInBase(connection, "Social escape" )
 
 
-def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalType = None ): 
     
     print("STARTING SOCIAL ESCAPE")
     

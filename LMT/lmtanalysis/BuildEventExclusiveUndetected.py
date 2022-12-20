@@ -21,7 +21,7 @@ def flush( connection ):
     eventUndetected = 'Undetected exclusive'
     deleteEventTimeLineInBase(connection, eventUndetected)
 
-def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ):
+def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalType = None ):
     eventUndetected = 'Undetected exclusive'
     if ( pool == None ):
         pool = AnimalPool( )

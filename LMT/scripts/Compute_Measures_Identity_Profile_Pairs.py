@@ -17,7 +17,7 @@ from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventFollowZone
 from tkinter.filedialog import askopenfilename
 from lmtanalysis.Util import getMinTMaxTAndFileNameInput, level
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
-from lmtanalysis.FileUtil import getFilesToProcess, addJitter, getStarsFromPvalues
+from lmtanalysis.FileUtil import getFilesToProcess, addJitter
 from scipy.stats import mannwhitneyu
 import pandas as pd
 

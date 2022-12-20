@@ -19,7 +19,7 @@ def flush( connection ):
     ''' flush event in database '''
     deleteEventTimeLineInBase(connection, "Other contact" )
 
-def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalType = None ): 
 
     if ( pool == None ):
         pool = AnimalPool( )

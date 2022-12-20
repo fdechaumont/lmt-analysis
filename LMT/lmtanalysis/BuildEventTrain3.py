@@ -26,7 +26,7 @@ def flush( connection ):
     ''' flush event in database '''
     deleteEventTimeLineInBase(connection, "Train3" )
 
-def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None ): 
+def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalType = None ): 
 
     ''' use pool cache if available '''
     if ( pool == None ):
