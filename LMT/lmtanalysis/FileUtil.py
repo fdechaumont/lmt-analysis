@@ -225,7 +225,7 @@ def getFigureBehaviouralEventsLabels(event):
 
 
 
-behaviouralEventOneMouse = ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact",
+behaviouralEventOneMouse = ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
     "Train2", "FollowZone",
     "Social approach", "Approach contact",
@@ -252,7 +252,7 @@ behaviouralEventOneMouseDic = {' TotalLen': ["Move isolated", "Move in contact",
     ]
     }
 
-behaviouralEventOneMouseSingle = ["Move isolated", "Move in contact", "WallJump", "Stop isolated", "Rear isolated", "Rear in contact", "Oral-genital Contact", "Train2", "FollowZone",
+behaviouralEventOneMouseSingle = ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact", "Oral-genital Contact", "Train2", "FollowZone",
                                 "Social approach", "Approach contact", "Get away", "Break contact"]
 behaviouralEventOneMouseSocial = ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact",
                             "Side by side Contact", "Side by side Contact, opposite way",
