@@ -76,8 +76,7 @@ class Animal():
         
 
     def __str__(self):
-        return "Animal Id:{id} Name:{name} RFID:{rfid} Genotype:{genotype} User1:{user1}"\
-            .format( id=self.baseId, rfid=self.RFID, name=self.name, genotype=self.genotype, user1=self.user1 )
+        return f"Animal Id:{self.baseId} Name:{self.name} RFID:{self.RFID} Genotype:{self.genotype} Strain:{self.strain} Age:{self.age} Sex:{self.sex} Setup:{self.setup}"            
 
     def getColor(self):
         return getAnimalColor( self.baseId )
