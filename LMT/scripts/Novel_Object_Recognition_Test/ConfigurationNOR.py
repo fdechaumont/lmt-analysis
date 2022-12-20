@@ -5,7 +5,8 @@
 '''
 
 import numpy as np
-from scripts.ComputeObjectRecognition import *
+
+from lmtanalysis.Measure import oneMinute
 
 #object positions (x,y) according to the setup:
 objectPosition = {'1': {'left': (190, -152), 'right': (330, -152)},

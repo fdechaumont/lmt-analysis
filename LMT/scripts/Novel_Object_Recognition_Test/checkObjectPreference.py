@@ -4,7 +4,7 @@
 #@author: Elodie
 '''
 
-from scripts.Rebuild_All_Event import *
+
 from scripts.Plot_Trajectory_Single_Object_Explo import *
 import numpy as np; np.random.seed(0)
 from lmtanalysis.Animal import *
@@ -13,6 +13,9 @@ from lmtanalysis.Util import *
 from lmtanalysis.Measure import *
 from matplotlib import patches
 from scipy import stats
+from scripts.Rebuild_All_Events import processAll
+from lmtanalysis.Parameters import getAnimalTypeParameters
+import json
 
 
 def getStartTestPhase(pool):
@@ -166,6 +169,7 @@ if __name__ == '__main__':
                 pool = AnimalPool()
                 pool.loadAnimals(connection)
                 animal = pool.animalDictionnary[1]
+                animalType = animal.animalType
 
                 #determine the startframe of the test phase:
                 startTestFrame = getStartTestPhase(pool = pool)
@@ -180,7 +184,7 @@ if __name__ == '__main__':
                 #object zones:
                 for obj in [0,1,2,3]:
                     plotObjectZone(axLeft, colorFill=colorObjects[obj], x=objectPosition[animal.name][obj][0], y=-objectPosition[animal.name][obj][1], radius=radiusObjects[obj], alpha=0.5)
-                    plotObjectZone(axLeft, colorFill=colorObjects[obj], x=objectPosition[animal.name][obj][0], y=-objectPosition[animal.name][obj][1], radius=radiusObjects[obj]+2/scaleFactor, alpha=0.2)  # object up left
+                    plotObjectZone(axLeft, colorFill=colorObjects[obj], x=objectPosition[animal.name][obj][0], y=-objectPosition[animal.name][obj][1], radius=radiusObjects[obj]+2/getAnimalTypeParameters(animalType).scaleFactor, alpha=0.2)  # object up left
                 #trajectory:
                 plotNoseTrajectory(axLeft, animal, title="Preference {}".format(animal.name), color="black")
 
@@ -204,7 +208,7 @@ if __name__ == '__main__':
                             noneVec.append(t)
                             break
                         else:
-                            if distanceNose <= radiusObjects[obj]+2/scaleFactor:
+                            if distanceNose <= radiusObjects[obj]+2/getAnimalTypeParameters(animalType).scaleFactor:
                                 # check if the animal is on the object:
                                 if distanceMass <= radiusObjects[obj]:
                                     detection = animal.detectionDictionnary.get(t)

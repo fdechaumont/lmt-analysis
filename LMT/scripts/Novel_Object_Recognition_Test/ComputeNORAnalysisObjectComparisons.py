@@ -7,6 +7,19 @@ import numpy as np; np.random.seed(0)
 from scripts.Novel_Object_Recognition_Test.ConfigurationNOR import *
 from lmtanalysis import BuildEventObjectSniffingNorAcquisitionWithConfig,\
     BuildEventObjectSniffingNorTestWithConfig
+import sqlite3
+from lmtanalysis.Animal import AnimalPool
+from scripts.Novel_Object_Recognition_Test.ComputeActivityHabituationNorTest import plotTrajectorySingleAnimal,\
+    buildFigTrajectoryMalesFemales
+from scripts.Novel_Object_Recognition_Test.ComputeObjectRecognition import plotObjectZone
+from lmtanalysis.Parameters import getAnimalTypeParameters
+from lmtanalysis.Event import EventTimeLine
+from lmtanalysis.Util import getStarsFromPvalues, addJitter
+from scipy import stats
+from scripts.Rebuild_All_Events import processAll
+from lmtanalysis.FileUtil import getFilesToProcess
+import matplotlib.pyplot as plt
+import json
 
 
 def plotTrajectoriesNorPhasesPerConfig(files, figName, organisation, objectConfig, title, phase, exp, colorObjects,
@@ -23,6 +36,7 @@ def plotTrajectoriesNorPhasesPerConfig(files, figName, organisation, objectConfi
         pool = AnimalPool()
         pool.loadAnimals(connection)  # upload all the animals from the database
         animal = pool.animalDictionnary[1]
+        animalType = animal.animalType
         rfid = animal.RFID
         setup = float(animal.setup)
         print('setup: ', setup)
@@ -49,10 +63,10 @@ def plotTrajectoriesNorPhasesPerConfig(files, figName, organisation, objectConfi
                        y=objectPosition[setup]['left'][1], radius=radiusObjects[object],
                        alpha=0.5)  # plot the object on the right side
         plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
-                       y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + VIBRISSAE / scaleFactor,
+                       y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + getAnimalTypeParameters(animalType).VIBRISSAE / getAnimalTypeParameters(animalType).scaleFactor,
                        alpha=0.2)
         plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
-                       y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + 2 * VIBRISSAE / scaleFactor,
+                       y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + 2 * getAnimalTypeParameters(animalType).VIBRISSAE / getAnimalTypeParameters(animalType).scaleFactor,
                        alpha=0.1)
         object = objectConfig[configName][phase][1]
         print('object right: ', object)
@@ -60,10 +74,10 @@ def plotTrajectoriesNorPhasesPerConfig(files, figName, organisation, objectConfi
                        y=objectPosition[setup]['right'][1], radius=radiusObjects[object],
                        alpha=0.5)  # plot the object on the left side
         plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['right'][0],
-                       y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + VIBRISSAE / scaleFactor,
+                       y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + getAnimalTypeParameters(animalType).VIBRISSAE / getAnimalTypeParameters(animalType).scaleFactor,
                        alpha=0.2)  # plot a zone around the object on the left side
         plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['right'][0],
-                       y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + 2 * VIBRISSAE / scaleFactor,
+                       y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + 2 * getAnimalTypeParameters(animalType).VIBRISSAE / getAnimalTypeParameters(animalType).scaleFactor,
                        alpha=0.1)  # plot a zone around the object on the left side
 
         if phase == 'test':
@@ -481,12 +495,13 @@ if __name__ == '__main__':
                     pool = AnimalPool()
                     pool.loadAnimals(connection)  # upload all the animals from the database
                     animal = pool.animalDictionnary[1]
+                    animalType = animal.animalType
                     sex = animal.sex
                     setup = int(animal.setup)
                     rfid = animal.RFID
                     config = organisation[exp][rfid]
                     objectType = objectConfig[config][phase]
-                    BuildEventObjectSniffingNorAcquisitionWithConfig.reBuildEvent(connection, tmin=0, tmax=20 * oneMinute, pool = None, exp=exp, phase=phase, objectPosition=objectPosition, radiusObjects=radiusObjects, objectTuple=objectType, vibrissae=VIBRISSAE)
+                    BuildEventObjectSniffingNorAcquisitionWithConfig.reBuildEvent(connection, tmin=0, tmax=20 * oneMinute, pool = None, exp=exp, phase=phase, objectPosition=objectPosition, radiusObjects=radiusObjects, objectTuple=objectType, vibrissae=getAnimalTypeParameters(animalType).VIBRISSAE)
                     connection.close()
                     print('Rebuild sniff events done during acquisition.')
 
@@ -497,6 +512,7 @@ if __name__ == '__main__':
                     pool = AnimalPool()
                     pool.loadAnimals(connection)  # upload all the animals from the database
                     animal = pool.animalDictionnary[1]
+                    animalType = animal.animalType
                     sex = animal.sex
                     setup = int(animal.setup)
                     rfid = animal.RFID
@@ -512,7 +528,7 @@ if __name__ == '__main__':
                                                                            tmax=20 * oneMinute, pool=None,
                                                                            objectPosition=objectPosition,
                                                                            radiusObjects=radiusObjects,
-                                                                           objectTuple=objectType, side=side, vibrissae=VIBRISSAE)
+                                                                           objectTuple=objectType, side=side, vibrissae=getAnimalTypeParameters(animalType).VIBRISSAE)
                     connection.close()
                     print('Rebuild sniff events done during test.')
             break

@@ -15,13 +15,15 @@ from matplotlib import patches
 from scipy import stats
 from scripts.ComputeActivityHabituationNorTest import *
 from scripts.ComputeObjectRecognition import *
+from lmtanalysis.Parameters import getAnimalTypeParameters
+import json
 
 
 
 def computeSniffTimeNoSetup(files, exp, phase, objectDic):
 
     print('Compute time of exploration.')
-    vibrissae = 3  # estimated size of the vibrissae to determine the contact zone with the object
+    
     data = {}
     for val in ['sniffLeft', 'sniffRight', 'onLeftObject', 'onRightObject', 'totalSniff']:
         data[val] = {}
@@ -36,6 +38,8 @@ def computeSniffTimeNoSetup(files, exp, phase, objectDic):
         pool = AnimalPool()
         pool.loadAnimals(connection)
         animal = pool.animalDictionnary[1]
+        animalType = animal.animalType
+        vibrissae = getAnimalTypeParameters(animalType).VIBRISSAE # estimated size of the vibrissae to determine the contact zone with the object
         sex = animal.sex
         geno = animal.genotype
         setup = int(animal.setup)
@@ -72,7 +76,7 @@ def computeSniffTimeNoSetup(files, exp, phase, objectDic):
                     noneVec.append(t)
                     break
                 else:
-                    if distanceNose <= radiusObjects[object] + vibrissae / scaleFactor:
+                    if distanceNose <= radiusObjects[object] + vibrissae / getAnimalTypeParameters(animalType).scaleFactor:
                         # check if the animal is on the object:
                         if distanceMass <= radiusObjects[object]:
                             detection = animal.detectionDictionnary.get(t)

@@ -8,13 +8,27 @@ import numpy as np; np.random.seed(0)
 from lmtanalysis import BuildEventObjectSniffingNorAcquisitionWithConfig, \
     BuildEventObjectSniffingNorTestWithConfig
 from scripts.Novel_Object_Recognition_Test.ConfigurationNOR import *
+import matplotlib.pyplot as plt
+import sqlite3
+from lmtanalysis.Animal import AnimalPool
+from scripts.Novel_Object_Recognition_Test.ComputeActivityHabituationNorTest import plotTrajectorySingleAnimal,\
+    buildFigTrajectoryMalesFemales
+from scripts.Novel_Object_Recognition_Test.ComputeObjectRecognition import plotObjectZone
+from lmtanalysis.Event import EventTimeLine
+from lmtanalysis.Util import getStarsFromPvalues, addJitter
+from scipy import stats
+from scripts.Rebuild_All_Events import processAll
+from lmtanalysis.FileUtil import getFilesToProcess
+from lmtanalysis.Parameters import getAnimalTypeParameters
+import json
 
 
 
 def plotTrajectoriesNorPhasesPerSetupRedCage(files, figName, organisation, objectConfig, title, phase, exp, colorObjects,
-                              objectPosition, radiusObjects):
+                              objectPosition, radiusObjects, ânimalType):
     fig, axes = plt.subplots(nrows=5, ncols=5, figsize=(14, 15))  # building the plot for trajectories
-
+    parameters = getAnimalTypeParameters( animalType )
+    
     nRow = 0  # initialisation of the row
     nCol = 0  # initialisation of the column
     text_file = open('data_config.txt', 'w')
@@ -49,10 +63,10 @@ def plotTrajectoriesNorPhasesPerSetupRedCage(files, figName, organisation, objec
                        y=objectPosition[setup]['left'][1], radius=radiusObjects[object],
                        alpha=0.5)  # plot the object on the right side
         plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
-                       y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + VIBRISSAE / scaleFactor,
+                       y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + parameters.VIBRISSAE / parameters.scaleFactor,
                        alpha=0.2)
         plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
-                       y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + 2 * VIBRISSAE / scaleFactor,
+                       y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + 2 * parameters.VIBRISSAE / parameters.scaleFactor,
                        alpha=0.1)
         object = objectConfig[configName][phase][1]
         print('object right: ', object)
@@ -60,10 +74,10 @@ def plotTrajectoriesNorPhasesPerSetupRedCage(files, figName, organisation, objec
                        y=objectPosition[setup]['right'][1], radius=radiusObjects[object],
                        alpha=0.5)  # plot the object on the left side
         plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['right'][0],
-                       y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + VIBRISSAE / scaleFactor,
+                       y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + parameters.VIBRISSAE / parameters.scaleFactor,
                        alpha=0.2)  # plot a zone around the object on the left side
         plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['right'][0],
-                       y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + 2 * VIBRISSAE / scaleFactor,
+                       y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + 2 * parameters.VIBRISSAE / parameters.scaleFactor,
                        alpha=0.1)  # plot a zone around the object on the left side
 
         if phase == 'test':
@@ -387,9 +401,7 @@ def plotTotalTimeSniffing(ax, phase, totalSniffList, sex):
     print(st1)
     print(st2)
     U, p = stats.mannwhitneyu(st1, st2)
-    print(
-        'Mann-Whitney U test for {} versus {} {} between setups: U={}, p={}'.format(len(st1), len(st2), sex, U,
-                                                                                         p))
+    print('Mann-Whitney U test for {} versus {} {} between setups: U={}, p={}'.format(len(st1), len(st2), sex, U, p))
     ax.text((xPos[setupList[0]] + xPos[setupList[1]]) / 2, 160 * 0.90,
             getStarsFromPvalues(pvalue=p, numberOfTests=1), fontsize=16, horizontalalignment='center')
 
@@ -537,12 +549,13 @@ if __name__ == '__main__':
                     pool = AnimalPool()
                     pool.loadAnimals(connection)  # upload all the animals from the database
                     animal = pool.animalDictionnary[1]
+                    animalType = animal.animalType
                     sex = animal.sex
                     setup = animal.setup
                     rfid = animal.RFID
                     config = organisation[exp][rfid]
                     objectType = objectConfig[config][phase]
-                    BuildEventObjectSniffingNorAcquisitionWithConfig.reBuildEvent(connection, tmin=0, tmax=20 * oneMinute, pool = None, exp=exp, phase=phase, objectPosition=objectPosition, radiusObjects=radiusObjects, objectTuple=objectType, vibrissae=VIBRISSAE)
+                    BuildEventObjectSniffingNorAcquisitionWithConfig.reBuildEvent(connection, tmin=0, tmax=20 * oneMinute, pool = None, exp=exp, phase=phase, objectPosition=objectPosition, radiusObjects=radiusObjects, objectTuple=objectType, vibrissae=getAnimalTypeParameters(animalType).VIBRISSAE)
                     connection.close()
                     print('Rebuild sniff events done during acquisition.')
 
@@ -553,6 +566,7 @@ if __name__ == '__main__':
                     pool = AnimalPool()
                     pool.loadAnimals(connection)  # upload all the animals from the database
                     animal = pool.animalDictionnary[1]
+                    animalType = animal.animalType
                     sex = animal.sex
                     setup = animal.setup
                     rfid = animal.RFID
@@ -568,7 +582,7 @@ if __name__ == '__main__':
                                                                            tmax=20 * oneMinute, pool=None,
                                                                            objectPosition=objectPosition,
                                                                            radiusObjects=radiusObjects,
-                                                                           objectTuple=objectType, side=side, vibrissae=VIBRISSAE)
+                                                                           objectTuple=objectType, side=side, vibrissae=getAnimalTypeParameters(animalType).VIBRISSAE)
                     connection.close()
                     print('Rebuild sniff events done during test.')
             break

@@ -4,7 +4,7 @@
 #@author: Elodie
 '''
 
-from scripts.Rebuild_All_Event import *
+from scripts.Rebuild_All_Events import *
 from scripts.Plot_Trajectory_Single_Object_Explo import *
 import numpy as np; np.random.seed(0)
 from lmtanalysis.Animal import *
@@ -14,6 +14,8 @@ from lmtanalysis.Measure import *
 from matplotlib import patches
 from scipy import stats
 import seaborn as sns
+from scripts.Rebuild_All_Events import processAll
+import json
 
 
 def getStartTestPhase(pool):

@@ -4,7 +4,7 @@
 #@author: Elodie
 '''
 
-from scripts.Rebuild_All_Event import *
+from scripts.Rebuild_All_Events import *
 from scripts.Plot_Trajectory_Single_Object_Explo import *
 import numpy as np; np.random.seed(0)
 from lmtanalysis.Animal import *
@@ -13,10 +13,14 @@ from lmtanalysis.Util import *
 from lmtanalysis.Measure import *
 from matplotlib import patches
 from scipy import stats
-from scripts.ComputeActivityHabituationNorTest import *
+
 from lmtanalysis import BuildEventObjectSniffingNor
 from lmtanalysis.Event import *
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
+from scripts.Novel_Object_Recognition_Test.ComputeActivityHabituationNorTest import plotTrajectorySingleAnimal,\
+    buildFigTrajectoryMalesFemales
+from lmtanalysis.Parameters import getAnimalTypeParameters
+from scripts.Rebuild_All_Events import processAll
 
 
 def getStartTestPhase(pool):
@@ -61,6 +65,7 @@ def plotTrajectoriesNorPhases(files, figName, title, phase, exp, colorSap, objec
         pool = AnimalPool()
         pool.loadAnimals(connection)  # upload all the animals from the database
         animal = pool.animalDictionnary[1]
+        animalType = animal.animalType
         setup = float(animal.setup)
         print('setup: ', setup)
 
@@ -86,11 +91,11 @@ def plotTrajectoriesNorPhases(files, figName, title, phase, exp, colorSap, objec
                            alpha=0.5)  # plot the object on the left side
             object = objectDic[setup][exp][phase][1]
             plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['right'][0],
-                           y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + vibrissae / scaleFactor,
+                           y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + getAnimalTypeParameters(animalType).VIBRISSAE / getAnimalTypeParameters(animalType).scaleFactor,
                            alpha=0.2)  # plot a zone around the object on the right side
             object = objectDic[setup][exp][phase][0]
             plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
-                           y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + vibrissae / scaleFactor,
+                           y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + getAnimalTypeParameters(animalType).VIBRISSAE / getAnimalTypeParameters(animalType).scaleFactor,
                            alpha=0.2)  # plot a zone around the object on the left side
 
             if nCol['male'] < 5:
@@ -115,11 +120,11 @@ def plotTrajectoriesNorPhases(files, figName, title, phase, exp, colorSap, objec
                            alpha=0.5)  # plot the object on the left side
             object = objectDic[setup][exp][phase][1]
             plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['right'][0],
-                           y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + vibrissae / scaleFactor,
+                           y=objectPosition[setup]['right'][1], radius=radiusObjects[object] + getAnimalTypeParameters(animalType).VIBRISSAE / getAnimalTypeParameters(animalType).scaleFactor,
                            alpha=0.2)  # plot a zone around the object on the right side
             object = objectDic[setup][exp][phase][0]
             plotObjectZone(ax=ax, colorFill=colorObjects[object], x=objectPosition[setup]['left'][0],
-                           y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + vibrissae / scaleFactor,
+                           y=objectPosition[setup]['left'][1], radius=radiusObjects[object] + getAnimalTypeParameters(animalType).VIBRISSAE / getAnimalTypeParameters(animalType).scaleFactor,
                            alpha=0.2)  # plot a zone around the object on the left side
 
             if nCol['female'] < 5:
@@ -155,6 +160,7 @@ def computeSniffTime(files=None, tmin=None, objectDic=None):
         pool = AnimalPool()
         pool.loadAnimals(connection)
         animal = pool.animalDictionnary[1]
+        animalType = animal.animalType
         sex = animal.sex
         setup = int(animal.setup)
         geno = animal.genotype
@@ -187,7 +193,7 @@ def computeSniffTime(files=None, tmin=None, objectDic=None):
                     noneVec.append(t)
                     break
                 else:
-                    if distanceNose <= radiusObjects[object] + 2 / scaleFactor:
+                    if distanceNose <= radiusObjects[object] + 2 / getAnimalTypeParameters(animalType).scaleFactor:
                         # check if the animal is on the object:
                         if distanceMass <= radiusObjects[object]:
                             detection = animal.detectionDictionnary.get(t)

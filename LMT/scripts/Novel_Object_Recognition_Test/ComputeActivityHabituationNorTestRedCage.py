@@ -3,7 +3,7 @@
 
 #@author: Elodie
 '''
-from scripts.ComputeActivityHabituationNorTest import plotTrajectorySingleAnimal
+
 from scripts.Novel_Object_Recognition_Test.ConfigurationNOR import getColorSetup,\
     getColorGeno
 from scripts.Rebuild_All_Event import *
@@ -15,6 +15,10 @@ from lmtanalysis.Measure import *
 from scripts.Novel_Object_Recognition_Test.ConfigurationNOR import *
 from scipy import stats
 import seaborn as sns
+from scripts.Rebuild_All_Events import processAll
+import json
+from scripts.Novel_Object_Recognition_Test.ComputeActivityHabituationNorOpenfield import buildFigTrajectoryPerGenotype
+from scripts.Novel_Object_Recognition_Test.ComputeActivityHabituationNorTest import plotTrajectorySingleAnimal
 
 
 def buildFigTrajectoryPerSetup(files, tmin, tmax, figName, title, xa = 111, xb = 400, ya = 63, yb = 353):

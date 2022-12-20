@@ -10,7 +10,13 @@ from scripts.Novel_Object_Recognition_Test.ConfigurationNOR import *
 from scripts.Novel_Object_Recognition_Test.ComputeActivityHabituationNorTestRedCage import buildFigTrajectoryPerSetup,\
     plotVariablesHabituationNorBoxplotsPerSetup, plotVariablesHabituationNorBoxplotsPerGenotype, \
     getCumulDistancePerTimeBinRedCage, plotDistancePerBinRedCage
-
+import matplotlib.pyplot as plt
+import sqlite3
+from lmtanalysis.Animal import AnimalPool
+from scripts.Novel_Object_Recognition_Test.ComputeActivityHabituationNorTest import plotTrajectorySingleAnimal
+from scripts.Rebuild_All_Events import processAll
+from lmtanalysis.Event import EventTimeLine
+import json
 
 def buildFigTrajectoryPerGenotype(files, tmin, tmax, figName, title, xa = 111, xb = 400, ya = 63, yb = 353):
 

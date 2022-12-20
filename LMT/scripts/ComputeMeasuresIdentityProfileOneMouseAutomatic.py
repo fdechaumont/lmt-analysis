@@ -2369,8 +2369,8 @@ if __name__ == '__main__':
             #dataToUse = mergeProfile
 
             #compute the data for the control animal of each cage
-            genoControl = 'DlxCre wt ; Dyrk1acKO/+'
-            #genoControl = 'WT'
+            #genoControl = 'DlxCre wt ; Dyrk1acKO/+'
+            genoControl = 'wt'
             wtData = extractControlData( profileData=dataToUse, genoControl=genoControl, behaviouralEventOneMouse=behaviouralEventOneMouse)
             wtData = extractCageData(profileData=dataToUse, behaviouralEventOneMouse=behaviouralEventOneMouse)
             #mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList )
@@ -2379,8 +2379,8 @@ if __name__ == '__main__':
 
             #compute the mutant data, centered and reduced for each cage
             #genoMutant = 'DlxCre Tg ; Dyrk1acKO/+'
-            genoMutant = 'Del/+'
-            #genoMutant = 'a5SNP'
+            #genoMutant = 'Del/+'
+            genoMutant = 'ko'
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
 
             print(koData)
@@ -2456,7 +2456,7 @@ if __name__ == '__main__':
 
             # compute the data for the control animal of each cage
             #genoControl = 'DlxCre wt ; Dyrk1acKO/+'
-            genoControl = 'WT'
+            genoControl = 'wt'
             #wtData = extractControlData(profileData=dataToUse, genoControl=genoControl,behaviouralEventOneMouse=behaviouralEventOneMouse)
             wtData = extractCageData(profileData=dataToUse, behaviouralEventOneMouse=behaviouralEventOneMouse)
             # mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList )
@@ -2465,7 +2465,7 @@ if __name__ == '__main__':
 
             # compute the mutant data, centered and reduced for each cage
             #genoMutant = 'DlxCre Tg ; Dyrk1acKO/+'
-            genoMutant = 'Del/+'
+            genoMutant = 'ko'
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData,
                                         categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse)
 
