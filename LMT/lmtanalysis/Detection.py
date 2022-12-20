@@ -128,19 +128,3 @@ class Detection():
         
         return False
     
-    '''
-    # TODAY:
-    def isRearing(self):
-        
-        #determine whether the animal is rearing at this detection
-        
-        if (self.getBodySlope() == None):
-            return False
-                
-        if (self.getBodySlope() > -BODY_SLOPE_THRESHOLD and self.getBodySlope() < BODY_SLOPE_THRESHOLD):
-            return False
-        
-        else:
-            return True
-    '''
-        
