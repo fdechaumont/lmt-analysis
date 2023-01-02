@@ -1127,6 +1127,38 @@ def generateMutantData(profileData, genoMutant, wtData, categoryList, behavioura
 
     return koData
 
+def generateZScoreData(profileData, cageData, categoryList, behaviouralEventOneMouse):
+    nightList = list(profileData[list(profileData.keys())[0]].keys())
+    print('nights: ', nightList)
+
+    zScoreData = {}
+    for file in profileData.keys():
+        zScoreData[file] = {}
+        for night in nightList:
+            zScoreData[file][night] = {}
+            
+
+            for rfid in profileData[file][night].keys():
+                zScoreData[file][night][rfid] = {}
+                zScoreData[file][night][rfid]['genotype'] = profileData[file][night][rfid]['genotype']
+                zScoreData[file][night][rfid]['sex'] = profileData[file][night][rfid]['sex']
+                zScoreData[file][night][rfid]['group'] = profileData[file][night][rfid]['group']
+                zScoreData[file][night][rfid]['strain'] = profileData[file][night][rfid]['strain']
+                zScoreData[file][night][rfid]['age'] = profileData[file][night][rfid]['age']
+                zScoreData[file][night][rfid]['totalDistance'] = (profileData[file][night][rfid]['totalDistance'] - cageData[file][night]['mean totalDistance']) / cageData[file][night]['std totalDistance']
+                for cat in categoryList:
+                    traitList = [trait + cat for trait in behaviouralEventOneMouse]
+                    for event in traitList:
+                        print('value ind: ', profileData[file][night][rfid][event])
+                        print('mean value cage: ', cageData[file][night]['mean ' + event])
+                        print('std value cage: ', cageData[file][night]['std '+ event])
+                        if cageData[file][night]['std '+ event] != 0:
+                            zScoreData[file][night][rfid][event] = (profileData[file][night][rfid][event] - cageData[file][night]['mean ' + event]) / cageData[file][night]['std '+ event]
+                        else:
+                            zScoreData[file][night][rfid][event] = 'NA'
+                            
+    return zScoreData
+
 
 def plotZScoreProfileAuto(ax, koDataframe, night, eventListForTest, eventListForLabels, cat):
     selectedDataframe = koDataframe[(koDataframe['night'] == night)]
