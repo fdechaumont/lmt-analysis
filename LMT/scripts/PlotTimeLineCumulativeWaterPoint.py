@@ -10,7 +10,7 @@ from tkinter.filedialog import askopenfilename
 from tabulate import tabulate
 from collections import Counter
 import collections
-import xlsxwriter
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -18,6 +18,7 @@ import matplotlib.ticker as ticker
 import os
 from lmtanalysis.FileUtil import getFilesToProcess
 from lmtanalysis.Util import convert_to_d_h_m_s, getMinTMaxTInput
+from lmtanalysis.Parameters import getAnimalTypeParameters
 
 
 
@@ -49,9 +50,10 @@ if __name__ == '__main__':
         #Load the timeline of the water stop event over all individuals
         waterStopTimeLine = {}
         for animal in pool.animalDictionnary.keys():
+            parameters = getAnimalTypeParameters( pool.animalDictionnary[animal].animalType )
             print ( pool.animalDictionnary[animal].RFID )
             waterStopTimeLine[animal] = EventTimeLine( connection, "Water Stop", idA=animal, minFrame=tmin, maxFrame=tmax )
-            waterStopTimeLine[animal].removeEventsBelowLength( maxLen = MIN_WATER_STOP_DURATION )
+            waterStopTimeLine[animal].removeEventsBelowLength( maxLen = parameters.MIN_WATER_STOP_DURATION )
         
         
         #Compute cumulative time spent at water point

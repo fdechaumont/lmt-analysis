@@ -31,7 +31,7 @@ from lmtanalysis.EventTimeLineCache import flushEventTimeLineCache,\
 
 import time
 import datetime
-from conda._vendor.toolz.itertoolz import diff
+
 
 class FileProcessException(Exception):
     pass

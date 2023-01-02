@@ -15,7 +15,7 @@ from tkinter.filedialog import askopenfilename
 from tabulate import tabulate
 from collections import Counter
 import collections
-import xlsxwriter
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
