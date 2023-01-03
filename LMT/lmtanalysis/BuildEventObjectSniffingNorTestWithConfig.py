@@ -103,7 +103,7 @@ def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, 
         objectFamiliar = objectTuple[side]
         objectNew = objectTuple[side]
         #print ( animalA )
-        dicA = animalA.detectionDictionnary
+        dicA = animalA.detectionDictionary
 
         sideCage = {0: 'left', 1: 'right'}
         if side == 0:

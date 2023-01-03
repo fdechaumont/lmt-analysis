@@ -76,7 +76,7 @@ def reBuildEvent( connection ):
         result={}
         
         animalA = pool.animalDictionnary[animal]
-        dicA = animalA.detectionDictionnary
+        dicA = animalA.detectionDictionary
             
         for t in dicA.keys():
             speedX, speedY = pool.animalDictionnary[animal].getSpeedVector(t)

@@ -119,7 +119,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None , animalT
         anonymousDetectionList = pool.getAnonymousDetection( t )
         
         for animal in animalList:
-            if t in animal.detectionDictionnary:                
+            if t in animal.detectionDictionary:                
                 animalDetectedList.append( animal )
         
         #print( str(t) + " : " + str( nbAnimalAtT ) )
@@ -184,7 +184,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None , animalT
 
         '''
         for animal in animalList:
-            if t in animal.detectionDictionnary:
+            if t in animal.detectionDictionary:
                 nbAnimalAtT+=1
                 animalDetectedList.append( animal )
         

@@ -58,14 +58,14 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
                 animalA = pool.animalDictionnary[animal]
                 animalB = pool.animalDictionnary[idAnimalB]
                 
-                if not ( t-1 in animalA.detectionDictionnary ):
+                if not ( t-1 in animalA.detectionDictionary ):
                     continue                
-                if not ( t+1 in animalA.detectionDictionnary ):
+                if not ( t+1 in animalA.detectionDictionary ):
                     continue
 
-                if not ( t-1 in animalB.detectionDictionnary ):
+                if not ( t-1 in animalB.detectionDictionary ):
                     continue                
-                if not ( t+1 in animalB.detectionDictionnary ):
+                if not ( t+1 in animalB.detectionDictionary ):
                     continue
                                             
                 speedA = animalA.getSpeed( t )
@@ -76,10 +76,10 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
                 
                 if ( speedA > parameters.SPEED_THRESHOLD_LOW or speedB > parameters.SPEED_THRESHOLD_LOW ):
                     
-                    dAStart = animalA.detectionDictionnary[t-1]
-                    dAEnd = animalA.detectionDictionnary[t+1]
-                    dBStart = animalB.detectionDictionnary[t-1]
-                    dBEnd = animalB.detectionDictionnary[t+1]
+                    dAStart = animalA.detectionDictionary[t-1]
+                    dAEnd = animalA.detectionDictionary[t+1]
+                    dBStart = animalB.detectionDictionary[t-1]
+                    dBEnd = animalB.detectionDictionary[t+1]
                     
                     distStart = dAStart.getDistanceTo( dBStart, parameters )
                     distEnd = dAEnd.getDistanceTo( dBEnd , parameters )

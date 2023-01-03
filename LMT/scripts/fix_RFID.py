@@ -32,10 +32,10 @@ def process( file ):
             print( animal )
             print("Loading its detection:")
             animal.loadDetection( lightLoad=True )
-            print("Animal number of detection: " , len( animal.detectionDictionnary ) )
+            print("Animal number of detection: " , len( animal.detectionDictionary ) )
             try:
-                firstDetectionT = sorted(animal.detectionDictionnary.keys())[0]
-                lastDetectionT = sorted(animal.detectionDictionnary.keys())[-1]
+                firstDetectionT = sorted(animal.detectionDictionary.keys())[0]
+                lastDetectionT = sorted(animal.detectionDictionary.keys())[-1]
                 print("First detection: ", firstDetectionT )
                 print("Last detection: ", lastDetectionT )
             except:

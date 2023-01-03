@@ -118,12 +118,12 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
             
             SideBySideTimeLine = EventTimeLine( None, eventName , animal , idAnimalB , loadEvent=False )
 
-            for t in animalA.detectionDictionnary.keys() :
+            for t in animalA.detectionDictionary.keys() :
                 
-                if ( t in animalB.detectionDictionnary ):
+                if ( t in animalB.detectionDictionary ):
 
-                    detA = animalA.detectionDictionnary[t]
-                    detB = animalB.detectionDictionnary[t]
+                    detA = animalA.detectionDictionary[t]
+                    detB = animalB.detectionDictionary[t]
                     
                     if ( isSideBySide( detA, detB, parameters ) == True ):
                                                 

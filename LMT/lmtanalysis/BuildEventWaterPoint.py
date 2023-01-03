@@ -59,7 +59,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
         
         animalA = pool.animalDictionnary[animal]
         #print ( animalA )
-        dicA = animalA.detectionDictionnary
+        dicA = animalA.detectionDictionary
             
         for t in dicA.keys():
             if (dicA[t].getDistanceToPoint(xPoint = 398, yPoint = 353) == None):

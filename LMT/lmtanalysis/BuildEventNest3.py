@@ -77,7 +77,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
         anonymousDetectionList = pool.getAnonymousDetection( t )
         
         for animal in animalList:
-            if t in animal.detectionDictionnary:
+            if t in animal.detectionDictionary:
                 nbAnimalAtT+=1
                 animalDetectedList.append( animal )
         

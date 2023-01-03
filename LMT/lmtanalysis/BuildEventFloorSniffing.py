@@ -44,7 +44,7 @@ def reBuildEvent( connection, tmin, tmax , pool = None, animalType = None ):
         
         animalA = pool.animalDictionnary[animal]
         #print ( animalA )
-        dicA = animalA.detectionDictionnary
+        dicA = animalA.detectionDictionary
             
         for t in dicA.keys():
             if (animalA.getBodySlope(t) == None):

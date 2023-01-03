@@ -158,7 +158,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
     for idAnimalA in pool.animalDictionnary:
 
         animalA = pool.animalDictionnary[idAnimalA]
-        dicA = animalA.detectionDictionnary
+        dicA = animalA.detectionDictionary
         
         for idAnimalB in pool.animalDictionnary:
             
@@ -170,7 +170,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
             resultDic = {}
 
             animalB = pool.animalDictionnary[idAnimalB]
-            dicB = animalB.detectionDictionnary
+            dicB = animalB.detectionDictionary
             
             # Starting "is A following B ?"
                         

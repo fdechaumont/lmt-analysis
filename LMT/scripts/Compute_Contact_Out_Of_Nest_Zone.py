@@ -91,12 +91,12 @@ if __name__ == '__main__':
             
             for animalA in pool.animalDictionnary.keys():
                 
-                detectionDicoAnimalA = pool.getAnimalWithId( animalA ).detectionDictionnary 
+                detectionDicoAnimalA = pool.getAnimalWithId( animalA ).detectionDictionary 
                 for animalB in pool.animalDictionnary.keys():
                     if (animalA == animalB):
                         continue
                     
-                    detectionDicoAnimalB = pool.getAnimalWithId( animalB ).detectionDictionnary
+                    detectionDicoAnimalB = pool.getAnimalWithId( animalB ).detectionDictionary
                     
                     resultInZone = {}
                     resultOutZone = {}

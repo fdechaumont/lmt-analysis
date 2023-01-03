@@ -103,7 +103,7 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectT
         objectLeft = objectTuple[0]
         objectRight = objectTuple[1]
         #print ( animalA )
-        dicA = animalA.detectionDictionnary
+        dicA = animalA.detectionDictionary
 
         for t in dicA.keys():
             #print(t)
