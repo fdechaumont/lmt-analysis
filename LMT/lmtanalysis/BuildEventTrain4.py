@@ -54,7 +54,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
             if ( animal == idAnimalB ):
                 continue
             train2TimeLine = EventTimeLineCached( connection, file, "Train2", animal, idAnimalB, minFrame=tmin, maxFrame=tmax )
-            for t in train2TimeLine.getDictionnary():
+            for t in train2TimeLine.getDictionary():
                 train = Train2( animal, idAnimalB )
                 
                 if ( not t in time ):
@@ -112,7 +112,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
                         
                         trainTimeLine = EventTimeLine( None, "Train4" , animal , idAnimalB, idAnimalC, idAnimalD, loadEvent=False )
                         
-                        trainTimeLine.reBuildWithDictionnary( train4[animal,idAnimalB,idAnimalC,idAnimalD] )
+                        trainTimeLine.reBuildWithDictionary( train4[animal,idAnimalB,idAnimalC,idAnimalD] )
                         #trainTimeLine.removeEventsBelowLength( 5 )            
                         trainTimeLine.endRebuildEventTimeLine(connection)
                     

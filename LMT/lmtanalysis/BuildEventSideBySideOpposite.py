@@ -129,7 +129,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
                                                 
                         result[t] = True
                         
-            SideBySideTimeLine.reBuildWithDictionnary( result )
+            SideBySideTimeLine.reBuildWithDictionary( result )
             SideBySideTimeLine.endRebuildEventTimeLine(connection)
     
         

@@ -112,7 +112,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
         for idAnimalB in range( 1 , pool.getNbAnimals()+1 ):
             if( animal == idAnimalB ):
                 continue
-            appContactTimeLineDico[animal, idAnimalB].reBuildWithDictionnary( appContactTimeLineDicoDico[animal, idAnimalB] )
+            appContactTimeLineDico[animal, idAnimalB].reBuildWithDictionary(appContactTimeLineDicoDico[animal, idAnimalB] )
             appContactTimeLineDico[animal, idAnimalB].endRebuildEventTimeLine( connection )
     
     # log process

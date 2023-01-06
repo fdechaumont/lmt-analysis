@@ -81,7 +81,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
     #reduild all events based on dictionary
     for moveEvent in exclusiveEventList[-3:-1]:
         for animal in range(1, pool.getNbAnimals() + 1):
-            timeLineExclusive[moveEvent][animal].reBuildWithDictionnary(moveDicoExclusive[moveEvent][animal])
+            timeLineExclusive[moveEvent][animal].reBuildWithDictionary(moveDicoExclusive[moveEvent][animal])
             timeLineExclusive[moveEvent][animal].endRebuildEventTimeLine(connection)
 
     # log process

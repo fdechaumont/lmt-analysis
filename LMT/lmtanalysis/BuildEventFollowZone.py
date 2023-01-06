@@ -199,7 +199,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
         for idAnimalB in pool.animalDictionnary:
             if( idAnimalB == idAnimalA ):
                 continue
-            followIsolatedTimeLine[idAnimalA, idAnimalB].reBuildWithDictionnary( followIsolatedTimeLineDic[idAnimalA, idAnimalB] )
+            followIsolatedTimeLine[idAnimalA, idAnimalB].reBuildWithDictionary( followIsolatedTimeLineDic[idAnimalA, idAnimalB] )
                         
             # filter out accidental events
             followIsolatedTimeLine[idAnimalA, idAnimalB].removeEventsBelowLength( parameters.FOLLOW_REMOVE_EVENT_BELOW_LEN )

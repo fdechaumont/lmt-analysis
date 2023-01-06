@@ -134,7 +134,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
         '''
                 
         
-        onHouseTimeLine.reBuildWithDictionnary( result )  
+        onHouseTimeLine.reBuildWithDictionary( result )  
         onHouseTimeLine.removeEventsBelowLength( 5 )
         onHouseTimeLine.mergeCloseEvents( 30 )          
         onHouseTimeLine.endRebuildEventTimeLine(connection)

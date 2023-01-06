@@ -147,22 +147,22 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectT
                     if distanceMassRight > radiusObjects[objectRight]:
                         resultSniffRightFar[t] = True
 
-        sniffRightTimeLine.reBuildWithDictionnary( resultSniffRight )
+        sniffRightTimeLine.reBuildWithDictionary( resultSniffRight )
         sniffRightTimeLine.endRebuildEventTimeLine(connection)
 
-        sniffLeftTimeLine.reBuildWithDictionnary(resultSniffLeft)
+        sniffLeftTimeLine.reBuildWithDictionary(resultSniffLeft)
         sniffLeftTimeLine.endRebuildEventTimeLine(connection)
 
-        sniffRightTimeLineFar.reBuildWithDictionnary(resultSniffRightFar)
+        sniffRightTimeLineFar.reBuildWithDictionary(resultSniffRightFar)
         sniffRightTimeLineFar.endRebuildEventTimeLine(connection)
 
-        sniffLeftTimeLineFar.reBuildWithDictionnary(resultSniffLeftFar)
+        sniffLeftTimeLineFar.reBuildWithDictionary(resultSniffLeftFar)
         sniffLeftTimeLineFar.endRebuildEventTimeLine(connection)
 
-        upRightTimeLine.reBuildWithDictionnary(resultUpRight)
+        upRightTimeLine.reBuildWithDictionary(resultUpRight)
         upRightTimeLine.endRebuildEventTimeLine(connection)
 
-        upLeftTimeLine.reBuildWithDictionnary(resultUpLeft)
+        upLeftTimeLine.reBuildWithDictionary(resultUpLeft)
         upLeftTimeLine.endRebuildEventTimeLine(connection)
 
 

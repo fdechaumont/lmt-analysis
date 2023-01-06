@@ -57,7 +57,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
 
         # save stop isolated at the end of the complete process for animalA
         stopIsolatedResultTimeLine = EventTimeLine(None, "Stop isolated", idA=animal, idB=None, idC=None, idD=None, loadEvent=False)
-        stopIsolatedResultTimeLine.reBuildWithDictionnary(stopIsolatedResult)
+        stopIsolatedResultTimeLine.reBuildWithDictionary(stopIsolatedResult)
         stopIsolatedResultTimeLine.endRebuildEventTimeLine(connection)
 
 
@@ -84,7 +84,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
                     print('Same identity')
                     continue
                 else:
-                    isInContactSourceDictionnary[(animal, animalB)] = EventTimeLineCached( connection, file, "Contact", animal, animalB, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+                    isInContactSourceDictionnary[(animal, animalB)] = EventTimeLineCached( connection, file, "Contact", animal, animalB, minFrame=tmin, maxFrame=tmax ).getDictionary()
 
         stopIsolatedDic = {}
         for animal in pool.animalDictionnary.keys():
@@ -115,12 +115,12 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
                     stopIsolatedDic[animal].pop( t, None )                    
                     
                 stopSocialResultTimeLine = EventTimeLine( None, "Stop in contact" , idA=animal , idB=animalB , idC=None , idD=None , loadEvent=False )
-                stopSocialResultTimeLine.reBuildWithDictionnary( stopSocialResult )
+                stopSocialResultTimeLine.reBuildWithDictionary( stopSocialResult )
                 stopSocialResultTimeLine.endRebuildEventTimeLine(connection)
 
             # save stop isolated at the end of the complete process for animalA
             stopIsolatedResultTimeLine = EventTimeLine(None, "Stop isolated", idA=animal, idB=None, idC=None, idD=None, loadEvent=False)
-            stopIsolatedResultTimeLine.reBuildWithDictionnary(stopIsolatedDic[animal])
+            stopIsolatedResultTimeLine.reBuildWithDictionary(stopIsolatedDic[animal])
             stopIsolatedResultTimeLine.endRebuildEventTimeLine(connection)
 
 

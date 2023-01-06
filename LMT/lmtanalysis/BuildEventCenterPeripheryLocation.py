@@ -67,10 +67,10 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
             else:
                 resultPeriphery[t] = True
                 
-        centerZoneTimeLine.reBuildWithDictionnary( resultCenter )
+        centerZoneTimeLine.reBuildWithDictionary( resultCenter )
         centerZoneTimeLine.endRebuildEventTimeLine(connection)
     
-        peripheryZoneTimeLine.reBuildWithDictionnary( resultPeriphery )
+        peripheryZoneTimeLine.reBuildWithDictionary( resultPeriphery )
         peripheryZoneTimeLine.endRebuildEventTimeLine(connection)
         
     # log process

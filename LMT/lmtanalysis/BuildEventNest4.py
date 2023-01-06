@@ -65,12 +65,12 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None , animalT
     for animal in range( 1 , 5 ):
         for idAnimalB in range( 1 , 5 ):
             if animal != idAnimalB:    
-                contact[animal,idAnimalB] = EventTimeLineCached( connection, file, "Contact", animal, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionnary() #fait une matrice de tous les contacts à deux possibles
+                contact[animal,idAnimalB] = EventTimeLineCached( connection, file, "Contact", animal, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionary() #fait une matrice de tous les contacts à deux possibles
     
     stopDictionnary = {}
         
     for animal in range( 1 , 5 ):
-        stopDictionnary[animal] = EventTimeLineCached( connection, file, "Stop", animal, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+        stopDictionnary[animal] = EventTimeLineCached( connection, file, "Stop", animal, minFrame=tmin, maxFrame=tmax ).getDictionary()
     
     
     
@@ -242,7 +242,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None , animalT
             
             
             
-    nest4TimeLine.reBuildWithDictionnary( result )
+    nest4TimeLine.reBuildWithDictionary( result )
     # remove very small events
     nest4TimeLine.removeEventsBelowLength( 2 )
     # merge flashing events
@@ -295,7 +295,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None , animalT
                             else:
                                 result[t]=True
                     
-    groupTimeLine.reBuildWithDictionnary( result )
+    groupTimeLine.reBuildWithDictionary( result )
     
     groupTimeLine.endRebuildEventTimeLine(connection)
           

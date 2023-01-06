@@ -160,7 +160,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
                 yList.append( idealSin )
             plt.plot( xList, yList, linestyle='--', linewidth=4 )
         
-        JumpWallTimeLine.reBuildWithDictionnary( result )            
+        JumpWallTimeLine.reBuildWithDictionary( result )            
         JumpWallTimeLine.endRebuildEventTimeLine(connection)
         
     if ( showGraph ):

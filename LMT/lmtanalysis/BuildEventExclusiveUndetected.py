@@ -48,7 +48,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
     #####################################################
     #reduild all events based on dictionary
     for animal in range(1, pool.getNbAnimals() + 1):
-        undetectedTimeLine[animal].reBuildWithDictionnary(undetectedDico[animal])
+        undetectedTimeLine[animal].reBuildWithDictionary(undetectedDico[animal])
         undetectedTimeLine[animal].endRebuildEventTimeLine(connection)
 
     # log process

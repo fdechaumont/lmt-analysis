@@ -204,7 +204,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
                 if (animal == idAnimalB):
                     continue
 
-                timeLineExclusive[event][animal, idAnimalB].reBuildWithDictionnary(contactDicoExclusive[event][animal, idAnimalB])
+                timeLineExclusive[event][animal, idAnimalB].reBuildWithDictionary(contactDicoExclusive[event][animal, idAnimalB])
                 timeLineExclusive[event][animal, idAnimalB].endRebuildEventTimeLine(connection)
 
 

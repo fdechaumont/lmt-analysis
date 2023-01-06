@@ -63,7 +63,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
                            
             result={}
             
-            dicA = approachDico[ animal , idAnimalB ].getDictionnary()
+            dicA = approachDico[ animal , idAnimalB ].getDictionary()
             
             twoMeanBodyLengthB = twoMeanBodyLen[ idAnimalB ]
             
@@ -79,7 +79,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
                     result[t]=True
             
             
-            socAppTimeLine.reBuildWithDictionnary( result )
+            socAppTimeLine.reBuildWithDictionary( result )
             
             socAppTimeLine.endRebuildEventTimeLine(connection)
     

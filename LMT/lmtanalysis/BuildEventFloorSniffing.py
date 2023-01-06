@@ -55,7 +55,7 @@ def reBuildEvent( connection, tmin, tmax , pool = None, animalType = None ):
                 result[t] = True
                 
         
-        sniffFloorTimeLine.reBuildWithDictionnary( result )
+        sniffFloorTimeLine.reBuildWithDictionary( result )
                 
         sniffFloorTimeLine.endRebuildEventTimeLine(connection)
     

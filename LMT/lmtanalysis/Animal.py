@@ -231,7 +231,7 @@ class Animal():
         '''
         filter detection using an event. Keep only what matches the event
         '''
-        eventDic = eventTimeLineVoc.getDictionnary()
+        eventDic = eventTimeLineVoc.getDictionary()
         nbRemoved = 0
         for key in sorted( self.detectionDictionary.keys() ):
             a = self.detectionDictionary.get( key )
@@ -264,7 +264,7 @@ class Animal():
         keyList = sorted(self.detectionDictionary.keys())
 
         if maskingEventTimeLine!=None:
-            keyList = maskingEventTimeLine.getDictionnary()
+            keyList = maskingEventTimeLine.getDictionary()
 
         xList = []
         yList = []
@@ -308,7 +308,7 @@ class Animal():
         keyList = sorted(self.detectionDictionary.keys())
 
         if maskingEventTimeLine!=None:
-            keyList = maskingEventTimeLine.getDictionnary()
+            keyList = maskingEventTimeLine.getDictionary()
 
         xList = []
         yList = []
@@ -1452,13 +1452,15 @@ class AnimalPool():
             print ("Draw trajectory of animal " + animal.name )
             if scatter == True:
                 axis.scatter( xList, yList, color= animal.getColor() , s=1 , linewidth=1, alpha=0.05, label= animal.RFID )
-                legendList.append( mpatches.Patch(color=animal.getColor(), label=animal.RFID) )
             else:
-                axis.plot( xList, yList, color= animal.getColor() , linestyle='-', linewidth=1, alpha=0.5, label= animal.RFID )
+                axis.plot( xList, yList, color= animal.getColor() , linestyle='-', linewidth=1, alpha=0.5, label= animal.RFID )                
 
+            legendList.append( mpatches.Patch(color=animal.getColor(), label=animal.RFID) )
             axis.legend( handles = legendList , loc=1 )
+            
 
         fig.suptitle( title )
+        
 
         if saveFile !=None:
             print("Saving figure : " + saveFile )

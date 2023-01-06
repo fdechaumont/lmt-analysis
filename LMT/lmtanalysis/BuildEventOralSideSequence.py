@@ -56,8 +56,8 @@ def reBuildEvent( connection, file,  tmin=None, tmax=None, pool = None, animalTy
             oralOral[animal, idAnimalB] = EventTimeLineCached( connection, file, "Oral-oral Contact", animal, idAnimalB, minFrame=tmin, maxFrame=tmax )
             oralGenital[animal, idAnimalB] = EventTimeLineCached( connection, file, "Oral-genital Contact", animal, idAnimalB, minFrame=tmin, maxFrame=tmax )
             
-            oralOralDico[animal, idAnimalB] = oralOral[animal, idAnimalB].getDictionnary()
-            oralGenitalDico[animal, idAnimalB] = oralGenital[animal, idAnimalB].getDictionnary()
+            oralOralDico[animal, idAnimalB] = oralOral[animal, idAnimalB].getDictionary()
+            oralGenitalDico[animal, idAnimalB] = oralGenital[animal, idAnimalB].getDictionary()
         
     
     

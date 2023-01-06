@@ -109,7 +109,7 @@ def reBuildEvent( connection ):
                 print ( "yp: " , yP )
                 print ( "norm: " , normSide )
             '''
-        sideWalkTimeLine.reBuildWithDictionnary( result )
+        sideWalkTimeLine.reBuildWithDictionary( result )
 
         #print("REMOVING SHORT EVENTS !")
         #sideWalkTimeLine.removeEventsBelowLength( 5 )

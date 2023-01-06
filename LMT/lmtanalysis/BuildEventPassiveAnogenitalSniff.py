@@ -45,7 +45,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
                 continue
             anogenitalSniffDico[animal, idAnimalB] = anogenitalSniffTimeLine[animal, idAnimalB].getDictionary(minFrame=tmin, maxFrame=tmax)
 
-            passiveAnogenitalSniffTimeLine[idAnimalB, animal].reBuildWithDictionnary(anogenitalSniffDico[animal, idAnimalB])
+            passiveAnogenitalSniffTimeLine[idAnimalB, animal].reBuildWithDictionary(anogenitalSniffDico[animal, idAnimalB])
             passiveAnogenitalSniffTimeLine[idAnimalB, animal].endRebuildEventTimeLine(connection)
 
 
