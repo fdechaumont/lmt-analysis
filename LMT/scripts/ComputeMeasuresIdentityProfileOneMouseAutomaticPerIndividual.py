@@ -648,14 +648,7 @@ if __name__ == '__main__':
     from matplotlib import rc, gridspec
 
     rc('font', **{'family': 'serif', 'serif': ['Arial']})
-    #List of events to be computed within the behavioural profile2, and header for the computation of the total distance travelled.
-   
-    behaviouralEventOneMouseSocial = ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact",
-                                "Side by side Contact", "Side by side Contact, opposite way",
-                                "Train2", "FollowZone Isolated",
-                                "Social approach", "Approach contact",
-                                "Get away", "Break contact"]
-
+    
     #genoListLocal = ['B6N', 'B6J']
     genoListLocal = genoList
     
