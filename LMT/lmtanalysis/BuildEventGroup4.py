@@ -63,15 +63,15 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
                     
                     result={}
                     
-                    dicA = contact[ animal ].getDictionnary()
-                    dicB = contact[ idAnimalB ].getDictionnary()
-                    dicC = contact[ idAnimalC ].getDictionnary()
-                    dicD = contact[ idAnimalD ].getDictionnary()
+                    dicA = contact[ animal ].getDictionary()
+                    dicB = contact[ idAnimalB ].getDictionary()
+                    dicC = contact[ idAnimalC ].getDictionary()
+                    dicD = contact[ idAnimalD ].getDictionary()
                     
-                    dicGroup2A = group2[ animal ].getDictionnary()
-                    dicGroup2B = group2[ idAnimalB ].getDictionnary()
-                    dicGroup2C = group2[ idAnimalC ].getDictionnary()
-                    dicGroup2D = group2[ idAnimalD ].getDictionnary()
+                    dicGroup2A = group2[ animal ].getDictionary()
+                    dicGroup2B = group2[ idAnimalB ].getDictionary()
+                    dicGroup2C = group2[ idAnimalC ].getDictionary()
+                    dicGroup2D = group2[ idAnimalD ].getDictionary()
                     
                     for t in dicA.keys():
                         if ( t in dicB and t in dicC and t in dicD ):
@@ -81,7 +81,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
                                 result[t]=True
                     
                     
-    groupTimeLine.reBuildWithDictionnary( result )
+    groupTimeLine.reBuildWithDictionary (result )
     
     groupTimeLine.endRebuildEventTimeLine(connection)
           

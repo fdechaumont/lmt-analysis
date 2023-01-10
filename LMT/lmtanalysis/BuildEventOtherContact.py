@@ -65,7 +65,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
                 for t in eventDico[event].keys():
                     contactDico[animal, idAnimalB].pop(t, None)
 
-            otherContactTimeLine[animal, idAnimalB].reBuildWithDictionnary(contactDico[animal, idAnimalB])
+            otherContactTimeLine[animal, idAnimalB].reBuildWithDictionary(contactDico[animal, idAnimalB])
             otherContactTimeLine[animal, idAnimalB].endRebuildEventTimeLine(connection)
 
 

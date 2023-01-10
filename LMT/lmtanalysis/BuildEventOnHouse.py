@@ -48,7 +48,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
     for animal in pool.animalDictionnary.keys():
         
         animalA = pool.animalDictionnary[animal]        
-        dicA = animalA.detectionDictionnary
+        dicA = animalA.detectionDictionary
         for t in dicA.keys():
             
             massZs.append( dicA[t].massZ )
@@ -73,7 +73,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
         print(pool.animalDictionnary[animal])
         t = 335794
         animalA = pool.animalDictionnary[animal]        
-        dicA = animalA.detectionDictionnary
+        dicA = animalA.detectionDictionary
         print( "mass: " , dicA[t].massZ )
         print( "head: " , dicA[t].frontZ )
         print( "back: " , dicA[t].backZ )
@@ -96,7 +96,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
         result={}
         
         animalA = pool.animalDictionnary[animal]        
-        dicA = animalA.detectionDictionnary
+        dicA = animalA.detectionDictionary
         
         for t in dicA.keys():
             
@@ -134,7 +134,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
         '''
                 
         
-        onHouseTimeLine.reBuildWithDictionnary( result )  
+        onHouseTimeLine.reBuildWithDictionary( result )  
         onHouseTimeLine.removeEventsBelowLength( 5 )
         onHouseTimeLine.mergeCloseEvents( 30 )          
         onHouseTimeLine.endRebuildEventTimeLine(connection)

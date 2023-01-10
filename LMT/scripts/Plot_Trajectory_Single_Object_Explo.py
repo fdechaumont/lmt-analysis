@@ -56,7 +56,7 @@ def plotSap( ax , animal ):
     yList = []
     
     for t in sapDico.keys() :
-        detection = animal.detectionDictionnary.get( t )
+        detection = animal.detectionDictionary.get( t )
         xList.append( detection.massX )
         yList.append( -detection.massY )    
     color = "red"
@@ -71,7 +71,7 @@ def plotSapNose(ax, animal, color = 'red', xa = 111, xb = 400, ya = 63, yb = 353
     yList = []
 
     for t in sapDico.keys():
-        detection = animal.detectionDictionnary.get(t)
+        detection = animal.detectionDictionary.get(t)
         x = detection.frontX
         y = detection.frontY
         if ( x >= xa ) & (x <= xb ) & ( y >= ya ) & (y <= yb ):

@@ -37,7 +37,7 @@ if __name__ == '__main__':
             # print RFID of animal
             print ( "Animal : " , animal.RFID )
             # number of frame in which the animal has been detected:
-            numberOfFrame = len ( animal.detectionDictionnary.keys() )
+            numberOfFrame = len ( animal.detectionDictionary.keys() )
             # we have 30 frames per second
             timeInSecond = numberOfFrame / 30
             # print result

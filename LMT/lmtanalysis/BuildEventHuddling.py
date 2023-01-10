@@ -52,7 +52,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
             if roundness < 1.85: # and roundness > 1:
                 result[t] = True  
             
-        huddlingTimeLine.reBuildWithDictionnary( result )
+        huddlingTimeLine.reBuildWithDictionary( result )
         huddlingTimeLine.endRebuildEventTimeLine(connection)
     
         

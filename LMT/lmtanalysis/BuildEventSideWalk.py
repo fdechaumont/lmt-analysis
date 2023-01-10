@@ -76,7 +76,7 @@ def reBuildEvent( connection ):
         result={}
         
         animalA = pool.animalDictionnary[animal]
-        dicA = animalA.detectionDictionnary
+        dicA = animalA.detectionDictionary
             
         for t in dicA.keys():
             speedX, speedY = pool.animalDictionnary[animal].getSpeedVector(t)
@@ -109,7 +109,7 @@ def reBuildEvent( connection ):
                 print ( "yp: " , yP )
                 print ( "norm: " , normSide )
             '''
-        sideWalkTimeLine.reBuildWithDictionnary( result )
+        sideWalkTimeLine.reBuildWithDictionary( result )
 
         #print("REMOVING SHORT EVENTS !")
         #sideWalkTimeLine.removeEventsBelowLength( 5 )

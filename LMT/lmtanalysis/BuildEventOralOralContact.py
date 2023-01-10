@@ -74,18 +74,18 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
             
             OralOralTimeLine = EventTimeLine( None, eventName , animal , idAnimalB , loadEvent=False )
 
-            for t in animalA.detectionDictionnary.keys() :
+            for t in animalA.detectionDictionary.keys() :
                 
-                if ( t in animalB.detectionDictionnary ):
-                    detA = animalA.detectionDictionnary[t]
-                    detB = animalB.detectionDictionnary[t]
+                if ( t in animalB.detectionDictionary ):
+                    detA = animalA.detectionDictionary[t]
+                    detB = animalB.detectionDictionary[t]
                             
                   
                                      
                     if distHeadHead( detA, detB ) < parameters.MAX_DISTANCE_HEAD_HEAD_GENITAL_THRESHOLD:
                         result[t] = True
             
-            OralOralTimeLine.reBuildWithDictionnary( result )
+            OralOralTimeLine.reBuildWithDictionary( result )
             OralOralTimeLine.endRebuildEventTimeLine(connection)
             
         

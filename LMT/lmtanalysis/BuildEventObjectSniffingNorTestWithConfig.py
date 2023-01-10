@@ -103,7 +103,7 @@ def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, 
         objectFamiliar = objectTuple[side]
         objectNew = objectTuple[side]
         #print ( animalA )
-        dicA = animalA.detectionDictionnary
+        dicA = animalA.detectionDictionary
 
         sideCage = {0: 'left', 1: 'right'}
         if side == 0:
@@ -151,22 +151,22 @@ def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, 
                     if distanceMassNew > radiusObjects[objectNew]:
                         resultSniffNewFar[t] = True
 
-        sniffFamiliarTimeLine.reBuildWithDictionnary( resultSniffFamiliar )
+        sniffFamiliarTimeLine.reBuildWithDictionary( resultSniffFamiliar )
         sniffFamiliarTimeLine.endRebuildEventTimeLine(connection)
 
-        sniffNewTimeLine.reBuildWithDictionnary(resultSniffNew)
+        sniffNewTimeLine.reBuildWithDictionary(resultSniffNew)
         sniffNewTimeLine.endRebuildEventTimeLine(connection)
 
-        sniffFamiliarTimeLineFar.reBuildWithDictionnary(resultSniffFamiliarFar)
+        sniffFamiliarTimeLineFar.reBuildWithDictionary(resultSniffFamiliarFar)
         sniffFamiliarTimeLineFar.endRebuildEventTimeLine(connection)
 
-        sniffNewTimeLineFar.reBuildWithDictionnary(resultSniffNewFar)
+        sniffNewTimeLineFar.reBuildWithDictionary(resultSniffNewFar)
         sniffNewTimeLineFar.endRebuildEventTimeLine(connection)
 
-        upFamiliarTimeLine.reBuildWithDictionnary(resultUpFamiliar)
+        upFamiliarTimeLine.reBuildWithDictionary(resultUpFamiliar)
         upFamiliarTimeLine.endRebuildEventTimeLine(connection)
 
-        upNewTimeLine.reBuildWithDictionnary(resultUpNew)
+        upNewTimeLine.reBuildWithDictionary(resultUpNew)
         upNewTimeLine.endRebuildEventTimeLine(connection)
 
     # log process

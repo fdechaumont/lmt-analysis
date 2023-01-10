@@ -42,7 +42,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
     for animal in range( 1 , 5 ):
 
         rearDico[animal] = EventTimeLine( connection, "Rear in contact", animal, None, minFrame=tmin, maxFrame=tmax )
-        dicoEventRearAnimal[animal] = rearDico[animal].getDictionnary()
+        dicoEventRearAnimal[animal] = rearDico[animal].getDictionary()
 
         for idAnimalB in range( 1 , 5 ):
             if ( animal == idAnimalB ):

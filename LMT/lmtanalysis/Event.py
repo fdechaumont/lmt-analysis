@@ -237,7 +237,7 @@ class EventTimeLine:
                     else:
                         eventBool[t] = True
 
-            self.reBuildWithDictionnary(eventBool)
+            self.reBuildWithDictionary(eventBool)
 
         #keyList = sorted(eventBool.keys())
 
@@ -419,7 +419,7 @@ class EventTimeLine:
         return total duration between min and max t value.
         '''
         duration = 0
-        dicEvent = self.getDictionnary()
+        dicEvent = self.getDictionary()
         for t in range( tmin, tmax + 1):
             if t in dicEvent:
                 duration+=1
@@ -433,7 +433,7 @@ class EventTimeLine:
         if ( tmax == None ):
             tmax = self.getMaxT()
 
-        dicEvent = self.getDictionnary()
+        dicEvent = self.getDictionary()
 
         durationEventInBinProportionList = []
 
@@ -455,27 +455,6 @@ class EventTimeLine:
 
         return durationEventInBinProportionList
 
-    '''
-    deprecated
-    '''
-    def getDictionnary(self , minFrame=None, maxFrame=None ):
-        frameDico = {}
-        for event in self.eventList:
-            for t in range( event.startFrame, event.endFrame +1):
-                frameDico[t] = True;
-
-        if ( minFrame !=None ):
-            for key in dict ( frameDico ).keys() :
-                if ( key < minFrame ):
-                    frameDico.pop( key )
-
-        if ( maxFrame !=None ):
-            for key in dict ( frameDico ).keys():
-                if ( key > maxFrame ):
-                    frameDico.pop( key )
-
-
-        return frameDico
 
     def getDictionary(self , minFrame=None, maxFrame=None ):
         frameDico = {}
@@ -499,7 +478,7 @@ class EventTimeLine:
     def clearEvents(self):
         self.eventList.clear()
 
-    def reBuildWithDictionnary(self, eventBool ):
+    def reBuildWithDictionary(self, eventBool ):
 
         self.eventList.clear()
 
@@ -542,7 +521,7 @@ class EventTimeLine:
             print("No event in timeLine")
             return
 
-        eventDictionnary = self.getDictionnary( minT, maxT )
+        eventDictionnary = self.getDictionary( minT, maxT )
 
         nbFrameOutOfEvent = 0
         lastEventEndFrame = minT
@@ -562,7 +541,7 @@ class EventTimeLine:
             else:
                 nbFrameOutOfEvent += 1
 
-        self.reBuildWithDictionnary( eventDictionnary )
+        self.reBuildWithDictionary( eventDictionnary )
 
     def dilateEvents(self, numberOfFrame):
         '''
@@ -611,7 +590,7 @@ class EventTimeLine:
                 eventDictionnaryDilated[tt]=True
         '''
         
-        self.reBuildWithDictionnary( eventDictionnaryDilated )
+        self.reBuildWithDictionary( eventDictionnaryDilated )
 
 
 
@@ -669,38 +648,45 @@ class EventTimeLine:
         if the user provides the dictionary, this call is much faster
         '''
         if dictionary == None:
-            dictionary = self.getDictionnary()
+            dictionary = self.getDictionary()
         for t in range ( candidateEvent.startFrame, candidateEvent.endFrame+1):
             if t in dictionary:
                 return True
         return False
 
-    def keepOnlyEventCommonWithTimeLine(self , timeLineAnd ):
+    def keepOnlyEventCommonWithKeyDictionary(self , keyDictionaryAnd ):
         '''
         perform a AND logic with timeLineAnd
         '''
-        dico = self.getDictionnary()
-        andDico = timeLineAnd.getDictionnary()
+        dico = self.getDictionary()
+        andDico = keyDictionaryAnd
         andResult = {}
 
         for k in dico:
             if k in andDico:
                 andResult[k] = True
 
-        self.reBuildWithDictionnary( andResult )
-
+        self.reBuildWithDictionary( andResult )
+        
+        
+    def keepOnlyEventCommonWithTimeLine(self , timeLineAnd ):
+        '''
+        perform a AND logic with timeLineAnd
+        '''        
+        andDico = timeLineAnd.getDictionary()
+        self.keepOnlyEventCommonWithKeyDictionary( andDico )
 
     def removeEventOfTimeLine(self , timeLineToRemove ):
         '''
         remove events that match timeLineToRemove
         '''
-        dico = self.getDictionnary()
-        removeDico = timeLineToRemove.getDictionnary()
+        dico = self.getDictionary()
+        removeDico = timeLineToRemove.getDictionary()
 
         for k in removeDico:
             dico.pop( k , None )
 
-        self.reBuildWithDictionnary( dico )
+        self.reBuildWithDictionary( dico )
 
 
     def removeEventsBelowLength(self , maxLen ):
@@ -880,7 +866,7 @@ class EventTimeLine:
         if ( tmax == None ):
             tmax = self.getMaxT()
 
-        dicEvent = self.getDictionnary()
+        dicEvent = self.getDictionary()
 
         densityEventInBinList = []
 
@@ -923,8 +909,8 @@ class EventTimeLine:
         chrono = Chronometer( "getLengthDistanceWithTimeLine " + timeLineCandidate.eventName )
 
         maxT = self.getMaxT( )
-        dico = self.getDictionnary( 0 , maxT )
-        dicoCandidate = timeLineCandidate.getDictionnary( 0 , maxT )
+        dico = self.getDictionary( 0 , maxT )
+        dicoCandidate = timeLineCandidate.getDictionary( 0 , maxT )
 
         mergedDico = {}
 
@@ -933,7 +919,7 @@ class EventTimeLine:
                 mergedDico[k] = True
 
         mergedTimeLine = EventTimeLine( None, eventName="Merged" , loadEvent=False )
-        mergedTimeLine.reBuildWithDictionnary( mergedDico )
+        mergedTimeLine.reBuildWithDictionary( mergedDico )
 
         nbEvent = len( self.getEventList() )
         #nbMatch = len( newEvent.getEventList() )

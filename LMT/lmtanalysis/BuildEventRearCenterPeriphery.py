@@ -53,9 +53,9 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
                    
         resultCenter={}
         resultPeriphery={}
-        dicRear = rear[ animal ].getDictionnary()
-        dicCenter = centerWindow[ animal ].getDictionnary()
-        dicPeriphery = periphery[ animal ].getDictionnary()
+        dicRear = rear[ animal ].getDictionary()
+        dicCenter = centerWindow[ animal ].getDictionary()
+        dicPeriphery = periphery[ animal ].getDictionary()
         
         for t in dicRear.keys():
             if ( t in dicCenter ):
@@ -64,8 +64,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
             if (t in dicPeriphery ):
                 resultPeriphery[t] = True
                             
-        rearCenterTimeLine.reBuildWithDictionnary( resultCenter )               
-        rearPeripheryTimeLine.reBuildWithDictionnary( resultPeriphery )            
+        rearCenterTimeLine.reBuildWithDictionary( resultCenter )               
+        rearPeripheryTimeLine.reBuildWithDictionary( resultPeriphery )            
         
         rearCenterTimeLine.endRebuildEventTimeLine(connection)
         rearPeripheryTimeLine.endRebuildEventTimeLine(connection)

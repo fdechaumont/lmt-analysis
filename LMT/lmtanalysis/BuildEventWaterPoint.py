@@ -59,7 +59,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
         
         animalA = pool.animalDictionnary[animal]
         #print ( animalA )
-        dicA = animalA.detectionDictionnary
+        dicA = animalA.detectionDictionary
             
         for t in dicA.keys():
             if (dicA[t].getDistanceToPoint(xPoint = 398, yPoint = 353) == None):
@@ -75,10 +75,10 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
                     resultWaterStop[t] = True
                 
         
-        waterZoneTimeLine.reBuildWithDictionnary( resultWaterZone )
+        waterZoneTimeLine.reBuildWithDictionary( resultWaterZone )
         waterZoneTimeLine.endRebuildEventTimeLine(connection)
         
-        waterStopTimeLine.reBuildWithDictionnary( resultWaterStop )
+        waterStopTimeLine.reBuildWithDictionary( resultWaterStop )
         waterStopTimeLine.removeEventsBelowLength( maxLen = parameters.MIN_WATER_STOP_DURATION )    
         waterStopTimeLine.endRebuildEventTimeLine(connection)
     

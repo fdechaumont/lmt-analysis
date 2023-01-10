@@ -62,7 +62,7 @@ class Animal():
         self.strain = strain
         self.setup = setup
         self.conn = conn
-        self.detectionDictionnary = {}
+        self.detectionDictionary = {}
         self.parameters = None
         self.setAnimalType(animalType)
         
@@ -99,8 +99,8 @@ class Animal():
         return getAnimalColor( self.baseId )
 
     def getDetectionAt(self, t):
-        if t in self.detectionDictionnary:
-            return self.detectionDictionnary[t]
+        if t in self.detectionDictionary:
+            return self.detectionDictionary[t]
         return None
 
     def loadDetection(self, start=None, end=None, lightLoad = False ):
@@ -110,7 +110,7 @@ class Animal():
         print ( self.__str__(), ": Loading detection.")
         chrono = Chronometer("Load detection")
 
-        self.detectionDictionnary.clear()
+        self.detectionDictionary.clear()
 
         cursor = self.conn.cursor()
         query =""
@@ -160,9 +160,9 @@ class Animal():
             else:
                 detection = Detection( massX, massY , lightLoad = True )
 
-            self.detectionDictionnary[frameNumber] = detection
+            self.detectionDictionary[frameNumber] = detection
 
-        print ( self.__str__(), " ", len( self.detectionDictionnary ) , " detections loaded in {} seconds.".format( chrono.getTimeInS( )) )
+        print ( self.__str__(), " ", len( self.detectionDictionary ) , " detections loaded in {} seconds.".format( chrono.getTimeInS( )) )
 
     def loadMask(self , frame ):
         self.setMask( self.getBinaryDetectionMask( frame ) )
@@ -173,15 +173,15 @@ class Animal():
     def getNumberOfDetection(self, tmin, tmax):
 
 
-        return len ( self.detectionDictionnary.keys() )
+        return len ( self.detectionDictionary.keys() )
 
 
     def filterDetectionToKeepOnlyHeadTailDetection(self):
         nbRemoved = 0
-        for key in sorted(self.detectionDictionnary.keys()):
-            a = self.detectionDictionnary.get( key )
+        for key in sorted(self.detectionDictionary.keys()):
+            a = self.detectionDictionary.get( key )
             if not a.isHeadAndTailDetected():
-                self.detectionDictionnary.pop( key )
+                self.detectionDictionary.pop( key )
                 nbRemoved+=1
         print( "Filtering head tail detection. number of detection removed:", nbRemoved )
         
@@ -192,9 +192,9 @@ class Animal():
         speed is in cm per second
         """
         nbRemoved = 0
-        for key in sorted(self.detectionDictionnary.keys()):
-            a = self.detectionDictionnary.get( key )
-            b = self.detectionDictionnary.get( key+1 )
+        for key in sorted(self.detectionDictionary.keys()):
+            a = self.detectionDictionary.get( key )
+            b = self.detectionDictionary.get( key+1 )
 
             if ( b==None or a==None):
                 continue
@@ -202,7 +202,7 @@ class Animal():
             speed = math.hypot( a.massX - b.massX, a.massY - b.massY )*self.parameters.scaleFactor/(1/30)
 
             if ( speed > maxSpeed or speed < minSpeed ):
-                self.detectionDictionnary.pop( key )
+                self.detectionDictionary.pop( key )
                 nbRemoved+=1
 
         print( "Filtering Instant speed min:",minSpeed, "max:",maxSpeed, "number of detection removed:", nbRemoved )
@@ -212,8 +212,8 @@ class Animal():
         filter detection in the cage ( using centimeter, starting at top left of the cage )
         '''
         nbRemoved = 0
-        for key in sorted(self.detectionDictionnary.keys()):
-            a = self.detectionDictionnary.get( key )
+        for key in sorted(self.detectionDictionary.keys()):
+            a = self.detectionDictionary.get( key )
 
             if ( a==None):
                 continue
@@ -222,7 +222,7 @@ class Animal():
             y = (a.massY - self.parameters.cornerCoordinates50x50Area[0][1] )* self.parameters.scaleFactor
 
             if ( x < x1 or x > x2 or y < y1 or y > y2 ):
-                self.detectionDictionnary.pop( key )
+                self.detectionDictionary.pop( key )
                 nbRemoved+=1
 
         print( "Filtering area, number of detection removed:", nbRemoved )
@@ -231,40 +231,40 @@ class Animal():
         '''
         filter detection using an event. Keep only what matches the event
         '''
-        eventDic = eventTimeLineVoc.getDictionnary()
+        eventDic = eventTimeLineVoc.getDictionary()
         nbRemoved = 0
-        for key in sorted( self.detectionDictionnary.keys() ):
-            a = self.detectionDictionnary.get( key )
+        for key in sorted( self.detectionDictionary.keys() ):
+            a = self.detectionDictionary.get( key )
 
             if ( a==None):
                 continue
 
             if not ( key in eventDic ):
-                self.detectionDictionnary.pop( key )
+                self.detectionDictionary.pop( key )
                 nbRemoved+=1
 
         print( "Filtering area, number of detection removed:", nbRemoved )
 
     def clearDetection(self):
 
-        self.detectionDictionnary.clear()
+        self.detectionDictionary.clear()
 
     def getMaxDetectionT(self):
         """
         returns the timepoint of the last detection.
         """
 
-        if len ( self.detectionDictionnary.keys() ) == 0:
+        if len ( self.detectionDictionary.keys() ) == 0:
             return None
 
-        return sorted(self.detectionDictionnary.keys())[-1]
+        return sorted(self.detectionDictionary.keys())[-1]
 
     def getTrajectoryData( self , maskingEventTimeLine=None ):
 
-        keyList = sorted(self.detectionDictionnary.keys())
+        keyList = sorted(self.detectionDictionary.keys())
 
         if maskingEventTimeLine!=None:
-            keyList = maskingEventTimeLine.getDictionnary()
+            keyList = maskingEventTimeLine.getDictionary()
 
         xList = []
         yList = []
@@ -285,13 +285,13 @@ class Animal():
                 continue
             previousKey = key
 
-            a = self.detectionDictionnary.get( key )
+            a = self.detectionDictionary.get( key )
             if ( a==None):
                 xList.append( [np.nan, np.nan] )
                 yList.append( [np.nan, np.nan] )
                 #print("break none A")
                 continue
-            b = self.detectionDictionnary.get( key+1 )
+            b = self.detectionDictionary.get( key+1 )
             if ( b==None):
                 xList.append( [np.nan, np.nan] )
                 yList.append( [np.nan, np.nan] )
@@ -305,10 +305,10 @@ class Animal():
 
     def getNoseTrajectoryData( self , maskingEventTimeLine=None ):
 
-        keyList = sorted(self.detectionDictionnary.keys())
+        keyList = sorted(self.detectionDictionary.keys())
 
         if maskingEventTimeLine!=None:
-            keyList = maskingEventTimeLine.getDictionnary()
+            keyList = maskingEventTimeLine.getDictionary()
 
         xList = []
         yList = []
@@ -329,13 +329,13 @@ class Animal():
                 continue
             previousKey = key
 
-            a = self.detectionDictionnary.get( key )
+            a = self.detectionDictionary.get( key )
             if ( a==None):
                 xList.append( [np.nan, np.nan] )
                 yList.append( [np.nan, np.nan] )
                 #print("break none A")
                 continue
-            b = self.detectionDictionnary.get( key+1 )
+            b = self.detectionDictionary.get( key+1 )
             if ( b==None):
                 xList.append( [np.nan, np.nan] )
                 yList.append( [np.nan, np.nan] )
@@ -376,7 +376,7 @@ class Animal():
     def plotTrajectory3D(self):
 
         print ("Draw 3D trajectory")
-        keyList = sorted(self.detectionDictionnary.keys())
+        keyList = sorted(self.detectionDictionary.keys())
 
         mpl.rcParams['legend.fontsize'] = 10
 
@@ -402,8 +402,8 @@ class Animal():
 
         for key in keyList:
 
-            a = self.detectionDictionnary.get( key )
-            b = self.detectionDictionnary.get( key+1 )
+            a = self.detectionDictionary.get( key )
+            b = self.detectionDictionary.get( key+1 )
             if ( b==None):
                 continue
 
@@ -440,9 +440,9 @@ class Animal():
 
 
         '''
-        keyList = list( self.detectionDictionnary.keys() )
+        keyList = list( self.detectionDictionary.keys() )
         if not alreadySorted:
-            keyList = sorted(self.detectionDictionnary.keys())
+            keyList = sorted(self.detectionDictionary.keys())
         '''
         if ( tmax==None ):
             tmax= self.getMaxDetectionT()
@@ -455,8 +455,8 @@ class Animal():
                 continue
             '''
 
-            a = self.detectionDictionnary.get( t )
-            b = self.detectionDictionnary.get( t+1 )
+            a = self.detectionDictionary.get( t )
+            b = self.detectionDictionary.get( t+1 )
 
             if b==None or a==None:
                 continue
@@ -474,7 +474,7 @@ class Animal():
 
     def getOrientationVector(self, t):
 
-        d = self.detectionDictionnary.get( t )
+        d = self.detectionDictionary.get( t )
 
         if d == None:
             return None
@@ -492,8 +492,8 @@ class Animal():
 
     def getSpeedVector(self, t):
 
-        a = self.detectionDictionnary.get( t-1 )
-        b = self.detectionDictionnary.get( t+1 )
+        a = self.detectionDictionary.get( t-1 )
+        b = self.detectionDictionary.get( t+1 )
 
         if a == None or b == None:
             return None
@@ -506,8 +506,8 @@ class Animal():
 
     def getFrontSpeed(self, t):
 
-        a = self.detectionDictionnary.get( t-1 )
-        b = self.detectionDictionnary.get( t+1 )
+        a = self.detectionDictionary.get( t-1 )
+        b = self.detectionDictionary.get( t+1 )
 
         if a == None or b == None:
             return None
@@ -520,8 +520,8 @@ class Animal():
 
     def getBackSpeed(self, t):
 
-        a = self.detectionDictionnary.get( t-1 )
-        b = self.detectionDictionnary.get( t+1 )
+        a = self.detectionDictionary.get( t-1 )
+        b = self.detectionDictionary.get( t+1 )
 
         if a == None or b == None:
             return None
@@ -535,7 +535,7 @@ class Animal():
 
     def getDistanceSpecZone(self, tmin=0, tmax=None, xa=None, ya=None, xb=None, yb=None):
 
-        keyList = sorted(self.detectionDictionnary.keys()) #get the list of the frames where the animal has been detected
+        keyList = sorted(self.detectionDictionary.keys()) #get the list of the frames where the animal has been detected
 
         if ( tmax==None ):
             tmax = self.getMaxDetectionT()
@@ -548,8 +548,8 @@ class Animal():
                 #print ( 1 )
                 continue
 
-            a = self.detectionDictionnary.get( key ) #get the detection of the animal at the given frame
-            b = self.detectionDictionnary.get( key+1 ) #get the detection of the animal at the following frame
+            a = self.detectionDictionary.get( key ) #get the detection of the animal at the given frame
+            b = self.detectionDictionary.get( key+1 ) #get the detection of the animal at the following frame
 
             if ( b==None):
                 continue
@@ -575,16 +575,16 @@ class Animal():
         '''
         distanceTo = None
 
-        if ( not ( t in animalB.detectionDictionnary ) ):
+        if ( not ( t in animalB.detectionDictionary ) ):
             return None
 
-        if ( not ( t in self.detectionDictionnary ) ):
+        if ( not ( t in self.detectionDictionary ) ):
             return None
 
-        if (animalB.detectionDictionnary[t].massX == None):
+        if (animalB.detectionDictionary[t].massX == None):
             return None
 
-        dist = math.hypot( self.detectionDictionnary[t].massX - animalB.detectionDictionnary[t].massX, self.detectionDictionnary[t].massY - animalB.detectionDictionnary[t].massY ) 
+        dist = math.hypot( self.detectionDictionary[t].massX - animalB.detectionDictionary[t].massX, self.detectionDictionary[t].massY - animalB.detectionDictionary[t].massY ) 
         if dist > self.parameters.MAX_DISTANCE_THRESHOLD:
             return None
 
@@ -597,14 +597,14 @@ class Animal():
         '''
         distanceToPoint = None
         
-        if ( not ( t in self.detectionDictionnary ) ):
+        if ( not ( t in self.detectionDictionary ) ):
             return None
 
-        if (math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint ) > self.parameters.MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
+        if (math.hypot( self.detectionDictionary[t].massX - xPoint, self.detectionDictionary[t].massY - yPoint ) > self.parameters.MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
             return None
 
         else:
-            distanceToPoint = math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint )
+            distanceToPoint = math.hypot( self.detectionDictionary[t].massX - xPoint, self.detectionDictionary[t].massY - yPoint )
             return distanceToPoint
 
     def getDistanceNoseToPoint (self, t, xPoint, yPoint):
@@ -613,15 +613,15 @@ class Animal():
         '''
         distanceNoseToPoint = None
 
-        if ( not ( t in self.detectionDictionnary ) ):
+        if ( not ( t in self.detectionDictionary ) ):
             return None
-        if (self.detectionDictionnary[t].frontX < 0):
+        if (self.detectionDictionary[t].frontX < 0):
             return None
-        if (math.hypot( self.detectionDictionnary[t].massX - xPoint, self.detectionDictionnary[t].massY - yPoint ) > self.parameters.MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
+        if (math.hypot( self.detectionDictionary[t].massX - xPoint, self.detectionDictionary[t].massY - yPoint ) > self.parameters.MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
             return None
 
         else:
-            distanceNoseToPoint = math.hypot( self.detectionDictionnary[t].frontX - xPoint, self.detectionDictionnary[t].frontY - yPoint )
+            distanceNoseToPoint = math.hypot( self.detectionDictionary[t].frontX - xPoint, self.detectionDictionary[t].frontY - yPoint )
             return distanceNoseToPoint
 
 
@@ -629,7 +629,7 @@ class Animal():
         '''
         determine the mean body length over the time window specified
         '''
-        keyList = sorted(self.detectionDictionnary.keys())
+        keyList = sorted(self.detectionDictionary.keys())
 
         if ( tmax==None ):
             tmax= self.getMaxDetectionT()
@@ -645,7 +645,7 @@ class Animal():
             if ( key <= tmin or key >= tmax ):
                 continue
 
-            a = self.detectionDictionnary.get( key )
+            a = self.detectionDictionary.get( key )
             
             if (a.isHeadAndTailDetected()):
                 bodySizeList.append(a.getBodySize())
@@ -662,7 +662,7 @@ class Animal():
         '''
         determine the body size threshold used to determine SAP
         '''
-        keyList = sorted(self.detectionDictionnary.keys())
+        keyList = sorted(self.detectionDictionary.keys())
 
         if ( tmax==None ):
             tmax= self.getMaxDetectionT()
@@ -674,7 +674,7 @@ class Animal():
             if ( key <= tmin or key >= tmax ):
                 continue
 
-            a = self.detectionDictionnary.get( key )
+            a = self.detectionDictionary.get( key )
             bodySizeList.append(a.getBodySize())
 
         #verifier si ce calcul tourne bien:
@@ -689,7 +689,7 @@ class Animal():
         '''
         determine the body size threshold used to determine SAP
         '''
-        keyList = sorted(self.detectionDictionnary.keys())
+        keyList = sorted(self.detectionDictionary.keys())
 
         if ( tmax==None ):
             tmax= self.getMaxDetectionT()
@@ -701,7 +701,7 @@ class Animal():
             if ( key <= tmin or key >= tmax ):
                 continue
 
-            a = self.detectionDictionnary.get( key )
+            a = self.detectionDictionary.get( key )
             bodyHeightList.append(a.massZ)
 
         self.medianBodyHeight = np.median(np.array(bodyHeightList))
@@ -714,7 +714,7 @@ class Animal():
         determine the body size height threshold used to determine whether the animal is rearing or not
         here we use the 7th decile
         '''
-        keyList = sorted(self.detectionDictionnary.keys())
+        keyList = sorted(self.detectionDictionary.keys())
 
         if ( tmax==None ):
             tmax= self.getMaxDetectionT()
@@ -726,7 +726,7 @@ class Animal():
             if ( key <= tmin or key >= tmax ):
                 continue
 
-            a = self.detectionDictionnary.get( key )
+            a = self.detectionDictionary.get( key )
             massHeightList.append(a.massZ)
 
         decile = 7*len(massHeightList)/10
@@ -745,7 +745,7 @@ class Animal():
         determine the body size height threshold used to determine whether the animal is rearing or not
         here we use the 7th decile
         '''
-        keyList = sorted(self.detectionDictionnary.keys())
+        keyList = sorted(self.detectionDictionary.keys())
 
         if ( tmax==None ):
             tmax= self.getMaxDetectionT()
@@ -757,7 +757,7 @@ class Animal():
             if ( key <= tmin or key >= tmax ):
                 continue
 
-            a = self.detectionDictionnary.get( key )
+            a = self.detectionDictionary.get( key )
             frontHeightList.append(a.frontZ)
 
         decile = 7*len(frontHeightList)/10
@@ -775,7 +775,7 @@ class Animal():
         '''
         determines the direction of the animal using the head and the mass center
         '''
-        a = self.detectionDictionnary.get( t )
+        a = self.detectionDictionary.get( t )
         return a.getDirection();
 
 
@@ -783,8 +783,8 @@ class Animal():
         '''
         calculate the instantaneous speed of the animal at each frame
         '''
-        a = self.detectionDictionnary.get( t-1 )
-        b = self.detectionDictionnary.get( t+1 )
+        a = self.detectionDictionary.get( t-1 )
+        b = self.detectionDictionary.get( t+1 )
 
         if ( b==None or a==None):
             return None
@@ -824,8 +824,8 @@ class Animal():
         '''
         calculate the instantaneous vertical speed of the mass center of the animal at each frame
         '''
-        a = self.detectionDictionnary.get( t-1 )
-        b = self.detectionDictionnary.get( t+1 )
+        a = self.detectionDictionary.get( t-1 )
+        b = self.detectionDictionary.get( t+1 )
 
         if ( b==None or a==None):
             return None
@@ -843,7 +843,7 @@ class Animal():
 
         #TODO: pas mettre body threshold en self car ... c'est pas la peine.
 
-        keyList = sorted(self.detectionDictionnary.keys())
+        keyList = sorted(self.detectionDictionary.keys())
 
         if ( tmax==None ):
             tmax = self.getMaxDetectionT()
@@ -856,7 +856,7 @@ class Animal():
                 #print ( 1 )
                 continue
 
-            detection = self.detectionDictionnary.get(key);
+            detection = self.detectionDictionary.get(key);
             if (detection.massX<xa or detection.massX>xb or detection.massY<ya or detection.massY>yb or detection.massZ>self.medianBodyHeight):
                 #print ( 2 )
                 continue
@@ -878,7 +878,7 @@ class Animal():
         self.getBodyThreshold( )
         self.getMedianBodyHeight()
 
-        keyList = sorted(self.detectionDictionnary.keys())
+        keyList = sorted(self.detectionDictionary.keys())
 
         if ( tmax==None ):
             tmax = self.getMaxDetectionT()
@@ -890,7 +890,7 @@ class Animal():
             if ( key <= tmin or key >= tmax ):
                 continue
 
-            detection = self.detectionDictionnary.get(key);
+            detection = self.detectionDictionary.get(key);
 
             speed = self.getSpeed( key )
             if ( speed == None ):
@@ -906,7 +906,7 @@ class Animal():
         '''
         coordinates are in pixel
         '''
-        keyList = sorted(self.detectionDictionnary.keys())
+        keyList = sorted(self.detectionDictionary.keys())
 
         x1=min( xa, xb )
         x2=max( xa, xb )
@@ -924,7 +924,7 @@ class Animal():
                 #print ( 1 )
                 continue
 
-            detection = self.detectionDictionnary.get(key);
+            detection = self.detectionDictionary.get(key);
             if (detection.massX<x1 or detection.massX>x2 or detection.massY<y1 or detection.massY>y2):
                 #print ( 2 )
                 continue
@@ -936,7 +936,7 @@ class Animal():
 
     def plotDistance(self, color='k' , show=True ):
         print ("Plot distance")
-        keyList = sorted(self.detectionDictionnary.keys())
+        keyList = sorted(self.detectionDictionary.keys())
 
         tList = []
         distanceList = []
@@ -944,8 +944,8 @@ class Animal():
         totalDistance = 0
         for key in keyList:
 
-            a = self.detectionDictionnary.get( key )
-            b = self.detectionDictionnary.get( key+1 )
+            a = self.detectionDictionary.get( key )
+            b = self.detectionDictionary.get( key+1 )
 
             if ( b==None):
                 continue
@@ -1159,6 +1159,25 @@ class AnimalPool():
 
         print ( len( self.anonymousDetection ) , " frames containing anonymous detections loaded in {} seconds.".format( chrono.getTimeInS( )) )
 
+    def getAllAnimalsAreDetectedTDic(self):
+        
+        # returns a dictionary with the T (time points) where the x animals are detected separately 
+        # use the detection list loaded ( light load is enough )
+        
+        # pick the first animal and copy its keys
+        animal0 = self.getAnimalList()[0]
+        tDic = animal0.detectionDictionary.copy()
+        
+        # for each animal, check if detection also exists at the same time point. If not, remove it from the dictionary
+        for animal in self.getAnimalList():
+            if animal == animal0:
+                continue
+            for t in tDic.copy():
+                if t not in animal.detectionDictionary:
+                    tDic.pop( t )
+                    
+        return tDic
+        
 
     def loadDetection (self , start = None, end=None , lightLoad = False ):
         self.detectionStartFrame = start
@@ -1433,13 +1452,15 @@ class AnimalPool():
             print ("Draw trajectory of animal " + animal.name )
             if scatter == True:
                 axis.scatter( xList, yList, color= animal.getColor() , s=1 , linewidth=1, alpha=0.05, label= animal.RFID )
-                legendList.append( mpatches.Patch(color=animal.getColor(), label=animal.RFID) )
             else:
-                axis.plot( xList, yList, color= animal.getColor() , linestyle='-', linewidth=1, alpha=0.5, label= animal.RFID )
+                axis.plot( xList, yList, color= animal.getColor() , linestyle='-', linewidth=1, alpha=0.5, label= animal.RFID )                
 
+            legendList.append( mpatches.Patch(color=animal.getColor(), label=animal.RFID) )
             axis.legend( handles = legendList , loc=1 )
+            
 
         fig.suptitle( title )
+        
 
         if saveFile !=None:
             print("Saving figure : " + saveFile )
@@ -1499,7 +1520,7 @@ class AnimalPool():
 
         data = defaultdict(list)
         for animal in self.getAnimalList():
-            for frame, detection in animal.detectionDictionnary.items():
+            for frame, detection in animal.detectionDictionary.items():
                 data["RFID"]         .append(f"{animal.name}_{animal.RFID}")
                 data["name"]         .append(f"{animal.name}")
                 data["genotype"]     .append(f"{animal.genotype}")

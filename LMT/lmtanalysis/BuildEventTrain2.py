@@ -61,7 +61,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
             
             result={}
             
-            dicAB = contactHeadGenital[ animal , idAnimalB ].getDictionnary()
+            dicAB = contactHeadGenital[ animal , idAnimalB ].getDictionary()
             
             for t in dicAB.keys():
                 speedA = pool.animalDictionnary[animal].getSpeed(t)
@@ -71,7 +71,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
                     if ( speedA > parameters.SPEED_THRESHOLD_HIGH and speedB > parameters.SPEED_THRESHOLD_HIGH ):
                         result[t]=True
             
-            trainTimeLine.reBuildWithDictionnary( result )
+            trainTimeLine.reBuildWithDictionary( result )
             trainTimeLine.removeEventsBelowLength( 5 )            
             trainTimeLine.endRebuildEventTimeLine(connection)
     

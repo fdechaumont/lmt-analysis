@@ -45,13 +45,13 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
     for idAnimalA in range( 1 , 5 ):
         for idAnimalB in range( 1 , 5 ):
             if idAnimalA != idAnimalB:    
-                contact[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+                contact[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionary()
 
     stopDictionnary = {}
         
     for idAnimalA in range( 1 , 5 ):
         stopDictionnary[idAnimalA] = EventTimeLineCached( 
-            connection, file, "Stop", idA=idAnimalA, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+            connection, file, "Stop", idA=idAnimalA, minFrame=tmin, maxFrame=tmax ).getDictionary()
     
     nest3TimeLine = {}
     
@@ -77,7 +77,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
         anonymousDetectionList = pool.getAnonymousDetection( t )
         
         for animal in animalList:
-            if t in animal.detectionDictionnary:
+            if t in animal.detectionDictionary:
                 nbAnimalAtT+=1
                 animalDetectedList.append( animal )
         
@@ -147,7 +147,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
     for idAnimalA in range( 1 , 5 ):
             
         # the id will be the one excluded from nest.
-        nest3TimeLine[idAnimalA].reBuildWithDictionnary( result[idAnimalA] )
+        nest3TimeLine[idAnimalA].reBuildWithDictionary( result[idAnimalA] )
         # remove very small events
         nest3TimeLine[idAnimalA].removeEventsBelowLength( 2 )
         # merge flashing events

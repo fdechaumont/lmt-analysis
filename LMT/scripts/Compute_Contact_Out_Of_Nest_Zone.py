@@ -25,10 +25,10 @@ def fuseTimeLine( timeLineDico, animalA ):
         print( k )
         if k[0] == animalA:
             print( "ok: ", k )
-            for t in timeLineDico[ k ].getDictionnary():
+            for t in timeLineDico[ k ].getDictionary():
                 fusedTimeLineDico[ t ] = True
     
-    fusedTimeLine.reBuildWithDictionnary( fusedTimeLineDico )
+    fusedTimeLine.reBuildWithDictionary( fusedTimeLineDico )
     return fusedTimeLine
 
 
@@ -91,18 +91,18 @@ if __name__ == '__main__':
             
             for animalA in pool.animalDictionnary.keys():
                 
-                detectionDicoAnimalA = pool.getAnimalWithId( animalA ).detectionDictionnary 
+                detectionDicoAnimalA = pool.getAnimalWithId( animalA ).detectionDictionary 
                 for animalB in pool.animalDictionnary.keys():
                     if (animalA == animalB):
                         continue
                     
-                    detectionDicoAnimalB = pool.getAnimalWithId( animalB ).detectionDictionnary
+                    detectionDicoAnimalB = pool.getAnimalWithId( animalB ).detectionDictionary
                     
                     resultInZone = {}
                     resultOutZone = {}
                     
                     # load all frames in which animalA and animalB are in contact
-                    dicAB = contactTimeLine[ animalA , animalB ].getDictionnary()
+                    dicAB = contactTimeLine[ animalA , animalB ].getDictionary()
                     
                     ContactOutOfNestZoneTimeLine[animalA, animalB] = EventTimeLine( None, "Contact out of nest zone" , animalA, animalB, loadEvent=False )
                     inNestZoneTimeLine[animalA, animalB] = EventTimeLine( None, "Contact in nest zone" , animalA, animalB, loadEvent=False )
@@ -133,8 +133,8 @@ if __name__ == '__main__':
                         #    resultOutZone[t] = True
                     
                     # Build the timelines
-                    inNestZoneTimeLine[ animalA , animalB ].reBuildWithDictionnary( resultInZone )    
-                    ContactOutOfNestZoneTimeLine[ animalA , animalB ].reBuildWithDictionnary( resultOutZone )
+                    inNestZoneTimeLine[ animalA , animalB ].reBuildWithDictionary( resultInZone )    
+                    ContactOutOfNestZoneTimeLine[ animalA , animalB ].reBuildWithDictionary( resultOutZone )
                     
                     # Record events in the database
                     inNestZoneTimeLine[ animalA , animalB ].endRebuildEventTimeLine( connection )

@@ -56,13 +56,13 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
 
         ''' save move isolated at the end of the complete process for animalA'''
         moveIsolatedResultTimeLine = EventTimeLine(None, "Move isolated", idA=animal, idB=None, idC=None, idD=None, loadEvent=False)
-        moveIsolatedResultTimeLine.reBuildWithDictionnary(moveIsolatedResult)
+        moveIsolatedResultTimeLine.reBuildWithDictionary(moveIsolatedResult)
         moveIsolatedResultTimeLine.endRebuildEventTimeLine(connection)
 
 
     else:
         print('More than one animal in database.')
-        isInContactSourceDictionnary = {}
+        isInContactSourceDictionary = {}
         moveSourceTimeLine = {}
         moveIsolatedTimeLine = {}
 
@@ -83,7 +83,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
                     print('Same identity')
                     continue
                 else:
-                    isInContactSourceDictionnary[(animal, animalB)] = EventTimeLineCached( connection, file, "Contact", animal, animalB, minFrame=tmin, maxFrame=tmax ).getDictionnary()
+                    isInContactSourceDictionary[(animal, animalB)] = EventTimeLineCached( connection, file, "Contact", animal, animalB, minFrame=tmin, maxFrame=tmax ).getDictionary()
 
         moveIsolatedDic = {}
         for animal in pool.animalDictionnary.keys():
@@ -103,7 +103,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
 
                         ''' for each event we seek in t and search a match in isInContactDictionnary between animal and animalB '''
                         for t in range ( moveEvent.startFrame, moveEvent.endFrame+1 ) :
-                            if t in isInContactSourceDictionnary[(animal, animalB)]:
+                            if t in isInContactSourceDictionary[(animal, animalB)]:
                                 moveSocialResult[t] = True
                                 framesToRemoveFromMoveIsolatedTimeLine.append(t)
 
@@ -113,12 +113,12 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
                         moveIsolatedDic[animal].pop(t, None)
                         
                     moveSocialResultTimeLine = EventTimeLine( None, "Move in contact" , idA=animal , idB=animalB , idC=None , idD=None , loadEvent=False )
-                    moveSocialResultTimeLine.reBuildWithDictionnary( moveSocialResult )
+                    moveSocialResultTimeLine.reBuildWithDictionary( moveSocialResult )
                     moveSocialResultTimeLine.endRebuildEventTimeLine(connection)
 
             ''' save move isolated at the end of the complete process for animalA'''
             moveIsolatedResultTimeLine = EventTimeLine(None, "Move isolated", idA=animal, idB=None, idC=None, idD=None, loadEvent=False)
-            moveIsolatedResultTimeLine.reBuildWithDictionnary(moveIsolatedDic[animal])
+            moveIsolatedResultTimeLine.reBuildWithDictionary(moveIsolatedDic[animal])
             moveIsolatedResultTimeLine.endRebuildEventTimeLine(connection)
 
 

@@ -85,7 +85,7 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectD
         objectLeft = objectDic[setup][exp][phase][0]
         objectRight = objectDic[setup][exp][phase][1]
         #print ( animalA )
-        dicA = animalA.detectionDictionnary
+        dicA = animalA.detectionDictionary
 
         for t in dicA.keys():
             #print(t)
@@ -117,16 +117,16 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectD
                     else:
                         resultSniffRight[t] = True
 
-        sniffRightTimeLine.reBuildWithDictionnary( resultSniffRight )
+        sniffRightTimeLine.reBuildWithDictionary( resultSniffRight )
         sniffRightTimeLine.endRebuildEventTimeLine(connection)
 
-        sniffLeftTimeLine.reBuildWithDictionnary(resultSniffLeft)
+        sniffLeftTimeLine.reBuildWithDictionary(resultSniffLeft)
         sniffLeftTimeLine.endRebuildEventTimeLine(connection)
 
-        upRightTimeLine.reBuildWithDictionnary(resultUpRight)
+        upRightTimeLine.reBuildWithDictionary(resultUpRight)
         upRightTimeLine.endRebuildEventTimeLine(connection)
 
-        upLeftTimeLine.reBuildWithDictionnary(resultUpLeft)
+        upLeftTimeLine.reBuildWithDictionary(resultUpLeft)
         upLeftTimeLine.endRebuildEventTimeLine(connection)
 
     # log process
