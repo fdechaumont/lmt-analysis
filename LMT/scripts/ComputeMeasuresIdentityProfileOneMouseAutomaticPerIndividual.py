@@ -769,7 +769,7 @@ if __name__ == '__main__':
                     col = 0
                     fig.suptitle(t="{} of events (night {})".format(valueCat, n), y=1.2, fontweight='bold')
                     for event in behaviouralEventOneMouseSocial:
-                        plotProfilePerIndividualPerGenotypeFullRepresentation(axes=axes, row=row, col=col, profileData=profileData, night=n, valueCat=valueCat, behavEvent=event, text_file=text_file )
+                        plotProfilePerIndividualPerGenotypeFullRepresentation(ax=axes[row, col], profileData=profileData, night=n, valueCat=valueCat, behavEvent=event, text_file=text_file )
                         if col < 3:
                             col += 1
                             row = row
@@ -791,7 +791,7 @@ if __name__ == '__main__':
                         col = 0
                         fig.suptitle(t="{} of events (night {})".format(valueCat, n), y=1.2, fontweight='bold')
                         for event in behaviouralEventOneMouseSocial:
-                            plotProfilePerIndividualPerGenotypeFullRepresentation(axes=axes, row=row, col=col, profileData=profileData, night=night, valueCat=valueCat, behavEvent=event, text_file=text_file )
+                            plotProfilePerIndividualPerGenotypeFullRepresentation(ax=axes[row, col], profileData=profileData, night=night, valueCat=valueCat, behavEvent=event, text_file=text_file )
                             if col < 3:
                                 col += 1
                                 row = row
@@ -814,7 +814,7 @@ if __name__ == '__main__':
                     col = 0
                     fig.suptitle(t="{} of events (night {})".format(valueCat, n), y=1.2, fontweight='bold')
                     for event in behaviouralEventOneMouseSocial:
-                        plotProfilePerIndividualPerGenotypeFullRepresentation(axes=axes, row=row, col=col, profileData=mergedProfilePerGeno, night=n, valueCat=valueCat, behavEvent=event, text_file=text_file )
+                        plotProfilePerIndividualPerGenotypeFullRepresentation(ax=axes[row, col], profileData=mergedProfilePerGeno, night=n, valueCat=valueCat, behavEvent=event, text_file=text_file )
                         if col < 3:
                             col += 1
                             row = row
