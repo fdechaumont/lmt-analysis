@@ -18,6 +18,7 @@ import numpy as np
 from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 from lmtanalysis.Chronometer import Chronometer
+from lmtanalysis.TaskLogger import TaskLogger
 
 
 def check( connection, tmin=None, tmax=None ): 
@@ -36,7 +37,7 @@ def check( connection, tmin=None, tmax=None ):
             print( "!!!! None animal detected with lmtanalysis id: " , animal.baseId ) 
     
     # log process
-    from lmtanalysis.TaskLogger import TaskLogger
+    
     t = TaskLogger( connection )
     t.addLog( "Correct wrong animal" , tmin=tmin, tmax=tmax )
 
