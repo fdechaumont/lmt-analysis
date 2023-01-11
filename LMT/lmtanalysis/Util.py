@@ -349,3 +349,11 @@ def getLetterList():
     letterList = list(string.ascii_uppercase)
     return letterList
 
+def factorial(n):
+    if n == 0:
+        result = 1
+    else:
+        result = 1
+        for k in range(2,n+1):
+            result = result * k
+    return result
