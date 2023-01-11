@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from lmtanalysis.Event import *
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
-
+from lmtanalysis.TaskLogger import TaskLogger
 
 class Train2():
     
@@ -113,7 +113,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
     
         
     # log process
-    from lmtanalysis.TaskLogger import TaskLogger
+    
     t = TaskLogger( connection )
     t.addLog( "Build Event Train3" , tmin=tmin, tmax=tmax )
 

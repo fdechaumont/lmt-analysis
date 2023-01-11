@@ -15,6 +15,7 @@ from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 from lmtanalysis.BehaviouralSequencesUtil import exclusiveEventList
+from lmtanalysis.TaskLogger import TaskLogger
 
 def flush( connection ):
     ''' flush event in database '''
@@ -85,7 +86,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
             timeLineExclusive[moveEvent][animal].endRebuildEventTimeLine(connection)
 
     # log process
-    from lmtanalysis.TaskLogger import TaskLogger
+    
     t = TaskLogger( connection )
     t.addLog( "Build Event Exclusive move and stop events" , tmin=tmin, tmax=tmax )
                        

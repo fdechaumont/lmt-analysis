@@ -14,6 +14,7 @@ import numpy as np
 from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
+from lmtanalysis.TaskLogger import TaskLogger
 
 def flush( connection ):
     ''' flush event in database '''
@@ -85,7 +86,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
             socEscTimeLine.endRebuildEventTimeLine(connection)
         
     # log process
-    from lmtanalysis.TaskLogger import TaskLogger
+    
     t = TaskLogger( connection )
     t.addLog( "Build Event Social Escape" , tmin=tmin, tmax=tmax )
 

@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import sys
 import matplotlib.pyplot as plt
+from lmtanalysis.TaskLogger import TaskLogger
 
 def flush( connection ):
     ''' flush event in database '''
@@ -168,7 +169,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
     
         
     # log process
-    from lmtanalysis.TaskLogger import TaskLogger
+    
     t = TaskLogger( connection )
     t.addLog( "Build Event Wall Jump" , tmin=tmin, tmax=tmax )
 

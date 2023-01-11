@@ -14,7 +14,7 @@ import numpy as np
 from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 from lmtanalysis.Parameters import getAnimalTypeParameters
-
+from lmtanalysis.TaskLogger import TaskLogger
 
 def distHeadHead( detA, detB ):
     
@@ -90,7 +90,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
             
         
     # log process
-    from lmtanalysis.TaskLogger import TaskLogger
+    
     t = TaskLogger( connection )
     t.addLog( "Build Event Oral Oral Contact" , tmin=tmin, tmax=tmax )
                

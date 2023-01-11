@@ -16,6 +16,7 @@ from lmtanalysis.Measure import *
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from lmtanalysis.Parameters import getAnimalTypeParameters
+from lmtanalysis.TaskLogger import TaskLogger
 
 def flush( connection ):
     ''' flush event in database '''
@@ -170,7 +171,7 @@ def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, 
         upNewTimeLine.endRebuildEventTimeLine(connection)
 
     # log process
-    from lmtanalysis.TaskLogger import TaskLogger
+    
     t = TaskLogger( connection )
     t.addLog( "Build Event Sniff Familiar" , tmin=tmin, tmax=tmax )
     t.addLog( "Build Event Sniff New" , tmin=tmin, tmax=tmax )

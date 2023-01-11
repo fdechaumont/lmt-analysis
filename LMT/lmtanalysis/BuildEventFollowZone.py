@@ -22,6 +22,7 @@ from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 import copy
 from copy import deepcopy
 from lmtanalysis.Parameters import getAnimalTypeParameters
+from lmtanalysis.TaskLogger import TaskLogger
 
 #eventName = "FollowZone New4"
 eventName = "FollowZone"
@@ -209,7 +210,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
             followIsolatedTimeLine[idAnimalA, idAnimalB].endRebuildEventTimeLine(connection)
                 
     # log process
-    from lmtanalysis.TaskLogger import TaskLogger
+    
     t = TaskLogger( connection )
     t.addLog( eventName , tmin=tmin, tmax=tmax )
               

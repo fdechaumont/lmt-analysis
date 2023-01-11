@@ -15,6 +15,7 @@ from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 from lmtanalysis.BehaviouralSequencesUtil import exclusiveEventList, contactTypeList
+from lmtanalysis.TaskLogger import TaskLogger
 
 def flush( connection ):
     ''' flush event in database '''
@@ -209,7 +210,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
 
 
     # log process
-    from lmtanalysis.TaskLogger import TaskLogger
+    
     t = TaskLogger( connection )
     t.addLog( "Build Event Exclusive oral-oral, oral-genital & side-side contacts" , tmin=tmin, tmax=tmax )
                        

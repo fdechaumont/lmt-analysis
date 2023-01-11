@@ -15,6 +15,7 @@ from lmtanalysis.Measure import *
 #from affine import Affine
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+from lmtanalysis.TaskLogger import TaskLogger
 
 def flush( connection ):
     ''' flush event in database '''
@@ -61,7 +62,7 @@ def reBuildEvent( connection, tmin, tmax , pool = None, animalType = None ):
     
         
     # log process
-    from lmtanalysis.TaskLogger import TaskLogger
+    
     t = TaskLogger( connection )
     t.addLog( "Build Event Floor sniffing" , tmin=tmin, tmax=tmax )
 

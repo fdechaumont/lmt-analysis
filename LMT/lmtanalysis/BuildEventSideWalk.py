@@ -15,6 +15,7 @@ from lmtanalysis.Measure import *
 #from affine import Affine
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+from lmtanalysis.TaskLogger import TaskLogger
     
 def flush( connection ):
     ''' flush event in database '''
@@ -128,7 +129,7 @@ def reBuildEvent( connection ):
     
         
     # log process
-    from lmtanalysis.TaskLogger import TaskLogger
+    
     t = TaskLogger( connection )
     t.addLog( "Build Event Side Walk" )
 

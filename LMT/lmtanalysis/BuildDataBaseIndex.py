@@ -3,7 +3,7 @@ Created on 6 sept. 2017
 
 @author: Fab
 '''
-
+from lmtanalysis.TaskLogger import TaskLogger
 
 def getNumberOfIndexOfDatabase( connection ):
     c = connection.cursor()
@@ -58,7 +58,6 @@ def buildDataBaseIndex( connection , force=False):
     
     
     # log process
-    from lmtanalysis.TaskLogger import TaskLogger
     t = TaskLogger( connection )
     t.addLog( "Build DataBase Index" )
 
