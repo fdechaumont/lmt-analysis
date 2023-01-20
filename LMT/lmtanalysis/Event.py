@@ -17,6 +17,7 @@ import numpy as np
 from lmtanalysis.Measure import *
 import sys
 import json
+from numpy import NaN
 
 class Event:
     '''
@@ -100,6 +101,17 @@ class Event:
             return 0;
 
         return min( abs( self.startFrame - eventCandidate.endFrame ), abs( self.endFrame - eventCandidate.startFrame ) )
+    
+    def getIntervalWithNextEvent(self, nextEvent):
+        '''
+        provides the time interval (in frames) between the end of the current event and another one
+        '''
+        endFirstEvent = self.endFrame
+        startNextEvent = nextEvent.startFrame
+        interval = startNextEvent - endFirstEvent
+        
+        return interval
+        
 
     def __str__(self):
         return "Event\tstart:\t"+ str( self.startFrame) + "\tend:\t" + str( self.endFrame)
@@ -316,7 +328,7 @@ class EventTimeLine:
     def checkIfEventListIsOrdered(self ):
         '''
         Checks if the eventlist is fully ordered
-        '''
+        '''                
         cursor = -1
         previousEvent = None
         for event in self.eventList:
@@ -455,7 +467,62 @@ class EventTimeLine:
 
         return durationEventInBinProportionList
 
-
+    def getMeanIntervalLengthBetweenEvents(self):
+        '''
+        Compute the mean time interval (in frames) between the events of the timeline
+        '''
+        #if self.checkIfEventListIsOrdered() == True:
+        
+        intervalList = []
+        eventList = self.getEventList()
+        #if no event or only one event in the timeline:
+        if len(eventList) <= 1:
+            print('No or only one event in timeline')
+            meanIntervalLength = NaN
+        #if there are events in the timeline
+        else:
+            endFrameEvent1 = eventList[0].endFrame 
+            for event in eventList[1:]:
+                startFrameEvent2 = event.startFrame
+                interval = startFrameEvent2 - endFrameEvent1
+                #print('#### ', endFrameEvent1, startFrameEvent2, interval)
+                intervalList.append(interval)
+                endFrameEvent1 = event.endFrame
+            
+            meanIntervalLength = np.mean(intervalList)
+        
+        print(intervalList, meanIntervalLength)
+    
+        
+        return meanIntervalLength
+    
+    def getStdIntervalLengthBetweenEvents(self):
+        '''
+        Compute the standard deviation of intervals (in frames) between the events of the timeline
+        '''
+        #if self.checkIfEventListIsOrdered() == True:
+        intervalList = []
+        eventList = self.getEventList()
+        #if no event or only one event in the timeline:
+        if len(eventList) <= 1:
+            print('No or only one event in timeline')
+            stdIntervalLength = NaN
+        else:
+            #if there are events in the timeline
+            endFrameEvent1 = eventList[0].endFrame 
+            for event in eventList[1:]:
+                startFrameEvent2 = event.startFrame
+                interval = startFrameEvent2 - endFrameEvent1
+                #print('#### ', endFrameEvent1, startFrameEvent2, interval)
+                intervalList.append(interval)
+                endFrameEvent1 = event.endFrame
+        
+            stdIntervalLength = np.std(intervalList)
+        
+        print(intervalList, stdIntervalLength)
+    
+        return stdIntervalLength
+        
     def getDictionary(self , minFrame=None, maxFrame=None ):
         frameDico = {}
         for event in self.eventList:
