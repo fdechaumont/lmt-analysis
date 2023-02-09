@@ -34,6 +34,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from lmtanalysis.BehaviouralSequencesUtil import genoList
 from scipy.stats.morestats import wilcoxon
+import os
 
 
 def computeProfilePerIndividual(file, minT, maxT, genoList, categoryList, behaviouralEventListTwoMice):
@@ -649,8 +650,8 @@ if __name__ == '__main__':
 
     rc('font', **{'family': 'serif', 'serif': ['Arial']})
     
-    #genoListLocal = ['B6N', 'B6J']
-    genoListLocal = genoList
+    genoListLocal = ['DlxCre wt ; Dyrk1acKO/+', 'DlxCre Tg ; Dyrk1acKO/+']
+    #genoListLocal = genoList
     
     categoryList = [' TotalLen', ' Nb', ' MeanDur']
 
@@ -669,11 +670,16 @@ if __name__ == '__main__':
             files = getFilesToProcess()
             tmin, tmax = getMinTMaxTInput()
 
-            profileData = {}
             nightComputation = input("Compute profile only during night events (Y or N)? ")
 
             for file in files:
-
+                #initialize the result dic
+                profileData = {}
+                
+                print(file)
+                #get the path and the name of file
+                head, tail = os.path.split(file)
+                
                 print(file)
                 connection = sqlite3.connect( file )
 
@@ -688,13 +694,13 @@ if __name__ == '__main__':
                     n = 0
                     #Compute profile2 data and save them in a text file
                     profileData[file][n] = computeProfilePerIndividual(file=file, minT=minT, maxT=maxT, genoList=genoListLocal, categoryList=categoryList, behaviouralEventListTwoMice=behaviouralEventOneMouseSocial)
-                    addToFile = 'no_night'
+                    addToFile = f'no_night_{tail}'
                     
 
                 else:
                     nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=tmin, maxFrame=tmax )
                     n = 1
-                    addToFile = 'over_night'
+                    addToFile = f'over_night_{tail}'
 
                     for eventNight in nightEventTimeLine.getEventList():
                         minT = eventNight.startFrame
@@ -706,10 +712,10 @@ if __name__ == '__main__':
                         n+=1
                         print("Profile data saved.")
 
-            # Create a json file to store the computation
-            with open("profile_data_per_ind_{}.json".format(addToFile), 'w') as fp:
-                json.dump(profileData, fp, indent=4)
-            print("json file with profile measurements created.")
+                # Create a json file to store the computation
+                with open("{}/profile_data_per_ind_{}.json".format(head, addToFile), 'w') as fp:
+                    json.dump(profileData, fp, indent=4)
+                print("json file with profile measurements created.")
 
             print('Job done.')
 
@@ -718,15 +724,14 @@ if __name__ == '__main__':
 
         if answer == "2":
             #plot profile values according to the interaction with same or different genotypes for the totalLen and Nb of events
-            print('Choose the profile json file to process.')
-            file = getJsonFileToProcess()
+            print('Choose the profile json files to process.')
+            files = getJsonFilesToProcess()
+            # create a dictionary with profile data
+            profileData = mergeJsonFilesForProfiles(files)
+            print("json file for profile data re-imported.")
+            
             text_file = getFileNameInput()
             nightComputation = input("Plot profile only during night events (Y or N or merged)? ")
-
-            # create a dictionary with profile data
-            with open(file) as json_data:
-                profileData = json.load(json_data)
-            print("json file for profile data re-imported.")
 
             if nightComputation == "N":
                 n = 0
@@ -751,15 +756,13 @@ if __name__ == '__main__':
 
         if answer == "3":
             #plot profile values according to the interaction with same or different genotypes with all combinations
-            print('Choose the profile json file to process.')
-            file = getJsonFileToProcess()
+            print('Choose the profile json files to process.')
+            files = getJsonFilesToProcess()
+            # create a dictionary with profile data
+            profileData = mergeJsonFilesForProfiles(files)
+            print("json file for profile data re-imported.")
             text_file = getFileNameInput()
             nightComputation = input("Plot profile only during night events (Y or N or merged)? ")
-
-            # create a dictionary with profile data
-            with open(file) as json_data:
-                profileData = json.load(json_data)
-            print("json file for profile data re-imported.")
 
             if nightComputation == "N":
                 n = 0

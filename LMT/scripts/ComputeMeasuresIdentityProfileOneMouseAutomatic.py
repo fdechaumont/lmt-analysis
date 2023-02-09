@@ -7,7 +7,8 @@ Created on 13 sept. 2017
 import sqlite3
 import os
 
-from lmtanalysis.FileUtil import getFigureBehaviouralEventsLabelsFrench, behaviouralEventOneMouse, behaviouralEventOneMouseDic, getFigureBehaviouralEventsLabels, categoryList
+from lmtanalysis.FileUtil import getFigureBehaviouralEventsLabelsFrench, behaviouralEventOneMouse, behaviouralEventOneMouseDic, getFigureBehaviouralEventsLabels, categoryList,\
+    getJsonFilesToProcess
 from lmtanalysis.Animal import *
 import numpy as np
 import matplotlib.pyplot as plt
@@ -60,7 +61,7 @@ def computeProfile(file, minT, maxT, behaviouralEventList):
     animalData = {}
     for animal in pool.animalDictionnary.keys():
         
-        print( "computing individual animal: {}".format( animal ))
+        print( "computing individual animal: {}".format( animal )) 
         rfid = pool.animalDictionnary[animal].RFID
         print( "RFID: {}".format( rfid ) )
         animalData[rfid]= {}        
@@ -1728,9 +1729,9 @@ if __name__ == '__main__':
         question = "Do you want to:"
         question += "\n\t [1] compute profile data (save json file)?"
         question += "\n\t [2] compute profile data for pairs of same genotype animals (save json file)?"
-        question += "\n\t [3] plot and analyse profile data (from stored json file)?"
-        question += "\n\t [4] plot and analyse profile data for pairs of same genotype animals (saved json file)?"
-        question += "\n\t [4b] plot and analyse profile data for pairs of different genotype animals (saved json file)?"
+        question += "\n\t [3] plot and analyse profile data (from stored json files)?"
+        question += "\n\t [4] plot and analyse profile data for pairs of same genotype animals (saved json files)?"
+        question += "\n\t [4b] plot and analyse profile data for pairs of different genotype animals (saved json files)?"
         question += "\n\t [5] plot and analyse profile data after merging the different nigths?"
         question += "\n\t [6] plot KO profile data as centered and reduced data per cage?"
         question += "\n\t [7] plot KO profile data as centered and reduced data per cage with merged nights in horizontal way?"
@@ -1741,12 +1742,15 @@ if __name__ == '__main__':
             files = getFilesToProcess()
             tmin, tmax = getMinTMaxTInput()
 
-            profileData = {}
+            
             nightComputation = input("Compute profile only during night events (Y or N)? ")
 
             for file in files:
-
+                #initialize the result dic
+                profileData = {}
+                
                 print(file)
+                #get the path and the name of file
                 head, tail = os.path.split(file)
                 
                 connection = sqlite3.connect( file )
@@ -1761,7 +1765,7 @@ if __name__ == '__main__':
                     maxT = tmax
                     n = 0
                     #extension = tail[-24:-6]
-                    extension = 'no_night_{}'.format(randint(0, 9999))
+                    extension = f'no_night_{tail}'
                     print('extension: ', extension)
                 
                     #Compute profile2 data and save them in a text file
@@ -1772,7 +1776,7 @@ if __name__ == '__main__':
                     nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=tmin, maxFrame=tmax )
                     n = 1
                     #extension = tail[-24:-6]
-                    extension = 'over_night_{}'.format(randint(0, 9999))
+                    extension = f'over_night_{tail}'
                     print('extension: ', extension)
 
                     for eventNight in nightEventTimeLine.getEventList():
@@ -1785,11 +1789,11 @@ if __name__ == '__main__':
                         n+=1
                         print("Profile data saved.")
 
-            # Create a json file to store the computation
-            with open( f"profile_data_over_night_{extension}.json", 'w') as fp:
-                json.dump(profileData, fp, indent=4)
-            print(extension)
-            print("json file with profile measurements created.")
+                # Create a json file to store the computation
+                with open( f"{head}/profile_data_{extension}.json", 'w') as fp:
+                    json.dump(profileData, fp, indent=4)
+                print(extension)
+                print("json file with profile measurements created.")
 
             break
 
@@ -1802,7 +1806,8 @@ if __name__ == '__main__':
             nightComputation = input("Compute profile only during night events (Y or N)? ")
 
             for file in files:
-
+                #get the path and the name of file
+                head, tail = os.path.split(file)
                 print(file)
                 profileData[file] = {}
 
@@ -1810,7 +1815,7 @@ if __name__ == '__main__':
                     minT = tmin
                     maxT = tmax
                     n = 0
-                    extension = 'no_night_{}'.format(randint(0,9999))
+                    extension = 'no_night_{}'.format(tail)
                     #Compute profile2 data and save them in a text file
                     profileData[file][n] = computeProfilePair(file = file, minT=minT, maxT=maxT, behaviouralEventListSingle=behaviouralEventOneMouse, behaviouralEventListSocial=behaviouralEventOneMouse)
                     
@@ -1820,7 +1825,7 @@ if __name__ == '__main__':
                     nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=tmin, maxFrame=tmax )
                     connection.close()
                     n = 1
-                    extension = 'over_night_{}'.format(randint(0,9999))
+                    extension = 'over_night_{}'.format(tail)
                     for eventNight in nightEventTimeLine.getEventList():
                         minT = eventNight.startFrame
                         maxT = eventNight.endFrame
@@ -1831,13 +1836,13 @@ if __name__ == '__main__':
                         n+=1
                         print("Profile data saved.")
 
-            # Create a json file to store the computation
-            print('#############################')
-            print(profileData)
-            print('#############################')
-            with open("profile_data_pair_{}.json".format(extension), 'w') as fp:
-                json.dump(profileData, fp, indent=4)
-            print("json file with profile measurements created.")
+                # Create a json file to store the computation
+                print('#############################')
+                print(profileData)
+                print('#############################')
+                with open("{}/profile_data_pair_{}.json".format(head, extension), 'w') as fp:
+                    json.dump(profileData, fp, indent=4)
+                print("json file with profile measurements created.")
 
             break
 
@@ -1848,12 +1853,9 @@ if __name__ == '__main__':
 
             if nightComputation == "N":
                 n = 0
-                file = getJsonFileToProcess()
-                print(file)
-                # create a dictionary with profile data
-                with open(file) as json_data:
-                    profileData = json.load(json_data)
-
+                files = getJsonFilesToProcess()
+                profileData = mergeJsonFilesForProfiles(files)
+                
                 print("json file for profile data re-imported.")
                 #Plot profile2 data and save them in a pdf file
                 print('data: ', profileData)
@@ -1871,11 +1873,9 @@ if __name__ == '__main__':
                 testProfileData(profileData=profileData, night=n, eventListNames=["totalDistance"], valueCat="", text_file=text_file)
 
             elif nightComputation == "Y":
-                file = getJsonFileToProcess()
-                # create a dictionary with profile data
-                with open(file) as json_data:
-                    profileData = json.load(json_data)
-                print("json file for profile data re-imported.")
+                file = getJsonFilesToProcess()
+                # create a dictionary with profile data from all json files
+                profileData = mergeJsonFilesForProfiles(files)
 
                 nightList = list(profileData[list(profileData.keys())[0]].keys())
                 print('nights: ', nightList)
@@ -1900,12 +1900,11 @@ if __name__ == '__main__':
 
             elif nightComputation == "merged":
                 n = 'all nights'
-                file = getJsonFileToProcess()
+                file = getJsonFilesToProcess()
                 print(file)
                 # create a dictionary with profile data
-                with open(file) as json_data:
-                    profileDataNotMerged = json.load(json_data)
-
+                profileDataNotMerged = mergeJsonFilesForProfiles(files)
+                
                 profileData = mergeProfileOverNights(profileData=profileDataNotMerged, categoryList=categoryList,
                                                   behaviouralEventOneMouse=behaviouralEventOneMouse)
 
@@ -1937,11 +1936,9 @@ if __name__ == '__main__':
 
             if nightComputation == "N":
                 n = 0
-                file = getJsonFileToProcess()
-                print(file)
+                files = getJsonFilesToProcess()
                 # create a dictionary with profile data
-                with open(file) as json_data:
-                    profileData = json.load(json_data)
+                profileData = mergeJsonFilesForProfiles(files)
 
                 print("json file for profile data re-imported.")
                 #Plot profile2 data and save them in a pdf file
@@ -1997,10 +1994,9 @@ if __name__ == '__main__':
 
 
             elif nightComputation == "Y":
-                file = getJsonFileToProcess()
+                files = getJsonFilesToProcess()
                 # create a dictionary with profile data
-                with open(file) as json_data:
-                    profileData = json.load(json_data)
+                profileData = mergeJsonFilesForProfiles(files)
                 print("json file for profile data re-imported.")
 
                 nightList = list(profileData[list(profileData.keys())[0]].keys())
@@ -2063,10 +2059,9 @@ if __name__ == '__main__':
                         plt.close(fig)
 
             elif nightComputation == "merged":
-                file = getJsonFileToProcess()
+                files = getJsonFilesToProcess()
                 # create a dictionary with profile data
-                with open(file) as json_data:
-                    profileData = json.load(json_data)
+                profileData = mergeJsonFilesForProfiles(files)
                 print("json file for profile data re-imported.")
 
                 nightList = list(profileData[list(profileData.keys())[0]].keys())
@@ -2146,11 +2141,9 @@ if __name__ == '__main__':
 
             if nightComputation == "N":
                 n = 0
-                file = getJsonFileToProcess()
-                print(file)
+                files = getJsonFilesToProcess()
                 # create a dictionary with profile data
-                with open(file) as json_data:
-                    profileData = json.load(json_data)
+                profileData = mergeJsonFilesForProfiles(files)
 
                 print("json file for profile data re-imported.")
                 #Plot profile2 data and save them in a pdf file
@@ -2204,10 +2197,9 @@ if __name__ == '__main__':
 
 
             elif nightComputation == "Y":
-                file = getJsonFileToProcess()
+                files = getJsonFilesToProcess()
                 # create a dictionary with profile data
-                with open(file) as json_data:
-                    profileData = json.load(json_data)
+                profileData = mergeJsonFilesForProfiles(files)
                 print("json file for profile data re-imported.")
 
                 nightList = list(profileData[list(profileData.keys())[0]].keys())
@@ -2268,10 +2260,9 @@ if __name__ == '__main__':
                         plt.close(fig)
 
             elif nightComputation == "merged":
-                file = getJsonFileToProcess()
+                files = getJsonFilesToProcess()
                 # create a dictionary with profile data
-                with open(file) as json_data:
-                    profileData = json.load(json_data)
+                profileData = mergeJsonFilesForProfiles(files)
                 print("json file for profile data re-imported.")
 
                 nightList = list(profileData[list(profileData.keys())[0]].keys())
@@ -2345,11 +2336,10 @@ if __name__ == '__main__':
 
 
         if answer == "5":
-            print('Choose the profile json file to process.')
-            file = getJsonFileToProcess()
+            print('Choose the profile json files to process.')
+            files = getJsonFilesToProcess()
             # create a dictionary with profile data
-            with open(file) as json_data:
-                profileData = json.load(json_data)
+            profileData = mergeJsonFilesForProfiles(files)
             print("json file for profile data re-imported.")
 
             print('Choose a name for the text file to store analyses results.')
@@ -2388,11 +2378,10 @@ if __name__ == '__main__':
         
 
         if answer == "6":
-            print('Choose the profile json file to process.')
-            file = getJsonFileToProcess()
+            print('Choose the profile json files to process.')
+            files = getJsonFilesToProcess()
             # create a dictionary with profile data
-            with open(file) as json_data:
-                profileData = json.load(json_data)
+            profileData = mergeJsonFilesForProfiles(files)
             print("json file for profile data re-imported.")
 
             mergeProfile = mergeProfileOverNights( profileData=profileData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
@@ -2402,8 +2391,8 @@ if __name__ == '__main__':
             #dataToUse = mergeProfile
 
             #compute the data for the control animal of each cage
-            #genoControl = 'DlxCre wt ; Dyrk1acKO/+'
-            genoControl = 'wt'
+            genoControl = 'DlxCre wt ; Dyrk1acKO/+'
+            #genoControl = 'wt'
             wtData = extractControlData( profileData=dataToUse, genoControl=genoControl, behaviouralEventOneMouse=behaviouralEventOneMouse)
             wtData = extractCageData(profileData=dataToUse, behaviouralEventOneMouse=behaviouralEventOneMouse)
             #mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList )
@@ -2411,9 +2400,9 @@ if __name__ == '__main__':
             #print(wtData)
 
             #compute the mutant data, centered and reduced for each cage
-            #genoMutant = 'DlxCre Tg ; Dyrk1acKO/+'
+            genoMutant = 'DlxCre Tg ; Dyrk1acKO/+'
             #genoMutant = 'Del/+'
-            genoMutant = 'ko'
+            #genoMutant = 'ko'
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
 
             print(koData)
@@ -2423,18 +2412,6 @@ if __name__ == '__main__':
                 koDataDic = {}
                 for key in ['night', 'trait', 'rfid', 'exp', 'value']:
                     koDataDic[key] = []
-
-                '''eventListForTest = []
-
-                file = list(koData.keys())[0]
-                print('xxx: ', koData[file].keys())
-                for night in koData[file].keys():
-                    for rfid in koData[file][night].keys():
-                        for event in koData[file][night][rfid].keys():
-                            if (cat in event) or (event == 'totalDistance'):
-                                eventListForTest.append(event)
-                        break
-                    break'''
 
                 eventListForTest = [x+cat for x in behaviouralEventOneMouseDic[cat]]
                 eventListForLabels = [getFigureBehaviouralEventsLabels(x) for x in behaviouralEventOneMouseDic[cat]]
@@ -2473,11 +2450,10 @@ if __name__ == '__main__':
             break
 
         if answer == "7":
-            print('Choose the profile json file to process.')
-            file = getJsonFileToProcess()
+            print('Choose the profile json files to process.')
+            files = getJsonFilesToProcess()
             # create a dictionary with profile data
-            with open(file) as json_data:
-                profileData = json.load(json_data)
+            profileData = mergeJsonFilesForProfiles(files)
             print("json file for profile data re-imported.")
 
             mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList,
@@ -2489,7 +2465,7 @@ if __name__ == '__main__':
 
             # compute the data for the control animal of each cage
             #genoControl = 'DlxCre wt ; Dyrk1acKO/+'
-            genoControl = 'wt'
+            genoControl = 'DlxCre wt ; Dyrk1acKO/+'
             #wtData = extractControlData(profileData=dataToUse, genoControl=genoControl,behaviouralEventOneMouse=behaviouralEventOneMouse)
             wtData = extractCageData(profileData=dataToUse, behaviouralEventOneMouse=behaviouralEventOneMouse)
             # mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList )
@@ -2498,7 +2474,7 @@ if __name__ == '__main__':
 
             # compute the mutant data, centered and reduced for each cage
             #genoMutant = 'DlxCre Tg ; Dyrk1acKO/+'
-            genoMutant = 'Del/+'
+            genoMutant = 'DlxCre Tg ; Dyrk1acKO/+'
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData,
                                         categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse)
 
@@ -2510,33 +2486,7 @@ if __name__ == '__main__':
                 for key in ['night', 'trait', 'rfid', 'exp', 'value']:
                     koDataDic[key] = []
                 
-                """#if the list of events is not pre-determined:
-                eventListForTest = []
-                eventListForLabels = []
-
-                file = list(koData.keys())[0]
-                print('xxx: ', koData[file].keys())
-                for night in koData[file].keys():
-                    for rfid in koData[file][night].keys():
-                        for event in koData[file][night][rfid].keys():
-                            print('event name: ', event)
-                            if (cat in event) or (event == 'totalDistance'):
-                                eventListForTest.append(event)
-                                eventListForLabels.append(event.replace(cat, ''))
-                        break
-                    break
-
-                for file in koData.keys():
-                    for night in koData[file].keys():
-                        for rfid in koData[file][night].keys():
-                            for event in koData[file][night][rfid].keys():
-                                if (cat in event) or (event == 'totalDistance'):
-                                    koDataDic['exp'].append(file)
-                                    koDataDic['night'].append(night)
-                                    koDataDic['rfid'].append(rfid)
-                                    koDataDic['trait'].append(event)
-                                    koDataDic['value'].append(koData[file][night][rfid][event])
-"""
+                
                 # the list of events to be plotted is determined:
                 eventListForTest = [x+cat for x in behaviouralEventOneMouseDic[cat]]
                 eventListForLabels = [getFigureBehaviouralEventsLabels(x) for x in behaviouralEventOneMouseDic[cat]]

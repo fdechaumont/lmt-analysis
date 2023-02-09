@@ -11,6 +11,7 @@ from tkinter.filedialog import askopenfilename, askdirectory
 import tkinter as tk
 import unittest
 from random import randrange, random
+import json
 
 
 
@@ -123,6 +124,24 @@ def getCsvFileToProcess():
     root.destroy()
 
     return file
+
+
+def mergeJsonFilesForProfiles(files):
+    #initiate the result dictionary with the keys of one example file
+    resultsDic = {}
+
+    for jsonFile in files:
+        print(jsonFile)
+        # upload json file:
+        with open(jsonFile) as json_data:
+            data = json.load(json_data)
+        print("json file re-imported.")
+
+        resultsDic = {**resultsDic, **data}
+    
+    print(resultsDic.keys())
+    
+    return resultsDic
 
 def addJitter(x, jit):
     newX = []
