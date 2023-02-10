@@ -650,9 +650,6 @@ if __name__ == '__main__':
 
     rc('font', **{'family': 'serif', 'serif': ['Arial']})
     
-    genoListLocal = ['DlxCre wt ; Dyrk1acKO/+', 'DlxCre Tg ; Dyrk1acKO/+']
-    #genoListLocal = genoList
-    
     categoryList = [' TotalLen', ' Nb', ' MeanDur']
 
     while True:
@@ -687,6 +684,16 @@ if __name__ == '__main__':
 
                 pool = AnimalPool( )
                 pool.loadAnimals( connection )
+                
+                genotypeList = pool.getGenotypeList()
+                '''for animalId in pool.animalDictionnary.keys():
+                    geno = pool.animalDictionnary[animalId].genotype
+                    genotypeList.append(geno)'''
+                
+                genotypeCat = list(Counter(genotypeList))
+                genotypeCat.sort(reverse=True)
+                print('genotype list: ', genotypeCat)
+                genoListLocal = genotypeCat
 
                 if nightComputation == "N":
                     minT = tmin
@@ -694,13 +701,13 @@ if __name__ == '__main__':
                     n = 0
                     #Compute profile2 data and save them in a text file
                     profileData[file][n] = computeProfilePerIndividual(file=file, minT=minT, maxT=maxT, genoList=genoListLocal, categoryList=categoryList, behaviouralEventListTwoMice=behaviouralEventOneMouseSocial)
-                    addToFile = f'no_night_{tail}'
+                    addToFile = f'no_night_{os.path.splitext(os.path.basename(tail))[0]}'
                     
 
                 else:
                     nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=tmin, maxFrame=tmax )
                     n = 1
-                    addToFile = f'over_night_{tail}'
+                    addToFile = f'over_night_{os.path.splitext(os.path.basename(tail))[0]}'
 
                     for eventNight in nightEventTimeLine.getEventList():
                         minT = eventNight.startFrame
@@ -713,7 +720,7 @@ if __name__ == '__main__':
                         print("Profile data saved.")
 
                 # Create a json file to store the computation
-                with open("{}/profile_data_per_ind_{}.json".format(head, addToFile), 'w') as fp:
+                with open("{}/profile_data_per_ind_{}_{}_{}.json".format(head, addToFile, tmin, tmax), 'w') as fp:
                     json.dump(profileData, fp, indent=4)
                 print("json file with profile measurements created.")
 
@@ -738,7 +745,8 @@ if __name__ == '__main__':
                 plotProfileValuesPerGenotype( night=n, categoryList=categoryList, behaviouralEventOneMouseSocial=behaviouralEventOneMouseSocial, profileData=profileData, text_file=text_file)
             
             elif nightComputation == "Y":
-                numberOfNightList = [1, 2, 3]
+                numberOfNightList = list(profileData[list(profileData.keys())[0]].keys())
+                
                 for n in numberOfNightList:
                     plotProfileValuesPerGenotype( night=n, categoryList=categoryList, behaviouralEventOneMouseSocial=behaviouralEventOneMouseSocial, profileData=profileData, text_file=text_file)
             
@@ -786,7 +794,8 @@ if __name__ == '__main__':
                     
             
             if nightComputation == "Y":
-                numberOfNightList = [1, 2, 3]
+                numberOfNightList = list(profileData[list(profileData.keys())[0]].keys())
+                
                 for night in numberOfNightList:
                     for valueCat in categoryList:
                         fig, axes = plt.subplots(nrows=3, ncols=4, figsize=(16, 9))
@@ -808,6 +817,12 @@ if __name__ == '__main__':
                         
             
             if nightComputation == "merged":
+                #generate automatically the list of genotypes
+                firstFile = list(profileData.keys())[0]
+                firstNight = list(profileData[firstFile].keys())[0]
+                firstRfid = list(profileData[firstFile][firstNight].keys())[0]
+                genoListLocal = list(profileData[firstFile][firstNight][firstRfid]['Contact TotalLen'].keys())
+                
                 mergedProfilePerGeno = mergeProfilePerGenotypeOverNights( profileData=profileData, categoryList=categoryList, behaviouralEventOneMouseSocial=behaviouralEventOneMouseSocial, genoList=genoListLocal )
                 
                 n = 'all nights'
