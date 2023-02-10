@@ -34,7 +34,7 @@ from lmtanalysis.AnimalType import AnimalType
 minT = 0
 
 #maxT = 5000
-maxT = 3*oneDay
+maxT = 1*oneDay
 #maxT = (6+1)*oneHour
 ''' time window to compute the events. '''
 windowT = 1*oneDay
@@ -71,7 +71,7 @@ eventClassList = [
                 BuildEventGroup3MakeBreak,
                 BuildEventGroup4MakeBreak,
                 BuildEventStop,
-                BuildEventWaterPoint,
+                #BuildEventWaterPoint,
                 BuildEventApproachContact,
                 #BuildEventWallJump,
                 BuildEventSAP,
