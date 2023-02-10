@@ -873,7 +873,7 @@ class Animal():
         return sapList
 
 
-    def getSapDictionnary(self, tmin=0, tmax=None ):
+    def getSapDictionary(self, tmin=0, tmax=None ):
 
         self.getBodyThreshold( )
         self.getMedianBodyHeight()
@@ -883,7 +883,7 @@ class Animal():
         if ( tmax==None ):
             tmax = self.getMaxDetectionT()
 
-        sapDictionnary = {}
+        sapDictionary = {}
 
         for key in keyList:
 
@@ -897,9 +897,9 @@ class Animal():
                 continue
 
             if (detection.getBodySize( ) >=self.bodyThreshold and speed<self.parameters.SPEED_THRESHOLD_LOW and detection.massZ<self.medianBodyHeight):
-                sapDictionnary[key] = True
+                sapDictionary[key] = True
 
-        return sapDictionnary
+        return sapDictionary
 
 
     def getCountFramesSpecZone(self, tmin=0, tmax=None, xa=None, ya=None, xb=None, yb=None):
@@ -1001,22 +1001,22 @@ class AnimalPool():
 
     def __init__(self):
 
-        self.animalDictionnary = {}
+        self.animalDictionary = {}
         self.detectionStartFrame = None
         self.detectionEndFrame   = None
 
-    def getAnimalDictionnary(self):
-        return self.animalDictionnary
+    def getAnimalDictionary(self):
+        return self.animalDictionary
 
     def getAnimalWithId(self , id):
-        return self.animalDictionnary[id]
+        return self.animalDictionary[id]
 
     def getAnimalList(self):
 
         animalList= []
 
-        for k in self.animalDictionnary:
-            animal = self.animalDictionnary[k]
+        for k in self.animalDictionary:
+            animal = self.animalDictionary[k]
             animalList.append( animal )
 
         return animalList
@@ -1084,7 +1084,7 @@ class AnimalPool():
         rows = cursor.fetchall()
         cursor.close()
 
-        self.animalDictionnary.clear()
+        self.animalDictionary.clear()
 
         for row in rows:
 
@@ -1103,7 +1103,7 @@ class AnimalPool():
                 animal = Animal( row[0] , row[1] , name=row[2] , genotype=row[3] , age=row[4] , sex=row[5] , strain=row[6], setup=row[7], user1=row[8], conn = conn )
 
             if ( animal!= None):
-                self.animalDictionnary[animal.baseId] = animal
+                self.animalDictionary[animal.baseId] = animal
                 print ( animal )
             else:
                 print ( "Animal loader : error while loading animal.")
@@ -1182,31 +1182,31 @@ class AnimalPool():
     def loadDetection (self , start = None, end=None , lightLoad = False ):
         self.detectionStartFrame = start
         self.detectionEndFrame   = end
-        for animal in self.animalDictionnary.keys():
-            self.animalDictionnary[animal].loadDetection( start = start, end = end , lightLoad=lightLoad )
+        for animal in self.animalDictionary.keys():
+            self.animalDictionary[animal].loadDetection( start = start, end = end , lightLoad=lightLoad )
 
     def filterDetectionByInstantSpeed(self, minSpeed, maxSpeed):
-        for animal in self.animalDictionnary.keys():
-            self.animalDictionnary[animal].filterDetectionByInstantSpeed( minSpeed, maxSpeed )
+        for animal in self.animalDictionary.keys():
+            self.animalDictionary[animal].filterDetectionByInstantSpeed( minSpeed, maxSpeed )
 
     def filterDetectionToKeepOnlyHeadTailDetection(self):
-        for animal in self.animalDictionnary.keys():
-            self.animalDictionnary[animal].filterDetectionToKeepOnlyHeadTailDetection( )
+        for animal in self.animalDictionary.keys():
+            self.animalDictionary[animal].filterDetectionToKeepOnlyHeadTailDetection( )
 
     def filterDetectionByArea(self, x1, y1, x2, y2 ):
-        for animal in self.animalDictionnary.keys():
-            self.animalDictionnary[animal].filterDetectionByArea( x1, y1, x2, y2 )
+        for animal in self.animalDictionary.keys():
+            self.animalDictionary[animal].filterDetectionByArea( x1, y1, x2, y2 )
 
     def filterDetectionByEventTimeLine(self, eventTimeLineVoc ):
-        for animal in self.animalDictionnary.keys():
-            self.animalDictionnary[animal].filterDetectionByEventTimeLine( eventTimeLineVoc )
+        for animal in self.animalDictionary.keys():
+            self.animalDictionary[animal].filterDetectionByEventTimeLine( eventTimeLineVoc )
 
     def getGenotypeList(self):
 
         genotype = {}
 
-        for k in self.animalDictionnary:
-            animal = self.animalDictionnary[k]
+        for k in self.animalDictionary:
+            animal = self.animalDictionary[k]
             genotype[animal.genotype] = True
 
         return genotype.keys()
@@ -1215,8 +1215,8 @@ class AnimalPool():
 
         resultList= []
 
-        for k in self.animalDictionnary:
-            animal = self.animalDictionnary[k]
+        for k in self.animalDictionary:
+            animal = self.animalDictionary[k]
             if ( animal.genotype == genotype ):
                 resultList.append( animal )
 
@@ -1225,7 +1225,7 @@ class AnimalPool():
         #return [x for x in self.animalDictionnary if x.genotype==genotype ]
 
     def getNbAnimals(self):
-        return len(self.animalDictionnary)
+        return len(self.animalDictionary)
 
 
     def getMaxDetectionT(self):
@@ -1485,7 +1485,7 @@ class AnimalPool():
 
         plt.show()
 
-    def getParticleDictionnary(self , start, end ):
+    def getParticleDictionary(self , start, end ):
         '''
         return the number of particle per frame
         '''
@@ -1499,13 +1499,13 @@ class AnimalPool():
         rows = cursor.fetchall()
         cursor.close()
 
-        particleDictionnary = {}
+        particleDictionary = {}
 
         for row in rows:
 
-            particleDictionnary[ row[0] ] = row[1]
+            particleDictionary[ row[0] ] = row[1]
 
-        return particleDictionnary
+        return particleDictionary
 
 
     def getDetectionTable(self):
