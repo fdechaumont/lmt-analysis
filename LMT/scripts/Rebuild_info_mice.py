@@ -52,20 +52,20 @@ def updateField(file, jsonFile):
     Take a dictionary: First key: animal (rfid number), then keys are the columns, values are data to store for that field
     ex of the fieldsToUpadte dict:
     {
-        '001039552597':
+        "001039552597":
             {
-                'genotype': "wt",
-                'sex': "female",
-                'strain': "C57BL6J",
-                'treatment': "saline"
+                "genotype": "wt",
+                "sex": "female",
+                "strain": "C57BL6J",
+                "treatment": "saline"
             },
-        '001039552595':
+        "001039552595":
             {
-                'genotype': "ko",
-                'age': "6mo",
-                'sex': "female",
-                'strain': "C57BL6J",
-                'treatment': "saline"
+                "genotype": "ko",
+                "age": "6mo",
+                "sex": "female",
+                "strain": "C57BL6J",
+                "treatment": "saline"
             }
     }
     '''
@@ -79,9 +79,10 @@ def updateField(file, jsonFile):
             if (field != 'file') and (field != 'group'): # these two variables are not in sqlite databases
                 if field == 'animal':
                     field = 'ID'
-                query += f"{field} = {fieldsToUpdate[mouse][field]}, "
+                query += f"{field} = '{fieldsToUpdate[mouse][field]}', "
         query = query [0:-2]    # to remove the last comma
-        query += f" WHERE ANIMAL.RFID = {mouse}"
+        query += f" WHERE ANIMAL.RFID = '{mouse}'"
+        print(query)
         try:
             c.execute(query)
         except:
