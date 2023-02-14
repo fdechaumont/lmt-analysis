@@ -133,12 +133,12 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
     sex = []
     age = []
     strain = []
-    for animal in pool.animalDictionnary.keys():
-        rfid = pool.animalDictionnary[animal].RFID
-        geno = pool.animalDictionnary[animal].genotype
-        sexAnimal = pool.animalDictionnary[animal].sex
-        ageAnimal = pool.animalDictionnary[animal].age
-        strainAnimal = pool.animalDictionnary[animal].strain
+    for animal in pool.animalDictionary.keys():
+        rfid = pool.animalDictionary[animal].RFID
+        geno = pool.animalDictionary[animal].genotype
+        sexAnimal = pool.animalDictionary[animal].sex
+        ageAnimal = pool.animalDictionary[animal].age
+        strainAnimal = pool.animalDictionary[animal].strain
         pair.append(rfid)
         genotype.append(geno)
         sex.append(sexAnimal)
@@ -170,21 +170,21 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
     animalData[pairName]['group'] = pairName
     animalData[pairName]["totalDistance"] = "totalDistance"
 
-    for animal in pool.animalDictionnary.keys():
+    for animal in pool.animalDictionary.keys():
 
         print("computing individual animal: {}".format(animal))
-        rfid = pool.animalDictionnary[animal].RFID
+        rfid = pool.animalDictionary[animal].RFID
         print("RFID: {}".format(rfid))
         animalData[rfid] = {}
         # store the animal
-        animalData[rfid]["animal"] = pool.animalDictionnary[animal].name
-        animalObject = pool.animalDictionnary[animal]
+        animalData[rfid]["animal"] = pool.animalDictionary[animal].name
+        animalObject = pool.animalDictionary[animal]
         animalData[rfid]["file"] = file
         animalData[rfid]["rfid"] = rfid
-        animalData[rfid]['genotype'] = pool.animalDictionnary[animal].genotype
-        animalData[rfid]['sex'] = pool.animalDictionnary[animal].sex
-        animalData[rfid]['age'] = pool.animalDictionnary[animal].age
-        animalData[rfid]['strain'] = pool.animalDictionnary[animal].strain
+        animalData[rfid]['genotype'] = pool.animalDictionary[animal].genotype
+        animalData[rfid]['sex'] = pool.animalDictionary[animal].sex
+        animalData[rfid]['age'] = pool.animalDictionary[animal].age
+        animalData[rfid]['strain'] = pool.animalDictionary[animal].strain
         animalData[rfid]['group'] = pairName
 
         #compute the profile for single behaviours
@@ -208,7 +208,7 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
                 meanDur = totalEventDuration / nbEvent
             animalData[rfid][behavEventTimeLine.eventName + " MeanDur"] = meanDur
 
-            print(behavEventTimeLine.eventName, pool.animalDictionnary[animal].genotype, behavEventTimeLine.idA, totalEventDuration, nbEvent, meanDur)
+            print(behavEventTimeLine.eventName, pool.animalDictionary[animal].genotype, behavEventTimeLine.idA, totalEventDuration, nbEvent, meanDur)
 
         # compute the total distance traveled per individual
         COMPUTE_TOTAL_DISTANCE = True
@@ -268,13 +268,13 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
     treatment = []
     age = []
     strain = []
-    for animal in pool.animalDictionnary.keys():
-        rfid = pool.animalDictionnary[animal].RFID
-        geno = pool.animalDictionnary[animal].genotype
-        sexAnimal = pool.animalDictionnary[animal].sex
-        treatmentAnimal = pool.animalDictionnary[animal].treatment
-        ageAnimal = pool.animalDictionnary[animal].age
-        strainAnimal = pool.animalDictionnary[animal].strain
+    for animal in pool.animalDictionary.keys():
+        rfid = pool.animalDictionary[animal].RFID
+        geno = pool.animalDictionary[animal].genotype
+        sexAnimal = pool.animalDictionary[animal].sex
+        treatmentAnimal = pool.animalDictionary[animal].treatment
+        ageAnimal = pool.animalDictionary[animal].age
+        strainAnimal = pool.animalDictionary[animal].strain
         pair.append(rfid)
         genotype.append(geno)
         sex.append(sexAnimal)
@@ -312,18 +312,18 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
     for animal in pool.animalDictionnary.keys():
 
         print("computing individual animal: {}".format(animal))
-        rfid = pool.animalDictionnary[animal].RFID
+        rfid = pool.animalDictionary[animal].RFID
         print("RFID: {}".format(rfid))
         animalData[rfid] = {}
         # store the animal
-        animalData[rfid]["animal"] = pool.animalDictionnary[animal].name
-        animalObject = pool.animalDictionnary[animal]
+        animalData[rfid]["animal"] = pool.animalDictionary[animal].name
+        animalObject = pool.animalDictionary[animal]
         animalData[rfid]["file"] = file
         animalData[rfid]["rfid"] = rfid
-        animalData[rfid]['genotype'] = pool.animalDictionnary[animal].genotype
-        animalData[rfid]['sex'] = pool.animalDictionnary[animal].sex
-        animalData[rfid]['age'] = pool.animalDictionnary[animal].age
-        animalData[rfid]['strain'] = pool.animalDictionnary[animal].strain
+        animalData[rfid]['genotype'] = pool.animalDictionary[animal].genotype
+        animalData[rfid]['sex'] = pool.animalDictionary[animal].sex
+        animalData[rfid]['age'] = pool.animalDictionary[animal].age
+        animalData[rfid]['strain'] = pool.animalDictionary[animal].strain
         animalData[rfid]['group'] = pairName
 
         #compute the profile for single behaviours
@@ -347,7 +347,7 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
                 meanDur = totalEventDuration / nbEvent
             animalData[rfid][behavEventTimeLine.eventName + " MeanDur"] = meanDur
 
-            print(behavEventTimeLine.eventName, pool.animalDictionnary[animal].genotype, behavEventTimeLine.idA, totalEventDuration, nbEvent, meanDur)
+            print(behavEventTimeLine.eventName, pool.animalDictionary[animal].genotype, behavEventTimeLine.idA, totalEventDuration, nbEvent, meanDur)
 
         # compute the total distance traveled per individual
         COMPUTE_TOTAL_DISTANCE = True
@@ -1988,6 +1988,7 @@ if __name__ == '__main__':
 
 
         if answer == "2b":
+            '''compute profile data for pairs of animals from pause (save json file)'''
             files = getFilesToProcess()
             experimentDuration = getExperimentDurationInput()
             print(files)
@@ -1996,6 +1997,9 @@ if __name__ == '__main__':
 
             for file in files:
                 print(file)
+                #get the path and the name of file
+                head, tail = os.path.split(file)
+                extension = 'no_night_{}'.format(os.path.splitext(os.path.basename(tail))[0])
                 profileData[file] = {}
 
                 n = 0
@@ -2005,7 +2009,7 @@ if __name__ == '__main__':
                                                                    behaviouralEventListSocial=behaviouralEventOneMouse)
 
                 # Create a json file to store the computation
-                with open("profile_data_pair_from_pause_{}.json".format('no_night'), 'w') as fp:
+                with open("{}/profile_data_pair_from_pause_{}_{}.json".format(head, extension, experimentDuration), 'w') as fp:
                     json.dump(profileData, fp, indent=4)
                 print("json file with profile measurements created.")
 
@@ -2491,7 +2495,7 @@ if __name__ == '__main__':
 
                         fig.tight_layout()
                         fig.savefig("FigProfilePairDiffGeno_{}_Events_night_{}.pdf".format(valueCat, n), dpi=100)
-                        fig.savefig("FigProfilePairDiffGeno_{}_Events_night_{}.jpg".format(valueCat, n), dpi=100)
+                        fig.savefig("FigProfilePairDiffGeno_{}_Events_night_{}.png".format(valueCat, n), dpi=100)
                         plt.close(fig)
 
             print ("Plots saved as pdf and analyses saved in text file.")
@@ -2631,6 +2635,7 @@ if __name__ == '__main__':
                 plt.tight_layout()
                 #plt.show()
                 fig.savefig('profiles_zscores_{}.pdf'.format(cat), dpi=300)
+                fig.savefig('profiles_zscores_{}.png'.format(cat), dpi=100)
 
             print('Job done.')
 
@@ -2729,6 +2734,7 @@ if __name__ == '__main__':
                 plt.tight_layout()
                 #plt.show()
                 fig.savefig('profiles_zscores_horizontal_{}.pdf'.format(cat), dpi=300)
+                fig.savefig('profiles_zscores_horizontal_{}.png'.format(cat), dpi=100)
 
             print('Job done.')
 
