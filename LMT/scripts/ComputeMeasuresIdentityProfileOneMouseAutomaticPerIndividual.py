@@ -382,35 +382,29 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( ax, profileData, nigh
             data = {}
             for k in [0,1]:
                 data[genotypeCat[k]] = dfData['value'][(dfData['genotype'] == genotypeCat[k]) & (dfData['genoOther'] == genoB)]
-            try:
-                U, p = wilcoxon( data[genotypeCat[0]], data[genotypeCat[1]])
-            except:
-                print('test not possible')
-                U = 'NA'
-                p = 'NA'
+            U, p = wilcoxon( data[genotypeCat[0]], data[genotypeCat[1]] , nan_policy='omit')
+            
             print('means of mean duration with ', genoB, ' geno: ', genotypeCat[0], np.mean(data[genotypeCat[0]]), 'versus ', genotypeCat[1], np.mean(data[genotypeCat[1]]))
             print( 'Wilcoxon paired test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
             text_file.write('Wilcoxon paired test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
-            ax.text(x=pos[genoB], y=yMin+0.95*(yMax-yMin), s = getStarsFromPvalues(p,numberOfTests=1), fontsize=15, ha='center' )
+            ax.text(x=pos[genoB], y=yMin+0.95*(yMax-yMin), s = getStarsFromPvalues(p, U, numberOfTests=1), fontsize=15, ha='center' )
             text_file.write('\n')
 
     elif valueCat in [' TotalLen', ' Nb']:
         data = {}
         for k in [0, 1]:
             data[genotypeCat[k]] = dfData['value'][(dfData['genotype'] == genotypeCat[k]) & (dfData['genoOther'] == 'same')]
-            #print('############ ', data[genotypeCat[k]])
-            try:
-                results = ttest_1samp(data[genotypeCat[k]], 100/3)
-                T = results.statistic
-                p = results.pvalue
-            except:
-                print('test not possible')
-                T = 'NA'
-                p = 'NA'
+            print('############ ', data[genotypeCat[k]])
+            
+            results = ttest_1samp(data[genotypeCat[k]], 100/3, nan_policy='omit')
+            T = results.statistic
+            p = results.pvalue
+            
             print('means of prop with same geno: ', genotypeCat[k], np.mean(data[genotypeCat[k]]))
             print('One sample t-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, T, p))
             text_file.write('One-sample t-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, T, p))
-            ax.text(x=pos[genotypeCat[k]], y=yMin + 0.95 * (yMax - yMin), s=getStarsFromPvalues(p, numberOfTests=1),
+            
+            ax.text(x=pos[genotypeCat[k]], y=yMin + 0.95 * (yMax - yMin), s=getStarsFromPvalues(p, T, numberOfTests=1),
                                 fontsize=14, ha='center')
             text_file.write('\n')
 
@@ -751,6 +745,12 @@ if __name__ == '__main__':
                     plotProfileValuesPerGenotype( night=n, categoryList=categoryList, behaviouralEventOneMouseSocial=behaviouralEventOneMouseSocial, profileData=profileData, text_file=text_file)
             
             elif nightComputation == 'merged':
+                #generate automatically the list of genotypes
+                firstFile = list(profileData.keys())[0]
+                firstNight = list(profileData[firstFile].keys())[0]
+                firstRfid = list(profileData[firstFile][firstNight].keys())[0]
+                genoListLocal = list(profileData[firstFile][firstNight][firstRfid]['Contact TotalLen'].keys())
+                
                 mergedProfilePerGeno = mergeProfilePerGenotypeOverNights( profileData=profileData, categoryList=categoryList, behaviouralEventOneMouseSocial=behaviouralEventOneMouseSocial, genoList=genoListLocal )
                 print('merged profile: ')
                 print( mergedProfilePerGeno )
