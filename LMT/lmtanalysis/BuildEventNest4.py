@@ -68,10 +68,10 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None , animalT
             if animal != idAnimalB:    
                 contact[animal,idAnimalB] = EventTimeLineCached( connection, file, "Contact", animal, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionary() #fait une matrice de tous les contacts à deux possibles
     
-    stopDictionnary = {}
+    stopDictionary = {}
         
     for animal in range( 1 , 5 ):
-        stopDictionnary[animal] = EventTimeLineCached( connection, file, "Stop", animal, minFrame=tmin, maxFrame=tmax ).getDictionary()
+        stopDictionary[animal] = EventTimeLineCached( connection, file, "Stop", animal, minFrame=tmin, maxFrame=tmax ).getDictionary()
     
     
     
@@ -230,7 +230,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None , animalT
             allStoppedInBiggestGroup = True
             for animal in animalDetectedList:
                 if isinstance( animal , Animal ):
-                    if not ( t in stopDictionnary[animal.baseId] ):
+                    if not ( t in stopDictionary[animal.baseId] ):
                         allStoppedInBiggestGroup = False
                         break
 
@@ -279,15 +279,15 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None , animalT
                     
                     result={}
                     
-                    dicA = contact[ animal ].getDictionnary()
-                    dicB = contact[ idAnimalB ].getDictionnary()
-                    dicC = contact[ idAnimalC ].getDictionnary()
-                    dicD = contact[ idAnimalD ].getDictionnary()
+                    dicA = contact[ animal ].getDictionary()
+                    dicB = contact[ idAnimalB ].getDictionary()
+                    dicC = contact[ idAnimalC ].getDictionary()
+                    dicD = contact[ idAnimalD ].getDictionary()
                     
-                    dicGroup2A = group2[ animal ].getDictionnary()
-                    dicGroup2B = group2[ idAnimalB ].getDictionnary()
-                    dicGroup2C = group2[ idAnimalC ].getDictionnary()
-                    dicGroup2D = group2[ idAnimalD ].getDictionnary()
+                    dicGroup2A = group2[ animal ].getDictionary()
+                    dicGroup2B = group2[ idAnimalB ].getDictionary()
+                    dicGroup2C = group2[ idAnimalC ].getDictionary()
+                    dicGroup2D = group2[ idAnimalD ].getDictionary()
                     
                     for t in dicA.keys():
                         if ( t in dicB and t in dicC and t in dicD ):

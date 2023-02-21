@@ -40,8 +40,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
     - the animal is stopped in this zone for 
     '''
     
-    for animal in pool.animalDictionnary.keys():
-        print(pool.animalDictionnary[animal])
+    for animal in pool.animalDictionary.keys():
+        print(pool.animalDictionary[animal])
         
         eventName1 = "Water Zone"
         eventName2 = "Water Stop"
@@ -58,7 +58,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
         resultWaterZone={}
         resultWaterStop={}
         
-        animalA = pool.animalDictionnary[animal]
+        animalA = pool.animalDictionary[animal]
         #print ( animalA )
         dicA = animalA.detectionDictionary
             

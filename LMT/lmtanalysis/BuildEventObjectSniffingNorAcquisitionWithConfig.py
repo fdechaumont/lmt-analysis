@@ -58,8 +58,8 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectT
     - the animal is on the object located on the left
     '''
     
-    for animal in pool.animalDictionnary.keys():
-        print(pool.animalDictionnary[animal])
+    for animal in pool.animalDictionary.keys():
+        print(pool.animalDictionary[animal])
         
         eventNameSniffRight = "SniffRight"
         print ( "A is around the object located on the right")
@@ -99,7 +99,7 @@ def reBuildEvent( connection, exp, phase, objectPosition, radiusObjects, objectT
         resultUpRight = {}
         resultUpLeft = {}
         
-        animalA = pool.animalDictionnary[animal]
+        animalA = pool.animalDictionary[animal]
         setup = animalA.setup
         objectLeft = objectTuple[0]
         objectRight = objectTuple[1]

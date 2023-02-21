@@ -32,8 +32,8 @@ def reBuildEvent( connection, tmin, tmax , pool = None, animalType = None ):
     pool.loadAnimals( connection )
     pool.loadDetection( start = tmin, end = tmax )
     
-    for animal in pool.animalDictionnary.keys():
-        print(pool.animalDictionnary[animal])
+    for animal in pool.animalDictionary.keys():
+        print(pool.animalDictionary[animal])
         
         eventName = "Floor sniffing"
         print ( "A sniffs the floor")        
@@ -43,7 +43,7 @@ def reBuildEvent( connection, tmin, tmax , pool = None, animalType = None ):
                 
         result={}
         
-        animalA = pool.animalDictionnary[animal]
+        animalA = pool.animalDictionary[animal]
         #print ( animalA )
         dicA = animalA.detectionDictionary
             

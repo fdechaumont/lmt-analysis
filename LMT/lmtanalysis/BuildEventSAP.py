@@ -35,14 +35,14 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
     ''' 
         
     
-    for animal in pool.animalDictionnary:
+    for animal in pool.animalDictionary:
         
-        animal = pool.animalDictionnary[animal]
+        animal = pool.animalDictionary[animal]
                 
         SAPTimeLine = EventTimeLine( connection, "SAP", animal.baseId, minFrame=tmin, maxFrame=tmax, loadEvent=False )
 
         #f = animal.getCountFramesSpecZone( start , start+oneMinute*30 , xa=143, ya=190, xb=270, yb=317 )
-        result = animal.getSapDictionnary( tmin , tmax )
+        result = animal.getSapDictionary( tmin , tmax )
             
         SAPTimeLine.reBuildWithDictionary( result )
         SAPTimeLine.endRebuildEventTimeLine(connection)

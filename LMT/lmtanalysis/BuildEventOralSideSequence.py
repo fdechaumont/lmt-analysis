@@ -43,11 +43,11 @@ def reBuildEvent( connection, file,  tmin=None, tmax=None, pool = None, animalTy
     
     EVENT_MIN_LEN = 10
     
-    for idAnimalB in pool.animalDictionnary.keys():
-        print(pool.animalDictionnary[idAnimalB])
-        meanSizeB = pool.animalDictionnary[idAnimalB].getMeanBodyLength( tmax = tmax )
+    for idAnimalB in pool.animalDictionary.keys():
+        print(pool.animalDictionary[idAnimalB])
+        meanSizeB = pool.animalDictionary[idAnimalB].getMeanBodyLength( tmax = tmax )
         
-        for animal in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionary.keys():
             if( idAnimalB == animal ):
                 continue
             

@@ -35,7 +35,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
     pool = AnimalPool( )
     pool.loadAnimals( connection )
 
-    if len(pool.animalDictionnary.keys()) == 1:
+    if len(pool.animalDictionary.keys()) == 1:
         print('Only one animal in database.')
         # if the animal has been tested alone, only the stop isolated event will be computed.'''
         stopSourceTimeLine = {}
@@ -64,11 +64,11 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
 
     else:
         print('More than one animal in database.')
-        isInContactSourceDictionnary = {}
+        isInContactSourceDictionary = {}
         stopSourceTimeLine = {}
         stopIsolatedTimeLine = {}
 
-        for animal in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionary.keys():
             # Load source stop timeLine
             # If the animal is not detected, this will result in a stop. To avoid this we mask with the detection.
             
@@ -80,19 +80,19 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
             stopIsolatedTimeLine[animal] = stopSourceTimeLine[animal]
             
             # load contact dictionary with another animal
-            for animalB in pool.animalDictionnary.keys():
+            for animalB in pool.animalDictionary.keys():
                 if animal == animalB:
                     print('Same identity')
                     continue
                 else:
-                    isInContactSourceDictionnary[(animal, animalB)] = EventTimeLineCached( connection, file, "Contact", animal, animalB, minFrame=tmin, maxFrame=tmax ).getDictionary()
+                    isInContactSourceDictionary[(animal, animalB)] = EventTimeLineCached( connection, file, "Contact", animal, animalB, minFrame=tmin, maxFrame=tmax ).getDictionary()
 
         stopIsolatedDic = {}
-        for animal in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionary.keys():
             #initialisation of a dic for isolated stop
             stopIsolatedDic[animal] = stopIsolatedTimeLine[animal].getDictionary()
 
-            for animalB in pool.animalDictionnary.keys():
+            for animalB in pool.animalDictionary.keys():
                 # initialisation of a dic for stop in contact for each individual of the cage
                 framesToRemoveFromStopIsolatedTimeLine = []
                 stopSocialResult = {}
@@ -105,7 +105,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
 
                     # for each event we seek in t and search a match in isInContactDictionnary between animal and animalB
                     for t in range ( stopEvent.startFrame, stopEvent.endFrame+1 ) :
-                        if t in isInContactSourceDictionnary[(animal, animalB)]:
+                        if t in isInContactSourceDictionary[(animal, animalB)]:
                             stopSocialResult[t] = True
                             framesToRemoveFromStopIsolatedTimeLine.append(t)                        
 

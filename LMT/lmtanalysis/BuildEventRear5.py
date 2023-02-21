@@ -43,8 +43,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
         
     contact = {}
     
-    for animal in pool.animalDictionnary.keys():
-        print(pool.animalDictionnary[animal])
+    for animal in pool.animalDictionary.keys():
+        print(pool.animalDictionary[animal])
         
         contact[animal] = EventTimeLineCached( connection, file, "Contact", animal, minFrame=tmin, maxFrame=tmax )
         contactDico = contact[animal].getDictionary()
@@ -59,7 +59,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
         resultSocial={}
         resultIsolated={}
         
-        animalA = pool.animalDictionnary[animal]
+        animalA = pool.animalDictionary[animal]
         #print ( animalA )
         dicA = animalA.detectionDictionary
             

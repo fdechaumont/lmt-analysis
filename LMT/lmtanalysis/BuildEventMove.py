@@ -33,7 +33,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
     pool = AnimalPool( )
     pool.loadAnimals( connection )
 
-    if len(pool.animalDictionnary.keys()) == 1:
+    if len(pool.animalDictionary.keys()) == 1:
         print('Only one animal in database.')
         '''if the animal has been tested alone, only the move isolated event will be computed.'''
         moveSourceTimeLine = {}
@@ -67,7 +67,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
         moveSourceTimeLine = {}
         moveIsolatedTimeLine = {}
 
-        for animal in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionary.keys():
             ''' Load source stop timeLine and revert it to get the move timeline
             If the animal is not detected, this will result in a move. To avoid this we mask with the detection.
             '''
@@ -79,7 +79,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
             moveIsolatedTimeLine[animal] = moveSourceTimeLine[animal]
             
             ''' load contact dictionary with another animal '''
-            for animalB in pool.animalDictionnary.keys():
+            for animalB in pool.animalDictionary.keys():
                 if animal == animalB:
                     print('Same identity')
                     continue
@@ -87,11 +87,11 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
                     isInContactSourceDictionary[(animal, animalB)] = EventTimeLineCached( connection, file, "Contact", animal, animalB, minFrame=tmin, maxFrame=tmax ).getDictionary()
 
         moveIsolatedDic = {}
-        for animal in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionary.keys():
             #initialisation of a dic for isolated move
             moveIsolatedDic[animal] = moveIsolatedTimeLine[animal].getDictionary()
 
-            for animalB in pool.animalDictionnary.keys():
+            for animalB in pool.animalDictionary.keys():
                 # initialisation of a dic for move in contact for each individual of the cage
                 framesToRemoveFromMoveIsolatedTimeLine = []
                 moveSocialResult = {}
@@ -102,7 +102,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
                     ''' loop over eventlist'''
                     for moveEvent in moveIsolatedTimeLine[animal].eventList:
 
-                        ''' for each event we seek in t and search a match in isInContactDictionnary between animal and animalB '''
+                        ''' for each event we seek in t and search a match in isInContactDictionary between animal and animalB '''
                         for t in range ( moveEvent.startFrame, moveEvent.endFrame+1 ) :
                             if t in isInContactSourceDictionary[(animal, animalB)]:
                                 moveSocialResult[t] = True

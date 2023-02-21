@@ -48,10 +48,10 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
             if idAnimalA != idAnimalB:    
                 contact[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionary()
 
-    stopDictionnary = {}
+    stopDictionary = {}
         
     for idAnimalA in range( 1 , 5 ):
-        stopDictionnary[idAnimalA] = EventTimeLineCached( 
+        stopDictionary[idAnimalA] = EventTimeLineCached( 
             connection, file, "Stop", idA=idAnimalA, minFrame=tmin, maxFrame=tmax ).getDictionary()
     
     nest3TimeLine = {}
@@ -134,7 +134,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
             allStoppedInBiggestGroup = True
             for animal in list( listCC[0] ):
                 if isinstance( animal , Animal ):
-                    if not ( t in stopDictionnary[animal.baseId] ):
+                    if not ( t in stopDictionary[animal.baseId] ):
                         allStoppedInBiggestGroup = False
                         break
                 

@@ -46,9 +46,9 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
     backZs = []
 
     '''
-    for animal in pool.animalDictionnary.keys():
+    for animal in pool.animalDictionary.keys():
         
-        animalA = pool.animalDictionnary[animal]        
+        animalA = pool.animalDictionary[animal]        
         dicA = animalA.detectionDictionary
         for t in dicA.keys():
             
@@ -70,10 +70,10 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
     eventName = "onHouse"
     
     '''
-    for animal in pool.animalDictionnary.keys():
-        print(pool.animalDictionnary[animal])
+    for animal in pool.animalDictionary.keys():
+        print(pool.animalDictionary[animal])
         t = 335794
-        animalA = pool.animalDictionnary[animal]        
+        animalA = pool.animalDictionary[animal]        
         dicA = animalA.detectionDictionary
         print( "mass: " , dicA[t].massZ )
         print( "head: " , dicA[t].frontZ )
@@ -85,8 +85,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
     
     #deleteEventTimeLineInBase(connection, "onHouse" )
     
-    for animal in pool.animalDictionnary.keys():
-        print(pool.animalDictionnary[animal])
+    for animal in pool.animalDictionary.keys():
+        print(pool.animalDictionary[animal])
                
         print ( "X is on the house")        
         print ( eventName )
@@ -96,7 +96,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
         
         result={}
         
-        animalA = pool.animalDictionnary[animal]        
+        animalA = pool.animalDictionary[animal]        
         dicA = animalA.detectionDictionary
         
         for t in dicA.keys():
