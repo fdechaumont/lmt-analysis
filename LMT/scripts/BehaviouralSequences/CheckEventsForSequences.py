@@ -28,9 +28,9 @@ if __name__ == '__main__':
         pool = AnimalPool()
         pool.loadAnimals(connection)
 
-        for animal in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionary.keys():
             print("computing individual animal: {}".format(animal))
-            rfid = pool.animalDictionnary[animal].RFID
+            rfid = pool.animalDictionary[animal].RFID
 
             #load contact timeline for animal
             contactTimeLine = EventTimeLineCached( connection, file, 'Contact', animal, None, minFrame=tmin, maxFrame=tmax )

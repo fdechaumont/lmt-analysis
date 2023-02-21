@@ -36,9 +36,9 @@ def computeSpeedDurationPerEvent(animalData, files, tmin, tmax, eventToTest=None
         pool.loadAnimals(connection)
         pool.loadDetection(tmin, tmax, lightLoad=True)
         rfidList = []
-        for animal in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionary.keys():
             print("computing individual animal: {}".format(animal))
-            rfid = pool.animalDictionnary[animal].RFID
+            rfid = pool.animalDictionary[animal].RFID
             rfidList.append(rfid)
 
         group = rfidList[0]
@@ -56,19 +56,19 @@ def computeSpeedDurationPerEvent(animalData, files, tmin, tmax, eventToTest=None
             
             animalData[file][n] = {}
 
-            for animal in pool.animalDictionnary.keys():
+            for animal in pool.animalDictionary.keys():
                 print("computing individual animal: {}".format(animal))
-                rfid = pool.animalDictionnary[animal].RFID
+                rfid = pool.animalDictionary[animal].RFID
                 print("RFID: {}".format(rfid))
                 animalData[file][n][rfid] = {}
                 # store the animal
-                animalData[file][n][rfid]["animal"] = pool.animalDictionnary[animal].name
-                animalObject = pool.animalDictionnary[animal]
+                animalData[file][n][rfid]["animal"] = pool.animalDictionary[animal].name
+                animalObject = pool.animalDictionary[animal]
                 animalData[file][n][rfid]["file"] = file
-                animalData[file][n][rfid]['genotype'] = pool.animalDictionnary[animal].genotype
-                animalData[file][n][rfid]['sex'] = pool.animalDictionnary[animal].sex
-                animalData[file][n][rfid]['strain'] = pool.animalDictionnary[animal].strain
-                animalData[file][n][rfid]['age'] = pool.animalDictionnary[animal].age
+                animalData[file][n][rfid]['genotype'] = pool.animalDictionary[animal].genotype
+                animalData[file][n][rfid]['sex'] = pool.animalDictionary[animal].sex
+                animalData[file][n][rfid]['strain'] = pool.animalDictionary[animal].strain
+                animalData[file][n][rfid]['age'] = pool.animalDictionary[animal].age
                 animalData[file][n][rfid]['group'] = group
 
                 print("computing individual event: {}".format(eventToTest))
@@ -95,19 +95,19 @@ def computeSpeedDurationPerEvent(animalData, files, tmin, tmax, eventToTest=None
                 print("Night: ", n)
                 animalData[file][n] = {}
     
-                for animal in pool.animalDictionnary.keys():
+                for animal in pool.animalDictionary.keys():
                     print("computing individual animal: {}".format(animal))
-                    rfid = pool.animalDictionnary[animal].RFID
+                    rfid = pool.animalDictionary[animal].RFID
                     print("RFID: {}".format(rfid))
                     animalData[file][n][rfid] = {}
                     # store the animal
-                    animalData[file][n][rfid]["animal"] = pool.animalDictionnary[animal].name
-                    animalObject = pool.animalDictionnary[animal]
+                    animalData[file][n][rfid]["animal"] = pool.animalDictionary[animal].name
+                    animalObject = pool.animalDictionary[animal]
                     animalData[file][n][rfid]["file"] = file
-                    animalData[file][n][rfid]['genotype'] = pool.animalDictionnary[animal].genotype
-                    animalData[file][n][rfid]['sex'] = pool.animalDictionnary[animal].sex
-                    animalData[file][n][rfid]['strain'] = pool.animalDictionnary[animal].strain
-                    animalData[file][n][rfid]['age'] = pool.animalDictionnary[animal].age
+                    animalData[file][n][rfid]['genotype'] = pool.animalDictionary[animal].genotype
+                    animalData[file][n][rfid]['sex'] = pool.animalDictionary[animal].sex
+                    animalData[file][n][rfid]['strain'] = pool.animalDictionary[animal].strain
+                    animalData[file][n][rfid]['age'] = pool.animalDictionary[animal].age
                     animalData[file][n][rfid]['group'] = group
     
                     print("computing individual event: {}".format(eventToTest))

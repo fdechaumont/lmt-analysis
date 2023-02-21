@@ -45,9 +45,9 @@ def computeProfile(file, minT, maxT, behaviouralEventList):
     pool.loadAnimals( connection )
     
     indList = []
-    for animal in pool.animalDictionnary.keys():
+    for animal in pool.animalDictionary.keys():
         print("computing individual animal: {}".format(animal))
-        rfid = pool.animalDictionnary[animal].RFID
+        rfid = pool.animalDictionary[animal].RFID
         indList.append(rfid)
 
     sortedIndList = sorted(indList)
@@ -59,26 +59,26 @@ def computeProfile(file, minT, maxT, behaviouralEventList):
         groupName+=ind
 
     animalData = {}
-    for animal in pool.animalDictionnary.keys():
+    for animal in pool.animalDictionary.keys():
         
         print( "computing individual animal: {}".format( animal )) 
-        rfid = pool.animalDictionnary[animal].RFID
+        rfid = pool.animalDictionary[animal].RFID
         print( "RFID: {}".format( rfid ) )
         animalData[rfid]= {}        
         #store the animal
-        animalData[rfid]["animal"] = pool.animalDictionnary[animal].name
-        animalObject = pool.animalDictionnary[animal]
+        animalData[rfid]["animal"] = pool.animalDictionary[animal].name
+        animalObject = pool.animalDictionary[animal]
         animalData[rfid]["file"] = file
         animalData[rfid]["rfid"] = rfid
-        animalData[rfid]['genotype'] = pool.animalDictionnary[animal].genotype
-        animalData[rfid]['sex'] = pool.animalDictionnary[animal].sex
+        animalData[rfid]['genotype'] = pool.animalDictionary[animal].genotype
+        animalData[rfid]['sex'] = pool.animalDictionary[animal].sex
         animalData[rfid]['group'] = groupName
-        animalData[rfid]['strain'] = pool.animalDictionnary[animal].strain
-        animalData[rfid]['age'] = pool.animalDictionnary[animal].age
+        animalData[rfid]['strain'] = pool.animalDictionary[animal].strain
+        animalData[rfid]['age'] = pool.animalDictionary[animal].age
                 
         genoA = None
         try:
-            genoA=pool.animalDictionnary[animal].genotype
+            genoA=pool.animalDictionary[animal].genotype
         except:
             pass
                     
@@ -309,7 +309,7 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
     animalData[pairName]['group'] = pairName
     animalData[pairName]["totalDistance"] = "totalDistance"
 
-    for animal in pool.animalDictionnary.keys():
+    for animal in pool.animalDictionary.keys():
 
         print("computing individual animal: {}".format(animal))
         rfid = pool.animalDictionary[animal].RFID

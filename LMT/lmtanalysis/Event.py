@@ -635,7 +635,7 @@ class EventTimeLine:
         #faster algo:
         
         # copy original to dilated
-        eventDictionaryDilated = eventDictionnary.copy()
+        eventDictionaryDilated = eventDictionary.copy()
         for d in range( numberOfFrame ):
             print("Dilate " , d)
             for t in eventDictionaryDilated.copy().keys():    

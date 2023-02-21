@@ -300,12 +300,12 @@ if __name__ == '__main__':
         pool = AnimalPool( )
         pool.loadAnimals( connection )
         
-        for animalA in pool.animalDictionnary :
+        for animalA in pool.animalDictionary :
             
             animalDiffGeno = []
             animalSameGeno = []
             
-            for animal in pool.animalDictionnary:
+            for animal in pool.animalDictionary:
                 if animal.genotype == animalA.genotype:
                     animalSameGeno.append( animal )
                 else:

@@ -105,28 +105,28 @@ if __name__ == '__main__':
         pool.loadDetection( start = startFrame, end = endFrame, lightLoad=True)
         print ("##############################################################")
         
-        for animal in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionary.keys():
             
-            nbOfDetections = pool.animalDictionnary[animal].getNumberOfDetection(tmin = startFrame, tmax = endFrame)
+            nbOfDetections = pool.animalDictionary[animal].getNumberOfDetection(tmin = startFrame, tmax = endFrame)
             missedDetection = 1-nbOfDetections/nbFramesRecorded
             
-            print ( "Animal {}: {} missed detections over {} frames recorded ({} %)".format( pool.animalDictionnary[animal].RFID, nbFramesRecorded-nbOfDetections, nbFramesRecorded, missedDetection*100 ) )
-            text_file.write( "Animal {}: {} missed detections over {} frames recorded ({} %)\n".format( pool.animalDictionnary[animal].RFID, nbFramesRecorded-nbOfDetections, nbFramesRecorded, missedDetection*100 ) )
+            print ( "Animal {}: {} missed detections over {} frames recorded ({} %)".format( pool.animalDictionary[animal].RFID, nbFramesRecorded-nbOfDetections, nbFramesRecorded, missedDetection*100 ) )
+            text_file.write( "Animal {}: {} missed detections over {} frames recorded ({} %)\n".format( pool.animalDictionary[animal].RFID, nbFramesRecorded-nbOfDetections, nbFramesRecorded, missedDetection*100 ) )
             '''Note: The score can be low, if the animals are often huddled in the nest and not identified individually.'''
         
         ##########################################################################
         '''Number of RFID match'''
         print ("##############################################################")
         
-        for animal in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionary.keys():
             rfidMatchTimeLine = EventTimeLine( connection, "RFID MATCH", idA = animal )
             rfidMismatchTimeLine = EventTimeLine( connection, "RFID MISMATCH", idA = animal )
             nbOfRfidMatch = rfidMatchTimeLine.getNumberOfEvent(minFrame=startFrame, maxFrame=endFrame)
             nbOfRfidMismatch = rfidMismatchTimeLine.getNumberOfEvent(minFrame=startFrame, maxFrame=endFrame)
-            print( "Number of RFID match for animal {}: {} (rate: {} events/min)".format( pool.animalDictionnary[animal].RFID, nbOfRfidMatch, nbOfRfidMatch/(durationExp*30*60) ) )
-            print( "Number of RFID mismatch for animal {}: {} (rate: {} events/min)".format( pool.animalDictionnary[animal].RFID, nbOfRfidMismatch, nbOfRfidMismatch/(durationExp*30*60) ) )
-            text_file.write( "Number of RFID match for animal {}: {} (rate: {} events/min)\n".format( pool.animalDictionnary[animal].RFID, nbOfRfidMatch, nbOfRfidMatch/(durationExp*30*60) ) )
-            text_file.write( "Number of RFID mismatch for animal {}: {} (rate: {} events/min)\n".format( pool.animalDictionnary[animal].RFID, nbOfRfidMismatch, nbOfRfidMismatch/(durationExp*30*60) ) )
+            print( "Number of RFID match for animal {}: {} (rate: {} events/min)".format( pool.animalDictionary[animal].RFID, nbOfRfidMatch, nbOfRfidMatch/(durationExp*30*60) ) )
+            print( "Number of RFID mismatch for animal {}: {} (rate: {} events/min)".format( pool.animalDictionary[animal].RFID, nbOfRfidMismatch, nbOfRfidMismatch/(durationExp*30*60) ) )
+            text_file.write( "Number of RFID match for animal {}: {} (rate: {} events/min)\n".format( pool.animalDictionary[animal].RFID, nbOfRfidMatch, nbOfRfidMatch/(durationExp*30*60) ) )
+            text_file.write( "Number of RFID mismatch for animal {}: {} (rate: {} events/min)\n".format( pool.animalDictionary[animal].RFID, nbOfRfidMismatch, nbOfRfidMismatch/(durationExp*30*60) ) )
             
         print ("##############################################################")
         ##########################################################################

@@ -42,13 +42,13 @@ if __name__ == '__main__':
 
         pool.loadDetection( start = tmin, end = tmax, lightLoad=True)
 
-        for animal in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionary.keys():
             
-            print ( pool.animalDictionnary[animal].RFID )
+            print ( pool.animalDictionary[animal].RFID )
 
-            dt = pool.animalDictionnary[animal].getDistancePerBin(binFrameSize = 20*oneMinute, maxFrame = tmax )
+            dt = pool.animalDictionary[animal].getDistancePerBin(binFrameSize = 20*oneMinute, maxFrame = tmax )
             
-            res = [file, pool.animalDictionnary[animal].RFID, pool.animalDictionnary[animal].genotype, pool.animalDictionnary[animal].user1, *dt]
+            res = [file, pool.animalDictionary[animal].RFID, pool.animalDictionary[animal].genotype, pool.animalDictionary[animal].user1, *dt]
             
             text_file.write( "{}\n".format( res ) ) 
         

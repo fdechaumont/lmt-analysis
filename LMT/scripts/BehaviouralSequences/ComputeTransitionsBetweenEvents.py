@@ -286,10 +286,10 @@ if __name__ == '__main__':
 
                 genoPossibility = []
                 sexPossibility = []
-                for animal in pool.animalDictionnary.keys():
+                for animal in pool.animalDictionary.keys():
                     print("computing individual animal: {}".format(animal))
-                    geno = pool.animalDictionnary[animal].genotype
-                    sex = pool.animalDictionnary[animal].sex
+                    geno = pool.animalDictionary[animal].genotype
+                    sex = pool.animalDictionary[animal].sex
                     genoPossibility.append(geno)
                     sexPossibility.append(sex)
 
@@ -310,11 +310,11 @@ if __name__ == '__main__':
 
                     pool.loadDetection(start=minT, end=maxT, lightLoad=True)
 
-                    for animal in pool.animalDictionnary.keys():
+                    for animal in pool.animalDictionary.keys():
                         print("computing individual animal: {}".format(animal))
-                        rfid = pool.animalDictionnary[animal].RFID
-                        sex = pool.animalDictionnary[animal].sex
-                        geno = pool.animalDictionnary[animal].genotype
+                        rfid = pool.animalDictionary[animal].RFID
+                        sex = pool.animalDictionary[animal].sex
+                        geno = pool.animalDictionary[animal].genotype
 
                         #load timelines for exclusive events for animal:
                         eventTimeLine = {}
@@ -334,7 +334,7 @@ if __name__ == '__main__':
                             print('{}: event total duration: {}, length of dico: {}'.format(exclusiveEvent, eventTimeLine[exclusiveEvent].getTotalLength(), len(dicoEvent[exclusiveEvent])))
                             totalDurationEvents += len(dicoEvent[exclusiveEvent])
 
-                        detection = pool.animalDictionnary[animal].detectionDictionnary
+                        detection = pool.animalDictionary[animal].detectionDictionary
                         print('Number of frames detected: {}; sum of duration of events: {}'.format(len(detection.keys()), totalDurationEvents))
 
                         counter = {}
@@ -406,10 +406,10 @@ if __name__ == '__main__':
 
                 genoPossibility = []
                 sexPossibility = []
-                for animal in pool.animalDictionnary.keys():
+                for animal in pool.animalDictionary.keys():
                     print("computing individual animal: {}".format(animal))
-                    geno = pool.animalDictionnary[animal].genotype
-                    sex = pool.animalDictionnary[animal].sex
+                    geno = pool.animalDictionary[animal].genotype
+                    sex = pool.animalDictionary[animal].sex
                     genoPossibility.append(geno)
                     sexPossibility.append(sex)
 
@@ -424,11 +424,11 @@ if __name__ == '__main__':
 
                 pool.loadDetection(start=minT, end=maxT, lightLoad=True)
 
-                for animal in pool.animalDictionnary.keys():
+                for animal in pool.animalDictionary.keys():
                     print("computing individual animal: {}".format(animal))
-                    rfid = pool.animalDictionnary[animal].RFID
-                    sex = pool.animalDictionnary[animal].sex
-                    geno = pool.animalDictionnary[animal].genotype
+                    rfid = pool.animalDictionary[animal].RFID
+                    sex = pool.animalDictionary[animal].sex
+                    geno = pool.animalDictionary[animal].genotype
 
                     #load timelines for exclusive events for animal:
                     eventTimeLine = {}
@@ -448,7 +448,7 @@ if __name__ == '__main__':
                         print('{}: event total duration: {}, length of dico: {}'.format(exclusiveEvent, eventTimeLine[exclusiveEvent].getTotalLength(), len(dicoEvent[exclusiveEvent])))
                         totalDurationEvents += len(dicoEvent[exclusiveEvent])
 
-                    detection = pool.animalDictionnary[animal].detectionDictionnary
+                    detection = pool.animalDictionary[animal].detectionDictionary
                     print('Number of frames detected: {}; sum of duration of events: {}'.format(len(detection.keys()), totalDurationEvents))
 
                     counter = {}

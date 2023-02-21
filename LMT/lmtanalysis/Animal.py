@@ -1222,7 +1222,7 @@ class AnimalPool():
 
         return resultList
 
-        #return [x for x in self.animalDictionnary if x.genotype==genotype ]
+        #return [x for x in self.animalDictionary if x.genotype==genotype ]
 
     def getNbAnimals(self):
         return len(self.animalDictionary)
