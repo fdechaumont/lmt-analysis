@@ -113,11 +113,9 @@ def processUpdateFields():
 
     jsonFile = getJsonFileToProcess()
 
-
     chronoFullBatch = Chronometer("Full batch")
 
     if (files != None):
-
         for file in files:
             print("Processing file", file)
             updateField(file, jsonFile)
@@ -125,6 +123,22 @@ def processUpdateFields():
     chronoFullBatch.printTimeInS()
     print("*** ALL JOBS DONE ***")
 
+
+def processAddColumnsAndUpdateFields():
+    files = getFilesToProcess()
+
+    jsonFile = getJsonFileToProcess()
+
+    chronoFullBatch = Chronometer("Full batch")
+
+    if (files != None):
+        for file in files:
+            print("Processing file", file)
+            addColumns(file)
+            updateField(file, jsonFile)
+
+    chronoFullBatch.printTimeInS()
+    print("*** ALL JOBS DONE ***")
 
 
 if __name__ == '__main__':
@@ -135,6 +149,7 @@ if __name__ == '__main__':
         question = "Do you want to:"
         question += "\n\t [1] add columns in SQLite databases?"
         question += "\n\t [2] update animal tables of SQLite databases from a json file?"
+        question += "\n\t [3] add columns and update animal tables of SQLite databases from a json file?"
         question += "\n"
         answer = input(question)
 
@@ -147,4 +162,9 @@ if __name__ == '__main__':
         if answer == "2":
             print("********** Update animal tables of SQLite databases **********")
             processUpdateFields()
+            break
+
+        if answer == "3":
+            print("********** Add columns and update animal tables of SQLite databases **********")
+            processAddColumnsAndUpdateFields()
             break
