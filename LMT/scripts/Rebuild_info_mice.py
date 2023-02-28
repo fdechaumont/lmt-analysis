@@ -78,8 +78,9 @@ def updateField(file, jsonFile):
         for field in fieldsToUpdate[mouse].keys():
             if (field != 'file') and (field != 'group'): # these two variables are not in sqlite databases
                 if field == 'animal':
-                    field = 'ID'
-                query += f"{field} = '{fieldsToUpdate[mouse][field]}', "
+                    query += f"NAME = '{fieldsToUpdate[mouse][field]}', "
+                else:
+                    query += f"{field} = '{fieldsToUpdate[mouse][field]}', "
         query = query [0:-2]    # to remove the last comma
         query += f" WHERE ANIMAL.RFID = '{mouse}'"
         print(query)
