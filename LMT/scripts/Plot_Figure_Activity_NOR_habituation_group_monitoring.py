@@ -3,13 +3,10 @@
 
 #@author: Elodie
 '''
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
-from ComputeMeasuresIdentityProfileOneMouseAutomatic import singlePlotPerEventProfileBothSexes, mergeProfileOverNights
+from ComputeMeasuresIdentityProfileOneMouseAutomatic_old import singlePlotPerEventProfileBothSexes, mergeProfileOverNights
 from scripts.Rebuild_All_Event import *
 from scripts.Plot_Trajectory_Single_Object_Explo import *
 import numpy as np; np.random.seed(0)

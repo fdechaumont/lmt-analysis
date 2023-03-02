@@ -260,6 +260,7 @@ genoList = ['WT', mutantGeno]
 configList = ['config1', 'config2']
 setupList = ['2i', '2s']
 setupList = ['1', '2']
+treatmentList = ['scfr', 'GFP', 'control']
 
 markerList = {'1': 'o', '2': 'v', '2i': 'v', '2s': 'o'} #for the setups
 markerListConfig = {'config1': 'o', 'config2': 'v'} #for the setups

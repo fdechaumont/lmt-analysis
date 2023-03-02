@@ -27,7 +27,7 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import pandas
 from scipy.stats import mannwhitneyu, kruskal, ttest_1samp
-from scripts.ComputeMeasuresIdentityProfileOneMouseAutomatic import *
+from scripts.ComputeMeasuresIdentityProfileOneMouseAutomatic_old import *
 #from USV.usvDescription.Compute_Number_USVs_Diff_Geno import *
 from USV.usvDescription import *
 

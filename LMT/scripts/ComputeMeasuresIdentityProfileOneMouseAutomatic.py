@@ -45,9 +45,9 @@ def computeProfile(file, minT, maxT, behaviouralEventList):
     pool.loadAnimals( connection )
     
     indList = []
-    for animal in pool.animalDictionnary.keys():
+    for animal in pool.animalDictionary.keys():
         print("computing individual animal: {}".format(animal))
-        rfid = pool.animalDictionnary[animal].RFID
+        rfid = pool.animalDictionary[animal].RFID
         indList.append(rfid)
 
     sortedIndList = sorted(indList)
@@ -59,26 +59,26 @@ def computeProfile(file, minT, maxT, behaviouralEventList):
         groupName+=ind
 
     animalData = {}
-    for animal in pool.animalDictionnary.keys():
+    for animal in pool.animalDictionary.keys():
         
-        print( "computing individual animal: {}".format( animal )) 
-        rfid = pool.animalDictionnary[animal].RFID
+        print( "computing individual animal: {}".format( animal ))
+        rfid = pool.animalDictionary[animal].RFID
         print( "RFID: {}".format( rfid ) )
         animalData[rfid]= {}        
         #store the animal
-        animalData[rfid]["animal"] = pool.animalDictionnary[animal].name
-        animalObject = pool.animalDictionnary[animal]
+        animalData[rfid]["animal"] = pool.animalDictionary[animal].name
+        animalObject = pool.animalDictionary[animal]
         animalData[rfid]["file"] = file
         animalData[rfid]["rfid"] = rfid
-        animalData[rfid]['genotype'] = pool.animalDictionnary[animal].genotype
-        animalData[rfid]['sex'] = pool.animalDictionnary[animal].sex
+        animalData[rfid]['genotype'] = pool.animalDictionary[animal].genotype
+        animalData[rfid]['sex'] = pool.animalDictionary[animal].sex
         animalData[rfid]['group'] = groupName
-        animalData[rfid]['strain'] = pool.animalDictionnary[animal].strain
-        animalData[rfid]['age'] = pool.animalDictionnary[animal].age
+        animalData[rfid]['strain'] = pool.animalDictionary[animal].strain
+        animalData[rfid]['age'] = pool.animalDictionary[animal].age
                 
         genoA = None
         try:
-            genoA=pool.animalDictionnary[animal].genotype
+            genoA=pool.animalDictionary[animal].genotype
         except:
             pass
                     
@@ -133,12 +133,12 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
     sex = []
     age = []
     strain = []
-    for animal in pool.animalDictionnary.keys():
-        rfid = pool.animalDictionnary[animal].RFID
-        geno = pool.animalDictionnary[animal].genotype
-        sexAnimal = pool.animalDictionnary[animal].sex
-        ageAnimal = pool.animalDictionnary[animal].age
-        strainAnimal = pool.animalDictionnary[animal].strain
+    for animal in pool.animalDictionary.keys():
+        rfid = pool.animalDictionary[animal].RFID
+        geno = pool.animalDictionary[animal].genotype
+        sexAnimal = pool.animalDictionary[animal].sex
+        ageAnimal = pool.animalDictionary[animal].age
+        strainAnimal = pool.animalDictionary[animal].strain
         pair.append(rfid)
         genotype.append(geno)
         sex.append(sexAnimal)
@@ -170,21 +170,22 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
     animalData[pairName]['group'] = pairName
     animalData[pairName]["totalDistance"] = "totalDistance"
 
-    for animal in pool.animalDictionnary.keys():
+    for animal in pool.animalDictionary.keys():
 
         print("computing individual animal: {}".format(animal))
-        rfid = pool.animalDictionnary[animal].RFID
+        rfid = pool.animalDictionary[animal].RFID
         print("RFID: {}".format(rfid))
         animalData[rfid] = {}
         # store the animal
-        animalData[rfid]["animal"] = pool.animalDictionnary[animal].name
-        animalObject = pool.animalDictionnary[animal]
+        animalData[rfid]["animal"] = pool.animalDictionary[animal].name
+        animalObject = pool.animalDictionary[animal]
         animalData[rfid]["file"] = file
         animalData[rfid]["rfid"] = rfid
-        animalData[rfid]['genotype'] = pool.animalDictionnary[animal].genotype
-        animalData[rfid]['sex'] = pool.animalDictionnary[animal].sex
-        animalData[rfid]['age'] = pool.animalDictionnary[animal].age
-        animalData[rfid]['strain'] = pool.animalDictionnary[animal].strain
+        animalData[rfid]['genotype'] = pool.animalDictionary[animal].genotype
+        animalData[rfid]['sex'] = pool.animalDictionary[animal].sex
+        animalData[rfid]['treatment'] = pool.animalDictionary[animal].user1
+        animalData[rfid]['age'] = pool.animalDictionary[animal].age
+        animalData[rfid]['strain'] = pool.animalDictionary[animal].strain
         animalData[rfid]['group'] = pairName
 
         #compute the profile for single behaviours
@@ -208,7 +209,7 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
                 meanDur = totalEventDuration / nbEvent
             animalData[rfid][behavEventTimeLine.eventName + " MeanDur"] = meanDur
 
-            print(behavEventTimeLine.eventName, pool.animalDictionnary[animal].genotype, behavEventTimeLine.idA, totalEventDuration, nbEvent, meanDur)
+            print(behavEventTimeLine.eventName, pool.animalDictionary[animal].genotype, behavEventTimeLine.idA, totalEventDuration, nbEvent, meanDur)
 
         # compute the total distance traveled per individual
         COMPUTE_TOTAL_DISTANCE = True
@@ -268,13 +269,13 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
     treatment = []
     age = []
     strain = []
-    for animal in pool.animalDictionnary.keys():
-        rfid = pool.animalDictionnary[animal].RFID
-        geno = pool.animalDictionnary[animal].genotype
-        sexAnimal = pool.animalDictionnary[animal].sex
-        treatmentAnimal = pool.animalDictionnary[animal].treatment
-        ageAnimal = pool.animalDictionnary[animal].age
-        strainAnimal = pool.animalDictionnary[animal].strain
+    for animal in pool.animalDictionary.keys():
+        rfid = pool.animalDictionary[animal].RFID
+        geno = pool.animalDictionary[animal].genotype
+        sexAnimal = pool.animalDictionary[animal].sex
+        treatmentAnimal = pool.animalDictionary[animal].treatment
+        ageAnimal = pool.animalDictionary[animal].age
+        strainAnimal = pool.animalDictionary[animal].strain
         pair.append(rfid)
         genotype.append(geno)
         sex.append(sexAnimal)
@@ -309,21 +310,21 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
     animalData[pairName]['group'] = pairName
     animalData[pairName]["totalDistance"] = "totalDistance"
 
-    for animal in pool.animalDictionnary.keys():
+    for animal in pool.animalDictionary.keys():
 
         print("computing individual animal: {}".format(animal))
-        rfid = pool.animalDictionnary[animal].RFID
+        rfid = pool.animalDictionary[animal].RFID
         print("RFID: {}".format(rfid))
         animalData[rfid] = {}
         # store the animal
-        animalData[rfid]["animal"] = pool.animalDictionnary[animal].name
-        animalObject = pool.animalDictionnary[animal]
+        animalData[rfid]["animal"] = pool.animalDictionary[animal].name
+        animalObject = pool.animalDictionary[animal]
         animalData[rfid]["file"] = file
         animalData[rfid]["rfid"] = rfid
-        animalData[rfid]['genotype'] = pool.animalDictionnary[animal].genotype
-        animalData[rfid]['sex'] = pool.animalDictionnary[animal].sex
-        animalData[rfid]['age'] = pool.animalDictionnary[animal].age
-        animalData[rfid]['strain'] = pool.animalDictionnary[animal].strain
+        animalData[rfid]['genotype'] = pool.animalDictionary[animal].genotype
+        animalData[rfid]['sex'] = pool.animalDictionary[animal].sex
+        animalData[rfid]['age'] = pool.animalDictionary[animal].age
+        animalData[rfid]['strain'] = pool.animalDictionary[animal].strain
         animalData[rfid]['group'] = pairName
 
         #compute the profile for single behaviours
@@ -347,7 +348,7 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
                 meanDur = totalEventDuration / nbEvent
             animalData[rfid][behavEventTimeLine.eventName + " MeanDur"] = meanDur
 
-            print(behavEventTimeLine.eventName, pool.animalDictionnary[animal].genotype, behavEventTimeLine.idA, totalEventDuration, nbEvent, meanDur)
+            print(behavEventTimeLine.eventName, pool.animalDictionary[animal].genotype, behavEventTimeLine.idA, totalEventDuration, nbEvent, meanDur)
 
         # compute the total distance traveled per individual
         COMPUTE_TOTAL_DISTANCE = True
@@ -1868,10 +1869,11 @@ if __name__ == '__main__':
         question = "Do you want to:"
         question += "\n\t [1] compute profile data (save json file)?"
         question += "\n\t [2] compute profile data for pairs of same genotype animals (save json file)?"
-        question += "\n\t [2b] compute profile data for pairs of same genotype animals from pause (save json file)?"
-        question += "\n\t [3] plot and analyse profile data (from stored json files)?"
-        question += "\n\t [4] plot and analyse profile data for pairs of same genotype animals (saved json files)?"
-        question += "\n\t [4b] plot and analyse profile data for pairs of different genotype animals (saved json files)?"
+        question += "\n\t [2b] compute profile data for pairs of same genotype with treatments animals from pause (save json file)?"
+        question += "\n\t [2c] compute profile data for pairs of same genotype with treatments animals from pause (save json file)?"
+        question += "\n\t [3] plot and analyse profile data (from stored json file)?"
+        question += "\n\t [4] plot and analyse profile data for pairs of same genotype animals (saved json file)?"
+        question += "\n\t [4b] plot and analyse profile data for pairs of different genotype animals (saved json file)?"
         question += "\n\t [5] plot and analyse profile data after merging the different nigths?"
         question += "\n\t [6] plot KO profile data as centered and reduced data per cage?"
         question += "\n\t [7] plot KO profile data as centered and reduced data per cage with merged nights in horizontal way?"
@@ -1882,13 +1884,13 @@ if __name__ == '__main__':
             files = getFilesToProcess()
             tmin, tmax = getMinTMaxTInput()
 
-            
+
             nightComputation = input("Compute profile only during night events (Y or N)? ")
 
             for file in files:
                 #initialize the result dic
                 profileData = {}
-                
+
                 print(file)
                 #get the path and the name of file
                 head, tail = os.path.split(file)
@@ -1986,7 +1988,6 @@ if __name__ == '__main__':
 
             break
 
-
         if answer == "2b":
             files = getFilesToProcess()
             experimentDuration = getExperimentDurationInput()
@@ -1995,14 +1996,15 @@ if __name__ == '__main__':
             profileData = {}
 
             for file in files:
+
                 print(file)
                 profileData[file] = {}
 
-                n = 0
+                n=0
                 # Compute profile2 data
-                profileData[file][n] = computeProfilePairFromPause(file=file, experimentDuration=experimentDuration,
-                                                                   behaviouralEventListSingle=behaviouralEventOneMouse,
-                                                                   behaviouralEventListSocial=behaviouralEventOneMouse)
+                profileData[file][n] = computeProfilePairFromPauseWithTreatment(file=file, experimentDuration=experimentDuration,
+                                                          behaviouralEventListSingle=behaviouralEventOneMouse,
+                                                          behaviouralEventListSocial=behaviouralEventOneMouse)
 
                 # Create a json file to store the computation
                 with open("profile_data_pair_from_pause_{}.json".format('no_night'), 'w') as fp:
@@ -2011,6 +2013,30 @@ if __name__ == '__main__':
 
             break
 
+        if answer == "2c":
+            files = getFilesToProcess()
+            experimentDuration = getExperimentDurationInput()
+            print(files)
+
+            profileData = {}
+
+            for file in files:
+
+                print(file)
+                profileData[file] = {}
+
+                n=0
+                # Compute profile2 data
+                profileData[file][n] = computeProfilePairFromPause(file=file, experimentDuration=experimentDuration,
+                                                          behaviouralEventListSingle=behaviouralEventOneMouse,
+                                                          behaviouralEventListSocial=behaviouralEventOneMouse)
+
+                # Create a json file to store the computation
+                with open("profile_data_pair_from_pause_{}.json".format('no_night'), 'w') as fp:
+                    json.dump(profileData, fp, indent=4)
+                print("json file with profile measurements created.")
+
+            break
 
         if answer == "3":
             nightComputation = input("Plot profile only during night events (Y or N or merged)? ")
@@ -2020,7 +2046,7 @@ if __name__ == '__main__':
                 n = 0
                 files = getJsonFilesToProcess()
                 profileData = mergeJsonFilesForProfiles(files)
-                
+
                 print("json file for profile data re-imported.")
                 #Plot profile2 data and save them in a pdf file
                 print('data: ', profileData)
@@ -2069,7 +2095,7 @@ if __name__ == '__main__':
                 print(files)
                 # create a dictionary with profile data
                 profileDataNotMerged = mergeJsonFilesForProfiles(files)
-                
+
                 profileData = mergeProfileOverNights(profileData=profileDataNotMerged, categoryList=categoryList,
                                                   behaviouralEventOneMouse=behaviouralEventOneMouse)
 
@@ -2554,7 +2580,7 @@ if __name__ == '__main__':
             dataToUse = profileData
             #If the profiles are computed over the merged nights:
             #dataToUse = mergeProfile
-            
+
             #select the control and tested genotypes
             #generate automatically the list of genotypes
             genotypeList = []
@@ -2562,12 +2588,12 @@ if __name__ == '__main__':
             firstNight = list(dataToUse[firstFile].keys())[0]
             for rfid in dataToUse[firstFile][firstNight].keys():
                 genotypeList.append(dataToUse[firstFile][firstNight][rfid]['genotype'])
-            
+
             genotypeCat = list(Counter(genotypeList))
             genotypeCat.sort(reverse=True)
             print('genotype list: ', genotypeCat)
             genoListLocal = genotypeCat
-            
+
             question = "Choose the genotype of the control animals:"
             question += f"\n\t [0] {genoListLocal[0]}"
             question += f"\n\t [1] {genoListLocal[1]}"
@@ -2575,13 +2601,14 @@ if __name__ == '__main__':
             answerGenoControl = input(question)
             genoControl = genoListLocal[int(answerGenoControl)]
             #compute the data for the control animal of each cage
-            
-            #wtData = extractControlData( profileData=dataToUse, genoControl=genoControl, behaviouralEventOneMouse=behaviouralEventOneMouse)
+            #genoControl = 'DlxCre wt ; Dyrk1acKO/+'
+            genoControl = 'wt'
+            wtData = extractControlData( profileData=dataToUse, genoControl=genoControl, behaviouralEventOneMouse=behaviouralEventOneMouse)
             wtData = extractCageData(profileData=dataToUse, behaviouralEventOneMouse=behaviouralEventOneMouse)
             #mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList )
             #wtData = extractControlData(profileData=mergeProfile, genoControl=genoControl)
             #print(wtData)
-            
+
             question = "Choose the genotype of the mutant animals:"
             question += f"\n\t [0] {genoListLocal[0]}"
             question += f"\n\t [1] {genoListLocal[1]}"
@@ -2589,7 +2616,9 @@ if __name__ == '__main__':
             answerGenoMutant = input(question)
             genoMutant = genoListLocal[int(answerGenoMutant)]
             #compute the mutant data, centered and reduced for each cage
-      
+            #genoMutant = 'DlxCre Tg ; Dyrk1acKO/+'
+            #genoMutant = 'Del/+'
+            genoMutant = 'ko'
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
 
             print(koData)
@@ -2649,19 +2678,19 @@ if __name__ == '__main__':
             #dataToUse = profileData
             # If the profiles are computed over the merged nights:
             dataToUse = mergeProfile
-            
+
             #generate automatically the list of genotypes
             genotypeList = []
             firstFile = list(dataToUse.keys())[0]
             firstNight = list(dataToUse[firstFile].keys())[0]
             for rfid in dataToUse[firstFile][firstNight].keys():
                 genotypeList.append(dataToUse[firstFile][firstNight][rfid]['genotype'])
-            
+
             genotypeCat = list(Counter(genotypeList))
             genotypeCat.sort(reverse=True)
             print('genotype list: ', genotypeCat)
             genoListLocal = genotypeCat
-            
+
             question = "Choose the genotype of the control animals:"
             question += f"\n\t [0] {genoListLocal[0]}"
             question += f"\n\t [1] {genoListLocal[1]}"
@@ -2670,7 +2699,8 @@ if __name__ == '__main__':
             genoControl = genoListLocal[int(answerGenoControl)]
 
             # compute the data for the control animal of each cage
-
+            #genoControl = 'DlxCre wt ; Dyrk1acKO/+'
+            genoControl = 'WT'
             #wtData = extractControlData(profileData=dataToUse, genoControl=genoControl,behaviouralEventOneMouse=behaviouralEventOneMouse)
             wtData = extractCageData(profileData=dataToUse, behaviouralEventOneMouse=behaviouralEventOneMouse)
             # mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList )
@@ -2683,7 +2713,7 @@ if __name__ == '__main__':
             question += "\n"
             answerGenoMutant = input(question)
             genoMutant = genoListLocal[int(answerGenoMutant)]
-            
+
             # compute the mutant data, centered and reduced for each cage
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData,
                                         categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse)
@@ -2696,7 +2726,7 @@ if __name__ == '__main__':
                 for key in ['night', 'trait', 'rfid', 'exp', 'value']:
                     koDataDic[key] = []
                 
-                
+
                 # the list of events to be plotted is determined:
                 eventListForTest = [x+cat for x in behaviouralEventOneMouseDic[cat]]
                 eventListForLabels = [getFigureBehaviouralEventsLabels(x) for x in behaviouralEventOneMouseDic[cat]]

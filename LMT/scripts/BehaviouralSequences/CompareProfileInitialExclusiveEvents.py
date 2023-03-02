@@ -18,7 +18,7 @@ from lmtanalysis.BehaviouralSequencesUtil import exclusiveEventList, exclusiveEv
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from scripts.ComputeMeasuresIdentityProfileOneMouseAutomatic import computeProfile, computeProfilePair, plotProfileDataDurationPairs, mergeProfileOverNights
+from scripts.ComputeMeasuresIdentityProfileOneMouseAutomatic_old import computeProfile, computeProfilePair, plotProfileDataDurationPairs, mergeProfileOverNights
 
 import string
 

@@ -6,19 +6,19 @@
 
 from scripts.Novel_Object_Recognition_Test.ConfigurationNOR import getColorSetup,\
     getColorGeno
-from scripts.Rebuild_All_Event import *
+
 import numpy as np; np.random.seed(0)
 from lmtanalysis.Animal import *
 from lmtanalysis.Util import *
 from lmtanalysis.FileUtil import *
 from lmtanalysis.Measure import *
-from scripts.Novel_Object_Recognition_Test.ConfigurationNOR import *
+from ConfigurationNOR import *
 from scipy import stats
 import seaborn as sns
 from scripts.Rebuild_All_Events import processAll
 import json
-from scripts.Novel_Object_Recognition_Test.ComputeActivityHabituationNorOpenfield import buildFigTrajectoryPerGenotype
-from scripts.Novel_Object_Recognition_Test.ComputeActivityHabituationNorTest import plotTrajectorySingleAnimal
+from ComputeActivityHabituationNorOpenfield import buildFigTrajectoryPerGenotype
+from ComputeActivityHabituationNorTest import plotTrajectorySingleAnimal
 
 
 def buildFigTrajectoryPerSetup(files, tmin, tmax, figName, title, xa = 111, xb = 400, ya = 63, yb = 353):
@@ -35,7 +35,7 @@ def buildFigTrajectoryPerSetup(files, tmin, tmax, figName, title, xa = 111, xb =
 
         pool = AnimalPool()
         pool.loadAnimals(connection)  # upload all the animals from the database
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
 
         # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
         ax = axes[nRow][nCol]  # set the subplot where to draw the plot
@@ -70,7 +70,7 @@ def buildFigTrajectoryPerStrain(files, tmin, tmax, figName, title, xa = 111, xb 
 
         pool = AnimalPool()
         pool.loadAnimals(connection)  # upload all the animals from the database
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
 
         # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
         ax = axes[nRow][nCol]  # set the subplot where to draw the plot
@@ -471,7 +471,7 @@ if __name__ == '__main__':
 
                 pool = AnimalPool()
                 pool.loadAnimals(connection)
-                animal = pool.animalDictionnary[1]
+                animal = pool.animalDictionary[1]
                 animal.loadDetection( tminHab, tmaxHab )
                 sex = animal.sex
                 geno = animal.genotype
@@ -547,7 +547,7 @@ if __name__ == '__main__':
 
                 pool = AnimalPool()
                 pool.loadAnimals(connection)
-                animal = pool.animalDictionnary[1]
+                animal = pool.animalDictionary[1]
                 animal.loadDetection( tminHab, tmaxHab )
                 sex = animal.sex
                 geno = animal.genotype

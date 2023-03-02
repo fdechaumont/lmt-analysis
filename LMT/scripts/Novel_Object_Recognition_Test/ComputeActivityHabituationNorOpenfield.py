@@ -6,15 +6,16 @@
 import numpy as np; np.random.seed(0)
 from lmtanalysis.FileUtil import *
 
-from scripts.Novel_Object_Recognition_Test.ConfigurationNOR import *
-from scripts.Novel_Object_Recognition_Test.ComputeActivityHabituationNorTestRedCage import buildFigTrajectoryPerSetup,\
-    plotVariablesHabituationNorBoxplotsPerSetup, plotVariablesHabituationNorBoxplotsPerGenotype, \
-    getCumulDistancePerTimeBinRedCage, plotDistancePerBinRedCage
+from ConfigurationNOR import *
+from ComputeActivityHabituationNorTestRedCage import *
+# from ComputeActivityHabituationNorTestRedCage import buildFigTrajectoryPerSetup,\
+#     plotVariablesHabituationNorBoxplotsPerSetup, plotVariablesHabituationNorBoxplotsPerGenotype, \
+#     getCumulDistancePerTimeBinRedCage, plotDistancePerBinRedCage
 import matplotlib.pyplot as plt
 import sqlite3
 from lmtanalysis.Animal import AnimalPool
-from scripts.Novel_Object_Recognition_Test.ComputeActivityHabituationNorTest import plotTrajectorySingleAnimal
-from scripts.Rebuild_All_Events import processAll
+from ComputeActivityHabituationNorTest import plotTrajectorySingleAnimal
+from scripts.Rebuild_All_Events import *
 from lmtanalysis.Event import EventTimeLine
 import json
 
@@ -32,7 +33,7 @@ def buildFigTrajectoryPerGenotype(files, tmin, tmax, figName, title, xa = 111, x
 
         pool = AnimalPool()
         pool.loadAnimals(connection)  # upload all the animals from the database
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
 
         # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
         ax = axes[nRow][nCol]  # set the subplot where to draw the plot
@@ -52,6 +53,67 @@ def buildFigTrajectoryPerGenotype(files, tmin, tmax, figName, title, xa = 111, x
     fig.savefig('{}.pdf'.format(figName), dpi=200)
     fig.savefig('{}.jpg'.format(figName), dpi=200)
 
+def plotVariablesHabituationNorBoxplotsPerTreatment(ax, sexList, treatmentList, data, val, unitDic, yMinDic, yMaxDic ):
+    # reformate the data dictionary to get the correct format of data for plotting and statistical analyses
+    dataVal = {}
+    for sex in sexList:
+        dataVal[sex] = {}
+        for treatment in treatmentList:
+            dataVal[sex][treatment] = []
+            for rfid in data[val][sex][treatment].keys():
+                dataVal[sex][treatment].append(data[val][sex][treatment][rfid])
+
+    dic = {'treatment' : [], 'sex' : [], 'val': [], 'variable': []}
+    for sex in sexList:
+        for treatment in treatmentList:
+            dic['variable'].extend( [val] * len(dataVal[sex][treatment]) )
+            dic['val'].extend(dataVal[sex][treatment])
+            dic['sex'].extend( [sex] * len(dataVal[sex][treatment]) )
+            dic['treatment'].extend( [treatment] * len(dataVal[sex][treatment]) )
+
+    df = pd.DataFrame.from_dict(dic)
+    print(df)
+
+    bp = sns.boxplot(data=df, x='sex', y='val', hue='treatment', hue_order=treatmentList, ax=ax, linewidth=0.5, showmeans=True,
+                     meanprops={"marker": 'o',
+                                "markerfacecolor": 'white',
+                                "markeredgecolor": 'black',
+                                "markersize": '8'}, showfliers=False, width=0.8, dodge=True)
+
+    # Add transparency to colors
+    k = 0
+    for patch in bp.artists:
+        patch.set_facecolor(getColorGeno(treatmentList[k]))
+        k += 1
+
+    sns.stripplot(data=df, x='sex', y='val', hue='treatment', hue_order=treatmentList, jitter=True, color='black', s=5,
+                  dodge=True, ax=ax)
+    #ax.set_title(val, fontsize=14)
+    ax.xaxis.set_tick_params(direction="in")
+    ax.tick_params(axis='x', labelsize=14)
+    ax.yaxis.set_tick_params(direction="in")
+    ax.tick_params(axis='y', labelsize=12)
+    ylabel = '{} ({})'.format(val, unitDic[val])
+    ax.set_ylabel(ylabel, fontsize=14)
+    ax.set_xlabel('', fontsize=14)
+    ax.set_ylim(yMinDic[val], yMaxDic[val])
+    ax.legend().set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+    # conduct statistical testing: Mann-Whitney U test (non-parametric for non normal data with small sample size):
+    xPos = {'male': 0, 'female': 1}
+    for sex in sexList:
+        try:
+            U, p = stats.mannwhitneyu(list(df['val'][(df['sex']==sex) & (df['treatment']==treatmentList[0])]), list(df['val'][(df['sex']==sex) & (df['treatment']==treatmentList[1])]))
+            print('Mann-Whitney U-test for {} in {}: U={}, p={}'.format(val, sex, U, p))
+            if p != 0:
+                pass
+                # ax.text(xPos[sex], yMaxDic[val] - 0.1 * (yMaxDic[val]-yMinDic[val]),
+                #         getStarsFromPvalues(pvalue=p, numberOfTests=1), horizontalalignment='center', fontsize=20, weight='bold')
+        except:
+            print('stats problem!')
+            continue
 
 
 
@@ -68,7 +130,7 @@ if __name__ == '__main__':
     variableList = ['totDistance', 'distancePerBin', 'centerDistance', 'centerTime', 'nbSap', 'rearTotal Nb', 'rearTotal Duration',
                     'rearCenter Nb', 'rearCenter Duration', 'rearPeriphery Nb', 'rearPeriphery Duration']
 
-    unitDic = {'totDistance': 'cm', 'centerDistance': 'cm', 'centerTime': 's', 'nbSap': 'occurrences', 'rearTotal Nb': 'occurrences', 'rearTotal Duration': 's',
+    unitDic = {'totDistance': 'cm', 'centerDistance': 'cm', 'centerTime': 's', 's': 'occurrences', 'rearTotal Nb': 'occurrences', 'rearTotal Duration': 's',
                     'rearCenter Nb': 'occurrences', 'rearCenter Duration': 's', 'rearPeriphery Nb': 'occurrences', 'rearPeriphery Duration': 's'}
 
     yMinDic = {'totDistance': 6000, 'centerDistance': 0, 'centerTime': 0, 'nbSap': 0,
@@ -86,8 +148,10 @@ if __name__ == '__main__':
         question += "\n\t [1] rebuild all events?"
         question += "\n\t [2] plot trajectories in the habituation phase per setup?"
         question += "\n\t [2b] plot trajectories in the habituation phase per genotype?"
+        question += "\n\t [2c] plot trajectories in the habituation phase per treatment?"
         question += "\n\t [3] plot the distance and anxiety measures in the habituation phase?"
         question += "\n\t [3b] plot the distance and anxiety measures in the habituation phase per genotype?"
+        question += "\n\t [3c] plot the distance and anxiety measures in the habituation phase per treatment?"
         question += "\n\t [4] plot the distance per one minute time bin in the habituation phase?"
         question += "\n"
         answer = input(question)
@@ -124,7 +188,7 @@ if __name__ == '__main__':
 
                 pool = AnimalPool()
                 pool.loadAnimals(connection)
-                animal = pool.animalDictionnary[1]
+                animal = pool.animalDictionary[1]
                 animal.loadDetection( tminHab, tmaxHab )
                 sex = animal.sex
                 geno = animal.genotype
@@ -151,7 +215,7 @@ if __name__ == '__main__':
                 data['distancePerBin'][sex][setup][rfid] = dBin
                 data['centerDistance'][sex][setup][rfid] = d1
                 data['centerTime'][sex][setup][rfid] = t1 / 30
-                data['nbSap'][sex][setup][rfid] = sap1 / 30
+                data['sapTime'][sex][setup][rfid] = sap1 / 30
 
                 #get the number and time of rearing
                 rearTotalTimeLine = EventTimeLine( connection, "Rear isolated", minFrame = tminHab, maxFrame = tmaxHab, loadEventIndependently = True )
@@ -201,7 +265,7 @@ if __name__ == '__main__':
 
                 pool = AnimalPool()
                 pool.loadAnimals(connection)
-                animal = pool.animalDictionnary[1]
+                animal = pool.animalDictionary[1]
                 animal.loadDetection( tminHab, tmaxHab )
                 sex = animal.sex
                 geno = animal.genotype
@@ -250,6 +314,84 @@ if __name__ == '__main__':
             print("json file created")
 
             break
+
+        if answer == '2c':
+            print('Plot trajectory in the habituation phase per treatment')
+            #distance travelled
+            #space use
+            #traj of center of mass
+            files = getFilesToProcess() #upload files for the analysis
+            #plot the trajectories, with SAP only in the inner zone of the cage to avoid SAP against the walls
+            #buildFigTrajectoryPerGenotype(files=files, tmin=0, tmax=15*oneMinute, figName='fig_traj_hab_nor_setup', title='hab d1', xa=128, xb=383, ya=80, yb=336)
+
+            print('Compute distance travelled, number of SAP displayed, and rearing.')
+
+            data = {}
+            for val in variableList:
+                data[val] = {}
+                for sex in ['male', 'female']:
+                    data[val][sex] = {}
+                    for treatment in treatmentList:
+                        data[val][sex][treatment] = {}
+            tminHab = 0
+            tmaxHab = 15*oneMinute
+
+            for file in files:
+                connection = sqlite3.connect(file)
+
+                pool = AnimalPool()
+                pool.loadAnimals(connection)
+                animal = pool.animalDictionary[1]
+                animal.loadDetection( tminHab, tmaxHab )
+                sex = animal.sex
+                geno = animal.genotype
+                rfid = animal.RFID
+                setup = animal.setup
+                treatment = animal.user1
+
+                dt1 = animal.getDistance(tmin = tminHab, tmax = tmaxHab) #compute the total distance traveled in the whole cage
+                #get distance per time bin
+                dBin = animal.getDistancePerBin(binFrameSize=1*oneMinute , minFrame=tminHab, maxFrame=tmaxHab)
+                #get distance and time spent in the middle of the cage
+                #coordinates of the whole cage: xa = 111, xb = 400, ya = 63, yb = 353
+                #center zone: xa = 168, xb = 343, ya = -296, yb = -120
+                #d1 = animal.getDistanceSpecZone(tminHab, tmaxHab, xa=191, xb=320, ya=143, yb=273) #compute the distance traveled in the center zone
+                #t1 = animal.getCountFramesSpecZone(tminHab, tmaxHab, xa=191, xb=320, ya=143, yb=273) #compute the time spent in the center zone
+                d1 = animal.getDistanceSpecZone(tminHab, tmaxHab, xa = 168, xb = 343, ya = 120, yb = 296)  # compute the distance traveled in the center zone
+                t1 = animal.getCountFramesSpecZone(tminHab, tmaxHab, xa = 168, xb = 343, ya = 120, yb = 296)  # compute the time spent in the center zone
+
+                '''#get the number of frames in sap in whole cage
+                sap1 = len(animal.getSap(tmin=tminHab, tmax=tmaxHab, xa = 111, xb = 400, ya = 63, yb = 353))'''
+                # get the number of frames in sap in whole cage but without counting the border (3 cm) to filter out SAPs against the wall
+                sap1 = len(animal.getSap(tmin=tminHab, tmax=tmaxHab, xa=128, xb=383, ya=80, yb=336))
+                #fill the data dictionary with the computed data for each file:
+                data['totDistance'][sex][treatment][rfid] = dt1
+                data['distancePerBin'][sex][treatment][rfid] = dBin
+                data['centerDistance'][sex][treatment][rfid] = d1
+                data['centerTime'][sex][treatment][rfid] = t1 / 30
+                data['nbSap'][sex][treatment][rfid] = sap1 / 30
+
+                #get the number and time of rearing
+                rearTotalTimeLine = EventTimeLine( connection, "Rear isolated", minFrame = tminHab, maxFrame = tmaxHab, loadEventIndependently = True )
+                rearCenterTimeLine = EventTimeLine(connection, "Rear in center", minFrame=tminHab, maxFrame=tmaxHab, loadEventIndependently=True)
+                rearPeripheryTimeLine = EventTimeLine(connection, "Rear at periphery", minFrame=tminHab, maxFrame=tmaxHab, loadEventIndependently=True)
+
+                data['rearTotal Nb'][sex][treatment][rfid] = rearTotalTimeLine.getNbEvent()
+                data['rearTotal Duration'][sex][treatment][rfid] = rearTotalTimeLine.getTotalLength() / 30
+                data['rearCenter Nb'][sex][treatment][rfid] = rearCenterTimeLine.getNbEvent()
+                data['rearCenter Duration'][sex][treatment][rfid] = rearCenterTimeLine.getTotalLength() / 30
+                data['rearPeriphery Nb'][sex][treatment][rfid] = rearPeripheryTimeLine.getNbEvent()
+                data['rearPeriphery Duration'][sex][treatment][rfid] = rearPeripheryTimeLine.getTotalLength() / 30
+
+                connection.close()
+            print(data)
+            #store the data dictionary in a json file
+            with open('hab_males.json', 'w') as jFile:
+                json.dump(data, jFile, indent=4)
+            print("json file created")
+
+            break
+
 
         
         if answer == '3':
@@ -319,6 +461,39 @@ if __name__ == '__main__':
             print('Job done.')
             break
 
+
+        if answer == '3c':
+
+            # open the json file
+            jsonFileName = getJsonFileToProcess()
+            with open(jsonFileName) as json_data:
+                data = json.load(json_data)
+            print("json file re-imported.")
+
+            variableList = ['totDistance', 'centerDistance', 'centerTime', 'nbSap', 'rearTotal Nb',
+                            'rearTotal Duration',
+                            'rearCenter Nb', 'rearCenter Duration', 'rearPeriphery Nb', 'rearPeriphery Duration']
+            #variableList = ['rearTotal Nb', 'rearCenter Nb', 'rearPeriphery Nb']
+            #variableList = ['totDistance', 'centerDistance', 'centerTime']
+            variableList = ['totDistance', 'centerDistance', 'centerTime', 'nbSap', 'rearTotal Nb',
+                            'rearTotal Duration']
+
+            fig, axes = plt.subplots(nrows=1, ncols=len(variableList), figsize=(2*len(variableList), 4)) #create the figure for the graphs of the computation
+
+            col = 0 #initialise the column number
+
+            for val in variableList:
+                plotVariablesHabituationNorBoxplotsPerTreatment(ax=axes[col], sexList=sexList, treatmentList=treatmentList, data=data, val=val, unitDic=unitDic, yMinDic=yMinDic, yMaxDic=yMaxDic)
+
+                col += 1
+
+            #plt.tight_layout(pad=2, h_pad=4, w_pad=0)  # reduce the margins to the minimum
+            plt.tight_layout()
+            plt.show()  # display the plot
+            fig.savefig('fig_values_hab_dyadic.pdf', dpi=200)
+            fig.savefig('fig_values_hab_dyadic.jpg', dpi=200)
+            print('Job done.')
+            break
 
         if answer == '4':
             #plot the distance travelled per time bin in the habituation

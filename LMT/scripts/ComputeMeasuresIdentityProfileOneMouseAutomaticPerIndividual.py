@@ -45,9 +45,9 @@ def computeProfilePerIndividual(file, minT, maxT, genoList, categoryList, behavi
     pool.loadAnimals( connection )
     
     indList = []
-    for animal in pool.animalDictionnary.keys():
+    for animal in pool.animalDictionary.keys():
         print("computing individual animal: {}".format(animal))
-        rfid = pool.animalDictionnary[animal].RFID
+        rfid = pool.animalDictionary[animal].RFID
         indList.append(rfid)
 
     sortedIndList = sorted(indList)
@@ -58,21 +58,21 @@ def computeProfilePerIndividual(file, minT, maxT, genoList, categoryList, behavi
         groupName+ind
 
     animalData = {}
-    for animal in pool.animalDictionnary.keys():
+    for animal in pool.animalDictionary.keys():
         
         print( "computing individual animal: {}".format( animal ))
-        rfid = pool.animalDictionnary[animal].RFID
+        rfid = pool.animalDictionary[animal].RFID
         print( "RFID: {}".format( rfid ) )
-        animalData[rfid]= {}        
+        animalData[rfid]= {}
         #store the animal
-        animalData[rfid]["animal"] = pool.animalDictionnary[animal].name
-        animalObject = pool.animalDictionnary[animal]
+        animalData[rfid]["animal"] = pool.animalDictionary[animal].name
+        animalObject = pool.animalDictionary[animal]
         animalData[rfid]["file"] = file
-        animalData[rfid]['genotype'] = pool.animalDictionnary[animal].genotype
-        animalData[rfid]['sex'] = pool.animalDictionnary[animal].sex
+        animalData[rfid]['genotype'] = pool.animalDictionary[animal].genotype
+        animalData[rfid]['sex'] = pool.animalDictionary[animal].sex
         animalData[rfid]['group'] = groupName
-        animalData[rfid]['strain'] = pool.animalDictionnary[animal].strain
-        animalData[rfid]['age'] = pool.animalDictionnary[animal].age
+        animalData[rfid]['strain'] = pool.animalDictionary[animal].strain
+        animalData[rfid]['age'] = pool.animalDictionary[animal].age
         for cat in categoryList:
             for behavEvent in behaviouralEventListTwoMice:
                 animalData[rfid][behavEvent+cat] = {}
@@ -81,18 +81,18 @@ def computeProfilePerIndividual(file, minT, maxT, genoList, categoryList, behavi
 
         genoA = None
         try:
-            genoA=pool.animalDictionnary[animal].genotype
+            genoA=pool.animalDictionary[animal].genotype
         except:
             pass
 
         for behavEvent in behaviouralEventListTwoMice:
             
             print( "computing individual event: {}".format(behavEvent)) 
-            for idAnimalB in pool.animalDictionnary.keys():
+            for idAnimalB in pool.animalDictionary.keys():
                 if animal == idAnimalB:
                     continue
                 
-                genoB = pool.animalDictionnary[idAnimalB].genotype
+                genoB = pool.animalDictionary[idAnimalB].genotype
                 behavEventTimeLine = EventTimeLineCached( connection, file, behavEvent, animal, idAnimalB, minFrame=minT, maxFrame=maxT )
                 #clean the behavioural event timeline:
                 behavEventTimeLine.mergeCloseEvents(numberOfFrameBetweenEvent=1)
@@ -101,13 +101,13 @@ def computeProfilePerIndividual(file, minT, maxT, genoList, categoryList, behavi
                 totalEventDuration = behavEventTimeLine.getTotalLength()
                 nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame = minT, maxFrame = maxT )
                 print( "total event duration: " , totalEventDuration )                
-                animalData[rfid][behavEventTimeLine.eventName+" TotalLen"][genoB][pool.animalDictionnary[idAnimalB].RFID] = totalEventDuration
-                animalData[rfid][behavEventTimeLine.eventName+" Nb"][genoB][pool.animalDictionnary[idAnimalB].RFID] = nbEvent
+                animalData[rfid][behavEventTimeLine.eventName+" TotalLen"][genoB][pool.animalDictionary[idAnimalB].RFID] = totalEventDuration
+                animalData[rfid][behavEventTimeLine.eventName+" Nb"][genoB][pool.animalDictionary[idAnimalB].RFID] = nbEvent
                 if nbEvent == 0:
                     meanDur = 0
                 else:
                     meanDur = totalEventDuration / nbEvent
-                animalData[rfid][behavEventTimeLine.eventName+" MeanDur"][genoB][pool.animalDictionnary[idAnimalB].RFID] = meanDur
+                animalData[rfid][behavEventTimeLine.eventName+" MeanDur"][genoB][pool.animalDictionary[idAnimalB].RFID] = meanDur
                 
                 print(behavEventTimeLine.eventName, genoA, behavEventTimeLine.idA, genoB, behavEventTimeLine.idB, totalEventDuration, nbEvent, meanDur)
 
@@ -483,7 +483,7 @@ def plotProfilePerIndividualPerGenotypeOnlySameGenotype( ax, profileData, night,
         print("event dyadic: ", event)
         text_file.write("Test for the event: {} night {} ".format(event, night))
         text_file.write('\n')
-    
+
         dfData = pandas.DataFrame({'group': profileValueDictionary["group"],
                                    'genotype': profileValueDictionary["genotype"],
                                    'genoOther': profileValueDictionary['genoOther'],
@@ -649,7 +649,7 @@ if __name__ == '__main__':
     from matplotlib import rc, gridspec
 
     rc('font', **{'family': 'serif', 'serif': ['Arial']})
-    
+
     categoryList = [' TotalLen', ' Nb', ' MeanDur']
 
     while True:
@@ -672,11 +672,11 @@ if __name__ == '__main__':
             for file in files:
                 #initialize the result dic
                 profileData = {}
-                
+
                 print(file)
                 #get the path and the name of file
                 head, tail = os.path.split(file)
-                
+
                 print(file)
                 connection = sqlite3.connect( file )
 
@@ -684,12 +684,12 @@ if __name__ == '__main__':
 
                 pool = AnimalPool( )
                 pool.loadAnimals( connection )
-                
+
                 genotypeList = pool.getGenotypeList()
-                '''for animalId in pool.animalDictionnary.keys():
-                    geno = pool.animalDictionnary[animalId].genotype
+                '''for animalId in pool.animalDictionary.keys():
+                    geno = pool.animalDictionary[animalId].genotype
                     genotypeList.append(geno)'''
-                
+
                 genotypeCat = list(Counter(genotypeList))
                 genotypeCat.sort(reverse=True)
                 print('genotype list: ', genotypeCat)
@@ -736,7 +736,7 @@ if __name__ == '__main__':
             # create a dictionary with profile data
             profileData = mergeJsonFilesForProfiles(files)
             print("json file for profile data re-imported.")
-            
+
             text_file = getFileNameInput()
             nightComputation = input("Plot profile only during night events (Y or N or merged)? ")
 
@@ -746,7 +746,7 @@ if __name__ == '__main__':
             
             elif nightComputation == "Y":
                 numberOfNightList = list(profileData[list(profileData.keys())[0]].keys())
-                
+
                 for n in numberOfNightList:
                     plotProfileValuesPerGenotype( night=n, categoryList=categoryList, behaviouralEventOneMouseSocial=behaviouralEventOneMouseSocial, profileData=profileData, text_file=text_file)
             
@@ -795,7 +795,7 @@ if __name__ == '__main__':
             
             if nightComputation == "Y":
                 numberOfNightList = list(profileData[list(profileData.keys())[0]].keys())
-                
+
                 for night in numberOfNightList:
                     for valueCat in categoryList:
                         fig, axes = plt.subplots(nrows=3, ncols=4, figsize=(16, 9))
@@ -822,7 +822,7 @@ if __name__ == '__main__':
                 firstNight = list(profileData[firstFile].keys())[0]
                 firstRfid = list(profileData[firstFile][firstNight].keys())[0]
                 genoListLocal = list(profileData[firstFile][firstNight][firstRfid]['Contact TotalLen'].keys())
-                
+
                 mergedProfilePerGeno = mergeProfilePerGenotypeOverNights( profileData=profileData, categoryList=categoryList, behaviouralEventOneMouseSocial=behaviouralEventOneMouseSocial, genoList=genoListLocal )
                 
                 n = 'all nights'
