@@ -37,7 +37,7 @@ def computeSniffTimeNoSetup(files, exp, phase, objectDic):
 
         pool = AnimalPool()
         pool.loadAnimals(connection)
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
         animalType = animal.animalType
         vibrissae = getAnimalTypeParameters(animalType).VIBRISSAE # estimated size of the vibrissae to determine the contact zone with the object
         sex = animal.sex

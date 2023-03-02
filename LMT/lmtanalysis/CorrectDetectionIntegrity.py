@@ -71,7 +71,7 @@ def correct( connection, tmin=None, tmax=None ):
     validDetectionTimeLineDictionnary = {}
 
     detectionTimeLine = {}
-    for idAnimal in pool.getAnimalDictionnary():
+    for idAnimal in pool.getAnimalDictionary():
         detectionTimeLine[idAnimal] = loadDetectionMap( connection, idAnimal, tmin, tmax )
 
     for t in range ( tmin , tmax +1 ):

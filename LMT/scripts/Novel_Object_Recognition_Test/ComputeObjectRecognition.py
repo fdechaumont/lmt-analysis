@@ -64,7 +64,7 @@ def plotTrajectoriesNorPhases(files, figName, title, phase, exp, colorSap, objec
 
         pool = AnimalPool()
         pool.loadAnimals(connection)  # upload all the animals from the database
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
         animalType = animal.animalType
         setup = float(animal.setup)
         print('setup: ', setup)
@@ -159,7 +159,7 @@ def computeSniffTime(files=None, tmin=None, objectDic=None):
 
         pool = AnimalPool()
         pool.loadAnimals(connection)
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
         animalType = animal.animalType
         sex = animal.sex
         setup = int(animal.setup)
@@ -281,7 +281,7 @@ if __name__ == '__main__':
 
                 pool = AnimalPool()
                 pool.loadAnimals(connection)  # upload all the animals from the database
-                animal = pool.animalDictionnary[1]
+                animal = pool.animalDictionary[1]
                 sex = animal.sex
                 setup = int(animal.setup)
                 geno = animal.genotype
@@ -357,7 +357,7 @@ if __name__ == '__main__':
                 connection = sqlite3.connect(file)
                 pool = AnimalPool()
                 pool.loadAnimals(connection)
-                animal = pool.animalDictionnary[1]
+                animal = pool.animalDictionary[1]
                 sex = animal.sex
                 geno = animal.genotype
                 setup = animal.setup

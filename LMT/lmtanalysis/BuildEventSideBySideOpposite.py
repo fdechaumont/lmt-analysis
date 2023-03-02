@@ -114,8 +114,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
             print ( eventName )
             
             result ={}
-            animalA = pool.animalDictionnary.get( animal )
-            animalB = pool.animalDictionnary.get( idAnimalB )            
+            animalA = pool.animalDictionary.get( animal )
+            animalB = pool.animalDictionary.get( idAnimalB )
             
             SideBySideTimeLine = EventTimeLine( None, eventName , animal , idAnimalB , loadEvent=False )
 

@@ -137,9 +137,9 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
     # load the contact matrix dictionary    
     contactDic = {}    
     oralGenitalDic = {}
-    for idAnimalA in pool.animalDictionnary:
-        print(pool.animalDictionnary[idAnimalA])
-        for idAnimalB in pool.animalDictionnary:
+    for idAnimalA in pool.animalDictionary:
+        print(pool.animalDictionary[idAnimalA])
+        for idAnimalB in pool.animalDictionary:
             if( idAnimalA == idAnimalB ):
                 continue
             contactDic[idAnimalA, idAnimalB] = EventTimeLineCached( connection, file, "Contact", idAnimalA, idAnimalB, minFrame=tmin, maxFrame=tmax ).getDictionary()    
@@ -147,8 +147,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
             
     #init empty result EventTimeLine matrix
     followIsolatedTimeLine = {}
-    for idAnimalA in pool.animalDictionnary:
-        for idAnimalB in pool.animalDictionnary:
+    for idAnimalA in pool.animalDictionary:
+        for idAnimalB in pool.animalDictionary:
             if( idAnimalA == idAnimalB ):
                 continue                                        
             followIsolatedTimeLine[idAnimalA, idAnimalB] = EventTimeLine( None, eventName , idAnimalA , idAnimalB , None , None , loadEvent=False )
@@ -156,12 +156,12 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
     # init empty result timeline Dictionary.
     followIsolatedTimeLineDic = {}
     
-    for idAnimalA in pool.animalDictionnary:
+    for idAnimalA in pool.animalDictionary:
 
-        animalA = pool.animalDictionnary[idAnimalA]
+        animalA = pool.animalDictionary[idAnimalA]
         dicA = animalA.detectionDictionary
         
-        for idAnimalB in pool.animalDictionnary:
+        for idAnimalB in pool.animalDictionary:
             
             # discard if animals are the same.
             if( idAnimalA == idAnimalB ):
@@ -170,7 +170,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
             # result dictionary for the current pair tested.            
             resultDic = {}
 
-            animalB = pool.animalDictionnary[idAnimalB]
+            animalB = pool.animalDictionary[idAnimalB]
             dicB = animalB.detectionDictionary
             
             # Starting "is A following B ?"
@@ -196,8 +196,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
 
             
     #rebuild timelines with dictionaries
-    for idAnimalA in pool.animalDictionnary:
-        for idAnimalB in pool.animalDictionnary:
+    for idAnimalA in pool.animalDictionary:
+        for idAnimalB in pool.animalDictionary:
             if( idAnimalB == idAnimalA ):
                 continue
             followIsolatedTimeLine[idAnimalA, idAnimalB].reBuildWithDictionary( followIsolatedTimeLineDic[idAnimalA, idAnimalB] )

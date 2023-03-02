@@ -74,7 +74,7 @@ if __name__ == '__main__':
             print( "computing individual event: {}".format(behavEvent))    
             behavEventTimeLine = {}
         
-            for animal in pool.animalDictionnary.keys():
+            for animal in pool.animalDictionary.keys():
                 behavEventTimeLine[animal] = EventTimeLine( connection, behavEvent, animal, minFrame=tmin, maxFrame=tmax )
                 
                 event = behavEventTimeLine[animal]
@@ -84,15 +84,15 @@ if __name__ == '__main__':
 
                 genoA = None
                 try:
-                    genoA=pool.animalDictionnary[animal].genotype
+                    genoA=pool.animalDictionary[animal].genotype
                 except:
                     pass
                 
                 
                 print(event.eventName, genoA, event.idA, totalEventDuration, nbEvent)
                 
-                resOneMouse = [file, event.eventName, pool.animalDictionnary[animal].RFID, genoA, totalEventDuration, nbEvent]
-                text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\n".format( file, event.eventName, pool.animalDictionnary[animal].RFID, genoA, totalEventDuration, nbEvent ) ) 
+                resOneMouse = [file, event.eventName, pool.animalDictionary[animal].RFID, genoA, totalEventDuration, nbEvent]
+                text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\n".format( file, event.eventName, pool.animalDictionary[animal].RFID, genoA, totalEventDuration, nbEvent ) )
                        
                 
         
@@ -101,18 +101,18 @@ if __name__ == '__main__':
             
             print( "computing {} density".format(behavEvent))
             
-            for animal in pool.animalDictionnary:
+            for animal in pool.animalDictionary:
                 animalDiffGeno = []
                 animalB6Geno = []
                 
-                for animal in pool.animalDictionnary:
-                    if ( pool.animalDictionnary[animal].baseId == pool.animalDictionnary[animal].baseId ):
+                for animal in pool.animalDictionary:
+                    if ( pool.animalDictionary[animal].baseId == pool.animalDictionary[animal].baseId ):
                         continue
                     
-                    if pool.animalDictionnary[animal].genotype == "B6":
-                        animalB6Geno.append( pool.animalDictionnary[animal] )
+                    if pool.animalDictionary[animal].genotype == "B6":
+                        animalB6Geno.append( pool.animalDictionary[animal] )
                     else:
-                        animalDiffGeno.append( pool.animalDictionnary[animal] )
+                        animalDiffGeno.append( pool.animalDictionary[animal] )
                         
                 nbEventsB6Geno = getNumberOfEventWithList(connection, behavEvent, animal, animalB6Geno, minFrame=tmin, maxFrame=tmax)
                 durEventsB6Geno = getDurationOfEventWithList(connection, behavEvent, animal, animalB6Geno, minFrame=tmin, maxFrame=tmax)
@@ -121,11 +121,11 @@ if __name__ == '__main__':
             
             
                         
-                print( behavEvent, pool.animalDictionnary[animal].RFID )
+                print( behavEvent, pool.animalDictionary[animal].RFID )
                 
-                resSame = [file, behavEvent, pool.animalDictionnary[animal].RFID, pool.animalDictionnary[animal].genotype, "B6", durEventsB6Geno, nbEventsB6Geno]
-                resDiff = [file, behavEvent, pool.animalDictionnary[animal].RFID, pool.animalDictionnary[animal].genotype, "diffGeno", durEventsDiffGeno, nbEventsDiffGeno]
-                text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, behavEvent, pool.animalDictionnary[animal].RFID, pool.animalDictionnary[animal].genotype, "B6", durEventsB6Geno, nbEventsB6Geno ) ) 
+                resSame = [file, behavEvent, pool.animalDictionary[animal].RFID, pool.animalDictionary[animal].genotype, "B6", durEventsB6Geno, nbEventsB6Geno]
+                resDiff = [file, behavEvent, pool.animalDictionary[animal].RFID, pool.animalDictionary[animal].genotype, "diffGeno", durEventsDiffGeno, nbEventsDiffGeno]
+                text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, behavEvent, pool.animalDictionary[animal].RFID, pool.animalDictionary[animal].genotype, "B6", durEventsB6Geno, nbEventsB6Geno ) )
             
         
         

@@ -51,7 +51,7 @@ def plotTrajectorySingleAnimal(file, ax, color, colorTitle, tmin, tmax, title, x
 
     pool = AnimalPool()
     pool.loadAnimals(connection) #upload all the animals from the database
-    animal = pool.animalDictionnary[1] #select one animal from the group of animals in the database
+    animal = pool.animalDictionary[1] #select one animal from the group of animals in the database
 
     # draw the trajectory in the habituation phase
     pool.loadDetection( start=tmin, end=tmax ) #upload all the detections for the animal (all frames where it has been detected)
@@ -81,7 +81,7 @@ def buildFigTrajectoryMalesFemales(files, tmin, tmax, figName, colorSap, title, 
 
         pool = AnimalPool()
         pool.loadAnimals(connection)  # upload all the animals from the database
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
 
         if animal.sex == 'male':
             # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
@@ -307,7 +307,7 @@ if __name__ == '__main__':
 
                 pool = AnimalPool()
                 pool.loadAnimals(connection)
-                animal = pool.animalDictionnary[1]
+                animal = pool.animalDictionary[1]
                 animal.loadDetection( tminHab, tmaxHab )
                 sex = animal.sex
                 geno = animal.genotype

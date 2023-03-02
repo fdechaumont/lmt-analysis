@@ -120,7 +120,7 @@ if __name__ == '__main__':
 
                 pool = AnimalPool()
                 pool.loadAnimals(connection)
-                animal = pool.animalDictionnary[1]
+                animal = pool.animalDictionary[1]
 
                 # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
                 axLeft = axes[nRow][nCol]
@@ -168,7 +168,7 @@ if __name__ == '__main__':
 
                 pool = AnimalPool()
                 pool.loadAnimals(connection)
-                animal = pool.animalDictionnary[1]
+                animal = pool.animalDictionary[1]
                 animalType = animal.animalType
 
                 #determine the startframe of the test phase:

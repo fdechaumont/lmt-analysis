@@ -138,7 +138,7 @@ def buildFigTrajectorySingleObjectExploMalesFemales(files, numberMaleFiles, numb
 
         pool = AnimalPool()
         pool.loadAnimals(connection)  # upload all the animals from the database
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
         strain = animal.strain
 
         # set the axes. Check the number of file to get the dimension of axes and grab the correct ones. This makes it compatible with 1 or n files.
@@ -201,7 +201,7 @@ if __name__ == '__main__':
         connection = sqlite3.connect(file)  # connection to the database
         pool = AnimalPool()
         pool.loadAnimals(connection)  # upload all the animals from the database
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
         sex = animal.sex
         if sex == 'male':
             numberMaleFiles += 1

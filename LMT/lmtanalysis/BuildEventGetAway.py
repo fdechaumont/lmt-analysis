@@ -56,8 +56,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
             
             for t in range ( tmin, tmax+1 ):                
             
-                animalA = pool.animalDictionnary[animal]
-                animalB = pool.animalDictionnary[idAnimalB]
+                animalA = pool.animalDictionary[animal]
+                animalB = pool.animalDictionary[idAnimalB]
                 
                 if not ( t-1 in animalA.detectionDictionary ):
                     continue                

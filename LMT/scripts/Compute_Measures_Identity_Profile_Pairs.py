@@ -37,18 +37,18 @@ def computeProfilePairs(files, tmin, tmax, text_file, animalDic ):
 
         animalDic[file] = {}
 
-        for animal in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionary.keys():
 
             print("computing individual animal: {}".format(animal))
-            rfid = pool.animalDictionnary[animal].RFID
+            rfid = pool.animalDictionary[animal].RFID
             print("RFID: ".format(rfid))
             animalDic[file][rfid] = {}
             ''' store the animal '''
-            # animalDic[rfid]["animal"] = pool.animalDictionnary[animal]
+            # animalDic[rfid]["animal"] = pool.animalDictionary[animal]
 
             genoA = None
             try:
-                genoA = pool.animalDictionnary[animal].genotype
+                genoA = pool.animalDictionary[animal].genotype
             except:
                 pass
 
@@ -58,8 +58,8 @@ def computeProfilePairs(files, tmin, tmax, text_file, animalDic ):
 
             COMPUTE_TOTAL_DISTANCE = True
             if (COMPUTE_TOTAL_DISTANCE == True):
-                pool.animalDictionnary[animal].loadDetection(lightLoad=True)
-                animalDic[file][rfid][genoA]['distance'] = pool.animalDictionnary[animal].getDistance(tmin=tmin,
+                pool.animalDictionary[animal].loadDetection(lightLoad=True)
+                animalDic[file][rfid][genoA]['distance'] = pool.animalDictionary[animal].getDistance(tmin=tmin,
                                                                                                       tmax=tmax)
 
             for behavEvent in behaviouralEvents:

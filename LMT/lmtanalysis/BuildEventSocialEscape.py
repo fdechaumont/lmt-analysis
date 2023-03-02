@@ -46,7 +46,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
     twoMeanBodyLen = {}
     for idAnimal in range( 1 , nbAnimal+1 ):
         
-        meanBodyLength = pool.animalDictionnary[idAnimal].getMeanBodyLength()
+        meanBodyLength = pool.animalDictionary[idAnimal].getMeanBodyLength()
         # init value
         twoMeanBodyLen[idAnimal] = None
         # set value
@@ -72,7 +72,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
             twoMeanBodyLengthB = twoMeanBodyLen[ idAnimalB ]
             
             for t in dicA.keys():
-                dist = pool.animalDictionnary[animal].getDistanceTo(t, pool.animalDictionnary[idAnimalB])
+                dist = pool.animalDictionary[animal].getDistanceTo(t, pool.animalDictionary[idAnimalB])
                 
                 if ( dist == None ):
                     continue

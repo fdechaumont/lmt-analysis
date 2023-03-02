@@ -45,9 +45,9 @@ if __name__ == '__main__':
             vals = []
             valsNb = []
             y_pos = []
-            for animalNumber in animalPool.animalDictionnary:
+            for animalNumber in animalPool.animalDictionary:
                 print("loading")       
-                animal = animalPool.animalDictionnary[animalNumber]          
+                animal = animalPool.animalDictionary[animalNumber]
                 labels.append( animal.RFID[-6:] + " " + animal.genotype )
                 onHouseTimeLine = EventTimeLine( connection, "onHouse" , animalNumber )
                 y_pos.append( animalNumber )

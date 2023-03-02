@@ -87,11 +87,11 @@ if __name__ == '__main__':
         
         text_file.write("{}\t{}\t{}\t{}\t{}\t{}\n".format("file", "group", "rfid", "genotype", "tmin", "tmax", "totalDistance") )
         
-        for animal in pool.animalDictionnary.keys():
-            print ( pool.animalDictionnary[animal].RFID )
-            dt[animal] = [x/100 for x in pool.animalDictionnary[animal].getDistancePerBin(binFrameSize = timeBin*oneMinute, minFrame=tmin, maxFrame = tmax )]
-            totalDistance[animal]=pool.animalDictionnary[animal].getDistance( tmin=tmin, tmax=tmax )
-            text_file.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(file, expName, pool.animalDictionnary[animal].RFID, pool.animalDictionnary[animal].genotype, tmin, tmax, totalDistance[animal]) )
+        for animal in pool.animalDictionary.keys():
+            print ( pool.animalDictionary[animal].RFID )
+            dt[animal] = [x/100 for x in pool.animalDictionary[animal].getDistancePerBin(binFrameSize = timeBin*oneMinute, minFrame=tmin, maxFrame = tmax )]
+            totalDistance[animal]=pool.animalDictionary[animal].getDistance( tmin=tmin, tmax=tmax )
+            text_file.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(file, expName, pool.animalDictionary[animal].RFID, pool.animalDictionary[animal].genotype, tmin, tmax, totalDistance[animal]) )
         
         nTimeBins = len(dt[1])
         print(nTimeBins)
@@ -111,14 +111,14 @@ if __name__ == '__main__':
         
         j=0
         n=0
-        for animal in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionary.keys():
             
-            if pool.animalDictionnary[animal].genotype == geno1:
-                ax.plot( abs, dt[animal], color = colorGeno1[j], linewidth=0.6, label="{} {}".format(geno1, pool.animalDictionnary[animal].RFID[8:12] ) )
+            if pool.animalDictionary[animal].genotype == geno1:
+                ax.plot( abs, dt[animal], color = colorGeno1[j], linewidth=0.6, label="{} {}".format(geno1, pool.animalDictionary[animal].RFID[8:12] ) )
                 j+=1
 
-            if pool.animalDictionnary[animal].genotype == geno2:
-                ax.plot( abs, dt[animal], color = colorGeno2[n], linewidth=0.6, label="{} {}".format(geno2, pool.animalDictionnary[animal].RFID[8:12] ) )
+            if pool.animalDictionary[animal].genotype == geno2:
+                ax.plot( abs, dt[animal], color = colorGeno2[n], linewidth=0.6, label="{} {}".format(geno2, pool.animalDictionary[animal].RFID[8:12] ) )
                 n+=1
         
         ax.legend(loc='best', prop={'size':5})

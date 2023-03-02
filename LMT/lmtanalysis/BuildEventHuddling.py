@@ -28,10 +28,10 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
         #pool.loadDetection( start = tmin, end = tmax )
     
     
-    for idAnimalA in pool.animalDictionnary:
+    for idAnimalA in pool.animalDictionary:
         
         threshold = 0.5
-        animal = pool.animalDictionnary[idAnimalA]
+        animal = pool.animalDictionary[idAnimalA]
         print("Computing huddling for animal " , animal )
                 
         huddlingTimeLine = EventTimeLine( connection, "Huddling", idAnimalA, minFrame=tmin, maxFrame=tmax, loadEvent=False )

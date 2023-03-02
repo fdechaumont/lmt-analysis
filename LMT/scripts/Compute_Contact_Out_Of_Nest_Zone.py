@@ -72,8 +72,8 @@ if __name__ == '__main__':
             # load the timeline of contacts during this night
             contactTimeLine = {}
             
-            for animalA in pool.animalDictionnary.keys():
-                for animalB in pool.animalDictionnary.keys():
+            for animalA in pool.animalDictionary.keys():
+                for animalB in pool.animalDictionary.keys():
                     if (animalA == animalB):
                         continue
                     
@@ -89,10 +89,10 @@ if __name__ == '__main__':
             inNestZoneTimeLine = {}
 
             
-            for animalA in pool.animalDictionnary.keys():
+            for animalA in pool.animalDictionary.keys():
                 
                 detectionDicoAnimalA = pool.getAnimalWithId( animalA ).detectionDictionary 
-                for animalB in pool.animalDictionnary.keys():
+                for animalB in pool.animalDictionary.keys():
                     if (animalA == animalB):
                         continue
                     
@@ -143,11 +143,11 @@ if __name__ == '__main__':
             text_file.write("{}\t{}\t{}\t{}\t{}\t{}\n".format( "file", "rfid", "genotype", "night", "timeOutOfNestZone", "contactOutOfNestDuration" ) )
             
             #Compute the time spent out of the nest        
-            for animalA in pool.animalDictionnary.keys():
+            for animalA in pool.animalDictionary.keys():
                 #upper half
-                timeZone1 = pool.animalDictionnary[animalA].getCountFramesSpecZone( tmin=night.startFrame, tmax=night.endFrame, xa=114, ya=208, xb=398, yb=353 )
+                timeZone1 = pool.animalDictionary[animalA].getCountFramesSpecZone( tmin=night.startFrame, tmax=night.endFrame, xa=114, ya=208, xb=398, yb=353 )
                 #lower right quarter
-                timeZone2 = pool.animalDictionnary[animalA].getCountFramesSpecZone( tmin=night.startFrame, tmax=night.endFrame, xa=256, ya=63, xb=398, yb=208 )       
+                timeZone2 = pool.animalDictionary[animalA].getCountFramesSpecZone( tmin=night.startFrame, tmax=night.endFrame, xa=256, ya=63, xb=398, yb=208 )
                 #total number of frames spent out of the nest zone during the night
                 timeOutOfNestZone = timeZone1 + timeZone2
                 
@@ -157,19 +157,19 @@ if __name__ == '__main__':
                 # code proposal:
                 contactOutOfNestDuration = fuseTimeLine(ContactOutOfNestZoneTimeLine, animalA ).getTotalDurationEvent(tmin=night.startFrame, tmax=night.endFrame)
                 
-                text_file.write("{}\t{}\t{}\t{}\t{}\t{}\n".format( file, pool.animalDictionnary[animalA].RFID, pool.animalDictionnary[animalA].genotype, nightIndex, timeOutOfNestZone, contactOutOfNestDuration ) )
+                text_file.write("{}\t{}\t{}\t{}\t{}\t{}\n".format( file, pool.animalDictionary[animalA].RFID, pool.animalDictionary[animalA].genotype, nightIndex, timeOutOfNestZone, contactOutOfNestDuration ) )
             
             text_file.write( "\n" )
             
             text_file.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( "file", "rfidA", "genoA", "rfidB", "genoB", "night", "contactOutOfNestDuration" ) )
-            for animalA in pool.animalDictionnary.keys():
+            for animalA in pool.animalDictionary.keys():
                 
-                for animalB in pool.animalDictionnary.keys():
+                for animalB in pool.animalDictionary.keys():
                     if (animalA == animalB):
                         continue
                     
                     contactOutOfNestDuration = ContactOutOfNestZoneTimeLine[animalA, animalB].getTotalDurationEvent(tmin=night.startFrame, tmax=night.endFrame)
-                    text_file.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, pool.animalDictionnary[animalA].RFID, pool.animalDictionnary[animalA].genotype, pool.animalDictionnary[animalB].RFID, pool.animalDictionnary[animalB].genotype, nightIndex, contactOutOfNestDuration ) )
+                    text_file.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, pool.animalDictionary[animalA].RFID, pool.animalDictionary[animalA].genotype, pool.animalDictionary[animalB].RFID, pool.animalDictionary[animalB].genotype, nightIndex, contactOutOfNestDuration ) )
             
                      
     text_file.write( "\n" )

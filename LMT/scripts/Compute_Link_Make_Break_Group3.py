@@ -74,12 +74,12 @@ if __name__ == '__main__':
         group3Dictionary = {}
         
         
-        for animal in pool.animalDictionnary.keys():
-            if ( pool.animalDictionnary[animal].genotype == "WT" ):
-                animalWTDictionary[animal] = pool.animalDictionnary[animal]
+        for animal in pool.animalDictionary.keys():
+            if ( pool.animalDictionary[animal].genotype == "WT" ):
+                animalWTDictionary[animal] = pool.animalDictionary[animal]
             
-            if ( pool.animalDictionnary[animal].genotype == "KO" ):
-                animalKODictionary[animal] = pool.animalDictionnary[animal]
+            if ( pool.animalDictionary[animal].genotype == "KO" ):
+                animalKODictionary[animal] = pool.animalDictionary[animal]
         
             animalMakeGroupDictionary[animal] = EventTimeLine( connection, "Group 3 make", animal, minFrame=tmin, maxFrame=tmax )
             animalBreakGroupDictionary[animal] = EventTimeLine( connection, "Group 3 break", animal, minFrame=tmin, maxFrame=tmax )
