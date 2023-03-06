@@ -3,6 +3,7 @@
 	<name>lmt-analysis</name>
 	<comment></comment>
 	<projects>
+		<project>LMT USV toolbox</project>
 		<project>USV-analysis</project>
 	</projects>
 	<buildSpec>

@@ -19,7 +19,8 @@ from lmtanalysis.TaskLogger import TaskLogger
 
 def flush( connection ):
     ''' flush event in database '''
-    for exclusiveEvent in exclusiveEventList[:-3]:
+    #for exclusiveEvent in exclusiveEventList[:-3]:
+    for exclusiveEvent in exclusiveEventList:
         deleteEventTimeLineInBase(connection, exclusiveEvent)
 
 def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalType = None ):
