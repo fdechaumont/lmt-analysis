@@ -267,12 +267,14 @@ def processAll():
     chronoFullBatch.printTimeInS()
     print( "*** ALL JOBS DONE ***")
 
+def setAnimalType( aType ):
+    global animalType
+    animalType = aType
 
 if __name__ == '__main__':
 
     print("Code launched.")
-    global animalType
-    animalType = AnimalType.MOUSE
+    setAnimalType( AnimalType.MOUSE )
     
     processAll()
     print('Job done.')

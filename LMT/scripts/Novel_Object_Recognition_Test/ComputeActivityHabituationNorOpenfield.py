@@ -32,7 +32,7 @@ def buildFigTrajectoryPerGenotype(files, tmin, tmax, figName, title, xa = 111, x
 
         pool = AnimalPool()
         pool.loadAnimals(connection)  # upload all the animals from the database
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
 
         # set the axes. Check the number of file to get the dimension of axes and grab the correct ones.
         ax = axes[nRow][nCol]  # set the subplot where to draw the plot
@@ -124,7 +124,7 @@ if __name__ == '__main__':
 
                 pool = AnimalPool()
                 pool.loadAnimals(connection)
-                animal = pool.animalDictionnary[1]
+                animal = pool.animalDictionary[1]
                 animal.loadDetection( tminHab, tmaxHab )
                 sex = animal.sex
                 geno = animal.genotype
@@ -201,7 +201,7 @@ if __name__ == '__main__':
 
                 pool = AnimalPool()
                 pool.loadAnimals(connection)
-                animal = pool.animalDictionnary[1]
+                animal = pool.animalDictionary[1]
                 animal.loadDetection( tminHab, tmaxHab )
                 sex = animal.sex
                 geno = animal.genotype

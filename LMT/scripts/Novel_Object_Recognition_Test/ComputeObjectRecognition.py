@@ -64,7 +64,7 @@ def plotTrajectoriesNorPhases(files, figName, title, phase, exp, colorSap, objec
 
         pool = AnimalPool()
         pool.loadAnimals(connection)  # upload all the animals from the database
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
         animalType = animal.animalType
         setup = float(animal.setup)
         print('setup: ', setup)
@@ -159,7 +159,7 @@ def computeSniffTime(files=None, tmin=None, objectDic=None):
 
         pool = AnimalPool()
         pool.loadAnimals(connection)
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
         animalType = animal.animalType
         sex = animal.sex
         setup = int(animal.setup)
@@ -183,7 +183,7 @@ def computeSniffTime(files=None, tmin=None, objectDic=None):
 
         noneVec = []
 
-        for t in animal.detectionDictionnary.keys():
+        for t in animal.detectionDictionary.keys():
             for obj in ['left', 'right']:
                 distanceNose = animal.getDistanceNoseToPoint(t=t, xPoint=objectPosition[setup][obj][0],
                                                              yPoint=-objectPosition[setup][obj][1])
@@ -196,7 +196,7 @@ def computeSniffTime(files=None, tmin=None, objectDic=None):
                     if distanceNose <= radiusObjects[object] + 2 / getAnimalTypeParameters(animalType).scaleFactor:
                         # check if the animal is on the object:
                         if distanceMass <= radiusObjects[object]:
-                            detection = animal.detectionDictionnary.get(t)
+                            detection = animal.detectionDictionary.get(t)
                             onObjectX[obj].append(detection.massX)
                             onObjectY[obj].append(-detection.massY)
                         else:
@@ -281,7 +281,7 @@ if __name__ == '__main__':
 
                 pool = AnimalPool()
                 pool.loadAnimals(connection)  # upload all the animals from the database
-                animal = pool.animalDictionnary[1]
+                animal = pool.animalDictionary[1]
                 sex = animal.sex
                 setup = int(animal.setup)
                 geno = animal.genotype
@@ -357,7 +357,7 @@ if __name__ == '__main__':
                 connection = sqlite3.connect(file)
                 pool = AnimalPool()
                 pool.loadAnimals(connection)
-                animal = pool.animalDictionnary[1]
+                animal = pool.animalDictionary[1]
                 sex = animal.sex
                 geno = animal.genotype
                 setup = animal.setup

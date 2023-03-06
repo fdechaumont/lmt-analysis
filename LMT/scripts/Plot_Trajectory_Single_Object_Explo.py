@@ -50,7 +50,7 @@ def plotZone( ax, colorEdge, colorFill, xa=114, xb=398, ya=-353, yb=-63 ):
     
 def plotSap( ax , animal ):
 
-    sapDico = animal.getSapDictionnary()
+    sapDico = animal.getSapDictionary()
         
     xList = []
     yList = []
@@ -65,7 +65,7 @@ def plotSap( ax , animal ):
 
 def plotSapNose(ax, animal, color = 'red', xa = 111, xb = 400, ya = 63, yb = 353):
     #plot the position of the nose if the animal is in SAP within the determined zone
-    sapDico = animal.getSapDictionnary()
+    sapDico = animal.getSapDictionary()
 
     xList = []
     yList = []
@@ -138,7 +138,7 @@ def buildFigTrajectorySingleObjectExploMalesFemales(files, numberMaleFiles, numb
 
         pool = AnimalPool()
         pool.loadAnimals(connection)  # upload all the animals from the database
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
         strain = animal.strain
 
         # set the axes. Check the number of file to get the dimension of axes and grab the correct ones. This makes it compatible with 1 or n files.
@@ -201,7 +201,7 @@ if __name__ == '__main__':
         connection = sqlite3.connect(file)  # connection to the database
         pool = AnimalPool()
         pool.loadAnimals(connection)  # upload all the animals from the database
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
         sex = animal.sex
         if sex == 'male':
             numberMaleFiles += 1

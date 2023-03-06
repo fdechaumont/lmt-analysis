@@ -45,9 +45,9 @@ def computeProfilePerIndividual(file, minT, maxT, genoList, categoryList, behavi
     pool.loadAnimals( connection )
     
     indList = []
-    for animal in pool.animalDictionnary.keys():
+    for animal in pool.animalDictionary.keys():
         print("computing individual animal: {}".format(animal))
-        rfid = pool.animalDictionnary[animal].RFID
+        rfid = pool.animalDictionary[animal].RFID
         indList.append(rfid)
 
     sortedIndList = sorted(indList)
@@ -58,21 +58,21 @@ def computeProfilePerIndividual(file, minT, maxT, genoList, categoryList, behavi
         groupName+ind
 
     animalData = {}
-    for animal in pool.animalDictionnary.keys():
+    for animal in pool.animalDictionary.keys():
         
         print( "computing individual animal: {}".format( animal ))
-        rfid = pool.animalDictionnary[animal].RFID
+        rfid = pool.animalDictionary[animal].RFID
         print( "RFID: {}".format( rfid ) )
         animalData[rfid]= {}        
         #store the animal
-        animalData[rfid]["animal"] = pool.animalDictionnary[animal].name
-        animalObject = pool.animalDictionnary[animal]
+        animalData[rfid]["animal"] = pool.animalDictionary[animal].name
+        animalObject = pool.animalDictionary[animal]
         animalData[rfid]["file"] = file
-        animalData[rfid]['genotype'] = pool.animalDictionnary[animal].genotype
-        animalData[rfid]['sex'] = pool.animalDictionnary[animal].sex
+        animalData[rfid]['genotype'] = pool.animalDictionary[animal].genotype
+        animalData[rfid]['sex'] = pool.animalDictionary[animal].sex
         animalData[rfid]['group'] = groupName
-        animalData[rfid]['strain'] = pool.animalDictionnary[animal].strain
-        animalData[rfid]['age'] = pool.animalDictionnary[animal].age
+        animalData[rfid]['strain'] = pool.animalDictionary[animal].strain
+        animalData[rfid]['age'] = pool.animalDictionary[animal].age
         for cat in categoryList:
             for behavEvent in behaviouralEventListTwoMice:
                 animalData[rfid][behavEvent+cat] = {}
@@ -81,18 +81,18 @@ def computeProfilePerIndividual(file, minT, maxT, genoList, categoryList, behavi
 
         genoA = None
         try:
-            genoA=pool.animalDictionnary[animal].genotype
+            genoA=pool.animalDictionary[animal].genotype
         except:
             pass
 
         for behavEvent in behaviouralEventListTwoMice:
             
             print( "computing individual event: {}".format(behavEvent)) 
-            for idAnimalB in pool.animalDictionnary.keys():
+            for idAnimalB in pool.animalDictionary.keys():
                 if animal == idAnimalB:
                     continue
                 
-                genoB = pool.animalDictionnary[idAnimalB].genotype
+                genoB = pool.animalDictionary[idAnimalB].genotype
                 behavEventTimeLine = EventTimeLineCached( connection, file, behavEvent, animal, idAnimalB, minFrame=minT, maxFrame=maxT )
                 #clean the behavioural event timeline:
                 behavEventTimeLine.mergeCloseEvents(numberOfFrameBetweenEvent=1)
@@ -101,13 +101,13 @@ def computeProfilePerIndividual(file, minT, maxT, genoList, categoryList, behavi
                 totalEventDuration = behavEventTimeLine.getTotalLength()
                 nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame = minT, maxFrame = maxT )
                 print( "total event duration: " , totalEventDuration )                
-                animalData[rfid][behavEventTimeLine.eventName+" TotalLen"][genoB][pool.animalDictionnary[idAnimalB].RFID] = totalEventDuration
-                animalData[rfid][behavEventTimeLine.eventName+" Nb"][genoB][pool.animalDictionnary[idAnimalB].RFID] = nbEvent
+                animalData[rfid][behavEventTimeLine.eventName+" TotalLen"][genoB][pool.animalDictionary[idAnimalB].RFID] = totalEventDuration
+                animalData[rfid][behavEventTimeLine.eventName+" Nb"][genoB][pool.animalDictionary[idAnimalB].RFID] = nbEvent
                 if nbEvent == 0:
                     meanDur = 0
                 else:
                     meanDur = totalEventDuration / nbEvent
-                animalData[rfid][behavEventTimeLine.eventName+" MeanDur"][genoB][pool.animalDictionnary[idAnimalB].RFID] = meanDur
+                animalData[rfid][behavEventTimeLine.eventName+" MeanDur"][genoB][pool.animalDictionary[idAnimalB].RFID] = meanDur
                 
                 print(behavEventTimeLine.eventName, genoA, behavEventTimeLine.idA, genoB, behavEventTimeLine.idB, totalEventDuration, nbEvent, meanDur)
 
@@ -680,8 +680,8 @@ if __name__ == '__main__':
                 pool.loadAnimals( connection )
                 
                 genotypeList = pool.getGenotypeList()
-                '''for animalId in pool.animalDictionnary.keys():
-                    geno = pool.animalDictionnary[animalId].genotype
+                '''for animalId in pool.animalDictionary.keys():
+                    geno = pool.animalDictionary[animalId].genotype
                     genotypeList.append(geno)'''
                 
                 genotypeCat = list(Counter(genotypeList))

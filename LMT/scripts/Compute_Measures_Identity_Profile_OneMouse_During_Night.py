@@ -54,18 +54,18 @@ if __name__ == '__main__':
             maxT = eventNight.endFrame
             print("Night: ", n)
 
-            for animal in pool.animalDictionnary.keys():
+            for animal in pool.animalDictionary.keys():
             
                 print( "computing individual animal: {}".format( animal ))
-                rfid = pool.animalDictionnary[animal].RFID
+                rfid = pool.animalDictionary[animal].RFID
                 print( "RFID: ".format( rfid ) )
                 animal[rfid] = {}
                 ''' store the animal '''
-                animal[rfid]["animal"] = pool.animalDictionnary[animal]
+                animal[rfid]["animal"] = pool.animalDictionary[animal]
                 
                 genoA = None
                 try:
-                    genoA=pool.animalDictionnary[animal].genotype
+                    genoA=pool.animalDictionary[animal].genotype
                 except:
                     pass
                             

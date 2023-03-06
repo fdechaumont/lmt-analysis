@@ -68,10 +68,10 @@ def correct( connection, tmin=None, tmax=None ):
     '''
     
     validDetectionTimeLine = EventTimeLine( None, "IDs integrity ok" , None , None , None , None , loadEvent=False )
-    validDetectionTimeLineDictionnary = {}
+    validDetectionTimeLineDictionary = {}
 
     detectionTimeLine = {}
-    for idAnimal in pool.getAnimalDictionnary():
+    for idAnimal in pool.getAnimalDictionary():
         detectionTimeLine[idAnimal] = loadDetectionMap( connection, idAnimal, tmin, tmax )
 
     for t in range ( tmin , tmax +1 ):
@@ -81,7 +81,7 @@ def correct( connection, tmin=None, tmax=None ):
             if not ( t in detectionTimeLine[idAnimal] ):
                 valid = False
         if ( valid ):
-            validDetectionTimeLineDictionnary[t] = True
+            validDetectionTimeLineDictionary[t] = True
     
     '''
     rebuild detection set
@@ -92,7 +92,7 @@ def correct( connection, tmin=None, tmax=None ):
         
         for t in range ( tmin , tmax +1 ):
             if ( t in detectionTimeLine[idAnimal] ):
-                if not ( t in validDetectionTimeLineDictionnary ):
+                if not ( t in validDetectionTimeLineDictionary ):
             
                     query = "UPDATE `DETECTION` SET `ANIMALID`=NULL WHERE `FRAMENUMBER`='{}';".format( t )
                     #print ( query )
@@ -100,7 +100,7 @@ def correct( connection, tmin=None, tmax=None ):
     
     connection.commit()
     cursor.close()
-    validDetectionTimeLine.reBuildWithDictionary( validDetectionTimeLineDictionnary )
+    validDetectionTimeLine.reBuildWithDictionary( validDetectionTimeLineDictionary )
     validDetectionTimeLine.endRebuildEventTimeLine(connection )
     
     

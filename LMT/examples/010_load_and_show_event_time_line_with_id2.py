@@ -30,8 +30,8 @@ if __name__ == '__main__':
         animalPool.loadDetection( start = 0, end = oneHour )
         
         eventTimeLineList = []
-        for a in animalPool.getAnimalDictionnary():
-            for b in animalPool.getAnimalDictionnary():        
+        for a in animalPool.getAnimalDictionary():
+            for b in animalPool.getAnimalDictionary():        
                 eventTimeLine = EventTimeLine( connection, "Oral-genital Contact", idA = a, idB = b, minFrame = 0, maxFrame = oneHour )
                 eventTimeLineList.append( eventTimeLine )        
                     

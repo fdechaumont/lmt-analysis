@@ -39,8 +39,8 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
     
     
     
-    for animal in pool.animalDictionnary.keys():
-        print(pool.animalDictionnary[animal])
+    for animal in pool.animalDictionary.keys():
+        print(pool.animalDictionary[animal])
         
         if ( showGraph ):    
             plt.subplot(2,2, animal )
@@ -53,7 +53,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
         
         result={}
         
-        animalA = pool.animalDictionnary[animal]
+        animalA = pool.animalDictionary[animal]
         #print ( animalA )
         dicA = animalA.detectionDictionary
 

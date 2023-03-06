@@ -38,7 +38,7 @@ def plotTrajectoriesNorPhasesPerGeno(files, figName, organisation, objectConfig,
         connection = sqlite3.connect(file)  # connection to the database
         pool = AnimalPool()
         pool.loadAnimals(connection)  # upload all the animals from the database
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
         animalType = animal.animalType
         geno = animal.genotype
         rfid = animal.RFID
@@ -139,7 +139,7 @@ def computeSniffTimePerGeno(files=None, tmin=None, phase=None):
         connection = sqlite3.connect(file)
         pool = AnimalPool()
         pool.loadAnimals(connection)
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
         sex = animal.sex
         setup = animal.setup
         rfid = animal.RFID
@@ -216,7 +216,7 @@ def computeSniffTimePerTimeBinPerGeno(files=None, sexList=sexList, genoList = ge
         connection = sqlite3.connect(file)
         pool = AnimalPool()
         pool.loadAnimals(connection)
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
         sex = animal.sex
         rfid = animal.RFID
         geno = animal.genotype
@@ -460,7 +460,7 @@ if __name__ == '__main__':
 
                 pool = AnimalPool()
                 pool.loadAnimals(connection)  # upload all the animals from the database
-                animal = pool.animalDictionnary[1]
+                animal = pool.animalDictionary[1]
                 sex = animal.sex
                 setup = int(animal.setup)
                 geno = animal.genotype
@@ -495,7 +495,7 @@ if __name__ == '__main__':
                     connection = sqlite3.connect(file)
                     pool = AnimalPool()
                     pool.loadAnimals(connection)  # upload all the animals from the database
-                    animal = pool.animalDictionnary[1]
+                    animal = pool.animalDictionary[1]
                     animalType = animal.animalType
                     sex = animal.sex
                     setup = int(animal.setup)
@@ -512,7 +512,7 @@ if __name__ == '__main__':
                     connection = sqlite3.connect(file)
                     pool = AnimalPool()
                     pool.loadAnimals(connection)  # upload all the animals from the database
-                    animal = pool.animalDictionnary[1]
+                    animal = pool.animalDictionary[1]
                     animalType = animal.animalType
                     sex = animal.sex
                     setup = int(animal.setup)
@@ -587,7 +587,7 @@ if __name__ == '__main__':
                 connection = sqlite3.connect(file)
                 pool = AnimalPool()
                 pool.loadAnimals(connection)
-                animal = pool.animalDictionnary[1]
+                animal = pool.animalDictionary[1]
                 sex = animal.sex
                 geno = animal.genotype
                 setup = animal.setup

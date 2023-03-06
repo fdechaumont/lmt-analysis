@@ -66,7 +66,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None , pool = None, animalTy
          
         result = loadDetectionMap( connection , animal, tmin, tmax )
                                        
-        #animal = pool.animalDictionnary[animal]
+        #animal = pool.animalDictionary[animal]
         #animal.loadDetection()
                     
         detectionTimeLine.reBuildWithDictionary( result );

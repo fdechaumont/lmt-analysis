@@ -94,9 +94,9 @@ def process( shiftData = True ):
         totalDistance = {}
 
         i=0
-        for animal in pool.animalDictionnary.keys():
-            print ( pool.animalDictionnary[animal].RFID )
-            dist = pool.animalDictionnary[animal].getDistancePerBin(binFrameSize = timeBin*oneMinute, maxFrame = tmax )
+        for animal in pool.animalDictionary.keys():
+            print ( pool.animalDictionary[animal].RFID )
+            dist = pool.animalDictionary[animal].getDistancePerBin(binFrameSize = timeBin*oneMinute, maxFrame = tmax )
             if shiftData:
                 for i2 in range( len(dist) ):
                     dist[i2]= dist[i2]/100
@@ -107,11 +107,11 @@ def process( shiftData = True ):
                             
             dt[animal] = dist
             '''
-            for x in pool.animalDictionnary[animal].getDistancePerBin(binFrameSize = timeBin*oneMinute, maxFrame = tmax )
+            for x in pool.animalDictionary[animal].getDistancePerBin(binFrameSize = timeBin*oneMinute, maxFrame = tmax )
                 dist.append( x )
             '''
-            #dt[animal] = [x/100 for x in pool.animalDictionnary[animal].getDistancePerBin(binFrameSize = timeBin*oneMinute, maxFrame = tmax )]
-            totalDistance[animal] = pool.animalDictionnary[animal].getDistance(tmin=tmin, tmax=tmax)
+            #dt[animal] = [x/100 for x in pool.animalDictionary[animal].getDistancePerBin(binFrameSize = timeBin*oneMinute, maxFrame = tmax )]
+            totalDistance[animal] = pool.animalDictionary[animal].getDistance(tmin=tmin, tmax=tmax)
             i+=1 # shift data
             
         
@@ -129,16 +129,16 @@ def process( shiftData = True ):
         text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( "file", "rfid", "genotype", "user1", "tmin", "tmax", "totalDistance" ) )
         
         
-        for animal in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionary.keys():
             #print(dt[animal])
             ax.plot( abs, dt[animal], color = getAnimalColor(animal), linewidth=0.6 )
             
             #prepare data to be written in a txt file, with tab separating columns
             line =""
             line+= str ( file )+ "\t"
-            line+= str ( pool.animalDictionnary[animal].RFID )+ "\t"
-            line+= str ( pool.animalDictionnary[animal].genotype )+ "\t"
-            line+= str ( pool.animalDictionnary[animal].user1 )+ "\t"
+            line+= str ( pool.animalDictionary[animal].RFID )+ "\t"
+            line+= str ( pool.animalDictionary[animal].genotype )+ "\t"
+            line+= str ( pool.animalDictionary[animal].user1 )+ "\t"
             line+= str ( tmin )+ "\t"
             line+= str ( tmax )+ "\t"
             line+= str ( totalDistance[animal]/100 )+ "\t"
@@ -152,9 +152,9 @@ def process( shiftData = True ):
         
         #Print the name and genotype of the animals on the graph, with the corresponding colors and the total distance traveled over the experiment
         legendHeight = 0.6*ymax
-        for animal in pool.animalDictionnary.keys():
-            print ( pool.animalDictionnary[animal].RFID )
-            ax.text(30*60*60, legendHeight, "{} {} ({} m)".format(pool.animalDictionnary[animal].RFID[5:], pool.animalDictionnary[animal].genotype, round(totalDistance[animal]/100)), color=getAnimalColor(animal), fontsize=5 )
+        for animal in pool.animalDictionary.keys():
+            print ( pool.animalDictionary[animal].RFID )
+            ax.text(30*60*60, legendHeight, "{} {} ({} m)".format(pool.animalDictionary[animal].RFID[5:], pool.animalDictionary[animal].genotype, round(totalDistance[animal]/100)), color=getAnimalColor(animal), fontsize=5 )
             legendHeight += 12 
         
         

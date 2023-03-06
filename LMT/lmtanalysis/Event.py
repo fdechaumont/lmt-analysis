@@ -588,27 +588,27 @@ class EventTimeLine:
             print("No event in timeLine")
             return
 
-        eventDictionnary = self.getDictionary( minT, maxT )
+        eventDictionary = self.getDictionary( minT, maxT )
 
         nbFrameOutOfEvent = 0
         lastEventEndFrame = minT
         for t in range( minT , maxT+1 ):
             #print( "t: " + str(t) )
-            if t in eventDictionnary:
+            if t in eventDictionary:
 
                 if nbFrameOutOfEvent > 0:
                     if nbFrameOutOfEvent <= numberOfFrameBetweenEvent:
                         # fill
                         for tt in range ( lastEventEndFrame , t ):
                             #print( "filling " + str( tt ))
-                            eventDictionnary[tt] = True
+                            eventDictionary[tt] = True
 
                 nbFrameOutOfEvent = 0
                 lastEventEndFrame = t
             else:
                 nbFrameOutOfEvent += 1
 
-        self.reBuildWithDictionary( eventDictionnary )
+        self.reBuildWithDictionary( eventDictionary )
 
     def dilateEvents(self, numberOfFrame):
         '''
@@ -623,41 +623,41 @@ class EventTimeLine:
             print("No event in timeLine")
             return
 
-        #eventDictionnary = self.getDictionnary( minT, maxT )
-        eventDictionnaryDilated = {}
+        #eventDictionary = self.getDictionary( minT, maxT )
+        eventDictionaryDilated = {}
 
         for event in self.eventList:            
             for tt in range ( event.startFrame - numberOfFrame, event.endFrame +numberOfFrame+1 ):
-                eventDictionnaryDilated[tt]=True
+                eventDictionaryDilated[tt]=True
             
 
         '''
         #faster algo:
         
         # copy original to dilated
-        eventDictionnaryDilated = eventDictionnary.copy()
+        eventDictionaryDilated = eventDictionary.copy()
         for d in range( numberOfFrame ):
             print("Dilate " , d)
-            for t in eventDictionnaryDilated.copy().keys():    
+            for t in eventDictionaryDilated.copy().keys():    
                 
-                if t-1 not in eventDictionnaryDilated:
-                    eventDictionnaryDilated[t-1] = True
+                if t-1 not in eventDictionaryDilated:
+                    eventDictionaryDilated[t-1] = True
                     
-                if t+1 not in eventDictionnaryDilated:
-                    eventDictionnaryDilated[t+1] = True
+                if t+1 not in eventDictionaryDilated:
+                    eventDictionaryDilated[t+1] = True
                 
         '''
         
         
         '''
         #slow:
-        for t in eventDictionnary.keys():
+        for t in eventDictionary.keys():
         #for t in range( minT , maxT+1 ):
             for tt in range ( t - numberOfFrame, t+numberOfFrame+1 ):
-                eventDictionnaryDilated[tt]=True
+                eventDictionaryDilated[tt]=True
         '''
         
-        self.reBuildWithDictionary( eventDictionnaryDilated )
+        self.reBuildWithDictionary( eventDictionaryDilated )
 
 
 

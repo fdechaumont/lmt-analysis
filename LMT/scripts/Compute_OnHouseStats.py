@@ -43,10 +43,10 @@ if __name__ == '__main__':
             vals = []
             valsNb = []
                     
-            for animalNumber in animalPool.animalDictionnary:                
+            for animalNumber in animalPool.animalDictionary:                
                 onHouseTimeLine = EventTimeLine( connection, "onHouse" , animalNumber )
                 
-                animal = animalPool.animalDictionnary[animalNumber]
+                animal = animalPool.animalDictionary[animalNumber]
                 labels.append( animal.RFID[-6:] + " " + animal.genotype )
                 vals.append ( onHouseTimeLine.getTotalLength() )
                 valsNb.append( onHouseTimeLine.getNumberOfEvent( ) )

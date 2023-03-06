@@ -32,8 +32,8 @@ if __name__ == '__main__':
         eventTimeLine = EventTimeLine( connection, "Oral-genital Contact", idA = 1 , idB = 2, minFrame = 0, maxFrame = oneHour )
 
         print ( "Event list for label ", eventTimeLine.eventNameWithId )
-        print ( "for animal 1:", animalPool.getAnimalDictionnary()[1].RFID )
-        print ( "for animal 2:", animalPool.getAnimalDictionnary()[2].RFID )
+        print ( "for animal 1:", animalPool.getAnimalDictionary()[1].RFID )
+        print ( "for animal 2:", animalPool.getAnimalDictionary()[2].RFID )
         print ( "Number of events:", len( eventTimeLine.getEventList() ) )
         
         print ( "start frame","end frame", "duration(in frame)")        

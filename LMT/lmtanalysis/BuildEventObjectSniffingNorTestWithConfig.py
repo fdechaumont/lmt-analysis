@@ -58,8 +58,8 @@ def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, 
     - the animal is on the new object
     '''
     
-    for animal in pool.animalDictionnary.keys():
-        print(pool.animalDictionnary[animal])
+    for animal in pool.animalDictionary.keys():
+        print(pool.animalDictionary[animal])
         
         eventNameSniffFamiliar = "SniffFamiliar"
         print ( "A is around the familiar object")
@@ -99,7 +99,7 @@ def reBuildEvent( connection, objectPosition, radiusObjects, objectTuple, side, 
         resultUpFamiliar = {}
         resultUpNew = {}
         
-        animalA = pool.animalDictionnary[animal]
+        animalA = pool.animalDictionary[animal]
         setup = animalA.setup
         objectFamiliar = objectTuple[side]
         objectNew = objectTuple[side]

@@ -35,19 +35,19 @@ def process( files, eventName ):
 
         event= {}
 
-        for idAnimalA in pool.animalDictionnary.keys():
+        for idAnimalA in pool.animalDictionary.keys():
 
-            for idAnimalB in pool.animalDictionnary.keys():
+            for idAnimalB in pool.animalDictionary.keys():
 
                 event[idAnimalA, idAnimalB] = EventTimeLine( connection, eventName, idAnimalA, idAnimalB )
 
 
 
-        for idAnimalA in pool.animalDictionnary.keys():
+        for idAnimalA in pool.animalDictionary.keys():
 
-            txt = str(idAnimalA) + ":" + str( pool.animalDictionnary[idAnimalA]) + "\t"
+            txt = str(idAnimalA) + ":" + str( pool.animalDictionary[idAnimalA]) + "\t"
 
-            for idAnimalB in pool.animalDictionnary.keys():
+            for idAnimalB in pool.animalDictionary.keys():
 
                 txt += str( len( event[idAnimalA, idAnimalB].getEventList() ) ) + "\t"
 

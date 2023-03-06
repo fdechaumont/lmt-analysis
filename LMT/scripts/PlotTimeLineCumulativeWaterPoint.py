@@ -49,9 +49,9 @@ if __name__ == '__main__':
         """
         #Load the timeline of the water stop event over all individuals
         waterStopTimeLine = {}
-        for animal in pool.animalDictionnary.keys():
-            parameters = getAnimalTypeParameters( pool.animalDictionnary[animal].animalType )
-            print ( pool.animalDictionnary[animal].RFID )
+        for animal in pool.animalDictionary.keys():
+            parameters = getAnimalTypeParameters( pool.animalDictionary[animal].animalType )
+            print ( pool.animalDictionary[animal].RFID )
             waterStopTimeLine[animal] = EventTimeLine( connection, "Water Stop", idA=animal, minFrame=tmin, maxFrame=tmax )
             waterStopTimeLine[animal].removeEventsBelowLength( maxLen = parameters.MIN_WATER_STOP_DURATION )
         
@@ -88,13 +88,13 @@ if __name__ == '__main__':
         
         #Print the name and genotype of the animals on the graph, with the corresponding colors and the total distance traveled over the experiment
         legendHeight = 60
-        for animal in pool.animalDictionnary.keys():
-            print ( pool.animalDictionnary[animal].RFID )
-            ax.text(30*60*60, legendHeight, "{} {}".format(pool.animalDictionnary[animal].RFID[5:], pool.animalDictionnary[animal].genotype), color=getAnimalColor(animal), fontsize=5 )
+        for animal in pool.animalDictionary.keys():
+            print ( pool.animalDictionary[animal].RFID )
+            ax.text(30*60*60, legendHeight, "{} {}".format(pool.animalDictionary[animal].RFID[5:], pool.animalDictionary[animal].genotype), color=getAnimalColor(animal), fontsize=5 )
             legendHeight += 30 
         
         
-        for animal in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionary.keys():
             listCumulated = []
             listValue = waterStopTimeLine[animal].getDurationEventInTimeBin( tmin=tmin, tmax=tmax, binSize=timeBin*oneMinute)
             cumul = 0

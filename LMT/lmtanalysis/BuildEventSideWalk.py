@@ -65,8 +65,8 @@ def reBuildEvent( connection ):
     pool.loadAnimals( connection )
     pool.loadDetection( start = 0, end = timeWindow )
     
-    for animal in pool.animalDictionnary.keys():
-        print(pool.animalDictionnary[animal])
+    for animal in pool.animalDictionary.keys():
+        print(pool.animalDictionary[animal])
                     
         eventName = "SideWalk".format( animal )
                 
@@ -76,19 +76,19 @@ def reBuildEvent( connection ):
                 
         result={}
         
-        animalA = pool.animalDictionnary[animal]
+        animalA = pool.animalDictionary[animal]
         dicA = animalA.detectionDictionary
             
         for t in dicA.keys():
-            speedX, speedY = pool.animalDictionnary[animal].getSpeedVector(t)
+            speedX, speedY = pool.animalDictionary[animal].getSpeedVector(t)
             
             if ( speedX == None or speedY == None ):
                 continue
             
-            if not pool.animalDictionnary[animal].getDetectionAt( t ).isHeadAndTailDetected():
+            if not pool.animalDictionary[animal].getDetectionAt( t ).isHeadAndTailDetected():
                 continue
                     
-            angleA = pool.animalDictionnary[animal].getDirection(t)
+            angleA = pool.animalDictionary[animal].getDirection(t)
             
             vectorSideX, vectorSideY = getVectorFromAngle( angleA + math.pi / 2 )
             

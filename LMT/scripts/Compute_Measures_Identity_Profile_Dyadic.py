@@ -51,13 +51,13 @@ if __name__ == '__main__':
         
         pool.loadDetection( start = tmin, end = tmax )
         
-        for animal in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionary.keys():
             
-            print ( pool.animalDictionnary[animal].RFID )
+            print ( pool.animalDictionary[animal].RFID )
             #total distance traveled
-            totalDistance = pool.animalDictionnary[animal].getDistance(tmin = tmin , tmax = tmax )
-            resTotalDistance = [file, pool.animalDictionnary[animal].RFID, tmin, tmax, totalDistance]
-            text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\n".format( file, pool.animalDictionnary[animal].RFID, pool.animalDictionnary[animal].genotype, tmin, tmax, totalDistance ) ) 
+            totalDistance = pool.animalDictionary[animal].getDistance(tmin = tmin , tmax = tmax )
+            resTotalDistance = [file, pool.animalDictionary[animal].RFID, tmin, tmax, totalDistance]
+            text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\n".format( file, pool.animalDictionary[animal].RFID, pool.animalDictionary[animal].genotype, tmin, tmax, totalDistance ) ) 
   
             
         for behavEvent in behaviouralEventOneMouse:
@@ -65,7 +65,7 @@ if __name__ == '__main__':
             print( "computing individual event: {}".format(behavEvent))    
             behavEventTimeLine = {}
         
-            for animal in pool.animalDictionnary.keys():
+            for animal in pool.animalDictionary.keys():
                 behavEventTimeLine[animal] = EventTimeLine( connection, behavEvent, animal, minFrame=tmin, maxFrame=tmax )
                 
                 event = behavEventTimeLine[animal]
@@ -76,8 +76,8 @@ if __name__ == '__main__':
                 
                 print(event.eventName, event.idA, totalEventDuration, nbEvent)
                 
-                resOneMouse = [file, event.eventName, pool.animalDictionnary[animal].RFID, totalEventDuration, nbEvent]
-                text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, event.eventName, pool.animalDictionnary[animal].RFID, pool.animalDictionnary[animal].genotype, tmin, tmax, totalEventDuration, nbEvent ) ) 
+                resOneMouse = [file, event.eventName, pool.animalDictionary[animal].RFID, totalEventDuration, nbEvent]
+                text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, event.eventName, pool.animalDictionary[animal].RFID, pool.animalDictionary[animal].genotype, tmin, tmax, totalEventDuration, nbEvent ) ) 
                        
                 
 
@@ -85,8 +85,8 @@ if __name__ == '__main__':
             
             print( "computing {} density".format(behavEvent))
             
-            for animal in pool.animalDictionnary.keys():
-                for idAnimalB in pool.animalDictionnary.keys():
+            for animal in pool.animalDictionary.keys():
+                for idAnimalB in pool.animalDictionary.keys():
                     if ( animal == idAnimalB ):
                         continue
                 
@@ -98,11 +98,11 @@ if __name__ == '__main__':
                     nbEvent = event.getNumberOfEvent(minFrame = tmin, maxFrame = tmax)
             
                         
-                    print( behavEvent, pool.animalDictionnary[animal].RFID, pool.animalDictionnary[idAnimalB].RFID )
+                    print( behavEvent, pool.animalDictionary[animal].RFID, pool.animalDictionary[idAnimalB].RFID )
                 
-                    resSame = [file, behavEvent, pool.animalDictionnary[animal].RFID, pool.animalDictionnary[idAnimalB].RFID, tmin, tmax, totalEventDuration, nbEvent]
+                    resSame = [file, behavEvent, pool.animalDictionary[animal].RFID, pool.animalDictionary[idAnimalB].RFID, tmin, tmax, totalEventDuration, nbEvent]
                 
-                    text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, behavEvent, pool.animalDictionnary[animal].RFID, pool.animalDictionnary[animal].genotype, pool.animalDictionnary[idAnimalB].RFID, pool.animalDictionnary[idAnimalB].genotype, tmin, tmax, totalEventDuration, nbEvent ) ) 
+                    text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, behavEvent, pool.animalDictionary[animal].RFID, pool.animalDictionary[animal].genotype, pool.animalDictionary[idAnimalB].RFID, pool.animalDictionary[idAnimalB].genotype, tmin, tmax, totalEventDuration, nbEvent ) ) 
             
 
     text_file.write( "\n" )

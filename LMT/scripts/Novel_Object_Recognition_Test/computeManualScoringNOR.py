@@ -37,7 +37,7 @@ def computeSniffTimeNoSetup(files, exp, phase, objectDic):
 
         pool = AnimalPool()
         pool.loadAnimals(connection)
-        animal = pool.animalDictionnary[1]
+        animal = pool.animalDictionary[1]
         animalType = animal.animalType
         vibrissae = getAnimalTypeParameters(animalType).VIBRISSAE # estimated size of the vibrissae to determine the contact zone with the object
         sex = animal.sex
@@ -66,7 +66,7 @@ def computeSniffTimeNoSetup(files, exp, phase, objectDic):
 
         noneVec = []
 
-        for t in animal.detectionDictionnary.keys():
+        for t in animal.detectionDictionary.keys():
             for obj in ['left', 'right']:
                 distanceNose = animal.getDistanceNoseToPoint(t=t, xPoint=objectPosition[setup][obj][0],
                                                              yPoint=-objectPosition[setup][obj][1])
@@ -79,7 +79,7 @@ def computeSniffTimeNoSetup(files, exp, phase, objectDic):
                     if distanceNose <= radiusObjects[object] + vibrissae / getAnimalTypeParameters(animalType).scaleFactor:
                         # check if the animal is on the object:
                         if distanceMass <= radiusObjects[object]:
-                            detection = animal.detectionDictionnary.get(t)
+                            detection = animal.detectionDictionary.get(t)
                             onObjectX[obj].append(detection.massX)
                             onObjectY[obj].append(-detection.massY)
                         else:

@@ -42,18 +42,18 @@ if __name__ == '__main__':
         
         animalDic = {}
 
-        for animal in pool.animalDictionnary.keys():
+        for animal in pool.animalDictionary.keys():
         
             print( "computing individual animal: {}".format( animal ))
-            rfid = pool.animalDictionnary[animal].RFID
+            rfid = pool.animalDictionary[animal].RFID
             print( "RFID: ".format( rfid ) )
             animalDic[rfid] = {}
             ''' store the animal '''
-            animalDic[rfid]["animal"] = pool.animalDictionnary[animal]
+            animalDic[rfid]["animal"] = pool.animalDictionary[animal]
             
             genoA = None
             try:
-                genoA=pool.animalDictionnary[animal].genotype
+                genoA=pool.animalDictionary[animal].genotype
             except:
                 pass
                         
