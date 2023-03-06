@@ -347,7 +347,7 @@ def plotProfilePerIndividualPerGenotypeFullRepresentation( ax, profileData, nigh
                            "markeredgecolor": 'black',
                            "markersize": '10'}, palette = {'same': colorList[0], 'diff': colorList[1]}, showfliers=False)
 
-    sns.stripplot(x, y, jitter=True, order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], palette=['grey', 'lightgrey'], s=5, ax=ax)
+    sns.stripplot(x, y, jitter=True, order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], dodge=True, palette=['grey', 'lightgrey'], s=5, ax=ax)
     
     ax.set_title(getFigureBehaviouralEventsLabels(behavEvent), fontsize=16)
 
