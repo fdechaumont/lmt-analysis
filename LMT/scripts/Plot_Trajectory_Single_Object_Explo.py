@@ -50,7 +50,7 @@ def plotZone( ax, colorEdge, colorFill, xa=114, xb=398, ya=-353, yb=-63 ):
     
 def plotSap( ax , animal ):
 
-    sapDico = animal.getSapDictionnary()
+    sapDico = animal.getSapDictionary()
         
     xList = []
     yList = []
@@ -65,7 +65,7 @@ def plotSap( ax , animal ):
 
 def plotSapNose(ax, animal, color = 'red', xa = 111, xb = 400, ya = 63, yb = 353):
     #plot the position of the nose if the animal is in SAP within the determined zone
-    sapDico = animal.getSapDictionnary()
+    sapDico = animal.getSapDictionary()
 
     xList = []
     yList = []

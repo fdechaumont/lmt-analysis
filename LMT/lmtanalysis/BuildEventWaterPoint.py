@@ -58,7 +58,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
         resultWaterZone={}
         resultWaterStop={}
         
-        animalA = pool.animalDictionnary[animal]
+        animalA = pool.animalDictionary[animal]
         #print ( animalA )
         dicA = animalA.detectionDictionary
             

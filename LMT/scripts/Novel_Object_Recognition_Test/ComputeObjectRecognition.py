@@ -183,7 +183,7 @@ def computeSniffTime(files=None, tmin=None, objectDic=None):
 
         noneVec = []
 
-        for t in animal.detectionDictionnary.keys():
+        for t in animal.detectionDictionary.keys():
             for obj in ['left', 'right']:
                 distanceNose = animal.getDistanceNoseToPoint(t=t, xPoint=objectPosition[setup][obj][0],
                                                              yPoint=-objectPosition[setup][obj][1])
@@ -196,7 +196,7 @@ def computeSniffTime(files=None, tmin=None, objectDic=None):
                     if distanceNose <= radiusObjects[object] + 2 / getAnimalTypeParameters(animalType).scaleFactor:
                         # check if the animal is on the object:
                         if distanceMass <= radiusObjects[object]:
-                            detection = animal.detectionDictionnary.get(t)
+                            detection = animal.detectionDictionary.get(t)
                             onObjectX[obj].append(detection.massX)
                             onObjectY[obj].append(-detection.massY)
                         else:

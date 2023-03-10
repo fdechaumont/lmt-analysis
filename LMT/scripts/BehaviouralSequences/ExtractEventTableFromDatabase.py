@@ -35,8 +35,8 @@ if __name__ == '__main__':
         
         genotype = []
 
-        for animal in pool.animalDictionnary.keys():
-            geno = pool.animalDictionnary[animal].genotype
+        for animal in pool.animalDictionary.keys():
+            geno = pool.animalDictionary[animal].genotype
             genotype.append(geno)
 
         genoPair = ('{}_{}'.format(genotype[0], genotype[1]))

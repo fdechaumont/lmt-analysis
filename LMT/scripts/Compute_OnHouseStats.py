@@ -43,7 +43,7 @@ if __name__ == '__main__':
             vals = []
             valsNb = []
                     
-            for animalNumber in animalPool.animalDictionary:
+            for animalNumber in animalPool.animalDictionary:                
                 onHouseTimeLine = EventTimeLine( connection, "onHouse" , animalNumber )
                 
                 animal = animalPool.animalDictionary[animalNumber]

@@ -92,7 +92,7 @@ if __name__ == '__main__':
                 print(event.eventName, genoA, event.idA, totalEventDuration, nbEvent)
                 
                 resOneMouse = [file, event.eventName, pool.animalDictionary[animal].RFID, genoA, totalEventDuration, nbEvent]
-                text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\n".format( file, event.eventName, pool.animalDictionary[animal].RFID, genoA, totalEventDuration, nbEvent ) )
+                text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\n".format( file, event.eventName, pool.animalDictionary[animal].RFID, genoA, totalEventDuration, nbEvent ) ) 
                        
                 
         
@@ -125,7 +125,7 @@ if __name__ == '__main__':
                 
                 resSame = [file, behavEvent, pool.animalDictionary[animal].RFID, pool.animalDictionary[animal].genotype, "B6", durEventsB6Geno, nbEventsB6Geno]
                 resDiff = [file, behavEvent, pool.animalDictionary[animal].RFID, pool.animalDictionary[animal].genotype, "diffGeno", durEventsDiffGeno, nbEventsDiffGeno]
-                text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, behavEvent, pool.animalDictionary[animal].RFID, pool.animalDictionary[animal].genotype, "B6", durEventsB6Geno, nbEventsB6Geno ) )
+                text_file.write( "{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( file, behavEvent, pool.animalDictionary[animal].RFID, pool.animalDictionary[animal].genotype, "B6", durEventsB6Geno, nbEventsB6Geno ) ) 
             
         
         

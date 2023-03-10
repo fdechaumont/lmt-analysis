@@ -200,7 +200,7 @@ if __name__ == '__main__':
                 noneVec = []
                 onObjectX = []
                 onObjectY = []
-                for t in animal.detectionDictionnary.keys():
+                for t in animal.detectionDictionary.keys():
                     for obj in [0,1,2,3]:
                         distanceNose = animal.getDistanceNoseToPoint(t=t, xPoint=objectPosition[animal.name][obj][0], yPoint=objectPosition[animal.name][obj][1])
                         distanceMass = animal.getDistanceToPoint(t=t, xPoint=objectPosition[animal.name][obj][0], yPoint=objectPosition[animal.name][obj][1])
@@ -211,14 +211,14 @@ if __name__ == '__main__':
                             if distanceNose <= radiusObjects[obj]+2/getAnimalTypeParameters(animalType).scaleFactor:
                                 # check if the animal is on the object:
                                 if distanceMass <= radiusObjects[obj]:
-                                    detection = animal.detectionDictionnary.get(t)
+                                    detection = animal.detectionDictionary.get(t)
                                     onObjectX.append(detection.massX)
                                     onObjectY.append(-detection.massY)
                                 else:
                                     selectedFrames[obj].append(t)
                                 '''
                                 #Use of the height to detect whether animal is on the object not valid since Z is the height from the floor and objects are part of the floor
-                                detection = animal.detectionDictionnary.get(t)
+                                detection = animal.detectionDictionary.get(t)
 
                                 if (detection.massZ > 80) and (detection.backZ > 50):
                                     print('Mouse on the object at ', t)
@@ -231,9 +231,9 @@ if __name__ == '__main__':
                 for obj in [0, 1, 2, 3]:
                     timeSniff[animal.name][objectList[obj]] = len(selectedFrames[obj])
                 timeSniff[animal.name]['noNose'] = len(noneVec)
-                timeSniff[animal.name]['totalDetection'] = len(animal.detectionDictionnary.keys())
+                timeSniff[animal.name]['totalDetection'] = len(animal.detectionDictionary.keys())
                 timeSniff[animal.name]['totalSniff'] = timeSniff[animal.name][objectList[0]]+timeSniff[animal.name][objectList[1]]+timeSniff[animal.name][objectList[2]]+timeSniff[animal.name][objectList[3]]
-                print('no distance computed: ', len(noneVec), ' over ', len(animal.detectionDictionnary.keys()))
+                print('no distance computed: ', len(noneVec), ' over ', len(animal.detectionDictionary.keys()))
                 axLeft.scatter(onObjectX, onObjectY, color='blue', alpha=0.5, label="on", s=8)
 
                 if nCol < 5:

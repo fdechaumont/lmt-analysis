@@ -96,7 +96,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
         
         result={}
         
-        animalA = pool.animalDictionary[animal]
+        animalA = pool.animalDictionary[animal]        
         dicA = animalA.detectionDictionary
         
         for t in dicA.keys():

@@ -37,15 +37,15 @@ if __name__ == '__main__':
         
         #Load the timeline of the water stop event over all individuals
         waterStopTimeLine = {}
-        for animal in pool.animalDictionnary.keys():
-            print ( pool.animalDictionnary[animal].RFID )
+        for animal in pool.animalDictionary.keys():
+            print ( pool.animalDictionary[animal].RFID )
             waterStopTimeLine[animal] = EventTimeLine( connection, "Water Stop", idA=animal, minFrame=tmin, maxFrame=tmax )
             waterStopTimeLine[animal].removeEventsBelowLength( maxLen = MIN_WATER_STOP_DURATION )
             
         #Check if one t within the time window of interest belongs to an event of the AnimalB timeline:
         eventWaterStop = {}
-        for animalA in pool.animalDictionnary.keys():
-            for animalB in pool.animalDictionnary.keys():
+        for animalA in pool.animalDictionary.keys():
+            for animalB in pool.animalDictionary.keys():
                 eventWaterStop[(animalA,animalB)] = 0
                 
                 for event in waterStopTimeLine[animalA].getEventList():
@@ -64,9 +64,9 @@ if __name__ == '__main__':
         print("results: ")
         followedWaterStop = {}
         unfollowedWaterStop = {}
-        for animalA in pool.animalDictionnary.keys():
+        for animalA in pool.animalDictionary.keys():
             followedWaterStop[animalA] = []
-            for animalB in pool.animalDictionnary.keys():
+            for animalB in pool.animalDictionary.keys():
                 followedWaterStop[animalA].append(eventWaterStop[(animalA,animalB)])
                 
             unfollowedWaterStop[animalA] = waterStopTimeLine[animalA].getNumberOfEvent(minFrame=tmin, maxFrame=tmax) - np.sum(followedWaterStop[animalA])
@@ -80,17 +80,17 @@ if __name__ == '__main__':
         
         #print the results and store them in a text file        
         print("results: ")
-        for animalA in pool.animalDictionnary.keys():
-            for animalB in pool.animalDictionnary.keys():
+        for animalA in pool.animalDictionary.keys():
+            for animalB in pool.animalDictionary.keys():
                 print("animal {} followed by animal {}: {}".format( animalA, animalB, eventWaterStop[(animalA,animalB)]) )
                 
                 text_file.write( "{}\t".format( file ) )
                 text_file.write( "{}\t".format( tmin ) )
                 text_file.write( "{}\t".format( tmax ) )
-                text_file.write( "{}\t".format( pool.animalDictionnary[animalA].RFID ) )
-                text_file.write( "{}\t".format( pool.animalDictionnary[animalA].genotype ) )
-                text_file.write( "{}\t".format( pool.animalDictionnary[animalB].RFID ) )
-                text_file.write( "{}\t".format( pool.animalDictionnary[animalB].genotype ) )
+                text_file.write( "{}\t".format( pool.animalDictionary[animalA].RFID ) )
+                text_file.write( "{}\t".format( pool.animalDictionary[animalA].genotype ) )
+                text_file.write( "{}\t".format( pool.animalDictionary[animalB].RFID ) )
+                text_file.write( "{}\t".format( pool.animalDictionary[animalB].genotype ) )
                 text_file.write( "{}\t".format( eventWaterStop[(animalA,animalB)] ) )
                 text_file.write( "{}\t".format( unfollowedWaterStop[animalA] ) )
                 text_file.write( "{}\n".format( waterStopTimeLine[animalA].getNumberOfEvent(minFrame=tmin, maxFrame=tmax) ) )
@@ -101,9 +101,9 @@ if __name__ == '__main__':
         print("dataframe: ")
         df = pd.DataFrame(columns=['file', 'tmin', 'tmax', 'idA', 'genoA', 'idB', 'genoB', 'waterStop', 'unfollowedWaterStop', 'totalWaterStop'])
         n=0
-        for animalA in pool.animalDictionnary.keys():
-            for animalB in pool.animalDictionnary.keys():
-                df.loc['{}'.format(n)] = [ file, tmin, tmax, pool.animalDictionnary[animalA].RFID, pool.animalDictionnary[animalA].genotype, pool.animalDictionnary[animalB].RFID, pool.animalDictionnary[animalB].genotype, eventWaterStop[(animalA,animalB)], unfollowedWaterStop[animalA], waterStopTimeLine[animalA].getNumberOfEvent(minFrame=tmin, maxFrame=tmax) ]
+        for animalA in pool.animalDictionary.keys():
+            for animalB in pool.animalDictionary.keys():
+                df.loc['{}'.format(n)] = [ file, tmin, tmax, pool.animalDictionary[animalA].RFID, pool.animalDictionary[animalA].genotype, pool.animalDictionary[animalB].RFID, pool.animalDictionary[animalB].genotype, eventWaterStop[(animalA,animalB)], unfollowedWaterStop[animalA], waterStopTimeLine[animalA].getNumberOfEvent(minFrame=tmin, maxFrame=tmax) ]
                 n+=1
         df['waterStop'] = df.waterStop.convert_objects(convert_numeric=True)        
         df.info()
@@ -126,11 +126,11 @@ if __name__ == '__main__':
         text_file.write( "\n" )
 
         text_file.write( "{}\n".format( file ) )
-        for animalA in pool.animalDictionnary.keys():
-            text_file.write( "{}\t".format( pool.animalDictionnary[animalA].genotype ) )
+        for animalA in pool.animalDictionary.keys():
+            text_file.write( "{}\t".format( pool.animalDictionary[animalA].genotype ) )
         text_file.write( "\n" )
-        for animalA in pool.animalDictionnary.keys():
-            for animalB in pool.animalDictionnary.keys():        
+        for animalA in pool.animalDictionary.keys():
+            for animalB in pool.animalDictionary.keys():        
                 text_file.write( "{}\t".format( eventWaterStop[(animalA,animalB)] ) )
                 
             text_file.write( "{}\n".format( unfollowedWaterStop[animalA] ) )
@@ -142,11 +142,11 @@ if __name__ == '__main__':
         text_file.write( "\n" )
 
         text_file.write( "{}\n".format( file ) )
-        for animalA in pool.animalDictionnary.keys():
-            text_file.write( "{}\t".format( pool.animalDictionnary[animalA].genotype ) )
+        for animalA in pool.animalDictionary.keys():
+            text_file.write( "{}\t".format( pool.animalDictionary[animalA].genotype ) )
         text_file.write( "\n" )
-        for animalA in pool.animalDictionnary.keys():
-            for animalB in pool.animalDictionnary.keys():        
+        for animalA in pool.animalDictionary.keys():
+            for animalB in pool.animalDictionary.keys():        
                 text_file.write( "{}\t".format( eventWaterStop[(animalA,animalB)] / waterStopTimeLine[animalA].getNumberOfEvent(minFrame=tmin, maxFrame=tmax) ) )
                 
             text_file.write( "{}\n".format( unfollowedWaterStop[animalA] / waterStopTimeLine[animalA].getNumberOfEvent(minFrame=tmin, maxFrame=tmax) ) )

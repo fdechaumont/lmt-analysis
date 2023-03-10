@@ -147,7 +147,7 @@ if __name__ == '__main__':
                 #upper half
                 timeZone1 = pool.animalDictionary[animalA].getCountFramesSpecZone( tmin=night.startFrame, tmax=night.endFrame, xa=114, ya=208, xb=398, yb=353 )
                 #lower right quarter
-                timeZone2 = pool.animalDictionary[animalA].getCountFramesSpecZone( tmin=night.startFrame, tmax=night.endFrame, xa=256, ya=63, xb=398, yb=208 )
+                timeZone2 = pool.animalDictionary[animalA].getCountFramesSpecZone( tmin=night.startFrame, tmax=night.endFrame, xa=256, ya=63, xb=398, yb=208 )       
                 #total number of frames spent out of the nest zone during the night
                 timeOutOfNestZone = timeZone1 + timeZone2
                 

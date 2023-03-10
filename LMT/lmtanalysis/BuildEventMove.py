@@ -102,7 +102,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
                     ''' loop over eventlist'''
                     for moveEvent in moveIsolatedTimeLine[animal].eventList:
 
-                        ''' for each event we seek in t and search a match in isInContactDictionnary between animal and animalB '''
+                        ''' for each event we seek in t and search a match in isInContactDictionary between animal and animalB '''
                         for t in range ( moveEvent.startFrame, moveEvent.endFrame+1 ) :
                             if t in isInContactSourceDictionary[(animal, animalB)]:
                                 moveSocialResult[t] = True

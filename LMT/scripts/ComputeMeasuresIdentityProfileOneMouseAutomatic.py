@@ -61,7 +61,7 @@ def computeProfile(file, minT, maxT, behaviouralEventList):
     animalData = {}
     for animal in pool.animalDictionary.keys():
         
-        print( "computing individual animal: {}".format( animal ))
+        print( "computing individual animal: {}".format( animal )) 
         rfid = pool.animalDictionary[animal].RFID
         print( "RFID: {}".format( rfid ) )
         animalData[rfid]= {}        
@@ -183,7 +183,6 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
         animalData[rfid]["rfid"] = rfid
         animalData[rfid]['genotype'] = pool.animalDictionary[animal].genotype
         animalData[rfid]['sex'] = pool.animalDictionary[animal].sex
-        animalData[rfid]['treatment'] = pool.animalDictionary[animal].user1
         animalData[rfid]['age'] = pool.animalDictionary[animal].age
         animalData[rfid]['strain'] = pool.animalDictionary[animal].strain
         animalData[rfid]['group'] = pairName
@@ -1869,11 +1868,10 @@ if __name__ == '__main__':
         question = "Do you want to:"
         question += "\n\t [1] compute profile data (save json file)?"
         question += "\n\t [2] compute profile data for pairs of same genotype animals (save json file)?"
-        question += "\n\t [2b] compute profile data for pairs of same genotype with treatments animals from pause (save json file)?"
-        question += "\n\t [2c] compute profile data for pairs of same genotype with treatments animals from pause (save json file)?"
-        question += "\n\t [3] plot and analyse profile data (from stored json file)?"
-        question += "\n\t [4] plot and analyse profile data for pairs of same genotype animals (saved json file)?"
-        question += "\n\t [4b] plot and analyse profile data for pairs of different genotype animals (saved json file)?"
+        question += "\n\t [2b] compute profile data for pairs of same genotype animals from pause (save json file)?"
+        question += "\n\t [3] plot and analyse profile data (from stored json files)?"
+        question += "\n\t [4] plot and analyse profile data for pairs of same genotype animals (saved json files)?"
+        question += "\n\t [4b] plot and analyse profile data for pairs of different genotype animals (saved json files)?"
         question += "\n\t [5] plot and analyse profile data after merging the different nigths?"
         question += "\n\t [6] plot KO profile data as centered and reduced data per cage?"
         question += "\n\t [7] plot KO profile data as centered and reduced data per cage with merged nights in horizontal way?"
@@ -1884,13 +1882,13 @@ if __name__ == '__main__':
             files = getFilesToProcess()
             tmin, tmax = getMinTMaxTInput()
 
-
+            
             nightComputation = input("Compute profile only during night events (Y or N)? ")
 
             for file in files:
                 #initialize the result dic
                 profileData = {}
-
+                
                 print(file)
                 #get the path and the name of file
                 head, tail = os.path.split(file)
@@ -1988,7 +1986,9 @@ if __name__ == '__main__':
 
             break
 
+
         if answer == "2b":
+            '''compute profile data for pairs of animals from pause (save json file)'''
             files = getFilesToProcess()
             experimentDuration = getExperimentDurationInput()
             print(files)
@@ -1996,47 +1996,25 @@ if __name__ == '__main__':
             profileData = {}
 
             for file in files:
-
                 print(file)
+                #get the path and the name of file
+                head, tail = os.path.split(file)
+                extension = 'no_night_{}'.format(os.path.splitext(os.path.basename(tail))[0])
                 profileData[file] = {}
 
-                n=0
-                # Compute profile2 data
-                profileData[file][n] = computeProfilePairFromPauseWithTreatment(file=file, experimentDuration=experimentDuration,
-                                                          behaviouralEventListSingle=behaviouralEventOneMouse,
-                                                          behaviouralEventListSocial=behaviouralEventOneMouse)
-
-                # Create a json file to store the computation
-                with open("profile_data_pair_from_pause_{}.json".format('no_night'), 'w') as fp:
-                    json.dump(profileData, fp, indent=4)
-                print("json file with profile measurements created.")
-
-            break
-
-        if answer == "2c":
-            files = getFilesToProcess()
-            experimentDuration = getExperimentDurationInput()
-            print(files)
-
-            profileData = {}
-
-            for file in files:
-
-                print(file)
-                profileData[file] = {}
-
-                n=0
+                n = 0
                 # Compute profile2 data
                 profileData[file][n] = computeProfilePairFromPause(file=file, experimentDuration=experimentDuration,
-                                                          behaviouralEventListSingle=behaviouralEventOneMouse,
-                                                          behaviouralEventListSocial=behaviouralEventOneMouse)
+                                                                   behaviouralEventListSingle=behaviouralEventOneMouse,
+                                                                   behaviouralEventListSocial=behaviouralEventOneMouse)
 
                 # Create a json file to store the computation
-                with open("profile_data_pair_from_pause_{}.json".format('no_night'), 'w') as fp:
+                with open("{}/profile_data_pair_from_pause_{}_{}.json".format(head, extension, experimentDuration), 'w') as fp:
                     json.dump(profileData, fp, indent=4)
                 print("json file with profile measurements created.")
 
             break
+
 
         if answer == "3":
             nightComputation = input("Plot profile only during night events (Y or N or merged)? ")
@@ -2046,7 +2024,7 @@ if __name__ == '__main__':
                 n = 0
                 files = getJsonFilesToProcess()
                 profileData = mergeJsonFilesForProfiles(files)
-
+                
                 print("json file for profile data re-imported.")
                 #Plot profile2 data and save them in a pdf file
                 print('data: ', profileData)
@@ -2095,7 +2073,7 @@ if __name__ == '__main__':
                 print(files)
                 # create a dictionary with profile data
                 profileDataNotMerged = mergeJsonFilesForProfiles(files)
-
+                
                 profileData = mergeProfileOverNights(profileData=profileDataNotMerged, categoryList=categoryList,
                                                   behaviouralEventOneMouse=behaviouralEventOneMouse)
 
@@ -2517,7 +2495,7 @@ if __name__ == '__main__':
 
                         fig.tight_layout()
                         fig.savefig("FigProfilePairDiffGeno_{}_Events_night_{}.pdf".format(valueCat, n), dpi=100)
-                        fig.savefig("FigProfilePairDiffGeno_{}_Events_night_{}.jpg".format(valueCat, n), dpi=100)
+                        fig.savefig("FigProfilePairDiffGeno_{}_Events_night_{}.png".format(valueCat, n), dpi=100)
                         plt.close(fig)
 
             print ("Plots saved as pdf and analyses saved in text file.")
@@ -2580,7 +2558,7 @@ if __name__ == '__main__':
             dataToUse = profileData
             #If the profiles are computed over the merged nights:
             #dataToUse = mergeProfile
-
+            
             #select the control and tested genotypes
             #generate automatically the list of genotypes
             genotypeList = []
@@ -2588,12 +2566,12 @@ if __name__ == '__main__':
             firstNight = list(dataToUse[firstFile].keys())[0]
             for rfid in dataToUse[firstFile][firstNight].keys():
                 genotypeList.append(dataToUse[firstFile][firstNight][rfid]['genotype'])
-
+            
             genotypeCat = list(Counter(genotypeList))
             genotypeCat.sort(reverse=True)
             print('genotype list: ', genotypeCat)
             genoListLocal = genotypeCat
-
+            
             question = "Choose the genotype of the control animals:"
             question += f"\n\t [0] {genoListLocal[0]}"
             question += f"\n\t [1] {genoListLocal[1]}"
@@ -2601,14 +2579,13 @@ if __name__ == '__main__':
             answerGenoControl = input(question)
             genoControl = genoListLocal[int(answerGenoControl)]
             #compute the data for the control animal of each cage
-            #genoControl = 'DlxCre wt ; Dyrk1acKO/+'
-            genoControl = 'wt'
-            wtData = extractControlData( profileData=dataToUse, genoControl=genoControl, behaviouralEventOneMouse=behaviouralEventOneMouse)
+            
+            #wtData = extractControlData( profileData=dataToUse, genoControl=genoControl, behaviouralEventOneMouse=behaviouralEventOneMouse)
             wtData = extractCageData(profileData=dataToUse, behaviouralEventOneMouse=behaviouralEventOneMouse)
             #mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList )
             #wtData = extractControlData(profileData=mergeProfile, genoControl=genoControl)
             #print(wtData)
-
+            
             question = "Choose the genotype of the mutant animals:"
             question += f"\n\t [0] {genoListLocal[0]}"
             question += f"\n\t [1] {genoListLocal[1]}"
@@ -2616,9 +2593,7 @@ if __name__ == '__main__':
             answerGenoMutant = input(question)
             genoMutant = genoListLocal[int(answerGenoMutant)]
             #compute the mutant data, centered and reduced for each cage
-            #genoMutant = 'DlxCre Tg ; Dyrk1acKO/+'
-            #genoMutant = 'Del/+'
-            genoMutant = 'ko'
+      
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData, categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse )
 
             print(koData)
@@ -2660,6 +2635,7 @@ if __name__ == '__main__':
                 plt.tight_layout()
                 #plt.show()
                 fig.savefig('profiles_zscores_{}.pdf'.format(cat), dpi=300)
+                fig.savefig('profiles_zscores_{}.png'.format(cat), dpi=100)
 
             print('Job done.')
 
@@ -2678,19 +2654,19 @@ if __name__ == '__main__':
             #dataToUse = profileData
             # If the profiles are computed over the merged nights:
             dataToUse = mergeProfile
-
+            
             #generate automatically the list of genotypes
             genotypeList = []
             firstFile = list(dataToUse.keys())[0]
             firstNight = list(dataToUse[firstFile].keys())[0]
             for rfid in dataToUse[firstFile][firstNight].keys():
                 genotypeList.append(dataToUse[firstFile][firstNight][rfid]['genotype'])
-
+            
             genotypeCat = list(Counter(genotypeList))
             genotypeCat.sort(reverse=True)
             print('genotype list: ', genotypeCat)
             genoListLocal = genotypeCat
-
+            
             question = "Choose the genotype of the control animals:"
             question += f"\n\t [0] {genoListLocal[0]}"
             question += f"\n\t [1] {genoListLocal[1]}"
@@ -2699,8 +2675,7 @@ if __name__ == '__main__':
             genoControl = genoListLocal[int(answerGenoControl)]
 
             # compute the data for the control animal of each cage
-            #genoControl = 'DlxCre wt ; Dyrk1acKO/+'
-            genoControl = 'WT'
+
             #wtData = extractControlData(profileData=dataToUse, genoControl=genoControl,behaviouralEventOneMouse=behaviouralEventOneMouse)
             wtData = extractCageData(profileData=dataToUse, behaviouralEventOneMouse=behaviouralEventOneMouse)
             # mergeProfile = mergeProfileOverNights(profileData=profileData, categoryList=categoryList )
@@ -2713,7 +2688,7 @@ if __name__ == '__main__':
             question += "\n"
             answerGenoMutant = input(question)
             genoMutant = genoListLocal[int(answerGenoMutant)]
-
+            
             # compute the mutant data, centered and reduced for each cage
             koData = generateMutantData(profileData=dataToUse, genoMutant=genoMutant, wtData=wtData,
                                         categoryList=categoryList, behaviouralEventOneMouse=behaviouralEventOneMouse)
@@ -2726,7 +2701,7 @@ if __name__ == '__main__':
                 for key in ['night', 'trait', 'rfid', 'exp', 'value']:
                     koDataDic[key] = []
                 
-
+                
                 # the list of events to be plotted is determined:
                 eventListForTest = [x+cat for x in behaviouralEventOneMouseDic[cat]]
                 eventListForLabels = [getFigureBehaviouralEventsLabels(x) for x in behaviouralEventOneMouseDic[cat]]
@@ -2759,6 +2734,7 @@ if __name__ == '__main__':
                 plt.tight_layout()
                 #plt.show()
                 fig.savefig('profiles_zscores_horizontal_{}.pdf'.format(cat), dpi=300)
+                fig.savefig('profiles_zscores_horizontal_{}.png'.format(cat), dpi=100)
 
             print('Job done.')
 

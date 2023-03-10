@@ -55,7 +55,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
             
             result ={}
             animalA = pool.animalDictionary.get( animal )
-            animalB = pool.animalDictionary.get( idAnimalB )
+            animalB = pool.animalDictionary.get( idAnimalB )            
             
             OralGenitalTimeLine = EventTimeLine( None, eventName , animal , idAnimalB , loadEvent=False )
 

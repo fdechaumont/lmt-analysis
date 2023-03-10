@@ -111,7 +111,7 @@ if __name__ == '__main__':
                 animalWTDictionary[animal] = pool.animalDictionary[animal]
             
             if ( pool.animalDictionary[animal].genotype == "KO" ):
-                animalKODictionary[animal] = pool.animalDictionary[animal]
+                animalKODictionary[animal] = pool.animalDictionary[animal]                    
         
             animalMakeGroupDictionary[animal] = EventTimeLine( connection, "Group 4 break", animal, minFrame=tmin, maxFrame=tmax )
             group4Dictionary[animal] = EventTimeLine( connection, "Group4", animal, minFrame=tmin, maxFrame=tmax )

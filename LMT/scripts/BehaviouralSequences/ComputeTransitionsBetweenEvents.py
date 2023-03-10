@@ -23,10 +23,113 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import networkx as nx
 from scipy.stats import mannwhitneyu
-from LMT.USV.figure.featureHeatMap import *
 import string
 import matplotlib.image as mpimg
 from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
+from matplotlib.collections import PatchCollection
+from matplotlib.patches import Circle
+
+correspondanceList = [ (0.001, 1),
+                      ( 0.01 , 0.9 ),
+                      ( 0.05 , 0.8 ),
+                      ( 0.1 , 0.2 )
+                      ]
+radiusScale = 3/7.0
+effectSizeAmplitude = 1
+
+def pValueToCircleSize( pValue ):
+    
+    size = 1
+    for v in correspondanceList:
+        if pValue >= v[0]:
+            size = v[1]
+    print( "pval to size: " , pValue, size )
+    return size
+
+def featureHeatMap( dfEffectSize, dfPValue, ax , title=None,showLegend=False ):
+    
+    print("Data frame effect size:")            
+    print( dfEffectSize )
+
+    print("Data frame dfPValue:")            
+    print( dfPValue )
+    
+    # labels
+    
+    xlabels = list( dfEffectSize.head() )
+    ylabels = list( dfEffectSize.index )
+        
+    M= len( xlabels )
+    N= len( ylabels )
+    
+    x, y = np.meshgrid(np.arange(M), np.arange(N))
+    print( x )
+    print( y )
+    
+
+    circles = []
+    colors = []
+    s = []
+    xx = 0
+    for labX in xlabels:
+        row = []
+        yy=0
+        for labY in ylabels:        
+            effectSizeValue = dfEffectSize.loc[labY][labX]
+            pValue = dfPValue.loc[labY][labX]
+            row.append( dfEffectSize.loc[labY][labX] )
+            print( xx , yy , effectSizeValue )
+            circles.append ( Circle(( xx,yy ), radius=pValueToCircleSize(pValue) * radiusScale ) )
+            colors.append( effectSizeValue )                    
+            yy+=1
+        xx+=1
+        s.append(row)
+    
+    s = np.array( s )
+    print( s )
+    
+    #fig, ax = plt.subplots( figsize=( len( xlabels ), len( ylabels ) ) )
+    
+
+    print ( circles )
+    print( colors )
+    col = PatchCollection(circles, array=np.array(colors), cmap="coolwarm" )
+    # effect size scale
+    col.set_clim([-effectSizeAmplitude, effectSizeAmplitude ])
+    ax.add_collection(col)
+        
+    ax.set(xticks=np.arange(M), yticks=np.arange(N),
+           xticklabels=xlabels , yticklabels= ""*len(ylabels) )
+    ax.set_xticks(np.arange(M+1)-0.5, minor=True)
+    ax.set_yticks(np.arange(N+1)-0.5, minor=True)
+    ax.grid(which='minor')
+
+    if title!=None:
+        ax.set_title( title )
+
+    ax.invert_yaxis()
+    
+    #plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+    #plt.tight_layout()
+
+    #FIXME
+    #fig.colorbar(col)
+    
+    # draw p-value legend    
+    if showLegend==True:
+        y=0
+        for v in correspondanceList:
+            pValue= v[0]
+            circle = plt.Circle( ( M+1, y ), pValueToCircleSize(pValue) * radiusScale , color='grey', clip_on=False)
+            plt.text(M+1, y+0.6, "<="+str(pValue), fontsize=10, ha="center",va="center")
+            ax.add_patch( circle )
+            y+=1.2
+
+    #plt.savefig( "test_"+ str( randint(1,1000))+".pdf" )
+    return ax
+    #plt.show()
+    
+
 
 
 
@@ -286,10 +389,10 @@ if __name__ == '__main__':
 
                 genoPossibility = []
                 sexPossibility = []
-                for animal in pool.animalDictionnary.keys():
+                for animal in pool.animalDictionary.keys():
                     print("computing individual animal: {}".format(animal))
-                    geno = pool.animalDictionnary[animal].genotype
-                    sex = pool.animalDictionnary[animal].sex
+                    geno = pool.animalDictionary[animal].genotype
+                    sex = pool.animalDictionary[animal].sex
                     genoPossibility.append(geno)
                     sexPossibility.append(sex)
 
@@ -310,11 +413,11 @@ if __name__ == '__main__':
 
                     pool.loadDetection(start=minT, end=maxT, lightLoad=True)
 
-                    for animal in pool.animalDictionnary.keys():
+                    for animal in pool.animalDictionary.keys():
                         print("computing individual animal: {}".format(animal))
-                        rfid = pool.animalDictionnary[animal].RFID
-                        sex = pool.animalDictionnary[animal].sex
-                        geno = pool.animalDictionnary[animal].genotype
+                        rfid = pool.animalDictionary[animal].RFID
+                        sex = pool.animalDictionary[animal].sex
+                        geno = pool.animalDictionary[animal].genotype
 
                         #load timelines for exclusive events for animal:
                         eventTimeLine = {}
@@ -334,7 +437,7 @@ if __name__ == '__main__':
                             print('{}: event total duration: {}, length of dico: {}'.format(exclusiveEvent, eventTimeLine[exclusiveEvent].getTotalLength(), len(dicoEvent[exclusiveEvent])))
                             totalDurationEvents += len(dicoEvent[exclusiveEvent])
 
-                        detection = pool.animalDictionnary[animal].detectionDictionnary
+                        detection = pool.animalDictionary[animal].detectionDictionary
                         print('Number of frames detected: {}; sum of duration of events: {}'.format(len(detection.keys()), totalDurationEvents))
 
                         counter = {}
@@ -406,10 +509,10 @@ if __name__ == '__main__':
 
                 genoPossibility = []
                 sexPossibility = []
-                for animal in pool.animalDictionnary.keys():
+                for animal in pool.animalDictionary.keys():
                     print("computing individual animal: {}".format(animal))
-                    geno = pool.animalDictionnary[animal].genotype
-                    sex = pool.animalDictionnary[animal].sex
+                    geno = pool.animalDictionary[animal].genotype
+                    sex = pool.animalDictionary[animal].sex
                     genoPossibility.append(geno)
                     sexPossibility.append(sex)
 
@@ -424,11 +527,11 @@ if __name__ == '__main__':
 
                 pool.loadDetection(start=minT, end=maxT, lightLoad=True)
 
-                for animal in pool.animalDictionnary.keys():
+                for animal in pool.animalDictionary.keys():
                     print("computing individual animal: {}".format(animal))
-                    rfid = pool.animalDictionnary[animal].RFID
-                    sex = pool.animalDictionnary[animal].sex
-                    geno = pool.animalDictionnary[animal].genotype
+                    rfid = pool.animalDictionary[animal].RFID
+                    sex = pool.animalDictionary[animal].sex
+                    geno = pool.animalDictionary[animal].genotype
 
                     #load timelines for exclusive events for animal:
                     eventTimeLine = {}
@@ -448,7 +551,7 @@ if __name__ == '__main__':
                         print('{}: event total duration: {}, length of dico: {}'.format(exclusiveEvent, eventTimeLine[exclusiveEvent].getTotalLength(), len(dicoEvent[exclusiveEvent])))
                         totalDurationEvents += len(dicoEvent[exclusiveEvent])
 
-                    detection = pool.animalDictionnary[animal].detectionDictionnary
+                    detection = pool.animalDictionary[animal].detectionDictionary
                     print('Number of frames detected: {}; sum of duration of events: {}'.format(len(detection.keys()), totalDurationEvents))
 
                     counter = {}
@@ -629,8 +732,8 @@ if __name__ == '__main__':
 
             sexGroup = 'female-female'
             # genoGroup = 'WT-WT'
-            #genoGroupList = ['WT-WT', 'Del/+-Del/+']
-            genoGroupList = ['DlxCre wt ; Dyrk1acKO/+-DlxCre wt ; Dyrk1acKO/+', 'DlxCre wt ; Dyrk1acKO/+-DlxCre Tg ; Dyrk1acKO/+']
+            genoGroupList = ['WT-WT', 'Del/+-Del/+']
+            #genoGroupList = ['DlxCre wt ; Dyrk1acKO/+-DlxCre wt ; Dyrk1acKO/+', 'DlxCre wt ; Dyrk1acKO/+-DlxCre Tg ; Dyrk1acKO/+']
 
             fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(16, 8))
             figNb = 0
@@ -671,14 +774,14 @@ if __name__ == '__main__':
             # open the json file for short term
             print('Choose the json file for the short term recording.')
             #jsonFileName = getJsonFileToProcess()
-            with open('transition_16p11_pairs_15min.json') as json_data:
+            with open('transition_17q21_pairs_0_27000.json') as json_data:
                 dataDicShort = json.load(json_data)
             print("json file for short term re-imported.")
             
             # open the json file for long term
             print('Choose the json file for the long term recording.')
             #jsonFileName = getJsonFileToProcess()
-            with open('transition_16p11_pairs_over_nights.json') as json_data:
+            with open('transition_17q21_pairs_2nights.json') as json_data:
                 dataDicLong = json.load(json_data)
             print("json file for short term re-imported.")
 
@@ -742,8 +845,8 @@ if __name__ == '__main__':
             #This script computes and plots the statistics for the transitions between exclusive events for one set of data
             sexGroup = 'female-female'
             # genoGroup = 'WT-WT'
-            #genoGroupList = ['WT-WT', 'Del/+-Del/+']
-            genoGroupList = ['DlxCre wt ; Dyrk1acKO/+-DlxCre wt ; Dyrk1acKO/+', 'DlxCre wt ; Dyrk1acKO/+-DlxCre Tg ; Dyrk1acKO/+']
+            genoGroupList = ['WT-WT', 'Del/+-Del/+']
+            #genoGroupList = ['DlxCre wt ; Dyrk1acKO/+-DlxCre wt ; Dyrk1acKO/+', 'DlxCre wt ; Dyrk1acKO/+-DlxCre Tg ; Dyrk1acKO/+']
 
             titleList = ['1h']
             

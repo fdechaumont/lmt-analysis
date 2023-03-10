@@ -111,7 +111,7 @@ if __name__ == '__main__':
                                 
                             print( behavEvent, pool.animalDictionary[animal].RFID, pool.animalDictionary[idAnimalB].RFID )
                         
-                            text_file.write( "night{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( n, file, pool.animalDictionary[animal].RFID, pool.animalDictionary[animal].genotype, pool.animalDictionary[idAnimalB].RFID, pool.animalDictionary[idAnimalB].genotype, startNight, endNight, behavEvent, totalEventDuration, nbEvent ) )
+                            text_file.write( "night{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( n, file, pool.animalDictionary[animal].RFID, pool.animalDictionary[animal].genotype, pool.animalDictionary[idAnimalB].RFID, pool.animalDictionary[idAnimalB].genotype, startNight, endNight, behavEvent, totalEventDuration, nbEvent ) ) 
             
             n+=1
             

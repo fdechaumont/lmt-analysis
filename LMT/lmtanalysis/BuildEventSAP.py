@@ -42,7 +42,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
         SAPTimeLine = EventTimeLine( connection, "SAP", animal.baseId, minFrame=tmin, maxFrame=tmax, loadEvent=False )
 
         #f = animal.getCountFramesSpecZone( start , start+oneMinute*30 , xa=143, ya=190, xb=270, yb=317 )
-        result = animal.getSapDictionnary( tmin , tmax )
+        result = animal.getSapDictionary( tmin , tmax )
             
         SAPTimeLine.reBuildWithDictionary( result )
         SAPTimeLine.endRebuildEventTimeLine(connection)

@@ -64,7 +64,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
 
     else:
         print('More than one animal in database.')
-        isInContactSourceDictionnary = {}
+        isInContactSourceDictionary = {}
         stopSourceTimeLine = {}
         stopIsolatedTimeLine = {}
 
@@ -85,7 +85,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
                     print('Same identity')
                     continue
                 else:
-                    isInContactSourceDictionnary[(animal, animalB)] = EventTimeLineCached( connection, file, "Contact", animal, animalB, minFrame=tmin, maxFrame=tmax ).getDictionary()
+                    isInContactSourceDictionary[(animal, animalB)] = EventTimeLineCached( connection, file, "Contact", animal, animalB, minFrame=tmin, maxFrame=tmax ).getDictionary()
 
         stopIsolatedDic = {}
         for animal in pool.animalDictionary.keys():
@@ -103,9 +103,9 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None , animalTy
                 # loop over eventlist
                 for stopEvent in stopIsolatedTimeLine[animal].eventList:
 
-                    # for each event we seek in t and search a match in isInContactDictionnary between animal and animalB
+                    # for each event we seek in t and search a match in isInContactDictionary between animal and animalB
                     for t in range ( stopEvent.startFrame, stopEvent.endFrame+1 ) :
-                        if t in isInContactSourceDictionnary[(animal, animalB)]:
+                        if t in isInContactSourceDictionary[(animal, animalB)]:
                             stopSocialResult[t] = True
                             framesToRemoveFromStopIsolatedTimeLine.append(t)                        
 
