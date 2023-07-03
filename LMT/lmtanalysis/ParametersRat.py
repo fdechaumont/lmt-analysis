@@ -4,7 +4,7 @@ Created on 13 sept. 2017
 @author: Fab
 '''
 from lmtanalysis.Point import Point
-from lmtanalysis.Measure import oneSecond
+from lmtanalysis.Measure import oneSecond, oneMinute
 import math
 
 class ParametersRat():
@@ -63,8 +63,14 @@ class ParametersRat():
     ''' time window for oral-side sequences '''
     TIME_WINDOW_ORAL_SIDE_SEQUENCE = 60
     
+    ''' time window after an event to look for other events '''
+    TIME_WINDOW_AFTER_EVENT = 1*oneMinute
+    
     ''' minimal duration of events to be considered (for example in oral-side sequences) '''
     EVENT_MIN_DURATION = 10
+    
+    ''' Minimum duration of stay in a corner to be considered as a corner event (frames)'''
+    MIN_DURATION_IN_CORNER = 180
     
     ''' Minimum duration for the animal to stop at the water point to be classified as drinking '''
     MIN_WATER_STOP_DURATION = 2*oneSecond

@@ -363,6 +363,10 @@ def getColorGeno(geno):
         return 'steelblue'
     if geno == 'Del/+':
         return 'darkorange'
+    if geno == 'wt/wt':
+        return 'steelblue'
+    if geno == 'Dup/wt':
+        return 'darkorange'
 
 def getLetterList():
     letterList = list(string.ascii_uppercase)
