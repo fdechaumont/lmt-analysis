@@ -300,7 +300,7 @@ def plotHeatmapEffectSizePVal(dataDic, ax, n, exclusiveEventList, genoGroupList,
         
     dfEffectSize['eventA'] = exclusiveEventList
     dfEffectSize.set_index('eventA', inplace=True)
-    #print(dfEffectSize)
+    print('##########', dfEffectSize)
     
     dfPValue['eventA'] = exclusiveEventList
     dfPValue.set_index('eventA', inplace=True)
