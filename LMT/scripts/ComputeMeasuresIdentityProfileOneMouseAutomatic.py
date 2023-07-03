@@ -908,7 +908,10 @@ def singlePlotPerEventProfileBothSexesPerGroup(profileDataM, profileDataF, night
 
 
     if valueCat == ' TotalLen':
-        y = [i / 30 for i in yval]
+        if event != 'totalDistance':
+            y = [i / 30 for i in yval]
+        if event == 'totalDistance':
+            y = yval
     else:
         y = yval
 
@@ -985,7 +988,7 @@ def singlePlotPerEventProfileBothSexesPerGroup(profileDataM, profileDataF, night
         text_file.write('\n')
         p, sign = extractPValueFromLMMResult(result=result, keyword='WT')
         #add p-values on the plot
-        ax.text(n, max(y) + 0.1 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=16, horizontalalignment='center', color='black', weight='bold')
+        ax.text(n, max(y) + 0.25 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=16, horizontalalignment='center', color='black', weight='bold')
         n += 1
         
 
@@ -1176,6 +1179,10 @@ def plotProfileDataDurationPairs( ax, profileData, night, valueCat, behavEvent, 
         unit = '(m)'
     else:
         unit = '(frames)'
+    ax.xaxis.set_tick_params(direction="in")
+    ax.tick_params(axis='x', labelsize=14)
+    ax.yaxis.set_tick_params(direction="in")
+    ax.tick_params(axis='y', labelsize=12)
     ax.set_ylabel("{} {}".format(getFigureBehaviouralEventsLabels(behavEvent), unit), fontsize=14)
     ax.legend().set_visible(False)
     ax.spines['right'].set_visible(False)
@@ -1203,7 +1210,7 @@ def plotProfileDataDurationPairs( ax, profileData, night, valueCat, behavEvent, 
         print('means of ', genotypeCat[0], np.mean(data[genotypeCat[0]]), 'mean of ', genotypeCat[1], np.mean(data[genotypeCat[1]]))
         print( 'Mann-Whitney U test ({} {} cages, {} {} cages) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
         text_file.write('Mann-Whitney U test ({} {} cages, {} {} cages) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
-        ax.text(x=0.5, y=max(y) + 0.1 * max(y), s = getStarsFromPvalues(p,numberOfTests=1), fontsize=14, ha='center' , weight='bold')
+        ax.text(x=0.5, y=max(y) + 0.25 * (max(y)-min(y)), s = getStarsFromPvalues(p,numberOfTests=1), fontsize=16, ha='center' , weight='bold')
         text_file.write('\n')
 
     elif mode == 'single':
@@ -1232,8 +1239,8 @@ def plotProfileDataDurationPairs( ax, profileData, night, valueCat, behavEvent, 
         ax.text(x=0.5, y=max(y)+ 0.1 * max(y),
                             s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')'''
         p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[0])
-        ax.text(x=0.5, y=max(y) + 0.1 * max(y),
-                            s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center', weight='bold')
+        ax.text(x=0.5, y=max(y) + 0.25 * (max(y)-min(y)),
+                            s=getStarsFromPvalues(p, numberOfTests=1), fontsize=16, ha='center', weight='bold')
         '''p, sign = extractPValueFromLMMResult(result=result, keyword=genotypeCat[1])
         ax.text(x=1, y=max(y) + 0.1 * max(y),
                             s=getStarsFromPvalues(p, numberOfTests=1), fontsize=14, ha='center')'''
