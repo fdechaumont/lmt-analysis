@@ -218,8 +218,8 @@ class Animal():
             if ( a==None):
                 continue
 
-            x = (a.massX - self.parameters.cornerCoordinates50x50Area[0][0] )* self.parameters.scaleFactor
-            y = (a.massY - self.parameters.cornerCoordinates50x50Area[0][1] )* self.parameters.scaleFactor
+            x = (a.massX - self.parameters.cornerCoordinatesOpenFieldArea[0][0] )* self.parameters.scaleFactor
+            y = (a.massY - self.parameters.cornerCoordinatesOpenFieldArea[0][1] )* self.parameters.scaleFactor
 
             if ( x < x1 or x > x2 or y < y1 or y > y2 ):
                 self.detectionDictionary.pop( key )
@@ -1250,7 +1250,7 @@ class AnimalPool():
 
         return experimentTime + realTime
 
-    def plotSensorData( self , sensor="TEMPERATURE", show = True , saveFile = None , minValue=0 , autoNight= False):
+    def plotSensorData( self , sensor="TEMPERATURE", show = True , saveFile = None , minValue=0 , autoNight= False, title =""):
         """
         plots data for temperature
         """
@@ -1341,6 +1341,7 @@ class AnimalPool():
                 ax.text( (autoNight[0]+autoNight[1])/2 , mean , "auto dark phase" ,fontsize=20,ha='center', color='red')
 
         plt.xlabel('time')
+        plt.title( title )
 
         if sensor == "TEMPERATURE":
             plt.ylabel('Temperature (C)')
@@ -1407,11 +1408,11 @@ class AnimalPool():
     def buildSensorData(self, file , show=False ):
         print("Build sensor data")
         #self.plotNight( show = show, saveFile = file+"_day night.pdf" )
-        self.plotSensorData( sensor = "TEMPERATURE" , minValue = 10, saveFile = file+"_log_temperature.pdf", show = show )
-        self.plotSensorData( sensor = "SOUND" , saveFile = file+"_log_sound level.pdf" , show = show )
-        self.plotSensorData( sensor = "HUMIDITY" , minValue = 5 , saveFile = file+"_log_humidity.pdf" ,show = show )
-        self.plotSensorData( sensor = "LIGHTVISIBLE" , minValue = 40 , saveFile = file+"_log_light visible.pdf", show = show  )
-        self.plotSensorData( sensor = "LIGHTVISIBLEANDIR" , minValue = 50 , saveFile = file+"_log_light visible and infra.pdf", show = show  )
+        self.plotSensorData( sensor = "TEMPERATURE" , minValue = 10, saveFile = file+"_log_temperature.pdf", show = show , title=file )
+        self.plotSensorData( sensor = "SOUND" , saveFile = file+"_log_sound level.pdf" , show = show , title=file)
+        self.plotSensorData( sensor = "HUMIDITY" , minValue = 5 , saveFile = file+"_log_humidity.pdf" ,show = show , title=file)
+        self.plotSensorData( sensor = "LIGHTVISIBLE" , minValue = 40 , saveFile = file+"_log_light visible.pdf", show = show , title=file )
+        self.plotSensorData( sensor = "LIGHTVISIBLEANDIR" , minValue = 50 , saveFile = file+"_log_light visible and infra.pdf", show = show , title=file )
 
 
     def plotTrajectory( self , show=True, maskingEventTimeLine=None , title = None, scatter = False, saveFile = None ):
@@ -1533,8 +1534,8 @@ class AnimalPool():
         df = pd.DataFrame(data)
 
 
-        df["x_cm"] = (df.x - self.parameters.cornerCoordinates50x50Area[0][0]) / (self.parameters.cornerCoordinates50x50Area[1][0] - self.parameters.cornerCoordinates50x50Area[0][0]) * self.parameters.ARENA_SIZE
-        df["y_cm"] = (df.y - self.parameters.cornerCoordinates50x50Area[1][1]) / (self.parameters.cornerCoordinates50x50Area[2][1] - self.parameters.cornerCoordinates50x50Area[1][1]) * self.parameters.ARENA_SIZE
+        df["x_cm"] = (df.x - self.parameters.cornerCoordinatesOpenFieldArea[0][0]) / (self.parameters.cornerCoordinatesOpenFieldArea[1][0] - self.parameters.cornerCoordinatesOpenFieldArea[0][0]) * self.parameters.ARENA_SIZE
+        df["y_cm"] = (df.y - self.parameters.cornerCoordinatesOpenFieldArea[1][1]) / (self.parameters.cornerCoordinatesOpenFieldArea[2][1] - self.parameters.cornerCoordinatesOpenFieldArea[1][1]) * self.parameters.ARENA_SIZE
 
         df[f"in_arena_center"] = (df["x_cm"] > self.parameters.CENTER_MARGIN) & \
                                  (df["y_cm"] > self.parameters.CENTER_MARGIN) & \

@@ -184,7 +184,7 @@ class EventTimeLine:
 
         query += " ORDER BY STARTFRAME"
 
-        ''' print( query ) '''
+        print( query )
         c.execute( query )
         all_rows = c.fetchall()
 
