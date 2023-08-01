@@ -242,13 +242,11 @@ def getFigureBehaviouralEventsLabels(event):
 
 
 
-
-
 behaviouralEventOneMouse = ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
     "Train2", "FollowZone",
     "Social approach", "Approach contact",
-    "Group 3 make", "Group 4 make", "Get away", "Break contact",
+    "Group 3 make", "Group 4 make", "Break contact",
     "Group 3 break", "Group 4 break"
     ]
 
@@ -271,15 +269,102 @@ behaviouralEventOneMouseDic = {' TotalLen': ["Move isolated", "Move in contact",
     ]
     }
 
+behaviouralEventOneMousePairDic = {' TotalLen': ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
+    "Oral-genital Contact", 
+    "Train2", "FollowZone"],
+    
+    ' Nb': ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
+    "Oral-genital Contact", 
+    "Train2", "FollowZone",
+    "Approach contact",
+    "Break contact"
+    ],
+    
+    ' MeanDur': ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
+    "Oral-genital Contact", 
+    "Train2", "FollowZone",
+    "Approach contact",
+    "Break contact"
+    ]
+    }
+
+behaviouralEventOneMousePairSymetricDic = {' TotalLen': ['Contact', 'Oral-oral Contact', "Side by side Contact", "Side by side Contact, opposite way"],
+    
+    ' Nb': ['Contact', 'Oral-oral Contact', "Side by side Contact", "Side by side Contact, opposite way"],
+    
+    ' MeanDur': ['Contact', 'Oral-oral Contact', "Side by side Contact", "Side by side Contact, opposite way"]
+    }
+
 behaviouralEventOneMouseSingle = ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact", "Oral-genital Contact", "Train2", "FollowZone",
-                                "Social approach", "Approach contact", "Get away", "Break contact"]
+                                "Social approach", "Approach contact", "Break contact"]
 behaviouralEventOneMouseSocial = ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact",
                             "Side by side Contact", "Side by side Contact, opposite way",
                             "Train2", "FollowZone",
                             "Social approach", "Approach contact",
-                            "Get away", "Break contact"]
+                            "Break contact"]
 
 categoryList = [' TotalLen', ' Nb', ' MeanDur']
+
+unitCatDic = {' TotalLen': 's', ' Nb': 'nb', ' MeanDur': 's'}
+
+
+def getBehaviouralTraitsPerCategory(category):
+    listBehavioursOfInterest = []
+    if category == 'activity': #10
+        listBehavioursOfInterest = ['Move isolated TotalLen', 'Move isolated Nb', 'Move isolated MeanDur', 
+                                             'Move in contact TotalLen', 'Move in contact Nb', 'Move in contact MeanDur',
+                                             'Stop isolated TotalLen', 'Stop isolated Nb', 'Stop isolated MeanDur',
+                                             'totalDistance']
+    if category == 'exploration': #6
+        listBehavioursOfInterest = ['Rear isolated TotalLen', 'Rear isolated Nb', 'Rear isolated MeanDur',
+                                    'Rear in contact TotalLen', 'Rear in contact Nb', 'Rear in contact MeanDur']
+
+    if category == 'contacts': #21
+        listBehavioursOfInterest = ["Contact TotalLen", "Group2 TotalLen", "Group3 TotalLen", "Oral-oral Contact TotalLen", "Oral-genital Contact TotalLen", "Side by side Contact TotalLen", "Side by side Contact, opposite way TotalLen",
+                                    "Contact Nb", "Group2 Nb", "Group3 Nb", "Oral-oral Contact Nb", "Oral-genital Contact Nb", "Side by side Contact Nb", "Side by side Contact, opposite way Nb",
+                                    "Contact MeanDur", "Group2 MeanDur", "Group3 MeanDur", "Oral-oral Contact MeanDur", "Oral-genital Contact MeanDur", "Side by side Contact MeanDur", "Side by side Contact, opposite way MeanDur"]
+        
+    if category == 'follow': #6
+        listBehavioursOfInterest = ["Train2 TotalLen", "FollowZone TotalLen",
+                                    "Train2 Nb", "FollowZone Nb",
+                                    "Train2 MeanDur", "FollowZone MeanDur"]
+        
+    if category == 'approach': #4
+        listBehavioursOfInterest = ["Approach contact Nb", "Group 3 make Nb", "Group 4 make Nb", "Approach contact MeanDur"]
+        
+    if category == 'escape': #4
+        listBehavioursOfInterest = ["Break contact Nb", "Group 3 break Nb", "Group 4 break Nb", "Break contact MeanDur"]
+        
+    return listBehavioursOfInterest
+
+def getBehaviouralTraitsPerCategoryForPCA(category):
+    listBehavioursOfInterest = []
+    if category == 'activity': #11
+        listBehavioursOfInterest = ['Move isolated TotalLen', 'Move isolated Nb',  
+                                             'Move in contact TotalLen', 'Move in contact Nb', 
+                                             'Stop isolated TotalLen', 'Stop isolated Nb', 
+                                             'totalDistance', 'Rear isolated TotalLen', 'Rear isolated Nb',
+                                    'Rear in contact TotalLen', 'Rear in contact Nb']
+
+    if category == 'social': #26
+        listBehavioursOfInterest = ["Contact TotalLen", "Group2 TotalLen", "Group3 TotalLen", "Oral-oral Contact TotalLen", "Oral-genital Contact TotalLen", "Side by side Contact TotalLen", "Side by side Contact, opposite way TotalLen",
+                                    "Contact Nb", "Group2 Nb", "Group3 Nb", "Oral-oral Contact Nb", "Oral-genital Contact Nb", "Side by side Contact Nb", "Side by side Contact, opposite way Nb",
+                                    "Train2 TotalLen", "FollowZone TotalLen",
+                                    "Train2 Nb", "FollowZone Nb",
+                                    "Approach contact Nb", "Group 3 make Nb", "Group 4 make Nb", "Approach contact MeanDur",
+                                    "Break contact Nb", "Group 3 break Nb", "Group 4 break Nb", "Break contact MeanDur"]
+    
+    if category == 'contacts': #14
+        listBehavioursOfInterest = ["Contact TotalLen", "Group2 TotalLen", "Group3 TotalLen", "Oral-oral Contact TotalLen", "Oral-genital Contact TotalLen", "Side by side Contact TotalLen", "Side by side Contact, opposite way TotalLen",
+                                    "Contact Nb", "Group2 Nb", "Group3 Nb", "Oral-oral Contact Nb", "Oral-genital Contact Nb", "Side by side Contact Nb", "Side by side Contact, opposite way Nb"]
+        
+    if category == 'social dynamic': #12
+        listBehavioursOfInterest = ["Train2 TotalLen", "FollowZone TotalLen",
+                                    "Train2 Nb", "FollowZone Nb",
+                                    "Approach contact Nb", "Group 3 make Nb", "Group 4 make Nb", "Approach contact MeanDur",
+                                    "Break contact Nb", "Group 3 break Nb", "Group 4 break Nb", "Break contact MeanDur"]
+        
+    return listBehavioursOfInterest
 
 
 class TestFileUtil ( unittest.TestCase ):

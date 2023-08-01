@@ -791,6 +791,7 @@ if __name__ == '__main__':
                     plt.tight_layout()
                     #plt.show()
                     fig.savefig('profiles_per_geno_all_config_night_{}_{}.pdf'.format(n, valueCat), dpi=300)
+                    fig.savefig('profiles_per_geno_all_config_night_{}_{}.png'.format(n, valueCat), dpi=300)
                     
             
             if nightComputation == "Y":
@@ -814,6 +815,7 @@ if __name__ == '__main__':
                         plt.tight_layout()
                         #plt.show()
                         fig.savefig('profiles_per_geno_all_config_night_{}_{}.pdf'.format(night, valueCat), dpi=300)
+                        fig.savefig('profiles_per_geno_all_config_night_{}_{}.png'.format(night, valueCat), dpi=300)
                         
             
             if nightComputation == "merged":
@@ -843,6 +845,7 @@ if __name__ == '__main__':
                     plt.tight_layout()
                     #plt.show()
                     fig.savefig('profiles_per_geno_all_config_{}_{}.pdf'.format(n, valueCat), dpi=300)
+                    fig.savefig('profiles_per_geno_all_config_{}_{}.png'.format(n, valueCat), dpi=300)
 
             print('Job done.')
             break
