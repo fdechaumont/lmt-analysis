@@ -184,7 +184,7 @@ class EventTimeLine:
 
         query += " ORDER BY STARTFRAME"
 
-        ''' print( query ) '''
+        print( query )
         c.execute( query )
         all_rows = c.fetchall()
 
@@ -1103,10 +1103,10 @@ def plotMultipleTimeLine( timeLineList , colorList=None , show=True , minValue=0
     plt.grid( True , axis='x' )
     marginTop = 0.3
     plt.ylim( (0+marginTop , len( timeLineList ) +1-marginTop ) )
-    plt.axes().get_yaxis().set_visible( False )
+    #plt.axes().get_yaxis().set_visible( False )
     plt.subplots_adjust( left=0.2 )
 
-    plt.legend()
+    #plt.legend()
 
     if ( show ):
         plt.show()
