@@ -71,21 +71,21 @@ if __name__ == '__main__':
     unitDic = {'totDistance': 'cm', 'centerDistance': 'cm', 'centerTime': 's', 'nbSap': 'occurrences', 'rearTotal Nb': 'occurrences', 'rearTotal Duration': 's',
                     'rearCenter Nb': 'occurrences', 'rearCenter Duration': 's', 'rearPeriphery Nb': 'occurrences', 'rearPeriphery Duration': 's'}
 
-    yMinDic = {'totDistance': 6000, 'centerDistance': 0, 'centerTime': 0, 'nbSap': 0,
+    yMinDic = {'totDistance': 2000, 'centerDistance': 0, 'centerTime': 0, 'nbSap': 0,
                'rearTotal Nb': 0, 'rearTotal Duration': 0,
                'rearCenter Nb': 0, 'rearCenter Duration': 0, 'rearPeriphery Nb': 0,
                'rearPeriphery Duration': 0}
 
-    yMaxDic = {'totDistance': 20000, 'centerDistance': 5000, 'centerTime': 300, 'nbSap': 8,
-               'rearTotal Nb': 2000, 'rearTotal Duration': 400,
+    yMaxDic = {'totDistance': 20000, 'centerDistance': 4000, 'centerTime': 250, 'nbSap': 16,
+               'rearTotal Nb': 2200, 'rearTotal Duration': 500,
                'rearCenter Nb': 400, 'rearCenter Duration': 50, 'rearPeriphery Nb': 2000,
                'rearPeriphery Duration': 250}
 
     while True:
         question = "Do you want to:"
         question += "\n\t [1] rebuild all events?"
-        question += "\n\t [2] plot trajectories in the habituation phase per setup?"
-        question += "\n\t [2b] plot trajectories in the habituation phase per genotype?"
+        question += "\n\t [2] compute and plot trajectories in the habituation phase per setup?"
+        question += "\n\t [2b] compute and plot trajectories in the habituation phase per genotype?"
         question += "\n\t [3] plot the distance and anxiety measures in the habituation phase?"
         question += "\n\t [3b] plot the distance and anxiety measures in the habituation phase per genotype?"
         question += "\n\t [4] plot the distance per one minute time bin in the habituation phase?"
@@ -315,7 +315,7 @@ if __name__ == '__main__':
             plt.tight_layout()
             plt.show()  # display the plot
             fig.savefig('fig_values_hab_nor.pdf', dpi=200)
-            fig.savefig('fig_values_hab_nor.jpg', dpi=200)
+            fig.savefig('fig_values_hab_nor.png', dpi=200)
             print('Job done.')
             break
 
