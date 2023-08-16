@@ -76,6 +76,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
         for k in [0, 1, 2, 3]:
             cornerTimeLine[k].reBuildWithDictionary( resultCorner[k] )
             cornerTimeLine[k].removeEventsBelowLength( maxLen = parameters.MIN_DURATION_IN_CORNER )
+            cornerTimeLine[k].mergeCloseEvents( numberOfFrameBetweenEvent = 3 )
             cornerTimeLine[k].endRebuildEventTimeLine(connection)        
     
     
