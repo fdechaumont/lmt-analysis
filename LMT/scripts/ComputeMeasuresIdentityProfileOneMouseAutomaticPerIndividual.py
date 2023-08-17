@@ -27,7 +27,7 @@ from lmtanalysis.Util import getFileNameInput, getStarsFromPvalues
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import pandas
-from scipy.stats import mannwhitneyu, kruskal, ttest_1samp
+from scipy.stats import mannwhitneyu, kruskal, ttest_1samp, ttest_ind
 from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
 
 import matplotlib.pyplot as plt
@@ -35,6 +35,7 @@ import matplotlib.image as mpimg
 from lmtanalysis.BehaviouralSequencesUtil import genoList
 from scipy.stats.morestats import wilcoxon
 import os
+from scipy.stats._morestats import shapiro
 
 
 def computeProfilePerIndividual(file, minT, maxT, genoList, categoryList, behaviouralEventListTwoMice):
@@ -497,15 +498,28 @@ def plotProfilePerIndividualPerGenotypeOnlySameGenotype( ax, profileData, night,
             data = {}
             for k in [0,1]:
                 data[genotypeCat[k]] = dfData['value'][(dfData['genotype'] == genotypeCat[k]) & (dfData['genoOther'] == genoB)]
-            try:
-                U, p = wilcoxon( data[genotypeCat[0]], data[genotypeCat[1]])
-            except:
-                print('test not possible')
-                U = 'NA'
-                p = 'NA'
+            
             print('means of mean duration with ', genoB, ' geno: ', genotypeCat[0], np.mean(data[genotypeCat[0]]), 'versus ', genotypeCat[1], np.mean(data[genotypeCat[1]]))
-            print( 'Wilcoxon paired test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
-            text_file.write('Wilcoxon paired test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
+            
+            #test normality of data
+            W0, pNorm0 = shapiro(data[genotypeCat[0]])
+            W1, pNorm1 = shapiro(data[genotypeCat[1]])
+            #test equality of variance
+            f, p_value = f_test(group1=data[genotypeCat[0]], group2=data[genotypeCat[1]])
+        
+            if (pNorm0 >= 0.05) & (pNorm1 >= 0.05) & (p_value > 0.05):
+                print('Normal data')
+                results = ttest_ind(data[genotypeCat[0]], data[genotypeCat[1]])
+                T = results.statistic
+                p = results.pvalue
+                print( 'T test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, T, p) )
+                text_file.write('T Test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, T, p))
+            
+            else:
+                print('Data not normally distributed')
+                U, p = wilcoxon( data[genotypeCat[0]], data[genotypeCat[1]])
+                print( 'Wilcoxon paired test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
+                text_file.write('Wilcoxon paired test ({} {} ind, {} {} ind) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
             ax.text(x=pos[genoB], y=yMin+0.95*(yMax-yMin), s = getStarsFromPvalues(p,numberOfTests=1), fontsize=15, ha='center' )
             text_file.write('\n')
 
@@ -557,17 +571,28 @@ def plotProfilePerIndividualPerGenotypeOnlySameGenotype( ax, profileData, night,
         for k in [0, 1]:
             data[genotypeCat[k]] = dfData['value'][(dfData['genotype'] == genotypeCat[k]) & (dfData['genoOther'] == 'same')]
             #print('############ ', data[genotypeCat[k]])
-            try:
+            W, pNorm = shapiro(data[genotypeCat[k]])
+        
+            if pNorm >= 0.05:
+                print('Normal data')
                 results = ttest_1samp(data[genotypeCat[k]], 100/3)
                 T = results.statistic
                 p = results.pvalue
-            except:
-                print('test not possible')
-                T = 'NA'
-                p = 'NA'
+            if pNorm < 0.05:
+                print('non normal data')
+                yVal = [val - 100/3 for val in data[genotypeCat[k]]]
+                results = wilcoxon(yVal, alternative="two-sided")
+                T = results.statistic
+                p = results.pvalue
+        
             print('means of prop with same geno: ', genotypeCat[k], np.mean(data[genotypeCat[k]]))
-            print('One sample t-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, T, p))
-            text_file.write('One-sample t-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, T, p))
+            if pNorm >= 0.05:
+                print('One sample t-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, T, p))
+                text_file.write('One-sample t-test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, T, p))
+            if pNorm < 0.05:
+                print('Wilcoxon test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, T, p))
+                text_file.write('Wilcoxon test ({} {} ind) {}: T={}, p={}'.format(len(data[genotypeCat[k]]), genotypeCat[k], event, T, p))
+           
             ax.text(x=pos[genotypeCat[k]], y=yMin + 0.95 * (yMax - yMin), s=getStarsFromPvalues(p, numberOfTests=1),
                                 fontsize=14, ha='center')
             text_file.write('\n')
