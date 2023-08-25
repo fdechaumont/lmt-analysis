@@ -8,7 +8,7 @@ import sqlite3
 import os
 
 from lmtanalysis.FileUtil import getFigureBehaviouralEventsLabelsFrench, behaviouralEventOneMouse, behaviouralEventOneMouseDic, getFigureBehaviouralEventsLabels, categoryList,\
-    getJsonFilesToProcess
+    getJsonFilesToProcess, getJsonFilesWithSpecificNameToProcess
 from lmtanalysis.Animal import *
 import numpy as np
 import matplotlib.pyplot as plt
@@ -273,13 +273,13 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
         rfid = pool.animalDictionary[animal].RFID
         geno = pool.animalDictionary[animal].genotype
         sexAnimal = pool.animalDictionary[animal].sex
-        treatmentAnimal = pool.animalDictionary[animal].treatment
+        #treatmentAnimal = pool.animalDictionary[animal].treatment
         ageAnimal = pool.animalDictionary[animal].age
         strainAnimal = pool.animalDictionary[animal].strain
         pair.append(rfid)
         genotype.append(geno)
         sex.append(sexAnimal)
-        treatment.append(treatmentAnimal)
+        #treatment.append(treatmentAnimal)
         age.append(ageAnimal)
         strain.append(strainAnimal)
 
@@ -291,7 +291,8 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
     else:
         sexPair = 'mixed'
     print('pair: ', pairName, genoPair, sexPair)
-    treatmentPair = ('{}_{}'.format(treatment[0], treatment[1]))
+    
+    #treatmentPair = ('{}_{}'.format(treatment[0], treatment[1]))
 
     if strain[0] == strain[1]:
         strainPair = strain[0]
@@ -304,7 +305,7 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
     animalData[pairName]["file"] = file
     animalData[pairName]["animal"] = pairName
     animalData[pairName]['sex'] = sexPair
-    animalData[pairName]['treatment'] = treatmentPair
+    #animalData[pairName]['treatment'] = treatmentPair
     animalData[pairName]['age'] = agePair
     animalData[pairName]['strain'] = strainPair
     animalData[pairName]['group'] = pairName
@@ -1299,10 +1300,14 @@ def plotProfileDataDurationPairsDiffGeno( axes, row, col, profileData, night, va
     #sns.stripplot(x, y, jitter=True, hue=group, s=5, ax=axes[row, col])
     sns.stripplot(x, y, jitter=True, order=genotypeCat, color='black', s=5, ax=axes[row, col])
     axes[row, col].set_title(behavEvent)
-    if valueCat == ' Nb':
-        unit = '(occurrences)'
+    if event == 'totalDistance':
+        valueCat = 'distance'
+        unit = '(m)'
     else:
-        unit = '(frames)'
+        if valueCat == ' Nb':
+            unit = '(occurrences)'
+        else:
+            unit = '(frames)'
     axes[row, col].set_ylabel("{} {}".format(valueCat, unit))
     axes[row, col].legend().set_visible(False)
     axes[row, col].spines['right'].set_visible(False)
@@ -1316,7 +1321,8 @@ def plotProfileDataDurationPairsDiffGeno( axes, row, col, profileData, night, va
     dfData = pandas.DataFrame({'group': profileValueDictionary["exp"],
                                'genotype': profileValueDictionary["genotype"],
                                'value': profileValueDictionary["value"]})
-
+    print(list(dfData['group']))
+    
     # Mann-Whitney U test, non parametric, small sample size
     genotypeCat = list(Counter(dfData['genotype']).keys())
     genotypeCat.sort(reverse=True)
@@ -2023,9 +2029,10 @@ if __name__ == '__main__':
             experimentDuration = getExperimentDurationInput()
             print(files)
 
-            profileData = {}
+            
 
             for file in files:
+                profileData = {}
                 print(file)
                 #get the path and the name of file
                 head, tail = os.path.split(file)
@@ -2340,7 +2347,7 @@ if __name__ == '__main__':
 
             if nightComputation == "N":
                 n = 0
-                files = getJsonFilesToProcess()
+                files = getJsonFilesWithSpecificNameToProcess('profile_data')
                 # create a dictionary with profile data
                 profileData = mergeJsonFilesForProfiles(files)
 
