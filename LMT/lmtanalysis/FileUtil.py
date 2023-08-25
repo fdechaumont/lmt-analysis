@@ -105,6 +105,32 @@ def getJsonFilesToProcess():
     return files
 
 
+def getJsonFilesWithSpecificNameToProcess( namePartIncluded ):
+    root = tk.Tk()
+    root.withdraw()
+    root.update()
+
+    d = Dialog(
+        title="Select input for processing", text="Select folder for processing", bitmap='question',
+        strings=('Folder', 'Cancel'), default=0)
+
+    root.focus_force()
+
+    folder = askdirectory(title="Choose a directory to process")
+    print("Folder: ", folder)
+    folder = folder + "/**/*.json"
+    print("Fetching files...")
+    files = []
+    for file in glob.glob(folder, recursive=True):
+        if namePartIncluded in file:
+            print(file, "found.")
+            files.append(file)
+
+    d.destroy()
+    root.destroy()
+
+    return files
+
 def getCsvFileToProcess():
     root = tk.Tk()
     root.withdraw()
