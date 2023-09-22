@@ -8,7 +8,7 @@ import sqlite3
 import os
 
 from lmtanalysis.FileUtil import getFigureBehaviouralEventsLabelsFrench, behaviouralEventOneMouse, behaviouralEventOneMouseDic, getFigureBehaviouralEventsLabels, categoryList,\
-    getJsonFilesToProcess
+    getJsonFilesToProcess, getJsonFilesWithSpecificNameToProcess
 from lmtanalysis.Animal import *
 import numpy as np
 import matplotlib.pyplot as plt
@@ -28,7 +28,7 @@ from lmtanalysis.Util import getFileNameInput, getStarsFromPvalues
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import pandas
-from scipy.stats import mannwhitneyu, kruskal, ttest_1samp
+from scipy.stats import mannwhitneyu, kruskal, ttest_1samp, wilcoxon
 from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
 
 import matplotlib.pyplot as plt
@@ -36,6 +36,7 @@ import matplotlib.image as mpimg
 
 import random
 from random import randint
+from scipy.stats._morestats import shapiro
 
 def computeProfile(file, minT, maxT, behaviouralEventList):
     
@@ -272,13 +273,13 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
         rfid = pool.animalDictionary[animal].RFID
         geno = pool.animalDictionary[animal].genotype
         sexAnimal = pool.animalDictionary[animal].sex
-        treatmentAnimal = pool.animalDictionary[animal].treatment
+        #treatmentAnimal = pool.animalDictionary[animal].treatment
         ageAnimal = pool.animalDictionary[animal].age
         strainAnimal = pool.animalDictionary[animal].strain
         pair.append(rfid)
         genotype.append(geno)
         sex.append(sexAnimal)
-        treatment.append(treatmentAnimal)
+        #treatment.append(treatmentAnimal)
         age.append(ageAnimal)
         strain.append(strainAnimal)
 
@@ -290,7 +291,8 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
     else:
         sexPair = 'mixed'
     print('pair: ', pairName, genoPair, sexPair)
-    treatmentPair = ('{}_{}'.format(treatment[0], treatment[1]))
+    
+    #treatmentPair = ('{}_{}'.format(treatment[0], treatment[1]))
 
     if strain[0] == strain[1]:
         strainPair = strain[0]
@@ -303,7 +305,7 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
     animalData[pairName]["file"] = file
     animalData[pairName]["animal"] = pairName
     animalData[pairName]['sex'] = sexPair
-    animalData[pairName]['treatment'] = treatmentPair
+    #animalData[pairName]['treatment'] = treatmentPair
     animalData[pairName]['age'] = agePair
     animalData[pairName]['strain'] = strainPair
     animalData[pairName]['group'] = pairName
@@ -476,10 +478,10 @@ def getProfileValuesPairsWithMode(profileData, night='0', event=None, mode=None)
     dataDic["strain"] = []
 
     for file in profileData.keys():
-        #print(profileData[file].keys())
         for animal in profileData[file][str(night)].keys():
             if mode == 'dyadic':
                 if '_' in animal:
+                    print('no _: ', animal)
                     dataDic['id'].append(profileData[file][str(night)][animal]["animal"])
                     dataDic["value"].append(profileData[file][str(night)][animal][event])
                     dataDic["exp"].append(profileData[file][str(night)][animal]["file"])
@@ -953,7 +955,7 @@ def singlePlotPerEventProfileBothSexesPerGroup(profileDataM, profileDataF, night
     if valueCat == ' Nb':
         ylabel = 'occurrences'
     if valueCat == ' MeanDur':
-        ylabel = 'mean duration (s)'
+        ylabel = 'mean duration (frames)'
     
     if event == 'totalDistance':
         ylabel = 'distance (m)'
@@ -1148,9 +1150,16 @@ def plotProfileDataDurationPairs( ax, profileData, night, valueCat, behavEvent, 
         event = behavEvent
     print("event: ", event)
 
-    profileValueDictionary = getProfileValuesPairs(profileData=profileData, night=night, event=event)
-    y = profileValueDictionary["value"]
+    #profileValueDictionary = getProfileValuesPairs(profileData=profileData, night=night, event=event)
+    profileValueDictionary = getProfileValuesPairsWithMode(profileData=profileData, night=night, event=event, mode=mode)
+    yval = profileValueDictionary["value"]
     x = profileValueDictionary["genotype"]
+    
+    if (valueCat == ' TotalLen') & (behavEvent != 'totalDistance'):
+        y = [i / 30 for i in yval]
+    else:
+        y = yval
+        
     group = profileValueDictionary["exp"]
 
     genotypeCat = list(Counter(x))
@@ -1164,7 +1173,7 @@ def plotProfileDataDurationPairs( ax, profileData, night, valueCat, behavEvent, 
     print("Nb of experiments: ", len(experimentType))
 
     ax.set_xlim(-0.5, 1.5)
-    ax.set_ylim(min(y) - 0.2 * max(y), max(y) + 0.2 * max(y))
+    ax.set_ylim(min(y) - 0.2 * (max(y)-min(y)), max(y) + 0.4 * (max(y)-min(y)))
     sns.boxplot(x, y, ax=ax, order=genotypeCat, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
@@ -1183,7 +1192,16 @@ def plotProfileDataDurationPairs( ax, profileData, night, valueCat, behavEvent, 
     ax.tick_params(axis='x', labelsize=14)
     ax.yaxis.set_tick_params(direction="in")
     ax.tick_params(axis='y', labelsize=12)
-    ax.set_ylabel("{} {}".format(getFigureBehaviouralEventsLabels(behavEvent), unit), fontsize=14)
+    if valueCat == ' TotalLen':
+        ylabel = 'total duration (s)'
+    if valueCat == ' Nb':
+        ylabel = 'occurrences'
+    if valueCat == ' MeanDur':
+        ylabel = 'mean duration (frames)'
+    
+    if event == 'totalDistance':
+        ylabel = 'distance (m)'
+    ax.set_ylabel(ylabel, fontsize=14)
     ax.legend().set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -1282,10 +1300,14 @@ def plotProfileDataDurationPairsDiffGeno( axes, row, col, profileData, night, va
     #sns.stripplot(x, y, jitter=True, hue=group, s=5, ax=axes[row, col])
     sns.stripplot(x, y, jitter=True, order=genotypeCat, color='black', s=5, ax=axes[row, col])
     axes[row, col].set_title(behavEvent)
-    if valueCat == ' Nb':
-        unit = '(occurrences)'
+    if event == 'totalDistance':
+        valueCat = 'distance'
+        unit = '(m)'
     else:
-        unit = '(frames)'
+        if valueCat == ' Nb':
+            unit = '(occurrences)'
+        else:
+            unit = '(frames)'
     axes[row, col].set_ylabel("{} {}".format(valueCat, unit))
     axes[row, col].legend().set_visible(False)
     axes[row, col].spines['right'].set_visible(False)
@@ -1299,7 +1321,8 @@ def plotProfileDataDurationPairsDiffGeno( axes, row, col, profileData, night, va
     dfData = pandas.DataFrame({'group': profileValueDictionary["exp"],
                                'genotype': profileValueDictionary["genotype"],
                                'value': profileValueDictionary["value"]})
-
+    print(list(dfData['group']))
+    
     # Mann-Whitney U test, non parametric, small sample size
     genotypeCat = list(Counter(dfData['genotype']).keys())
     genotypeCat.sort(reverse=True)
@@ -1697,7 +1720,13 @@ def plotZScoreProfileAutoHorizontal(ax, cat, koDataframe, night, eventListForTes
 
         valList = selectedDataframe['value'][selectedDataframe['trait'] == event]
         try:
-            T, p = ttest_1samp(valList, popmean=0, nan_policy='omit')
+            W, pNorm = shapiro(valList)
+            if pNorm >= 0.05:
+                print("####normal data")
+                T, p = ttest_1samp(valList, popmean=0, nan_policy='omit')
+            if pNorm < 0.05:
+                print("####data not normal")
+                T, p = wilcoxon(valList, alternative="two-sided")
             print('p=', p)
             #if np.isnan(p) == True:
             if getStarsFromPvalues(p,numberOfTests=1) == 'NA':
@@ -2000,9 +2029,10 @@ if __name__ == '__main__':
             experimentDuration = getExperimentDurationInput()
             print(files)
 
-            profileData = {}
+            
 
             for file in files:
+                profileData = {}
                 print(file)
                 #get the path and the name of file
                 head, tail = os.path.split(file)
@@ -2317,7 +2347,7 @@ if __name__ == '__main__':
 
             if nightComputation == "N":
                 n = 0
-                files = getJsonFilesToProcess()
+                files = getJsonFilesWithSpecificNameToProcess('profile_data')
                 # create a dictionary with profile data
                 profileData = mergeJsonFilesForProfiles(files)
 

@@ -22,12 +22,122 @@ import seaborn as sns
 #from pyvis.network import Network
 import matplotlib.pyplot as plt
 import networkx as nx
-from scipy.stats import mannwhitneyu
+from scipy.stats import mannwhitneyu, ttest_ind, levene
 import string
 import matplotlib.image as mpimg
 from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Circle
+from scipy.stats._morestats import shapiro
+import os
+
+def computeTransitionsBetweenExclusiveEventsPerFile(file, minT, maxT, resultsTransitionsProba):
+    print(file)
+    #get the path and the name of file
+    head, tail = os.path.split(file)
+    
+    connection = sqlite3.connect(file)
+    pool = AnimalPool()
+    pool.loadAnimals(connection)
+    pool.loadDetection(start=minT, end=maxT, lightLoad=True)
+    
+    genoPossibility = []
+    sexPossibility = []
+    for animal in pool.animalDictionary.keys():
+        print("computing individual animal: {}".format(animal))
+        geno = pool.animalDictionary[animal].genotype
+        sex = pool.animalDictionary[animal].sex
+        genoPossibility.append(geno)
+        sexPossibility.append(sex)
+
+    genoListInFile = sorted( genoPossibility, reverse=True )
+    genoGroup = '{}-{}'.format(genoListInFile[0], genoListInFile[1])
+    sexListInFile = sorted( sexPossibility, reverse=True )
+    sexGroup = '{}-{}'.format(sexListInFile[0], sexListInFile[1])
+    
+    if not sexGroup in resultsTransitionsProba.keys():
+        resultsTransitionsProba[sexGroup] = {}
+    if not genoGroup in resultsTransitionsProba[sexGroup].keys():
+        resultsTransitionsProba[sexGroup][genoGroup] = {}
+    
+    resultsTransitionsProba[sexGroup][genoGroup][file] = {}
+
+    for animal in pool.animalDictionary.keys():
+        print("computing individual animal: {}".format(animal))
+        rfid = pool.animalDictionary[animal].RFID
+        sex = pool.animalDictionary[animal].sex
+        geno = pool.animalDictionary[animal].genotype
+
+        #load timelines for exclusive events for animal:
+        eventTimeLine = {}
+        dicoEvent = {}
+        results = {}
+        timeLineList = []
+        for exclusiveEvent in exclusiveEventList:
+            eventTimeLine[exclusiveEvent] = EventTimeLineCached( connection, file, exclusiveEvent, animal, None, minFrame=minT, maxFrame=maxT )
+            dicoEvent[exclusiveEvent] = eventTimeLine[exclusiveEvent].getDictionary(minFrame=minT, maxFrame=maxT)
+            timeLineList.append(eventTimeLine[exclusiveEvent])
+            results[exclusiveEvent] = {}
+            for event in exclusiveEventList:
+                results[exclusiveEvent][event] = 0
+
+        totalDurationEvents = 0
+        for exclusiveEvent in exclusiveEventList:
+            print('{}: event total duration: {}, length of dico: {}'.format(exclusiveEvent, eventTimeLine[exclusiveEvent].getTotalLength(), len(dicoEvent[exclusiveEvent])))
+            totalDurationEvents += len(dicoEvent[exclusiveEvent])
+
+        detection = pool.animalDictionary[animal].detectionDictionary
+        print('Number of frames detected: {}; sum of duration of events: {}'.format(len(detection.keys()), totalDurationEvents))
+
+        counter = {}
+        labels = {}
+        for t in detection.keys():
+            counter[t] = 0
+            labels[t] = []
+            for exclusiveEvent in exclusiveEventList:
+                if t in dicoEvent[exclusiveEvent].keys():
+                    counter[t] += 1
+                    labels[t].append(exclusiveEvent)
+
+        for t in detection.keys():
+            if counter[t] == 0:
+                print('No event at ', t, labels[t])
+            elif counter[t] > 1:
+                print('More than one event at t=', t, ': ', counter[t], labels[t])
+
+        for exclusiveEvent in exclusiveEventList:
+            for event in eventTimeLine[exclusiveEvent].eventList:
+                firstFrame = event.startFrame
+                lastFrame = event.endFrame
+                if lastFrame >= maxT:
+                    break
+                else:
+                    test = 0
+                    for exclusiveEventFollow in exclusiveEventList:
+                        if eventTimeLine[exclusiveEventFollow].hasEvent(lastFrame+1):
+                            test = 1
+                            results[exclusiveEvent][exclusiveEventFollow] += 1
+                            #print('Event {}: first frame = {} last frame = {}, next event: {}'.format(exclusiveEvent, firstFrame, lastFrame, exclusiveEventFollow))
+
+                if test == 0:
+                    print('############Event {}: first frame = {} last frame = {}'.format(exclusiveEvent, firstFrame, lastFrame))
+
+            results[exclusiveEvent]['all'] = eventTimeLine[exclusiveEvent].getNumberOfEvent(minFrame=minT, maxFrame=maxT)
+
+        resultsDic = {}
+        for exclusiveEvent in exclusiveEventList:
+            resultsDic[exclusiveEvent] = []
+            for exclusiveEventFollow in exclusiveEventList:
+                resultsDic[exclusiveEvent].append(results[exclusiveEvent][exclusiveEventFollow])
+
+        print(resultsDic)
+        resultsTransitionsProba[sexGroup][genoGroup][file][rfid] = { 'geno': geno, 'sex': sex, 'value': resultsDic }
+
+    
+    with open(f"{head}/transition_{minT}_{maxT}.json", 'w') as jFile:
+        json.dump(resultsTransitionsProba, jFile, indent=4)
+    print("json file created")
+
 
 correspondanceList = [ (0.001, 1),
                       ( 0.01 , 0.9 ),
@@ -283,7 +393,18 @@ def plotHeatmapEffectSizePVal(dataDic, ax, n, exclusiveEventList, genoGroupList,
             dataGenoA = dicPerInd[eventA][eventB][genoGroupList[0]]
             dataGenoB = dicPerInd[eventA][eventB][genoGroupList[1]]
             
-            W, p = mannwhitneyu(dataGenoA, dataGenoB)
+            WA, pNormA = shapiro( dataGenoA )
+            WB, pNormB = shapiro( dataGenoB )
+            L, pLevene = levene( dataGenoA, dataGenoB )
+            if (pNormA >= 0.05) & (pNormB >= 0.05) & (pLevene >= 0.05):
+                print("####normal data")
+                W, p = ttest_ind(dataGenoA, dataGenoB, nan_policy='omit')
+            else:
+                print("####data not normal")
+                W, p = mannwhitneyu(dataGenoA, dataGenoB)
+            print('p=', p)
+            
+            #W, p = mannwhitneyu(dataGenoA, dataGenoB)
             effectSize = (np.mean(dataGenoA) - np.mean(dataGenoB)) / np.std(dataGenoA+dataGenoB)
             effectSizeCorrected = effectSize * (len(dataGenoA) + len(dataGenoB) - 3) / (len(dataGenoA) + len(dataGenoB) -2.25) #corrected because the effect size is boosted with small sample sizes
             transitRowEffectSize.append(effectSizeCorrected)
@@ -361,6 +482,7 @@ if __name__ == '__main__':
         question = "Do you want to:"
         question += "\n\t [1] compute transition occurrences between exclusive events over nights?"
         question += "\n\t [1a] compute transition occurrences between exclusive events over specific (short) duration?"
+        question += "\n\t [1b] compute transition occurrences between exclusive events over specific (short) duration from paused frame?"
         question += "\n\t [2] plot transition occurrences between exclusive events for each individual per experiment?"
         question += "\n\t [2b] merge the json files of transitions of the two nights within one single json file?"
         question += "\n\t [3] plot transition occurrences between exclusive events per genotype?"
@@ -373,10 +495,12 @@ if __name__ == '__main__':
             #Compute transition occurrences between exclusive events over nights
             tmin, tmax = getMinTMaxTInput()
             files = getFilesToProcess()
-
-
+            
             for file in files:
                 print(file)
+                #get the path and the name of file
+                head, tail = os.path.split(file)
+                
                 connection = sqlite3.connect(file)
                 pool = AnimalPool()
                 pool.loadAnimals(connection)
@@ -400,7 +524,13 @@ if __name__ == '__main__':
                 genoGroup = '{}-{}'.format(genoListInFile[0], genoListInFile[1])
                 sexListInFile = sorted( sexPossibility, reverse=True )
                 sexGroup = '{}-{}'.format(sexListInFile[0], sexListInFile[1])
-
+                
+                if not sexGroup in resultsTransitionsProba.keys():
+                    resultsTransitionsProba[sexGroup] = {}
+                if not genoGroup in resultsTransitionsProba[sexGroup].keys():
+                    resultsTransitionsProba[sexGroup][genoGroup] = {}
+    
+                resultsTransitionsProba[sexGroup][genoGroup][file] = {}
 
                 nightEventTimeLine = EventTimeLineCached(connection, file, "night", minFrame=tmin, maxFrame=tmax)
                 n = 1
@@ -483,23 +613,41 @@ if __name__ == '__main__':
 
                         print(resultsDic)
                         resultsTransitionsProba[sexGroup][genoGroup][file][rfid] = { 'geno': geno, 'sex': sex, 'value': resultsDic }
-
-                    with open('transition_night_{}_{}.json'.format(n, file[-11:-7]), 'w') as jFile:
+                
+                    with open(f"{head}/transition_night_{tail}_{n}.json", 'w') as jFile:
                         json.dump(resultsTransitionsProba, jFile, indent=4)
                     print("json file created")
+                    
                     n +=1
-
+            print("Job done.")
             break
 
         if answer == '1a':
             #Compute transition occurrences between exclusive events over shorter time
             tmin, tmax = getMinTMaxTInput()
             files = getFilesToProcess()
-            resultsTransitionsProba = {}
-            for sex in sexListGeneral:
-                resultsTransitionsProba[sex] = {}
-                for geno in genoListGeneral:
-                    resultsTransitionsProba[sex][geno] = {}
+            
+            for file in files:
+                print(file)
+                connection = sqlite3.connect(file)
+                pool = AnimalPool()
+                pool.loadAnimals(connection)
+                
+                resultsTransitionsProba = {}
+                
+                minT = tmin
+                maxT = tmax
+                
+                computeTransitionsBetweenExclusiveEventsPerFile(file=file, minT=minT, maxT=maxT, resultsTransitionsProba=resultsTransitionsProba)
+            
+            print('Job done.')
+
+            break
+
+        if answer == '1b':
+            #Compute transition occurrences between exclusive events over shorter time from paused frame
+            experimentDuration = getExperimentDurationInput()
+            files = getFilesToProcess()
 
             for file in files:
                 print(file)
@@ -507,180 +655,127 @@ if __name__ == '__main__':
                 pool = AnimalPool()
                 pool.loadAnimals(connection)
 
-                genoPossibility = []
-                sexPossibility = []
-                for animal in pool.animalDictionary.keys():
-                    print("computing individual animal: {}".format(animal))
-                    geno = pool.animalDictionary[animal].genotype
-                    sex = pool.animalDictionary[animal].sex
-                    genoPossibility.append(geno)
-                    sexPossibility.append(sex)
-
-                genoListInFile = sorted( genoPossibility, reverse=True )
-                genoGroup = '{}-{}'.format(genoListInFile[0], genoListInFile[1])
-                sexListInFile = sorted( sexPossibility, reverse=True )
-                sexGroup = '{}-{}'.format(sexListInFile[0], sexListInFile[1])
-                resultsTransitionsProba[sexGroup][genoGroup][file] = {}
-
-                minT = tmin
-                maxT = tmax
-
-                pool.loadDetection(start=minT, end=maxT, lightLoad=True)
-
-                for animal in pool.animalDictionary.keys():
-                    print("computing individual animal: {}".format(animal))
-                    rfid = pool.animalDictionary[animal].RFID
-                    sex = pool.animalDictionary[animal].sex
-                    geno = pool.animalDictionary[animal].genotype
-
-                    #load timelines for exclusive events for animal:
-                    eventTimeLine = {}
-                    dicoEvent = {}
-                    results = {}
-                    timeLineList = []
-                    for exclusiveEvent in exclusiveEventList:
-                        eventTimeLine[exclusiveEvent] = EventTimeLineCached( connection, file, exclusiveEvent, animal, None, minFrame=minT, maxFrame=maxT )
-                        dicoEvent[exclusiveEvent] = eventTimeLine[exclusiveEvent].getDictionary(minFrame=minT, maxFrame=maxT)
-                        timeLineList.append(eventTimeLine[exclusiveEvent])
-                        results[exclusiveEvent] = {}
-                        for event in exclusiveEventList:
-                            results[exclusiveEvent][event] = 0
-
-                    totalDurationEvents = 0
-                    for exclusiveEvent in exclusiveEventList:
-                        print('{}: event total duration: {}, length of dico: {}'.format(exclusiveEvent, eventTimeLine[exclusiveEvent].getTotalLength(), len(dicoEvent[exclusiveEvent])))
-                        totalDurationEvents += len(dicoEvent[exclusiveEvent])
-
-                    detection = pool.animalDictionary[animal].detectionDictionary
-                    print('Number of frames detected: {}; sum of duration of events: {}'.format(len(detection.keys()), totalDurationEvents))
-
-                    counter = {}
-                    labels = {}
-                    for t in detection.keys():
-                        counter[t] = 0
-                        labels[t] = []
-                        for exclusiveEvent in exclusiveEventList:
-                            if t in dicoEvent[exclusiveEvent].keys():
-                                counter[t] += 1
-                                labels[t].append(exclusiveEvent)
-
-                    for t in detection.keys():
-                        if counter[t] == 0:
-                            print('No event at ', t, labels[t])
-                        elif counter[t] > 1:
-                            print('More than one event at t=', t, ': ', counter[t], labels[t])
-
-                    for exclusiveEvent in exclusiveEventList:
-                        for event in eventTimeLine[exclusiveEvent].eventList:
-                            firstFrame = event.startFrame
-                            lastFrame = event.endFrame
-                            if lastFrame >= maxT:
-                                break
-                            else:
-                                test = 0
-                                for exclusiveEventFollow in exclusiveEventList:
-                                    if eventTimeLine[exclusiveEventFollow].hasEvent(lastFrame+1):
-                                        test = 1
-                                        results[exclusiveEvent][exclusiveEventFollow] += 1
-                                        #print('Event {}: first frame = {} last frame = {}, next event: {}'.format(exclusiveEvent, firstFrame, lastFrame, exclusiveEventFollow))
-
-                            if test == 0:
-                                print('############Event {}: first frame = {} last frame = {}'.format(exclusiveEvent, firstFrame, lastFrame))
-
-                        results[exclusiveEvent]['all'] = eventTimeLine[exclusiveEvent].getNumberOfEvent(minFrame=minT, maxFrame=maxT)
-
-                    resultsDic = {}
-                    for exclusiveEvent in exclusiveEventList:
-                        resultsDic[exclusiveEvent] = []
-                        for exclusiveEventFollow in exclusiveEventList:
-                            resultsDic[exclusiveEvent].append(results[exclusiveEvent][exclusiveEventFollow])
-
-                    print(resultsDic)
-                    resultsTransitionsProba[sexGroup][genoGroup][file][rfid] = { 'geno': geno, 'sex': sex, 'value': resultsDic }
-
-            with open('transition_{}_{}.json'.format(minT, maxT), 'w') as jFile:
-                json.dump(resultsTransitionsProba, jFile, indent=4)
-            print("json file created")
+                minT = getStartTestPhase(pool)
+                maxT = minT + experimentDuration
+                
+                resultsTransitionsProba = {}
+                
+                computeTransitionsBetweenExclusiveEventsPerFile(file=file, minT=minT, maxT=maxT, resultsTransitionsProba=resultsTransitionsProba)
+            
+            print('Job done.')
 
             break
-
-
+        
         if answer == '2':
             # Plot transition between exclusive events for each individual per experiment
-            # open the json file
-            jsonFileName = getJsonFileToProcess()
-            with open(jsonFileName) as json_data:
-                dataDic = json.load(json_data)
-            print("json file re-imported.")
-
-            data = {'sexGroup': [], 'genoGroup': [], 'file': [], 'sex': [], 'genotype': [], 'rfid': [], 'event1': [], 'event2': [], 'value': []}
-
-            for sexGroup in dataDic.keys():
-                for genoGroup in dataDic[sexGroup].keys():
-                    for file in dataDic[sexGroup][genoGroup].keys():
-                        for rfid in dataDic[sexGroup][genoGroup][file].keys():
-                            for event in exclusiveEventList:
-                                for k in range(len(exclusiveEventList)):
-                                    data['sexGroup'].append(sexGroup)
-                                    data['genoGroup'].append(genoGroup)
-                                    data['file'].append(file)
-                                    data['sex'].append(dataDic[sexGroup][genoGroup][file][rfid]['sex'])
-                                    data['genotype'].append(dataDic[sexGroup][genoGroup][file][rfid]['geno'])
-                                    data['rfid'].append(rfid)
-                                    data['event1'].append(event)
-                                    data['event2'].append(exclusiveEventList[k])
-                                    data['value'].append(dataDic[sexGroup][genoGroup][file][rfid]['value'][event][k])
-                                                
+            jsonFilesList = getJsonFilesWithSpecificNameToProcess(namePartIncluded = 'transition_')
             
-            df = pd.DataFrame.from_dict(data)
-            print(df.head())
+            for jsonFileName in jsonFilesList:
+                with open(jsonFileName) as json_data:
+                    dataDic = json.load(json_data)
+                
+                """dataDic = {}
+                for jsonFileName in jsonFilesList:
+                    with open(jsonFileName) as json_data:
+                        data = json.load(json_data)
+                    
+                    sexGroup = list(data.keys())[0]
+                    if not sexGroup in dataDic.keys():
+                        dataDic[sexGroup] = {}
+                    if not genoGroup in list(dataDic[sexGroup].keys())[0]:
+                        dataDic[sexGroup][genoGroup] = {}"""
+                         
+                    
+                print("json file re-imported.")
+
+                print(dataDic)
+                sexGroup = list(dataDic.keys())[0]
+                print(sexGroup)
+                genoGroup = list(dataDic[sexGroup].keys())[0]
+                
+                file = list(dataDic[sexGroup][genoGroup].keys())[0]
+                #get the path and the name of file
+                head, tail = os.path.split(jsonFileName)
+                
+                fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(16, 8))
+                figNb = 0
+                for rfid in dataDic[sexGroup][genoGroup][file].keys():
+                    ax = axes[figNb]
+                    matrix = []
+                    nodeWeightList = []
+                    for event in exclusiveEventList:
+                        rawVal = dataDic[sexGroup][genoGroup][file][rfid]['value'][event]
+                        print('raw: ', rawVal)
+                        proba = [x/np.sum(rawVal) for x in rawVal]
+                        print('proba: ', proba)
+                        matrix.append(proba)
+                        nodeWeightList.append(np.sum(rawVal))
+
+                    totalNbEvents = np.sum(nodeWeightList)
+                    nodeWeightPropList = [a/totalNbEvents*1000 for a in nodeWeightList]
+                    print(matrix)
+
+                    # pos = nx.spring_layout(G)
+                    # print(pos)
+
+
+                    plotTransitionGraphExclusiveEvents(ax=ax, exclusiveEventList=exclusiveEventList, exclusiveEventsLabels=exclusiveEventsLabels, posNodes=posNodes, matrix=matrix, nodeWeightPropList=nodeWeightPropList)
+
+                    ax.set_title('{} {}'.format(rfid[-4:], dataDic[sexGroup][genoGroup][file][rfid]['geno']))
+                    figNb += 1
+
+                patch0 = mpatches.Patch(edgecolor='black', facecolor='red', label='>0.5')
+                patch1 = mpatches.Patch(edgecolor='black', facecolor='darkorange', label='0.4<x<=0.5')
+                patch2 = mpatches.Patch(edgecolor='black', facecolor='gold', label='0.3<x<=0.4')
+                patch3 = mpatches.Patch(edgecolor='black', facecolor='lightgreen', label='0.2<x<=0.3')
+                patch4 = mpatches.Patch(edgecolor='black', facecolor='darkgreen', label='0.1<x<=0.2')
+                patch5 = mpatches.Patch(edgecolor='black', facecolor='blue', label='x<=0.1')
+                handles = [patch0, patch1, patch2, patch3, patch4, patch5]
+                axes[0].legend(handles=handles, loc=(0.90, 0.1)).set_visible(True)
+
+                fig.tight_layout()
+                #fig.show()
+                fig.savefig(f'{head}/transition_exp_{file[-11:-7]}.png', dpi = 200)
             
-            sexGroup = 'female-female'
-            #genoGroup = 'WT-WT'
-            genoGroupList = ['WT-WT', 'Del/+-Del/+']
+            print('Job done.')
             
-            for genoGroup in genoGroupList:
-                for file in dataDic[sexGroup][genoGroup].keys():
-                    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(16, 8))
-                    figNb = 0
-                    for rfid in dataDic[sexGroup][genoGroup][file].keys():
-                        ax = axes[figNb]
-                        matrix = []
-                        nodeWeightList = []
-                        for event in exclusiveEventList:
-                            rawVal = dataDic[sexGroup][genoGroup][file][rfid]['value'][event]
-                            print('raw: ', rawVal)
-                            proba = [x/np.sum(rawVal) for x in rawVal]
-                            print('proba: ', proba)
-                            matrix.append(proba)
-                            nodeWeightList.append(np.sum(rawVal))
+            break
+        
+        if answer == '2a':
+            # Merge json files for transitions between the different experiments within a folder
+            jsonFilesList = getJsonFilesWithSpecificNameToProcess(namePartIncluded = 'transition_')
+            
+            commonFolder = os.path.commonprefix(jsonFilesList)
+            print(commonFolder)
+            splitPath = os.path.split(commonFolder)
+            print(splitPath)
+            
+            dataDic = {}
+            
+            for jsonFileName in jsonFilesList:
+                print(jsonFileName)
+                with open(jsonFileName) as json_data:
+                    data = json.load(json_data)
+                print("json file re-imported.")
+                
+                sexGroup = list(data.keys())[0]
+                genoGroup = list(data[sexGroup].keys())[0]
+                if not sexGroup in dataDic.keys():
+                    dataDic[sexGroup] = {}
+                if not genoGroup in dataDic[sexGroup].keys():
+                    dataDic[sexGroup][genoGroup] = {}
+                
+                file = list(data[sexGroup][genoGroup].keys())[0]
+                
+                dataDic[sexGroup][genoGroup][file] = data[sexGroup][genoGroup][file]
+                
+                         
+            with open(f"{splitPath[0]}/transitionEvents_merged_files.json", 'w') as jFile:
+                json.dump(dataDic, jFile, indent=4)
+            print("json file created")        
+                
 
-                        totalNbEvents = np.sum(nodeWeightList)
-                        nodeWeightPropList = [a/totalNbEvents*1000 for a in nodeWeightList]
-                        print(matrix)
-
-                        # pos = nx.spring_layout(G)
-                        # print(pos)
-
-
-                        plotTransitionGraphExclusiveEvents(ax=ax, exclusiveEventList=exclusiveEventList, exclusiveEventsLabels=exclusiveEventsLabels, posNodes=posNodes, matrix=matrix, nodeWeightPropList=nodeWeightPropList)
-
-                        ax.set_title('{} {}'.format(rfid[-4:], dataDic[sexGroup][genoGroup][file][rfid]['geno']))
-                        figNb += 1
-
-                    patch0 = mpatches.Patch(edgecolor='black', facecolor='red', label='>0.5')
-                    patch1 = mpatches.Patch(edgecolor='black', facecolor='darkorange', label='0.4<x<=0.5')
-                    patch2 = mpatches.Patch(edgecolor='black', facecolor='gold', label='0.3<x<=0.4')
-                    patch3 = mpatches.Patch(edgecolor='black', facecolor='lightgreen', label='0.2<x<=0.3')
-                    patch4 = mpatches.Patch(edgecolor='black', facecolor='darkgreen', label='0.1<x<=0.2')
-                    patch5 = mpatches.Patch(edgecolor='black', facecolor='blue', label='x<=0.1')
-                    handles = [patch0, patch1, patch2, patch3, patch4, patch5]
-                    axes[0].legend(handles=handles, loc=(0.90, 0.1)).set_visible(True)
-
-                    fig.tight_layout()
-                    fig.show()
-                    fig.savefig('transition_exp_{}.png'.format(file[-11:-7]), dpi = 200)
-
+            print("Job done.")
             break
         
         if answer == '2b':
@@ -726,15 +821,17 @@ if __name__ == '__main__':
             # Plot transition between exclusive events for each genotype
             # open the json file
             jsonFileName = getJsonFileToProcess()
+            splitPath = os.path.split(jsonFileName)
+            print(splitPath)
+            
             with open(jsonFileName) as json_data:
                 dataDic = json.load(json_data)
             print("json file re-imported.")
-
-            sexGroup = 'female-female'
-            # genoGroup = 'WT-WT'
-            genoGroupList = ['WT-WT', 'Del/+-Del/+']
-            #genoGroupList = ['DlxCre wt ; Dyrk1acKO/+-DlxCre wt ; Dyrk1acKO/+', 'DlxCre wt ; Dyrk1acKO/+-DlxCre Tg ; Dyrk1acKO/+']
-
+            
+            sexGroup = list(dataDic.keys())[0]
+            genoGroupList = list(dataDic[sexGroup].keys())
+            
+            
             fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(16, 8))
             figNb = 0
             for genoGroup in genoGroupList:
@@ -752,46 +849,53 @@ if __name__ == '__main__':
 
             fig.tight_layout()
             #fig.show()
-            fig.savefig('transitionsPerGeno.png', dpi=300)
-            fig.savefig('transitionsPerGeno.pdf', dpi=300)
+            fig.savefig(f'{splitPath[0]}/transitionsPerGeno.png', dpi=300)
+            fig.savefig(f'{splitPath[0]}/transitionsPerGeno.pdf', dpi=300)
             print('Job done.')
             
             break
 
     
         if answer == '4':
-            #This script computes and plots the statistics for the transitions between exclusive events
-            sexGroup = 'female-female'
-            # genoGroup = 'WT-WT'
-            genoGroupList = ['WT-WT', 'Del/+-Del/+']
-            titleList = ['15 min', '2 nights']
-            
+            #This script computes and plots the statistics for the transitions between exclusive events for two conditions
+            conditionList = ['male-female', 'female-female']
+            #conditionList = ['15 min', '2 nights']
             gs = gridspec.GridSpec(1, 6)
             fig = plt.figure(figsize=(16, 6))
             
             # Statistical analyses of transitions between exclusive events for each genotype
                         
-            # open the json file for short term
-            print('Choose the json file for the short term recording.')
-            #jsonFileName = getJsonFileToProcess()
-            with open('transition_17q21_pairs_0_27000.json') as json_data:
-                dataDicShort = json.load(json_data)
-            print("json file for short term re-imported.")
+            # open the json file for first condition
+            print('Choose the json file for the first condition.')
+            jsonFileName = getJsonFileToProcess()
+            #jsonFileName = 'transition_17q21_pairs_0_27000.json'
+            with open(jsonFileName) as json_data:
+                dataDic1 = json.load(json_data)
+            print("json file for first condition re-imported.")
+            sexGroup1 = list(dataDic1.keys())[0]
+            genoGroupList1 = list(dataDic1[sexGroup1].keys())
             
-            # open the json file for long term
-            print('Choose the json file for the long term recording.')
-            #jsonFileName = getJsonFileToProcess()
-            with open('transition_17q21_pairs_2nights.json') as json_data:
-                dataDicLong = json.load(json_data)
-            print("json file for short term re-imported.")
-
+            # open the json file for second condition
+            print('Choose the json file for the second condition.')
+            jsonFileName = getJsonFileToProcess()
+            #jsonFileName = 'transition_17q21_pairs_2nights.json'
+            with open(jsonFileName) as json_data:
+                dataDic2 = json.load(json_data)
+            print("json file for second condition re-imported.")
+            sexGroup2 = list(dataDic2.keys())[0]
+            genoGroupList2 = list(dataDic2[sexGroup2].keys())
+            
+            sexGroupList = [sexGroup1, sexGroup2]
+            genoGroupList = [genoGroupList1, genoGroupList2]
+            
+            titleList = conditionList
             
             n = 0
             k = 0
-            for dataDic in [dataDicShort, dataDicLong]:    
+            for dataDic in [dataDic1, dataDic2]:    
                 ax = fig.add_subplot(gs[0, k:k+2])
                 #plot the heatmap
-                plotHeatmapEffectSizePVal(dataDic=dataDic, ax=ax, n=n, exclusiveEventList=exclusiveEventList, genoGroupList=genoGroupList, sexGroup=sexGroup, exclusiveEventListLabels=exclusiveEventListLabels, letterList=letterList, titleList=titleList)
+                plotHeatmapEffectSizePVal(dataDic=dataDic, ax=ax, n=n, exclusiveEventList=exclusiveEventList, genoGroupList=genoGroupList[n], sexGroup=sexGroupList[n], exclusiveEventListLabels=exclusiveEventListLabels, letterList=letterList, titleList=titleList)
             
                 n += 1
                 k += 2
@@ -823,8 +927,8 @@ if __name__ == '__main__':
             
             ax.text(0.05, y+0.04, 'significance', fontsize=14, ha="left",va="center")
             ax.text(1.6, 1.5, 'effect size', fontsize=14, ha="center",va="center", rotation=90)
-            ax.text(1.9, 2.2, 'WT > Del/+', fontsize=14, ha="center",va="center", rotation=90)
-            ax.text(1.9, 0.7, 'Del/+ > WT', fontsize=14, ha="center",va="center", rotation=90)
+            ax.text(1.9, 2.2, 'CTRL > MUT', fontsize=14, ha="center",va="center", rotation=90)
+            ax.text(1.9, 0.7, 'MUT > CTRL', fontsize=14, ha="center",va="center", rotation=90)
             
             circles = []
             col = PatchCollection(circles, cmap="coolwarm")
@@ -835,33 +939,30 @@ if __name__ == '__main__':
             
             fig.tight_layout()
             #plt.show()    
-            fig.savefig( "Fig_statistics_between_geno_transitions_short_long_term.pdf" ,dpi=300)
-            fig.savefig( "Fig_statistics_between_geno_transitions_short_long_term.png" ,dpi=300)
+            fig.savefig( "Fig_statistics_between_geno_transitions_two_conditions.pdf" ,dpi=300)
+            fig.savefig( "Fig_statistics_between_geno_transitions_two_conditions.png" ,dpi=300)
             
             print('Job done.')
             break
         
         if answer == '5':
             #This script computes and plots the statistics for the transitions between exclusive events for one set of data
-            sexGroup = 'female-female'
-            # genoGroup = 'WT-WT'
-            genoGroupList = ['WT-WT', 'Del/+-Del/+']
-            #genoGroupList = ['DlxCre wt ; Dyrk1acKO/+-DlxCre wt ; Dyrk1acKO/+', 'DlxCre wt ; Dyrk1acKO/+-DlxCre Tg ; Dyrk1acKO/+']
-
-            titleList = ['1h']
-            
             gs = gridspec.GridSpec(1, 6)
             fig = plt.figure(figsize=(16, 6))
             
             # Statistical analyses of transitions between exclusive events for each genotype
                         
-            # open the json file for short term
-            print('Choose the json file for the short term recording.')
-            #jsonFileName = getJsonFileToProcess()
-            with open('transition_dlx_cre_0_108000.json') as json_data:
+            # open the json file for one condition
+            print('Choose the json file.')
+            jsonFileName = getJsonFileToProcess()
+            #jsonFileName = 'transition_17q21_pairs_0_27000.json'
+            with open(jsonFileName) as json_data:
                 dataDic = json.load(json_data)
-            print("json file for short term re-imported.")
+            print("json file for first condition re-imported.")
+            sexGroup = list(dataDic.keys())[0]
+            genoGroupList = list(dataDic[sexGroup].keys())
             
+            titleList = [sexGroup]
             
             n = 0
             k = 0
@@ -900,8 +1001,8 @@ if __name__ == '__main__':
             
             ax.text(0.05, y+0.04, 'significance', fontsize=14, ha="left",va="center")
             ax.text(1.6, 1.5, 'effect size', fontsize=14, ha="center",va="center", rotation=90)
-            ax.text(1.9, 2.2, 'WT > Del/+', fontsize=14, ha="center",va="center", rotation=90)
-            ax.text(1.9, 0.7, 'Del/+ > WT', fontsize=14, ha="center",va="center", rotation=90)
+            ax.text(1.9, 2.2, 'CTRL > MUT', fontsize=14, ha="center",va="center", rotation=90)
+            ax.text(1.9, 0.7, 'MUT > CTRL', fontsize=14, ha="center",va="center", rotation=90)
             
             circles = []
             col = PatchCollection(circles, cmap="coolwarm")

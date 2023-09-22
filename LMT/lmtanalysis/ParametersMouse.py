@@ -68,7 +68,7 @@ class ParametersMouse():
     TIME_WINDOW_ORAL_SIDE_SEQUENCE = 60
     
     ''' time window after an event to look for other events '''
-    TIME_WINDOW_AFTER_EVENT = 2*oneMinute
+    TIME_WINDOW_AFTER_EVENT = 1*oneMinute
     
     ''' minimal duration of events to be considered (for example in oral-side sequences) '''
     EVENT_MIN_DURATION = 10

@@ -7,8 +7,14 @@ PHENOMIN, CNRS UMR7104, INSERM U964, Université de Strasbourg
 Code under GPL v3.0 licence
 '''
 
+import sqlite3
+import json
 from lmtanalysis.Event import *
 from lmtanalysis.FileUtil import getFilesToProcess, getJsonFileToProcess
+
+from lmtanalysis.Chronometer import Chronometer
+from lmtanalysis.TaskLogger import TaskLogger
+
 
 
 def addColumns(file):
@@ -52,20 +58,20 @@ def updateField(file, jsonFile):
     Take a dictionary: First key: animal (rfid number), then keys are the columns, values are data to store for that field
     ex of the fieldsToUpadte dict:
     {
-        '001039552597':
+        "001039552597":
             {
-                'genotype': "wt",
-                'sex': "female",
-                'strain': "C57BL6J",
-                'treatment': "saline"
+                "genotype": "wt",
+                "sex": "female",
+                "strain": "C57BL6J",
+                "treatment": "saline"
             },
-        '001039552595':
+        "001039552595":
             {
-                'genotype': "ko",
-                'age': "6mo",
-                'sex': "female",
-                'strain': "C57BL6J",
-                'treatment': "saline"
+                "genotype": "ko",
+                "age": "6mo",
+                "sex": "female",
+                "strain": "C57BL6J",
+                "treatment": "saline"
             }
     }
     '''
@@ -73,15 +79,17 @@ def updateField(file, jsonFile):
 
     connection = sqlite3.connect(file)
     c = connection.cursor()
-    for mouse in fieldsToUpdate.keys():
+    for animal in fieldsToUpdate.keys():
         query = "UPDATE ANIMAL SET "
-        for field in fieldsToUpdate[mouse].keys():
+        for field in fieldsToUpdate[animal].keys():
             if (field != 'file') and (field != 'group'): # these two variables are not in sqlite databases
                 if field == 'animal':
-                    field = 'ID'
-                query += f"{field} = {fieldsToUpdate[mouse][field]}, "
+                    query += f"NAME = '{fieldsToUpdate[animal][field]}', "
+                else:
+                    query += f"{field} = '{fieldsToUpdate[animal][field]}', "
         query = query [0:-2]    # to remove the last comma
-        query += f" WHERE ANIMAL.RFID = {mouse}"
+        query += f" WHERE ANIMAL.RFID = '{animal}'"
+        print(query)
         try:
             c.execute(query)
         except:
@@ -90,6 +98,55 @@ def updateField(file, jsonFile):
     c.close()
     connection.close()
 
+
+def updateFieldFromDico(file, dico, version: str):
+    '''
+    Take a dictionary: First key: animal (rfid number), then keys are the columns, values are data to store for that field
+    ex of the fieldsToUpadte dict:
+    {
+        "001039552597":
+            {
+                "genotype": "wt",
+                "sex": "female",
+                "strain": "C57BL6J",
+                "treatment": "saline"
+            },
+        "001039552595":
+            {
+                "genotype": "ko",
+                "age": "6mo",
+                "sex": "female",
+                "strain": "C57BL6J",
+                "treatment": "saline"
+            }
+    }
+    '''
+    print(file)
+
+    connection = sqlite3.connect(file)
+    c = connection.cursor()
+    for animal in dico.keys():
+        query = "UPDATE ANIMAL SET "
+        for field in dico[animal].keys():
+            if (field != 'file') and (field != 'group'): # these two variables are not in sqlite databases
+                if field == 'animal':
+                    query += f"NAME = '{dico[animal][field]}', "
+                else:
+                    query += f"{field} = '{dico[animal][field]}', "
+        query = query [0:-2]    # to remove the last comma
+        query += f" WHERE ANIMAL.RFID = '{animal}'"
+        print(query)
+        try:
+            c.execute(query)
+        except:
+            print("There was a problem when trying to modify database fields")
+    connection.commit()
+
+    t = TaskLogger(connection)
+    t.addLog("Save animal information", version=f"{version}")
+
+    c.close()
+    connection.close()
 
 
 def processAddColumns():
@@ -112,11 +169,9 @@ def processUpdateFields():
 
     jsonFile = getJsonFileToProcess()
 
-
     chronoFullBatch = Chronometer("Full batch")
 
     if (files != None):
-
         for file in files:
             print("Processing file", file)
             updateField(file, jsonFile)
@@ -124,6 +179,22 @@ def processUpdateFields():
     chronoFullBatch.printTimeInS()
     print("*** ALL JOBS DONE ***")
 
+
+def processAddColumnsAndUpdateFields():
+    files = getFilesToProcess()
+
+    jsonFile = getJsonFileToProcess()
+
+    chronoFullBatch = Chronometer("Full batch")
+
+    if (files != None):
+        for file in files:
+            print("Processing file", file)
+            addColumns(file)
+            updateField(file, jsonFile)
+
+    chronoFullBatch.printTimeInS()
+    print("*** ALL JOBS DONE ***")
 
 
 if __name__ == '__main__':
@@ -134,6 +205,7 @@ if __name__ == '__main__':
         question = "Do you want to:"
         question += "\n\t [1] add columns in SQLite databases?"
         question += "\n\t [2] update animal tables of SQLite databases from a json file?"
+        question += "\n\t [3] add columns and update animal tables of SQLite databases from a json file?"
         question += "\n"
         answer = input(question)
 
@@ -146,4 +218,9 @@ if __name__ == '__main__':
         if answer == "2":
             print("********** Update animal tables of SQLite databases **********")
             processUpdateFields()
+            break
+
+        if answer == "3":
+            print("********** Add columns and update animal tables of SQLite databases **********")
+            processAddColumnsAndUpdateFields()
             break

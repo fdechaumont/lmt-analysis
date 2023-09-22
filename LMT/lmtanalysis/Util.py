@@ -12,8 +12,8 @@ import datetime
 import contextlib
 from random import randrange, random
 import string
-
-
+import numpy as np
+import scipy.stats
 
 
 
@@ -140,6 +140,7 @@ def getExperimentDurationInput():
     experimentDuration = getFrameInput("experiment duration")
 
     return experimentDuration
+
 
 
 def getFileNameInput():
@@ -319,6 +320,15 @@ def getStarsFromPvalues(pvalue=None, U=None, numberOfTests=1):
             stars = "ns"
 
     return stars
+
+def f_test(group1, group2):
+    #perform F test to test the equality of variance
+    #null hypothesis = equal variances of the two groups; if p_value>0.05 rejection of null hypothesis and unequal variances
+    f = np.var(group1, ddof=1)/np.var(group2, ddof=1)
+    nun = len(group1)-1
+    dun = len(group2)-1
+    p_value = 1-scipy.stats.f.cdf(f, nun, dun)
+    return f, p_value
 
 def getStartTestPhase(pool):
     cursor = pool.conn.cursor()
