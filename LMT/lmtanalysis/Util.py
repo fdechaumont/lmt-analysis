@@ -142,16 +142,6 @@ def getExperimentDurationInput():
     return experimentDuration
 
 
-def getExperimentDurationInput():
-
-    print ("Enter time information in frame. You can also set in days, hour, minutes")
-    print ("valid entries: 100, 1d, 1.5d, 23.5h, 1d 2h 3m 4s 5f")
-
-    experimentDuration = getFrameInput("experiment duration")
-
-    return experimentDuration
-
-
 def getFileNameInput():
 
     text_file_name = input("File name : ")
@@ -214,6 +204,7 @@ def getEndInDatetime(file):
 
     connection.close()
     return end
+
 
 def getDatetimeFromFrame(connection, frame):
     c = connection.cursor()
