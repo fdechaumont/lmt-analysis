@@ -124,6 +124,9 @@ def buildNightEvent(file, nightStartHour, nightEndHour):
         # experiment started during light period: tempTimeStartNight is the first time for the night
         # tempStartNightFrame = (tempTimeStartNight-startTimeOfTheExperiment).seconds*30
         tempStartNightFrame = findFrameFromDatetime(file, tempTimeStartNight)
+        if tempStartNightFrame == 'outOfExperiment':
+            print(f"{file}: there is no night in this experiment")
+            return 'no night'
         if tempStartNightFrame > experimentTotalNumberOfFrame:
             print(f"{file}: there is no night in this experiment")
             return 'no night'
