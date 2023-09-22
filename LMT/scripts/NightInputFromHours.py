@@ -9,7 +9,7 @@ Code under GPL v3.0 licence
 
 import sys
 
-from Util import getStartInDatetime, getEndInDatetime, getNumberOfFrames
+from lmtanalysis.Util import getStartInDatetime, getEndInDatetime, getNumberOfFrames
 from lmtanalysis.Event import *
 from lmtanalysis.FileUtil import getFilesToProcess
 import datetime
@@ -90,7 +90,7 @@ def buildNightEvent(file, nightStartHour, nightEndHour):
 
     print("--------------")
     print("Loading existing events...")
-    nightTimeLine = EventTimeLine(connection, "night", None, None, None, None)
+    nightTimeLine = EventTimeLine(connection, "night", None, None, None, None, loadEvent=False)
 
     print("--------------")
     print("Event list:")
