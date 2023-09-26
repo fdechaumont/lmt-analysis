@@ -333,6 +333,14 @@ categoryList = [' TotalLen', ' Nb', ' MeanDur']
 
 unitCatDic = {' TotalLen': 's', ' Nb': 'nb', ' MeanDur': 's'}
 
+def getBehaviouralEventName(behavEvent, cat):
+    if behavEvent != 'totalDistance':
+        event = behavEvent + cat
+
+    elif behavEvent == 'totalDistance':
+        event = behavEvent
+        
+    return event
 
 def getBehaviouralTraitsPerCategory(category):
     listBehavioursOfInterest = []
@@ -344,22 +352,49 @@ def getBehaviouralTraitsPerCategory(category):
     if category == 'exploration': #6
         listBehavioursOfInterest = ['Rear isolated TotalLen', 'Rear isolated Nb', 'Rear isolated MeanDur',
                                     'Rear in contact TotalLen', 'Rear in contact Nb', 'Rear in contact MeanDur']
+    
+    if category == 'activity & exploration': #13
+        listBehavioursOfInterest = ['totalDistance', 'Move isolated TotalLen', 'Move isolated Nb', 'Move isolated MeanDur', 
+                                             'Move in contact TotalLen', 'Move in contact Nb', 'Move in contact MeanDur',
+                                             'Stop isolated TotalLen', 'Stop isolated Nb', 'Stop isolated MeanDur',
+                                             'Rear isolated TotalLen', 'Rear isolated Nb', 'Rear isolated MeanDur']
 
     if category == 'contacts': #21
-        listBehavioursOfInterest = ["Contact TotalLen", "Group2 TotalLen", "Group3 TotalLen", "Oral-oral Contact TotalLen", "Oral-genital Contact TotalLen", "Side by side Contact TotalLen", "Side by side Contact, opposite way TotalLen",
-                                    "Contact Nb", "Group2 Nb", "Group3 Nb", "Oral-oral Contact Nb", "Oral-genital Contact Nb", "Side by side Contact Nb", "Side by side Contact, opposite way Nb",
-                                    "Contact MeanDur", "Group2 MeanDur", "Group3 MeanDur", "Oral-oral Contact MeanDur", "Oral-genital Contact MeanDur", "Side by side Contact MeanDur", "Side by side Contact, opposite way MeanDur"]
-        
+        listBehavioursOfInterest = ["Contact TotalLen", "Contact Nb", "Contact MeanDur", 
+                                    "Group2 TotalLen", "Group2 Nb", "Group2 MeanDur", 
+                                    "Group3 TotalLen", "Group3 Nb", "Group3 MeanDur", 
+                                    "Oral-oral Contact TotalLen", "Oral-oral Contact Nb", "Oral-oral Contact MeanDur", 
+                                    "Oral-genital Contact TotalLen", "Oral-genital Contact Nb", "Oral-genital Contact MeanDur", 
+                                    "Side by side Contact TotalLen", "Side by side Contact Nb", "Side by side Contact MeanDur", 
+                                    "Side by side Contact, opposite way TotalLen", "Side by side Contact, opposite way Nb", "Side by side Contact, opposite way MeanDur"]
+    
+    if category == 'specific contacts': #12
+        listBehavioursOfInterest = ["Oral-oral Contact TotalLen", "Oral-oral Contact Nb", "Oral-oral Contact MeanDur", 
+                                    "Oral-genital Contact TotalLen", "Oral-genital Contact Nb", "Oral-genital Contact MeanDur", 
+                                    "Side by side Contact TotalLen", "Side by side Contact Nb", "Side by side Contact MeanDur", 
+                                    "Side by side Contact, opposite way TotalLen", "Side by side Contact, opposite way Nb", "Side by side Contact, opposite way MeanDur"]
+    
+    
+    if category == 'general contacts': #9
+        listBehavioursOfInterest = ["Contact TotalLen", "Contact Nb", "Contact MeanDur", 
+                                    "Group2 TotalLen", "Group2 Nb", "Group2 MeanDur", 
+                                    "Group3 TotalLen", "Group3 Nb", "Group3 MeanDur"]
+            
     if category == 'follow': #6
-        listBehavioursOfInterest = ["Train2 TotalLen", "FollowZone TotalLen",
-                                    "Train2 Nb", "FollowZone Nb",
-                                    "Train2 MeanDur", "FollowZone MeanDur"]
+        listBehavioursOfInterest = ["Train2 TotalLen", "Train2 Nb", "Train2 MeanDur", 
+                                    "FollowZone TotalLen", "FollowZone Nb", "FollowZone MeanDur"]
         
     if category == 'approach': #4
-        listBehavioursOfInterest = ["Approach contact Nb", "Group 3 make Nb", "Group 4 make Nb", "Approach contact MeanDur"]
+        listBehavioursOfInterest = ["Approach contact Nb", "Approach contact MeanDur", "Group 3 make Nb", "Group 4 make Nb" ]
         
     if category == 'escape': #4
-        listBehavioursOfInterest = ["Break contact Nb", "Group 3 break Nb", "Group 4 break Nb", "Break contact MeanDur"]
+        listBehavioursOfInterest = ["Break contact Nb", "Break contact MeanDur", "Group 3 break Nb", "Group 4 break Nb"]
+    
+    if category == 'follow, approach & escape': #14
+        listBehavioursOfInterest = ["Train2 TotalLen", "Train2 Nb", "Train2 MeanDur", 
+                                    "FollowZone TotalLen", "FollowZone Nb", "FollowZone MeanDur",
+                                    "Approach contact Nb", "Approach contact MeanDur", "Group 3 make Nb", "Group 4 make Nb",
+                                    "Break contact Nb", "Break contact MeanDur", "Group 3 break Nb", "Group 4 break Nb" ]
         
     return listBehavioursOfInterest
 
