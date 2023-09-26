@@ -412,7 +412,7 @@ def plotHeatmapEffectSizePVal(dataDic, ax, n, exclusiveEventList, genoGroupList,
             
             if (p < 0.05) and (np.mean(dataGenoA)>0.1) and (np.mean(dataGenoB)>0.1):
                 print(eventA, ' versus ', eventB)
-                print('Mann-Whitney U for transitions proba, {} n={} {}+/-{}, {} n={} {}+/-{}: W={}, p={}, d={}'.format(genoGroupList[0], len(dataGenoA), round(np.mean(dataGenoA), 3), round(np.std(dataGenoA), 3), genoGroupList[1],
+                print('test for transitions proba, {} n={} {}+/-{}, {} n={} {}+/-{}: W={}, p={}, d={}'.format(genoGroupList[0], len(dataGenoA), round(np.mean(dataGenoA), 3), round(np.std(dataGenoA), 3), genoGroupList[1],
                                                                                   len(dataGenoB), round(np.mean(dataGenoB),3), round(np.std(dataGenoB),3), W, p, round(effectSizeCorrected, 3)))
         newRowEffectSize = pd.DataFrame(data=np.array([transitRowEffectSize]), columns=exclusiveEventList)
         dfEffectSize = pd.concat([dfEffectSize, newRowEffectSize], ignore_index=True)
