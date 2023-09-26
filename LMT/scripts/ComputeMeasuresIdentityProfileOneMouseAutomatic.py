@@ -988,7 +988,7 @@ def singlePlotPerEventProfileBothSexesPerGroup(profileDataM, profileDataF, night
         text_file.write('{} {} {}'.format(behavEvent, valueCat, sexClass))
         text_file.write(result.summary().as_text())
         text_file.write('\n')
-        p, sign = extractPValueFromLMMResult(result=result, keyword='WT')
+        p, sign = extractPValueFromLMMResult(result=result, keyword='wt')
         #add p-values on the plot
         ax.text(n, max(y) + 0.25 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=16, horizontalalignment='center', color='black', weight='bold')
         n += 1
@@ -1719,40 +1719,36 @@ def plotZScoreProfileAutoHorizontal(ax, cat, koDataframe, night, eventListForTes
         print('Event: ', event)
 
         valList = selectedDataframe['value'][selectedDataframe['trait'] == event]
-        try:
-            W, pNorm = shapiro(valList)
-            if pNorm >= 0.05:
-                print("####normal data")
-                T, p = ttest_1samp(valList, popmean=0, nan_policy='omit')
-            if pNorm < 0.05:
-                print("####data not normal")
-                T, p = wilcoxon(valList, alternative="two-sided")
-            print('p=', p)
-            #if np.isnan(p) == True:
-            if getStarsFromPvalues(p,numberOfTests=1) == 'NA':
-                print('no test conducted.')
-                pos += 1
-                continue
-
-            else:
-                color = 'grey'
-                if p < 0.05:
-                    print(night, event, T, p)
-                    
-                    if T > 0:
-                        color = 'red'
-                    elif T < 0:
-                        color = 'blue'
-                    elif T == 0:
-                        color = 'grey'
-                    ax.text(pos, -1.97, s=getStarsFromPvalues(p, numberOfTests=1), fontsize=21, c=color, ha='center')
-                colorList.append(color)
-                print('event position: ', event, pos, T, p, getStarsFromPvalues(p, numberOfTests=1), color)
-                pos += 1
-        except:
+        W, pNorm = shapiro(valList)
+        if pNorm >= 0.05:
+            print("####normal data")
+            T, p = ttest_1samp(valList, popmean=0, nan_policy='omit')
+        if pNorm < 0.05:
+            print("####data not normal")
+            T, p = wilcoxon(valList, alternative="two-sided")
+        print('p=', p)
+        #if np.isnan(p) == True:
+        """if getStarsFromPvalues(p, numberOfTests=1) == 'NA':
+            print('no test conducted.')
             pos += 1
-            colorList.append('grey')
-            continue
+            continue"""
+
+        #else:
+        color = 'grey'
+        if p < 0.05:
+            print(night, event, T, p)
+            
+            if np.mean(valList) > 0:
+                color = 'red'
+            elif np.mean(valList) < 0:
+                color = 'blue'
+            """elif T == 0:
+                color = 'grey'"""
+            ax.text(pos, -1.97, s=getStarsFromPvalues(p, numberOfTests=1), fontsize=21, c=color, ha='center')
+        colorList.append(color)
+        print('event position: ', event, pos, T, p, getStarsFromPvalues(p, numberOfTests=1), color)
+        pos += 1
+    
 
     print('##################colorList: ', colorList)
     
