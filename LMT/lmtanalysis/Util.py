@@ -206,6 +206,7 @@ def getEndInDatetime(file):
     connection.close()
     return end
 
+
 def getDatetimeFromFrame(connection, frame):
     c = connection.cursor()
     query = "SELECT TIMESTAMP FROM FRAME WHERE FRAMENUMBER = {}".format(frame);
