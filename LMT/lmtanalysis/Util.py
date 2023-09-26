@@ -361,6 +361,10 @@ def getColorGeno(geno):
         return 'darkorange'
     if geno == 'WT':
         return 'steelblue'
+    if geno == 'wt':
+        return 'steelblue'
+    if geno == 'wt-wt':
+        return 'steelblue'
     if geno == 'Del/+':
         return 'darkorange'
     if geno == 'wt/wt':
