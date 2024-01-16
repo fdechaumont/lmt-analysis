@@ -531,10 +531,10 @@ def plotProfileDataDurationPerGroup( profileData, behaviouralEventList, night, v
     if valueCat == ' TotalLen':
         nRow = 3
         nCol = 5
-    elif valueCat == ' Nb':
+    if valueCat == ' Nb':
         nRow = 4
         nCol = 5
-    elif valueCat == ' MeanDur':
+    if valueCat == ' MeanDur':
         nRow = 4
         nCol = 4
         
@@ -567,8 +567,8 @@ def plotProfileDataDurationPerGroup( profileData, behaviouralEventList, night, v
             row+=1
 
     fig.tight_layout()    
-    fig.savefig( "FigProfile{}_Events_night_{}.pdf".format( valueCat, night ) ,dpi=100)
-    fig.savefig( "FigProfile{}_Events_night_{}.jpg".format( valueCat, night ) ,dpi=300)
+    fig.savefig( "FigProfile_{}_Events_night_{}.pdf".format( valueCat, night ) ,dpi=100)
+    fig.savefig( "FigProfile_{}_Events_night_{}.png".format( valueCat, night ) ,dpi=300)
     plt.close( fig )
 
 
@@ -908,6 +908,7 @@ def singlePlotPerEventProfileBothSexesPerGroup(profileDataM, profileDataF, night
     genotypeType = list(Counter(x).keys())
     print(genotypeType)
 
+    paletteDic = getColorPalette(genoList = genotypeType)
 
     if valueCat == ' TotalLen':
         if event != 'totalDistance':
@@ -930,7 +931,7 @@ def singlePlotPerEventProfileBothSexesPerGroup(profileDataM, profileDataF, night
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
-                           "markersize": '8'}, showfliers=False, width=0.8, dodge=True)
+                           "markersize": '8'}, showfliers=False, width=0.8, palette=paletteDic, dodge=True)
     # Add transparency to colors
     '''for patch in bp.artists:
         r, g, b, a = patch.get_facecolor()

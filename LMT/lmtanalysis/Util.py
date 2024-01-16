@@ -317,6 +317,7 @@ def getStarsFromPvalues(pvalue=None, U=None, numberOfTests=1):
         if pvalue >= s2 and pvalue < s1:
             stars = "*"
         if pvalue >= s1:
+            #stars = ""
             stars = "ns"
 
     return stars
@@ -354,24 +355,28 @@ def getStartTestPhase(pool):
     return startFrameTestPhase
 
 def getColorGeno(geno):
-    if geno=="WT-WT":
+    if (geno=="WT-WT") or (geno=="wt-wt"):
         return 'steelblue'
-    if geno=="KO-KO":
+    if (geno=="KO-KO") or (geno=="ko-ko"):
         return 'darkorange'
     if geno=="Del/+-Del/+":
         return 'darkorange'
-    if geno == 'WT':
-        return 'steelblue'
-    if geno == 'wt':
-        return 'steelblue'
-    if geno == 'wt-wt':
-        return 'steelblue'
+    if (geno == 'WT') or (geno=="wt"):
+        #return 'steelblue'
+        return 'lightblue'
     if geno == 'Del/+':
-        return 'darkorange'
+        #return 'darkorange'
+        return 'gold'
     if geno == 'wt/wt':
         return 'steelblue'
     if geno == 'Dup/wt':
         return 'darkorange'
+
+def getColorPalette(genoList):
+    paletteDic = {}
+    for geno in genoList:
+        paletteDic[geno] = getColorGeno(geno)
+    return paletteDic
 
 def getLetterList():
     letterList = list(string.ascii_uppercase)

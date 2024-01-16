@@ -295,6 +295,36 @@ behaviouralEventOneMouseDic = {' TotalLen': ["Move isolated", "Move in contact",
     ]
     }
 
+behaviouralSocialEventOneMouseDic = {' TotalLen': ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
+    "Train2", "FollowZone"],
+    
+    ' Nb': ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
+    "Train2", "FollowZone",
+    "Approach contact",
+    "Break contact"],
+    
+    ' MeanDur': ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
+    "Train2", "FollowZone",
+    "Approach contact",
+    "Break contact"
+    ]
+    }
+
+behaviouralEventContactTypesOneMouseDic = {' TotalLen': ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way"],
+    ' Nb': ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way"],
+    ' MeanDur': ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way"]
+    }
+
+behaviouralEventComplexSocialOneMouseDic = {' TotalLen': ["Train2", "FollowZone"],
+    ' Nb': ["Train2", "FollowZone", "Approach contact", "Break contact"],
+    ' MeanDur': ["Train2", "FollowZone", "Approach contact", "Break contact"]
+    }
+
+behaviouralEventActivityOneMouseDic = {" TotalLen": ["totalDistance", "Move isolated", "Stop isolated"],
+                                       " Nb": ["Move isolated", "Stop isolated"],
+                                       " MeanDur": ["Move isolated", "Stop isolated"]}
+
+
 behaviouralEventOneMousePairDic = {' TotalLen': ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
     "Oral-genital Contact", 
     "Train2", "FollowZone"],
@@ -321,6 +351,13 @@ behaviouralEventOneMousePairSymetricDic = {' TotalLen': ['Contact', 'Oral-oral C
     ' MeanDur': ['Contact', 'Oral-oral Contact', "Side by side Contact", "Side by side Contact, opposite way"]
     }
 
+behaviouralEventSymetricPairDic = {' TotalLen': ['Contact', 'Oral-oral Contact', "Side by side Contact", "Side by side Contact, opposite way", 'Group2'],
+    
+    ' Nb': ['Contact', 'Oral-oral Contact', "Side by side Contact", "Side by side Contact, opposite way", 'Group2'],
+    
+    ' MeanDur': ['Contact', 'Oral-oral Contact', "Side by side Contact", "Side by side Contact, opposite way", 'Group2']
+    }
+
 behaviouralEventOneMouseSingle = ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact", "Oral-genital Contact", "Train2", "FollowZone",
                                 "Social approach", "Approach contact", "Break contact"]
 behaviouralEventOneMouseSocial = ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact",
@@ -330,6 +367,26 @@ behaviouralEventOneMouseSocial = ["Contact", "Group2", "Oral-oral Contact", "Ora
                             "Break contact"]
 
 categoryList = [' TotalLen', ' Nb', ' MeanDur']
+
+def getEventListForTest(cat):
+    
+    # the list of events to be plotted is determined:
+    eventListForTest = [x+cat for x in behaviouralEventOneMouseDic[cat]]
+    eventListForLabels = [getFigureBehaviouralEventsLabels(x) for x in behaviouralEventOneMouseDic[cat]]
+    if cat == ' TotalLen':
+        eventListForTest = ['totalDistance'] + eventListForTest
+        eventListForLabels = ['distance'] + eventListForLabels
+    
+    return eventListForTest, eventListForLabels
+
+def getSpecificEventListForTest(cat, eventListDic):
+    
+    # the list of events to be plotted is determined:
+    eventListForTest = [x+cat for x in eventListDic[cat]]
+    eventListForLabels = [getFigureBehaviouralEventsLabels(x) for x in eventListDic[cat]]
+    
+    return eventListForTest, eventListForLabels
+
 
 unitCatDic = {' TotalLen': 's', ' Nb': 'nb', ' MeanDur': 's'}
 

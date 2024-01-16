@@ -639,7 +639,8 @@ def mergeProfilePerGenotypeOverNights( profileData, categoryList, behaviouralEve
 
 
             for cat in categoryList:
-                traitList = [trait+cat for trait in behaviouralEventOneMouseSocial]
+                #traitList = [trait+cat for trait in behaviouralEventOneMouseSocial]
+                traitList = [trait+cat for trait in behaviouralEventOneMouseSocial[cat]]
             
                 for trait in traitList:
                     print(trait)
@@ -733,7 +734,8 @@ if __name__ == '__main__':
                         maxT = eventNight.endFrame
                         print("Night: ", n)
                         #Compute profile2 data and save them in a text file
-                        profileData[file][n] = computeProfilePerIndividual(file=file, minT=minT, maxT=maxT, genoList=genoListLocal, categoryList=categoryList, behaviouralEventListTwoMice=behaviouralEventOneMouseSocial)
+                        #profileData[file][n] = computeProfilePerIndividual(file=file, minT=minT, maxT=maxT, genoList=genoListLocal, categoryList=categoryList, behaviouralEventListTwoMice=behaviouralEventOneMouseSocial)
+                        profileData[file][n] = computeProfilePerIndividual(file=file, minT=minT, maxT=maxT, genoList=genoListLocal, categoryList=categoryList, behaviouralEventListTwoMice=["FollowZone"])
                         
                         n+=1
                         print("Profile data saved.")
