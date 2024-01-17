@@ -83,7 +83,7 @@ eventClassList = [
 
 #eventClassList = [BuildEventStop, BuildEventMove]
 #eventClassList = [BuildEventPassiveAnogenitalSniff, BuildEventOtherContact, BuildEventExclusiveSideSideNoseAnogenitalContact]
-eventClassList = [BuildEventInCorner]
+#eventClassList = [BuildEventInCorner]
 
 '''eventClassList = [
 
@@ -98,7 +98,7 @@ eventClassList = [BuildEventInCorner]
                 BuildEventSAP
                    ]'''
 
-#eventClassList = [BuildEventFollowZone]
+#eventClassList = [BuildEventOralOralContact]
 
 
 def flushEvents( connection ):
@@ -250,8 +250,17 @@ def process( file ):
 
 
 def processAll():
-
-
+    
+    global eventClassList
+    """print( minT )
+    for e in eventClassList:
+        print( e)
+    
+    print ( animalType )
+    
+    quit( )"""
+    
+    
     files = getFilesToProcess()
 
     chronoFullBatch = Chronometer("Full batch" )
@@ -271,6 +280,12 @@ def processAll():
 def setAnimalType( aType ):
     global animalType
     animalType = aType
+    
+def setEventClassList( eventClassListArg ):
+    global eventClassList
+    eventClassList = eventClassListArg
+
+
 
 if __name__ == '__main__':
 
