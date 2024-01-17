@@ -252,14 +252,6 @@ def process( file ):
 def processAll():
     
     global eventClassList
-    """print( minT )
-    for e in eventClassList:
-        print( e)
-    
-    print ( animalType )
-    
-    quit( )"""
-    
     
     files = getFilesToProcess()
 
