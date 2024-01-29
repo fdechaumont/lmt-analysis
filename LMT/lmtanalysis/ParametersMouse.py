@@ -20,8 +20,11 @@ class ParametersMouse():
     SPEED_THRESHOLD_LOW = 5
     SPEED_THRESHOLD_HIGH = 10
     
+    ''' threshold for a mean speed over a time period '''
+    AVERAGE_HIGH_SPEED_THRESHOLD = 11
+    
     ''' speed threshold to define high speed movements '''
-    HIGH_SPEED_MOVE_THRESHOLD = 20
+    HIGH_SPEED_MOVE_THRESHOLD = 15
     
     ''' slope of the body between the nose and the tail basis '''
     BODY_SLOPE_THRESHOLD = 40
@@ -69,6 +72,9 @@ class ParametersMouse():
     
     ''' time window after an event to look for other events '''
     TIME_WINDOW_AFTER_EVENT = 1*oneMinute
+    
+    ''' time window after a contact to look for the beginning of a get away '''
+    TIME_WINDOW_AFTER_CONTACT = 10
     
     ''' minimal duration of events to be considered (for example in oral-side sequences) '''
     EVENT_MIN_DURATION = 10
