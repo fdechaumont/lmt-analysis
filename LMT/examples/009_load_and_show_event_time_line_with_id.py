@@ -12,6 +12,7 @@ from lmtanalysis.Event import EventTimeLine, plotMultipleTimeLine
 
 if __name__ == '__main__':
     
+
     #ask the user for database to process
     files = getFilesToProcess()
     
