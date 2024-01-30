@@ -61,17 +61,20 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
         animalA = pool.animalDictionary[animal]
         #print ( animalA )
         dicA = animalA.detectionDictionary
-            
+        
         for t in dicA.keys():
-            if (dicA[t].getDistanceToPoint(xPoint = 398, yPoint = 353) == None):
+            
+            dist= dicA[t].getDistanceToPoint(xPoint = 398, yPoint = 353)
+            
+            if dist == None:
                 continue
             
             #Check if the animal is entering the zone around the water point:
-            if (dicA[t].getDistanceToPoint(xPoint = 398, yPoint = 353) <= parameters.MAX_DISTANCE_TO_POINT*2):
+            if dist <= parameters.MAX_DISTANCE_TO_POINT*2:
                 resultWaterZone[t] = True
             
             #Check if the animal is drinking (the animal should be in a tight zone around the water point and be stopped):      
-            if (dicA[t].getDistanceToPoint(xPoint = 398, yPoint = 353) <= parameters.MAX_DISTANCE_TO_POINT):
+            if dist <= parameters.MAX_DISTANCE_TO_POINT:
                 if t in stopTimeLineDictionary.keys():
                     resultWaterStop[t] = True
                 
