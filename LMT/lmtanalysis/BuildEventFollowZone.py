@@ -31,6 +31,8 @@ def flush( connection ):
     ''' flush event in database '''
     print("Flushing " , eventName )
     deleteEventTimeLineInBase(connection, eventName )
+    print("Flushing " , "FollowZone Isolated" )
+    deleteEventTimeLineInBase(connection, "FollowZone Isolated"  )
 
 
 def isSameWay( detA, detB ):
