@@ -14,13 +14,13 @@ class ParametersRat():
     
     ''' '''
     SPEED_THRESHOLD_LOW = 5
-    SPEED_THRESHOLD_HIGH = 20
+    SPEED_THRESHOLD_HIGH = 10
     
     ''' threshold for a mean speed over a time period '''
-    AVERAGE_HIGH_SPEED_THRESHOLD = 11
+    AVERAGE_HIGH_SPEED_THRESHOLD = 19
     
     ''' speed threshold to define high speed movements '''
-    HIGH_SPEED_MOVE_THRESHOLD = 30
+    HIGH_SPEED_MOVE_THRESHOLD = 18
     
     ''' slope of the body between the nose and the tail basis '''
     BODY_SLOPE_THRESHOLD = 40
@@ -32,10 +32,10 @@ class ParametersRat():
     MAX_DISTANCE_THRESHOLD = 71/scaleFactor
     
     '''distance between the two animals to compute the follow behaviour'''
-    FOLLOW_DISTANCE_MAX_PIX = 2.5/scaleFactor # numeric value in cm to obtain pixels #2.5
-    FOLLOW_CORRIDOR_DURATION = 30 # in frames
+    FOLLOW_DISTANCE_MAX_PIX = 8.5/scaleFactor # numeric value in cm to obtain pixels
+    FOLLOW_CORRIDOR_DURATION = 50 # in frames
     FOLLOW_MAX_ANGLE = math.pi/4 # in radians
-    FOLLOW_SPEED_MULTIPLICATOR_THRESHOLD = 2
+    FOLLOW_SPEED_MULTIPLICATOR_THRESHOLD = 1.5
     FOLLOW_REMOVE_EVENT_BELOW_LEN = 7 # in frames        
     FOLLOW_MERGE_EVENT_LEN_CRITERIA = 10 # in frames
 
