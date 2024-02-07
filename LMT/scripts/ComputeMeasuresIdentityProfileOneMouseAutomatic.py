@@ -1975,10 +1975,11 @@ if __name__ == '__main__':
             tmin, tmax = getMinTMaxTInput()
             print ( files )
 
-            profileData = {}
+            
             nightComputation = input("Compute profile only during night events (Y or N)? ")
 
             for file in files:
+                profileData = {}
                 #get the path and the name of file
                 head, tail = os.path.split(file)
                 print(file)
