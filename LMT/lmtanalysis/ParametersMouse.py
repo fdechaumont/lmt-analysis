@@ -96,3 +96,6 @@ class ParametersMouse():
                             (114,353)
                             ]
 
+    ''' Margin to define whole cage area without a border in cm '''
+    CAGE_MARGIN = 3
+

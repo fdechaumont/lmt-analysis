@@ -92,3 +92,8 @@ class ParametersRat():
                             (114,353)
                             ]
 
+    ''' Margin to define whole cage area without a border in cm '''
+    # TODO check value for the rat
+    CAGE_MARGIN = 6
+
+
