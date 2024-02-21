@@ -21,16 +21,19 @@ Kinect at 63 cm high from the floor.
 from lmtanalysis.Measure import oneMinute
 import sqlite3
 import json
-from lmtanalysis.Animal import AnimalPool
+from experimental.Animal_LMTtoolkit import AnimalPool
 from Event import EventTimeLine
 from Parameters import getAnimalTypeParameters
 
 
 
+openfieldVariableList = ['totDistance', 'distancePerBin', 'centerDistance', 'centerTime', 'nbSap', 'rearTotal Nb', 'rearTotal Duration',
+                    'rearCenter Nb', 'rearCenter Duration', 'rearPeriphery Nb', 'rearPeriphery Duration']
 
 
 
-def computeOpenfield(file, centerCageCoordinates, wholeCageCoordinatesWithoutBorder, tmin=0, tmax=15*oneMinute):
+
+def computeOpenfield(file, centerCageCoordinates, wholeCageCoordinatesWithoutBorder, tmin=0, tmax=15*oneMinute, variableList=openfieldVariableList):
     '''
     :param file: the sqlite file to process
     :param tmin: the first frame of the session
@@ -50,12 +53,24 @@ def computeOpenfield(file, centerCageCoordinates, wholeCageCoordinatesWithoutBor
     # TODO: check if Animal class is ok (treatment column)
     pool = AnimalPool()
     pool.loadAnimals(connection)
+    genoList = pool.getGenotypeList()
+    sexesList =pool.getSexList()
+
+    for val in variableList:
+        data[val] = {}
+        for sex in sexesList:
+            data[val][sex] = {}
+            for geno in genoList:
+                data[val][sex][geno] = {}
+
     animal = pool.animalDictionary[1]
     animal.loadDetection(tmin, tmax)
     sex = animal.sex
     geno = animal.genotype
     rfid = animal.RFID
     setup = animal.setup
+
+
 
     dt1 = animal.getDistance(tmin=tmin, tmax=tmax)  # compute the total distance traveled in the whole cage
     # get distance per time bin

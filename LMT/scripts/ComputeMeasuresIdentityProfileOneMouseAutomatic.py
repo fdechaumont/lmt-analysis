@@ -9,7 +9,7 @@ import os
 
 from lmtanalysis.FileUtil import getFigureBehaviouralEventsLabelsFrench, behaviouralEventOneMouse, behaviouralEventOneMouseDic, getFigureBehaviouralEventsLabels, categoryList,\
     getJsonFilesToProcess, getJsonFilesWithSpecificNameToProcess
-from lmtanalysis.Animal import *
+from experimental.Animal_LMTtoolkit import *
 import numpy as np
 import matplotlib.pyplot as plt
 from lmtanalysis.Event import *
@@ -36,7 +36,7 @@ import matplotlib.image as mpimg
 
 import random
 from random import randint
-from scipy.stats._morestats import shapiro
+from scipy.stats.morestats import shapiro
 
 def computeProfile(file, minT, maxT, behaviouralEventList):
     

@@ -37,8 +37,9 @@ The social interaction phase will compute the activity of each animal as well as
 from lmtanalysis.Measure import oneMinute
 import sqlite3
 import json
-from lmtanalysis.Animal import AnimalPool
+from experimental.Animal_LMTtoolkit import AnimalPool
 from Event import EventTimeLine
+from lmtanalysis.AnimalType import AnimalType
 from lmtanalysis.FileUtil import *
 from Parameters import getAnimalTypeParameters
 from ZoneArena import getZoneCoordinatesFromCornerCoordinatesOpenfieldArea, getSmallerZoneFromCornerCoordinatesAndMargin, getSmallerZoneFromGivenWholeCageCoordinatesAndMargin
@@ -46,8 +47,9 @@ from Openfield.ComputeOpenfield import computeOpenfield
 from ComputeMeasuresIdentityProfileOneMouseAutomatic import computeProfilePairFromPause
 
 
+
 class DyadicExperiment:
-    def __init__(self, file, animalType, tStartHabituationPhase=0, durationHabituationPhase=15, durationSocialPhase=25):
+    def __init__(self, file, tStartHabituationPhase=0, durationHabituationPhase=15, durationSocialPhase=25):
         '''
         :param file: the experiment file
         :param animalType: the animalType to get animalType's parameters
@@ -55,6 +57,7 @@ class DyadicExperiment:
         :param durationHabituationPhase: the last frame of the habituation phase
         :param durationSocialPhase: duration in minutes of the social phase
         '''
+        # global animalType
         self.file = file
         self.animalType = animalType
         self.tStartFrameHabituationPhase = tStartHabituationPhase   # framenumber
@@ -139,10 +142,10 @@ class DyadicExperiment:
             - whole cage without border (3cm): xa = 128, xb = 383, ya = 80, yb =336
         '''
 
-        data = computeOpenfield(self.file, self.centerCageCoordinates, self.wholeCageCoordinatesWithoutBorder,
+        self.dataHabituation = computeOpenfield(self.file, self.centerCageCoordinates, self.wholeCageCoordinatesWithoutBorder,
                                 tmin=self.tStartFrameHabituationPhase, tmax=self.tStopFrameHabituationPhase)
 
-        return data
+        return self.dataHabituation
 
 
 
@@ -151,14 +154,17 @@ class DyadicExperiment:
         Compute the activity and the social interactions of the tested mouse with the new comer
         Computing from the last frame +1 with a pause event to tmax (last frame +1 + tmax)
         '''
-        data = computeProfilePairFromPause(self.file, self.durationSocialPhase, self.behaviouralEventOneMouseSingle, self.behaviouralEventOneMouseSocial)
+        self.dataSocial = computeProfilePairFromPause(self.file, self.durationSocialPhase, self.behaviouralEventOneMouseSingle, self.behaviouralEventOneMouseSocial)
 
-        return data
+        return self.dataSocial
 
 
     def computeWholeDyadicExperiment(self):
-        self.dataHabituation = self.computeDyadicHabituationPhase()
-        self.dataSocial = self.computeDyadicSocialPhase()
+        self.computeDyadicHabituationPhase()
+        self.computeDyadicSocialPhase()
+
+
+
 
 
 
@@ -168,6 +174,17 @@ def computeDyadicBatch(files):
     '''
     pass
 
+
+def setAnimalType( aType ):
+    global animalType
+    animalType = aType
+
+# for test
+
+file = r"D:\base test manip dyadic\2024-02-05-h46-Experiment 1494.sqlite"
+setAnimalType(AnimalType.MOUSE)
+xp = DyadicExperiment(file)
+data = xp.computeDyadicHabituationPhase()
 
 
 
