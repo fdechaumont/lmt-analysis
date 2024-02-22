@@ -51,7 +51,7 @@ from ComputeMeasuresIdentityProfileOneMouseAutomatic import computeProfilePairFr
 class DyadicExperiment:
     def __init__(self, file, tStartHabituationPhase=0, durationHabituationPhase=15, durationSocialPhase=25):
         '''
-        :param file: the experiment file
+        :param file: path of the experiment file
         :param animalType: the animalType to get animalType's parameters
         :param tStartHabituationPhase: the first frame of the habituation phase
         :param durationHabituationPhase: the last frame of the habituation phase
@@ -59,6 +59,7 @@ class DyadicExperiment:
         '''
         # global animalType
         self.file = file
+        self.name = file.split('.sqlite')[0].split('\\')[-1].split("/")[-1]
         self.animalType = animalType
         self.tStartFrameHabituationPhase = tStartHabituationPhase   # framenumber
         self.durationHabituationPhase = durationHabituationPhase*oneMinute  # duration in number of frame
@@ -91,7 +92,8 @@ class DyadicExperiment:
         self.behaviouralEventOneMouseSocial = behaviouralEventOneMouseSocial
 
 
-
+    def getName(self):
+        return self.name
 
     def setWholeCageCoordinates(self, wholeCageCoordinates):
         '''
@@ -123,8 +125,9 @@ class DyadicExperiment:
         return self.wholeCageCoordinatesWithoutBorder
 
     def getMetadata(self):
+        animalTypeString = str(self.animalType).split('.')[1]
         metadata = {
-            'animalType': self.animalType,
+            'animalType': animalTypeString,
             'wholeCageCoordinates': self.wholeCageCoordinates,
             'centerCageCoordinates': self.centerCageCoordinates,
             'wholeCageCoordinatesWithoutBorder': self.wholeCageCoordinatesWithoutBorder
@@ -176,35 +179,69 @@ class DyadicExperiment:
 
         return self.dataSocial
 
+    def getAllResults(self):
+        return {'metadata': self.getMetadata(), 'dataHabituation': self.dataHabituation, 'dataSocial': self.dataSocial}
 
     def computeWholeDyadicExperiment(self):
         self.computeDyadicHabituationPhase()
         self.computeDyadicSocialPhase()
 
-        return {'metadata': self.getMetadata(), 'dataHabituation': self.dataHabituation, 'dataSocial': self.dataSocial}
+        return self.getAllResults()
 
 
 
+class DyadicExperimentPool:
+    def __init__(self):
+        self.dyadicExperiments = []
+        self.results = {}
+        self.reorganizedResults = {}
+
+    def addDyadicExperiment(self, experiment):
+        self.dyadicExperiments.append(experiment)
+
+    def addDyadicExperimentWithDialog(self):
+        files = getFilesToProcess()
+        if (files != None):
+            for file in files:
+                # create the Dyadic experiment
+                experiment = DyadicExperiment(file)
+                self.addDyadicExperiment(experiment)
 
 
-def computeDyadicBatch(files):
-    '''
-    Compute a batch of file
-    '''
-    pass
+    def getResults(self):
+        return self.results
+
+    def computeDyadicBatch(self):
+        '''
+        Compute a batch of dyadic experiment
+        '''
+        for experiment in self.dyadicExperiments:
+            self.results[experiment.getName()] = experiment.computeWholeDyadicExperiment()
+        return self.results
+
+    def organizeResults(self):
+        '''
+        Organize the results dict in a new dict organizedResults
+        '''
+        pass
 
 
 def setAnimalType( aType ):
     global animalType
     animalType = aType
 
-# for test
+### for test
 
-file = r"D:\base test manip dyadic\2024-02-05-h46-Experiment 1494.sqlite"
-setAnimalType(AnimalType.MOUSE)
-xp = DyadicExperiment(file)
-data = xp.computeDyadicHabituationPhase()
-dataSocial = xp.computeDyadicSocialPhase()
+# file = r"D:\base test manip dyadic\2024-02-05-h46-Experiment 1494.sqlite"
+# setAnimalType(AnimalType.MOUSE)
+# xp = DyadicExperiment(file)
+# data = xp.computeDyadicHabituationPhase()
+# dataSocial = xp.computeDyadicSocialPhase()
+# dataManip = xp.computeWholeDyadicExperiment()
 
+## experiment pool test
+experimentPool = DyadicExperimentPool()
+experimentPool.addDyadicExperimentWithDialog()
+experimentPool.computeDyadicBatch()
 
 
