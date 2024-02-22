@@ -99,6 +99,8 @@ class DyadicExperiment:
         '''
         self.wholeCageCoordinates = wholeCageCoordinates
 
+    def getWholeCageCoordinates(self):
+        return self.wholeCageCoordinates
 
     def setCenterCageCoordinates(self, centerMargin, wholeCageCoordinates):
         '''
@@ -107,12 +109,28 @@ class DyadicExperiment:
         '''
         self.centerCageCoordinates = getSmallerZoneFromGivenWholeCageCoordinatesAndMargin(centerMargin, wholeCageCoordinates, self.animalType)
 
+    def getCenterCageCoordinates(self):
+        return self.centerCageCoordinates
+
     def setWholeCageCoordinatesWithoutBorder(self, cageMargin, wholeCageCoordinates):
         '''
         :param cageMargin: in centimeters
         :param wholeCageCoordinates: has to be like {xa = 111, xb = 400, ya = 63, yb = 353}
         '''
         self.wholeCageCoordinatesWithoutBorder = getSmallerZoneFromGivenWholeCageCoordinatesAndMargin(cageMargin, wholeCageCoordinates, self.animalType)
+
+    def getWholeCageCoordinatesWithoutBorder(self):
+        return self.wholeCageCoordinatesWithoutBorder
+
+    def getMetadata(self):
+        metadata = {
+            'animalType': self.animalType,
+            'wholeCageCoordinates': self.wholeCageCoordinates,
+            'centerCageCoordinates': self.centerCageCoordinates,
+            'wholeCageCoordinatesWithoutBorder': self.wholeCageCoordinatesWithoutBorder
+        }
+        return metadata
+
 
     def setBehaviouralEventOneMouseSingle(self, behaviouralEventOneMouseSingle):
         '''
@@ -163,6 +181,7 @@ class DyadicExperiment:
         self.computeDyadicHabituationPhase()
         self.computeDyadicSocialPhase()
 
+        return {'metadata': self.getMetadata(), 'dataHabituation': self.dataHabituation, 'dataSocial': self.dataSocial}
 
 
 
@@ -185,6 +204,7 @@ file = r"D:\base test manip dyadic\2024-02-05-h46-Experiment 1494.sqlite"
 setAnimalType(AnimalType.MOUSE)
 xp = DyadicExperiment(file)
 data = xp.computeDyadicHabituationPhase()
+dataSocial = xp.computeDyadicSocialPhase()
 
 
 

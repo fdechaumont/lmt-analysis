@@ -44,8 +44,6 @@ def computeOpenfield(file, centerCageCoordinates, wholeCageCoordinatesWithoutBor
     Return the activity and the exploration of the tested mouse
     '''
 
-
-
     data = {}
 
     connection = sqlite3.connect(file)
