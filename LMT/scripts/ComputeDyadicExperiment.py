@@ -222,8 +222,38 @@ class DyadicExperimentPool:
     def organizeResults(self):
         '''
         Organize the results dict in a new dict organizedResults
+        organizedResults like
+        {
+            'metadata': {
+                'experimentName': experimentMetaData,
+            },
+            'habituationPhase': {
+                'M' or 'Male': {
+                    'geno1': {
+                        'ID': ID,
+                        'rfid': rfid,
+                        'var1': var1,
+                        ...
+                        'experimentName': experimentname
+                    }
+                },
+                'F' or 'Female': {
+                    'geno1': {
+                        'ID': ID,
+                        'rfid': rfid,
+                        'var1': var1,
+                        ...
+                        'experimentName': experimentname
+                    }
+                }
+            },
+            'socialPhase': {
+                the same as habituation phase
+            }
+        }
         '''
-        pass
+        for experiment in self.results:
+            print(experiment)
 
 
 def setAnimalType( aType ):
@@ -243,5 +273,6 @@ def setAnimalType( aType ):
 experimentPool = DyadicExperimentPool()
 experimentPool.addDyadicExperimentWithDialog()
 experimentPool.computeDyadicBatch()
+# experimentPool.organizeResults()
 
 
