@@ -61,6 +61,7 @@ class DyadicExperiment:
         self.file = file
         self.name = file.split('.sqlite')[0].split('\\')[-1].split("/")[-1]
         self.animalType = animalType
+        self.animals = {}
         self.tStartFrameHabituationPhase = tStartHabituationPhase   # framenumber
         self.durationHabituationPhase = durationHabituationPhase*oneMinute  # duration in number of frame
         self.tStopFrameHabituationPhase = self.tStartFrameHabituationPhase+self.durationHabituationPhase    # convert in framenumber
@@ -90,7 +91,6 @@ class DyadicExperiment:
         '''
         self.behaviouralEventOneMouseSingle = behaviouralEventOneMouseSingle
         self.behaviouralEventOneMouseSocial = behaviouralEventOneMouseSocial
-
 
     def getName(self):
         return self.name
@@ -130,7 +130,10 @@ class DyadicExperiment:
             'animalType': animalTypeString,
             'wholeCageCoordinates': self.wholeCageCoordinates,
             'centerCageCoordinates': self.centerCageCoordinates,
-            'wholeCageCoordinatesWithoutBorder': self.wholeCageCoordinatesWithoutBorder
+            'wholeCageCoordinatesWithoutBorder': self.wholeCageCoordinatesWithoutBorder,
+            'animals': self.animals,
+            'openfieldVariables': self.behaviouralEventOneMouseSingle,
+            'socialVariables': self.behaviouralEventOneMouseSocial
         }
         return metadata
 
@@ -174,8 +177,21 @@ class DyadicExperiment:
         '''
         Compute the activity and the social interactions of the tested mouse with the new comer
         Computing from the last frame +1 with a pause event to tmax (last frame +1 + tmax)
+        extract animals information for metadata
         '''
         self.dataSocial = computeProfilePairFromPause(self.file, self.durationSocialPhase, self.behaviouralEventOneMouseSingle, self.behaviouralEventOneMouseSocial)
+
+        # extract animals information for metadata
+        for animal in self.dataSocial:
+            if len(animal) <= 12:
+                self.animals[animal] = {}
+                self.animals[animal]['name'] = self.dataSocial[animal]['animal']
+                self.animals[animal]['rfid'] = self.dataSocial[animal]['rfid']
+                self.animals[animal]['genotype'] = self.dataSocial[animal]['genotype']
+                self.animals[animal]['sex'] = self.dataSocial[animal]['sex']
+                self.animals[animal]['age'] = self.dataSocial[animal]['age']
+                self.animals[animal]['strain'] = self.dataSocial[animal]['strain']
+                self.animals[animal]['group'] = self.dataSocial[animal]['group']
 
         return self.dataSocial
 
@@ -195,6 +211,8 @@ class DyadicExperimentPool:
         self.dyadicExperiments = []
         self.results = {}
         self.reorganizedResults = {}
+        self.sexesList = []
+        self.genotypeList = []
 
     def addDyadicExperiment(self, experiment):
         self.dyadicExperiments.append(experiment)
@@ -252,8 +270,70 @@ class DyadicExperimentPool:
             }
         }
         '''
-        for experiment in self.results:
-            print(experiment)
+        if len(self.results) > 0:
+            self.reorganizedResults['metadata'] = {}
+            self.reorganizedResults['habituationPhase'] = {}
+            self.reorganizedResults['socialPhase'] = {}
+            for experiment in self.results:
+                if len(self.reorganizedResults['metadata']) == 0:
+                    self.reorganizedResults['metadata'][experiment] = self.results[experiment]['metadata']
+
+                # Initialization
+                habituationVariableList = list(self.results[experiment]['dataHabituation'].keys())
+                sexesList = list(self.results[experiment]['dataHabituation'][habituationVariableList[0]].keys())
+                genotypeList = list(self.results[experiment]['dataHabituation'][habituationVariableList[0]][sexesList[0]].keys())
+                for sex in sexesList:
+                    if sex not in self.sexesList:
+                        self.sexesList.append(sex)
+                        self.reorganizedResults['habituationPhase'][sex] = {}
+                        self.reorganizedResults['socialPhase'][sex] = {}
+                    for genotype in genotypeList:
+                        if genotype not in self.genotypeList:
+                            self.genotypeList.append(genotype)
+                            self.reorganizedResults['habituationPhase'][sex][genotype] = {}
+                            self.reorganizedResults['socialPhase'][sex][genotype] = {}
+
+                    # habituation phase
+                    for genotype in genotypeList:
+                        for variable in habituationVariableList:
+                            if variable not in self.reorganizedResults['habituationPhase'][sex][genotype]:
+                                self.reorganizedResults['habituationPhase'][sex][genotype][variable] = {}
+                            for animal in self.results[experiment]['dataHabituation'][variable][sex][genotype].keys():
+                                if animal not in self.reorganizedResults['habituationPhase'][sex][genotype][variable]:
+                                    self.reorganizedResults['habituationPhase'][sex][genotype][variable][animal] = {}
+                                self.reorganizedResults['habituationPhase'][sex][genotype][variable][animal] = self.results[experiment]['dataHabituation'][variable][sex][genotype][animal]
+
+                # social phase
+                for animal in list(self.results[experiment]['dataSocial'].keys()):
+                    print(animal)
+                    sex = self.results[experiment]['dataSocial'][animal]['sex']
+                    genotype = self.results[experiment]['dataSocial'][animal]['genotype']
+                    if len(animal)<=12:
+                        # one animal: events from this animal
+                        for variable in list(self.results[experiment]['dataSocial'][animal].keys()):
+                            if (variable not in self.results[experiment]['metadata']['animals'][animal] and (variable != 'animal') and (variable != 'file')):
+                                if variable not in self.reorganizedResults['socialPhase'][sex][genotype]:
+                                    self.reorganizedResults['socialPhase'][sex][genotype][variable] = {}
+                                self.reorganizedResults['socialPhase'][sex][genotype][variable][animal] = self.results[experiment]['dataSocial'][animal][variable]
+                    else:
+                        # two animals: shared events
+                        # can be a mix of two sexes
+                        if sex not in self.reorganizedResults['socialPhase']:
+                            self.reorganizedResults['socialPhase'][sex] = {}
+                        # can be a mix of two genotypes
+                        if genotype not in self.reorganizedResults['socialPhase'][sex]:
+                            self.reorganizedResults['socialPhase'][sex][genotype] = {}
+                        for variable in list(self.results[experiment]['dataSocial'][animal].keys()):
+                            if ((variable not in self.results[experiment]['metadata']['animals'][list(self.results[experiment]['metadata']['animals'].keys())[0]])
+                                    and (variable != 'animal') and (variable != 'file')):
+                                if variable not in self.reorganizedResults['socialPhase'][sex][genotype]:
+                                    self.reorganizedResults['socialPhase'][sex][genotype][variable] = {}
+                                print(genotype)
+                                print(variable)
+                                self.reorganizedResults['socialPhase'][sex][genotype][variable][animal] = self.results[experiment]['dataSocial'][animal][variable]
+
+        else:
+            print('There is no results to organize.')
 
 
 def setAnimalType( aType ):
@@ -263,7 +343,7 @@ def setAnimalType( aType ):
 ### for test
 
 # file = r"D:\base test manip dyadic\2024-02-05-h46-Experiment 1494.sqlite"
-# setAnimalType(AnimalType.MOUSE)
+setAnimalType(AnimalType.MOUSE)
 # xp = DyadicExperiment(file)
 # data = xp.computeDyadicHabituationPhase()
 # dataSocial = xp.computeDyadicSocialPhase()
