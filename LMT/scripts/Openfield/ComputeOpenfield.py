@@ -21,7 +21,7 @@ Kinect at 63 cm high from the floor.
 from lmtanalysis.Measure import oneMinute
 import sqlite3
 import json
-from experimental.Animal_LMTtoolkit import AnimalPool
+from experimental.Animal_LMTtoolkit import AnimalPoolToolkit
 from Event import EventTimeLine
 from Parameters import getAnimalTypeParameters
 
@@ -33,7 +33,7 @@ openfieldVariableList = ['totDistance', 'distancePerBin', 'centerDistance', 'cen
 
 
 
-def computeOpenfield(file, centerCageCoordinates, wholeCageCoordinatesWithoutBorder, tmin=0, tmax=15*oneMinute, variableList=openfieldVariableList):
+def computeOpenfield(file, centerCageCoordinates, wholeCageCoordinatesWithoutBorder, tmin=0, tmax=15*oneMinute, variableList=openfieldVariableList, getTrajectory=False):
     '''
     :param file: the sqlite file to process
     :param tmin: the first frame of the session
@@ -49,10 +49,10 @@ def computeOpenfield(file, centerCageCoordinates, wholeCageCoordinatesWithoutBor
     connection = sqlite3.connect(file)
 
     # TODO: check if Animal class is ok (treatment column)
-    pool = AnimalPool()
+    pool = AnimalPoolToolkit()
     pool.loadAnimals(connection)
     genoList = pool.getGenotypeList()
-    sexesList =pool.getSexList()
+    sexesList = pool.getSexList()
 
     for val in variableList:
         data[val] = {}
@@ -61,13 +61,19 @@ def computeOpenfield(file, centerCageCoordinates, wholeCageCoordinatesWithoutBor
             for geno in genoList:
                 data[val][sex][geno] = {}
 
+    data['trajectory'] = {}
+
     animal = pool.animalDictionary[1]
     animal.loadDetection(tmin, tmax)
     sex = animal.sex
     geno = animal.genotype
     rfid = animal.RFID
     setup = animal.setup
-
+    if getTrajectory:
+        trajectory = animal.getTrajectory()
+    else:
+        trajectory = "No trajectory"
+    data['trajectory'][rfid] = trajectory
 
 
     dt1 = animal.getDistance(tmin=tmin, tmax=tmax)  # compute the total distance traveled in the whole cage

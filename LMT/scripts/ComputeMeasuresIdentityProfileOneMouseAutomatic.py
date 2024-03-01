@@ -9,7 +9,7 @@ import os
 
 from lmtanalysis.FileUtil import getFigureBehaviouralEventsLabelsFrench, behaviouralEventOneMouse, behaviouralEventOneMouseDic, getFigureBehaviouralEventsLabels, categoryList,\
     getJsonFilesToProcess, getJsonFilesWithSpecificNameToProcess
-from experimental.Animal_LMTtoolkit import *
+from lmtanalysis.Animal import *
 import numpy as np
 import matplotlib.pyplot as plt
 from lmtanalysis.Event import *

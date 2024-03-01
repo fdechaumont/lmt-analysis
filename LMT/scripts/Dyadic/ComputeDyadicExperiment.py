@@ -37,25 +37,25 @@ The social interaction phase will compute the activity of each animal as well as
 from lmtanalysis.Measure import oneMinute
 import sqlite3
 import json
-from experimental.Animal_LMTtoolkit import AnimalPool
 from Event import EventTimeLine
 from lmtanalysis.AnimalType import AnimalType
 from lmtanalysis.FileUtil import *
 from Parameters import getAnimalTypeParameters
 from ZoneArena import getZoneCoordinatesFromCornerCoordinatesOpenfieldArea, getSmallerZoneFromCornerCoordinatesAndMargin, getSmallerZoneFromGivenWholeCageCoordinatesAndMargin
 from Openfield.ComputeOpenfield import computeOpenfield
-from ComputeMeasuresIdentityProfileOneMouseAutomatic import computeProfilePairFromPause
-
+from ComputeDyadic import computeProfilePairFromPause
+import matplotlib.pyplot as plt
 
 
 class DyadicExperiment:
-    def __init__(self, file, tStartHabituationPhase=0, durationHabituationPhase=15, durationSocialPhase=25):
+    def __init__(self, file, tStartHabituationPhase=0, durationHabituationPhase=15, durationSocialPhase=25, getTrajectory = False):
         '''
         :param file: path of the experiment file
         :param animalType: the animalType to get animalType's parameters
         :param tStartHabituationPhase: the first frame of the habituation phase
         :param durationHabituationPhase: the last frame of the habituation phase
         :param durationSocialPhase: duration in minutes of the social phase
+        :param getTrajectory: if True, get the trajectory of the animal during the habituation phase
         '''
         # global animalType
         self.file = file
@@ -66,6 +66,7 @@ class DyadicExperiment:
         self.durationHabituationPhase = durationHabituationPhase*oneMinute  # duration in number of frame
         self.tStopFrameHabituationPhase = self.tStartFrameHabituationPhase+self.durationHabituationPhase    # convert in framenumber
         self.durationSocialPhase = durationSocialPhase*oneMinute    # duration in number of frame
+        self.getTrajectory = getTrajectory
 
         ''' 
         Cage parameters default to animalType parameters but can be modified
@@ -95,6 +96,10 @@ class DyadicExperiment:
     def getName(self):
         return self.name
 
+
+    def setTrajectory(self, getTrajectory):
+        self.getTrajectory = getTrajectory
+
     def setWholeCageCoordinates(self, wholeCageCoordinates):
         '''
         :param wholeCageCoordinates: format like {'xa': 168, 'xb': 343, 'ya': 120, 'yb': 296}
@@ -104,22 +109,20 @@ class DyadicExperiment:
     def getWholeCageCoordinates(self):
         return self.wholeCageCoordinates
 
-    def setCenterCageCoordinates(self, centerMargin, wholeCageCoordinates):
+    def setCenterCageCoordinates(self, centerMargin):
         '''
         :param centerMargin: in centimeters
-        :param wholeCageCoordinates: has to be like {xa = 111, xb = 400, ya = 63, yb = 353}
         '''
-        self.centerCageCoordinates = getSmallerZoneFromGivenWholeCageCoordinatesAndMargin(centerMargin, wholeCageCoordinates, self.animalType)
+        self.centerCageCoordinates = getSmallerZoneFromGivenWholeCageCoordinatesAndMargin(centerMargin, self.wholeCageCoordinates, self.animalType)
 
     def getCenterCageCoordinates(self):
         return self.centerCageCoordinates
 
-    def setWholeCageCoordinatesWithoutBorder(self, cageMargin, wholeCageCoordinates):
+    def setWholeCageCoordinatesWithoutBorder(self, cageMargin):
         '''
         :param cageMargin: in centimeters
-        :param wholeCageCoordinates: has to be like {xa = 111, xb = 400, ya = 63, yb = 353}
         '''
-        self.wholeCageCoordinatesWithoutBorder = getSmallerZoneFromGivenWholeCageCoordinatesAndMargin(cageMargin, wholeCageCoordinates, self.animalType)
+        self.wholeCageCoordinatesWithoutBorder = getSmallerZoneFromGivenWholeCageCoordinatesAndMargin(cageMargin, self.wholeCageCoordinates, self.animalType)
 
     def getWholeCageCoordinatesWithoutBorder(self):
         return self.wholeCageCoordinatesWithoutBorder
@@ -167,7 +170,7 @@ class DyadicExperiment:
         '''
 
         self.dataHabituation = computeOpenfield(self.file, self.centerCageCoordinates, self.wholeCageCoordinatesWithoutBorder,
-                                tmin=self.tStartFrameHabituationPhase, tmax=self.tStopFrameHabituationPhase)
+                                tmin=self.tStartFrameHabituationPhase, tmax=self.tStopFrameHabituationPhase, getTrajectory=self.getTrajectory)
 
         return self.dataHabituation
 
@@ -194,6 +197,22 @@ class DyadicExperiment:
                 self.animals[animal]['group'] = self.dataSocial[animal]['group']
 
         return self.dataSocial
+
+
+    def getTrajectoryHabituationPhase(self):
+        return self.dataHabituation['trajectory']
+
+
+    def plotTrajectoryHabituationPhase(self):
+        for animal in self.dataHabituation['trajectory']:
+            if self.dataHabituation['trajectory'][animal] != "No trajectory":
+                frames, coordinates = zip(*self.dataHabituation['trajectory'][animal].items())
+                x, y = zip(*coordinates)
+                plt.plot(x, y)
+                plt.title(f"{animal} trajectory - habituation phase")
+                plt.show()
+            else:
+                print("No trajectory")
 
     def getAllResults(self):
         return {'metadata': self.getMetadata(), 'dataHabituation': self.dataHabituation, 'dataSocial': self.dataSocial}
@@ -225,6 +244,27 @@ class DyadicExperimentPool:
                 experiment = DyadicExperiment(file)
                 self.addDyadicExperiment(experiment)
 
+
+    def setWholeCageCoordinatesExperimentPool(self, wholeCageCoordinates):
+        '''
+        :param wholeCageCoordinates: format like {'xa': 168, 'xb': 343, 'ya': 120, 'yb': 296}
+        '''
+        for experiment in self.dyadicExperiments:
+            experiment.setWholeCageCoordinates(wholeCageCoordinates)
+
+    def setCenterCageCoordinatesExperimentPool(self, centerMargin):
+        '''
+        :param centerMargin: in centimeters
+        '''
+        for experiment in self.dyadicExperiments:
+            experiment.setCenterCageCoordinates(centerMargin)
+
+    def setWholeCageCoordinatesWithoutBorderExperimentPool(self, cageMargin):
+        '''
+        :param cageMargin: in centimeters
+        '''
+        for experiment in self.dyadicExperiments:
+            experiment.setWholeCageCoordinatesWithoutBorder(cageMargin)
 
     def getResults(self):
         return self.results
@@ -276,7 +316,10 @@ class DyadicExperimentPool:
             self.reorganizedResults['socialPhase'] = {}
             for experiment in self.results:
                 if len(self.reorganizedResults['metadata']) == 0:
-                    self.reorganizedResults['metadata'][experiment] = self.results[experiment]['metadata']
+                    self.reorganizedResults['metadata'] = self.results[experiment]['metadata'].copy()
+                    self.reorganizedResults['metadata'].pop('animals')
+                    self.reorganizedResults['metadata']['experiments'] = {}
+                self.reorganizedResults['metadata']['experiments'][experiment] = self.results[experiment]['metadata']['animals']
 
                 # Initialization
                 habituationVariableList = list(self.results[experiment]['dataHabituation'].keys())
@@ -290,22 +333,23 @@ class DyadicExperimentPool:
                     for genotype in genotypeList:
                         if genotype not in self.genotypeList:
                             self.genotypeList.append(genotype)
+                        if genotype not in self.reorganizedResults['habituationPhase'][sex]:
                             self.reorganizedResults['habituationPhase'][sex][genotype] = {}
+                        if genotype not in self.reorganizedResults['socialPhase'][sex]:
                             self.reorganizedResults['socialPhase'][sex][genotype] = {}
 
-                    # habituation phase
-                    for genotype in genotypeList:
+                        # habituation phase
                         for variable in habituationVariableList:
-                            if variable not in self.reorganizedResults['habituationPhase'][sex][genotype]:
-                                self.reorganizedResults['habituationPhase'][sex][genotype][variable] = {}
-                            for animal in self.results[experiment]['dataHabituation'][variable][sex][genotype].keys():
-                                if animal not in self.reorganizedResults['habituationPhase'][sex][genotype][variable]:
-                                    self.reorganizedResults['habituationPhase'][sex][genotype][variable][animal] = {}
-                                self.reorganizedResults['habituationPhase'][sex][genotype][variable][animal] = self.results[experiment]['dataHabituation'][variable][sex][genotype][animal]
+                            if variable != 'trajectory':
+                                if variable not in self.reorganizedResults['habituationPhase'][sex][genotype]:
+                                    self.reorganizedResults['habituationPhase'][sex][genotype][variable] = {}
+                                for animal in self.results[experiment]['dataHabituation'][variable][sex][genotype].keys():
+                                    if animal not in self.reorganizedResults['habituationPhase'][sex][genotype][variable]:
+                                        self.reorganizedResults['habituationPhase'][sex][genotype][variable][animal] = {}
+                                    self.reorganizedResults['habituationPhase'][sex][genotype][variable][animal] = self.results[experiment]['dataHabituation'][variable][sex][genotype][animal]
 
                 # social phase
                 for animal in list(self.results[experiment]['dataSocial'].keys()):
-                    print(animal)
                     sex = self.results[experiment]['dataSocial'][animal]['sex']
                     genotype = self.results[experiment]['dataSocial'][animal]['genotype']
                     if len(animal)<=12:
@@ -328,12 +372,21 @@ class DyadicExperimentPool:
                                     and (variable != 'animal') and (variable != 'file')):
                                 if variable not in self.reorganizedResults['socialPhase'][sex][genotype]:
                                     self.reorganizedResults['socialPhase'][sex][genotype][variable] = {}
-                                print(genotype)
-                                print(variable)
                                 self.reorganizedResults['socialPhase'][sex][genotype][variable][animal] = self.results[experiment]['dataSocial'][animal][variable]
-
+            print("Reorganization finished")
         else:
             print('There is no results to organize.')
+
+
+    def getReorganizedResults(self):
+        return self.reorganizedResults
+
+
+    def exportReorganizedResultsToJsonFile(self, nameFile="dyadicResults"):
+        jsonFile = json.dumps(self.reorganizedResults, indent=4)
+        with open(f"{nameFile}.json", "w") as outputFile:
+            outputFile.write(jsonFile)
+
 
 
 def setAnimalType( aType ):
@@ -341,18 +394,20 @@ def setAnimalType( aType ):
     animalType = aType
 
 ### for test
-
+## single experiment
 # file = r"D:\base test manip dyadic\2024-02-05-h46-Experiment 1494.sqlite"
-setAnimalType(AnimalType.MOUSE)
-# xp = DyadicExperiment(file)
-# data = xp.computeDyadicHabituationPhase()
+# setAnimalType(AnimalType.MOUSE)
+# xp = DyadicExperiment(file, getTrajectory=True)
+# dataHabituation = xp.computeDyadicHabituationPhase()
 # dataSocial = xp.computeDyadicSocialPhase()
 # dataManip = xp.computeWholeDyadicExperiment()
 
 ## experiment pool test
-experimentPool = DyadicExperimentPool()
-experimentPool.addDyadicExperimentWithDialog()
-experimentPool.computeDyadicBatch()
+# experimentPool = DyadicExperimentPool()
+# experimentPool.addDyadicExperimentWithDialog()
+# experimentPool.setCenterCageCoordinatesExperimentPool(10)
+# experimentPool.computeDyadicBatch()
 # experimentPool.organizeResults()
+# experimentPool.exportReorganizedResultsToJsonFile("ip8179_epilepsie_dyadic")
 
 
