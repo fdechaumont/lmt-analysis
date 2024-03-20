@@ -45,6 +45,57 @@ from ZoneArena import getZoneCoordinatesFromCornerCoordinatesOpenfieldArea, getS
 from Openfield.ComputeOpenfield import computeOpenfield
 from ComputeDyadic import computeProfilePairFromPause
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+
+def exportReorganizedResultsAsTable(reorganisedResults, typeData):
+    '''
+    reorganisedResults: a dictionary to convert into pandas dataframe
+    typeData: could be habituationPhase or socialPhase
+    '''
+    if typeData != "habituationPhase" and typeData != "socialPhase":
+        print("typeData should be habituationPhase or socialPhase")
+        return "typeData should be habituationPhase or socialPhase"
+    else:
+        if typeData == "habituationPhase":
+            tempDict = {}
+            for experiment in reorganisedResults["habituationPhase"]:
+                for variable in reorganisedResults["habituationPhase"][experiment]:
+                    if variable != 'trajectory' and variable != 'distancePerBin':
+                        for sex in reorganisedResults["habituationPhase"][experiment][variable]:
+                            for genotype in reorganisedResults["habituationPhase"][experiment][variable][sex]:
+                                if len(reorganisedResults["habituationPhase"][experiment][variable][sex][genotype]) > 0:
+                                    for animal in reorganisedResults["habituationPhase"][experiment][variable][sex][genotype]:
+                                        if animal not in tempDict:
+                                            tempDict[animal] = {
+                                                'Mouse label': animal,
+                                                'Genotype': genotype,
+                                                'Gender': sex
+                                            }
+                                        tempDict[animal][variable] = reorganisedResults["habituationPhase"][experiment][variable][sex][genotype][animal]
+
+        if typeData == "socialPhase":
+            tempDict = {}
+            listOfColumns = []
+            for experiment in reorganisedResults["socialPhase"]:
+                for animal in reorganisedResults["socialPhase"][experiment]:
+                    if animal not in tempDict:
+                        tempDict[animal] = {
+                            'Mouse label': animal
+                        }
+                        for variable in reorganisedResults["socialPhase"][experiment][animal]:
+                            tempDict[animal][variable] = reorganisedResults["socialPhase"][experiment][animal][variable]
+                            if variable not in listOfColumns:
+                                listOfColumns.append(variable)
+
+            for animal in tempDict:
+                for variable in listOfColumns:
+                    if variable not in tempDict[animal]:
+                        tempDict[animal][variable] = np.nan
+
+        table = pd.DataFrame([v for k, v in tempDict.items()])
+        return table
 
 
 class DyadicExperiment:
@@ -229,6 +280,7 @@ class DyadicExperimentPool:
     def __init__(self):
         self.dyadicExperiments = []
         self.results = {}
+        self.reorganizedResultsPerIndividual = {}
         self.reorganizedResults = {}
         self.sexesList = []
         self.genotypeList = []
@@ -277,10 +329,11 @@ class DyadicExperimentPool:
             self.results[experiment.getName()] = experiment.computeWholeDyadicExperiment()
         return self.results
 
-    def organizeResults(self):
+    def organizeResultsPerIndividual(self):
         '''
-        Organize the results dict in a new dict organizedResults
-        organizedResults like
+        WARNING: If an animal is in several experiment, this function will give data from only one
+        Organize the results dict in a new dict reorganizedResultsPerIndividual
+        reorganizedResultsPerIndividual like
         {
             'metadata': {
                 'experimentName': experimentMetaData,
@@ -311,15 +364,15 @@ class DyadicExperimentPool:
         }
         '''
         if len(self.results) > 0:
-            self.reorganizedResults['metadata'] = {}
-            self.reorganizedResults['habituationPhase'] = {}
-            self.reorganizedResults['socialPhase'] = {}
+            self.reorganizedResultsPerIndividual['metadata'] = {}
+            self.reorganizedResultsPerIndividual['habituationPhase'] = {}
+            self.reorganizedResultsPerIndividual['socialPhase'] = {}
             for experiment in self.results:
-                if len(self.reorganizedResults['metadata']) == 0:
-                    self.reorganizedResults['metadata'] = self.results[experiment]['metadata'].copy()
-                    self.reorganizedResults['metadata'].pop('animals')
-                    self.reorganizedResults['metadata']['experiments'] = {}
-                self.reorganizedResults['metadata']['experiments'][experiment] = self.results[experiment]['metadata']['animals']
+                if len(self.reorganizedResultsPerIndividual['metadata']) == 0:
+                    self.reorganizedResultsPerIndividual['metadata'] = self.results[experiment]['metadata'].copy()
+                    self.reorganizedResultsPerIndividual['metadata'].pop('animals')
+                    self.reorganizedResultsPerIndividual['metadata']['experiments'] = {}
+                self.reorganizedResultsPerIndividual['metadata']['experiments'][experiment] = self.results[experiment]['metadata']['animals']
 
                 # Initialization
                 habituationVariableList = list(self.results[experiment]['dataHabituation'].keys())
@@ -328,25 +381,25 @@ class DyadicExperimentPool:
                 for sex in sexesList:
                     if sex not in self.sexesList:
                         self.sexesList.append(sex)
-                        self.reorganizedResults['habituationPhase'][sex] = {}
-                        self.reorganizedResults['socialPhase'][sex] = {}
+                        self.reorganizedResultsPerIndividual['habituationPhase'][sex] = {}
+                        self.reorganizedResultsPerIndividual['socialPhase'][sex] = {}
                     for genotype in genotypeList:
                         if genotype not in self.genotypeList:
                             self.genotypeList.append(genotype)
-                        if genotype not in self.reorganizedResults['habituationPhase'][sex]:
-                            self.reorganizedResults['habituationPhase'][sex][genotype] = {}
+                        if genotype not in self.reorganizedResultsPerIndividual['habituationPhase'][sex]:
+                            self.reorganizedResultsPerIndividual['habituationPhase'][sex][genotype] = {}
                         if genotype not in self.reorganizedResults['socialPhase'][sex]:
-                            self.reorganizedResults['socialPhase'][sex][genotype] = {}
+                            self.reorganizedResultsPerIndividual['socialPhase'][sex][genotype] = {}
 
                         # habituation phase
                         for variable in habituationVariableList:
                             if variable != 'trajectory':
-                                if variable not in self.reorganizedResults['habituationPhase'][sex][genotype]:
-                                    self.reorganizedResults['habituationPhase'][sex][genotype][variable] = {}
+                                if variable not in self.reorganizedResultsPerIndividual['habituationPhase'][sex][genotype]:
+                                    self.reorganizedResultsPerIndividual['habituationPhase'][sex][genotype][variable] = {}
                                 for animal in self.results[experiment]['dataHabituation'][variable][sex][genotype].keys():
-                                    if animal not in self.reorganizedResults['habituationPhase'][sex][genotype][variable]:
-                                        self.reorganizedResults['habituationPhase'][sex][genotype][variable][animal] = {}
-                                    self.reorganizedResults['habituationPhase'][sex][genotype][variable][animal] = self.results[experiment]['dataHabituation'][variable][sex][genotype][animal]
+                                    if animal not in self.reorganizedResultsPerIndividual['habituationPhase'][sex][genotype][variable]:
+                                        self.reorganizedResultsPerIndividual['habituationPhase'][sex][genotype][variable][animal] = {}
+                                    self.reorganizedResultsPerIndividual['habituationPhase'][sex][genotype][variable][animal] = self.results[experiment]['dataHabituation'][variable][sex][genotype][animal]
 
                 # social phase
                 for animal in list(self.results[experiment]['dataSocial'].keys()):
@@ -356,30 +409,90 @@ class DyadicExperimentPool:
                         # one animal: events from this animal
                         for variable in list(self.results[experiment]['dataSocial'][animal].keys()):
                             if (variable not in self.results[experiment]['metadata']['animals'][animal] and (variable != 'animal') and (variable != 'file')):
-                                if variable not in self.reorganizedResults['socialPhase'][sex][genotype]:
-                                    self.reorganizedResults['socialPhase'][sex][genotype][variable] = {}
-                                self.reorganizedResults['socialPhase'][sex][genotype][variable][animal] = self.results[experiment]['dataSocial'][animal][variable]
+                                if variable not in self.reorganizedResultsPerIndividual['socialPhase'][sex][genotype]:
+                                    self.reorganizedResultsPerIndividual['socialPhase'][sex][genotype][variable] = {}
+                                self.reorganizedResultsPerIndividual['socialPhase'][sex][genotype][variable][animal] = self.results[experiment]['dataSocial'][animal][variable]
                     else:
                         # two animals: shared events
                         # can be a mix of two sexes
-                        if sex not in self.reorganizedResults['socialPhase']:
-                            self.reorganizedResults['socialPhase'][sex] = {}
+                        if sex not in self.reorganizedResultsPerIndividual['socialPhase']:
+                            self.reorganizedResultsPerIndividual['socialPhase'][sex] = {}
                         # can be a mix of two genotypes
-                        if genotype not in self.reorganizedResults['socialPhase'][sex]:
-                            self.reorganizedResults['socialPhase'][sex][genotype] = {}
+                        if genotype not in self.reorganizedResultsPerIndividual['socialPhase'][sex]:
+                            self.reorganizedResultsPerIndividual['socialPhase'][sex][genotype] = {}
                         for variable in list(self.results[experiment]['dataSocial'][animal].keys()):
                             if ((variable not in self.results[experiment]['metadata']['animals'][list(self.results[experiment]['metadata']['animals'].keys())[0]])
                                     and (variable != 'animal') and (variable != 'file')):
-                                if variable not in self.reorganizedResults['socialPhase'][sex][genotype]:
-                                    self.reorganizedResults['socialPhase'][sex][genotype][variable] = {}
-                                self.reorganizedResults['socialPhase'][sex][genotype][variable][animal] = self.results[experiment]['dataSocial'][animal][variable]
+                                if variable not in self.reorganizedResultsPerIndividual['socialPhase'][sex][genotype]:
+                                    self.reorganizedResultsPerIndividual['socialPhase'][sex][genotype][variable] = {}
+                                self.reorganizedResultsPerIndividual['socialPhase'][sex][genotype][variable][animal] = self.results[experiment]['dataSocial'][animal][variable]
             print("Reorganization finished")
+        else:
+            print('There is no results to organize.')
+
+    def organizeResults(self):
+        '''
+        Organize the results dict in a new dict organizedResults
+        reorganizedResults like
+        {
+            'metadata': {
+                'experimentName': experimentMetaData,
+            },
+            'habituationPhase': {
+                'experimentName': {
+                    'rfid': {
+                        'ID': ID,
+                        'sex': sex,
+                        'name': name,
+                        'genotype': genotype,
+                        'var1': var1,
+                        ...
+                        'experimentName': experimentname
+                    }
+                },
+            },
+            'socialPhase': {
+                the same as habituation phase
+            }
+        }
+        '''
+        if len(self.results) > 0:
+            self.reorganizedResults['metadata'] = {}
+            self.reorganizedResults['habituationPhase'] = {}
+            self.reorganizedResults['socialPhase'] = {}
+
+            for experiment in self.results:
+                if len(self.reorganizedResults['metadata']) == 0:
+                    self.reorganizedResults['metadata'] = self.results[experiment]['metadata'].copy()
+                    self.reorganizedResults['metadata'].pop('animals')
+                    self.reorganizedResults['metadata']['experiments'] = {}
+                self.reorganizedResults['metadata']['experiments'][experiment] = self.results[experiment]['metadata']['animals']
+
+                # Initialization
+                self.reorganizedResults['habituationPhase'][experiment] = self.results[experiment]['dataHabituation']
+                self.reorganizedResults['socialPhase'][experiment] = self.results[experiment]['dataSocial']
+
         else:
             print('There is no results to organize.')
 
 
     def getReorganizedResults(self):
-        return self.reorganizedResults
+        if len(self.reorganizedResults) > 0:
+            return self.reorganizedResults
+        else:
+            return "There is no reorganized results."
+
+
+    def exportReorganizedResultsAsTable(self, nameFile="dyadicResults"):
+        if len(self.reorganizedResults) > 0:
+            tableHabituationPhase = exportReorganizedResultsAsTable(self.reorganizedResults, "habituationPhase")
+            tableSocialPhase = exportReorganizedResultsAsTable(self.reorganizedResults, "socialPhase")
+            tableDyadicExperiment = pd.ExcelWriter(f'{nameFile}.xlsx', engine="xlsxwriter")
+            tableHabituationPhase.to_excel(tableDyadicExperiment, sheet_name="HabituationPhase")
+            tableSocialPhase.to_excel(tableDyadicExperiment, sheet_name="SocialPhase")
+            tableDyadicExperiment.close()
+        else:
+            return "There is no reorganized results."
 
 
     def exportReorganizedResultsToJsonFile(self, nameFile="dyadicResults"):
@@ -396,18 +509,19 @@ def setAnimalType( aType ):
 ### for test
 ## single experiment
 # file = r"D:\base test manip dyadic\2024-02-05-h46-Experiment 1494.sqlite"
-# setAnimalType(AnimalType.MOUSE)
+setAnimalType(AnimalType.MOUSE)
 # xp = DyadicExperiment(file, getTrajectory=True)
 # dataHabituation = xp.computeDyadicHabituationPhase()
 # dataSocial = xp.computeDyadicSocialPhase()
 # dataManip = xp.computeWholeDyadicExperiment()
 
 ## experiment pool test
-# experimentPool = DyadicExperimentPool()
-# experimentPool.addDyadicExperimentWithDialog()
-# experimentPool.setCenterCageCoordinatesExperimentPool(10)
-# experimentPool.computeDyadicBatch()
-# experimentPool.organizeResults()
+experimentPool = DyadicExperimentPool()
+experimentPool.addDyadicExperimentWithDialog()
+experimentPool.setCenterCageCoordinatesExperimentPool(10)
+experimentPool.computeDyadicBatch()
+experimentPool.organizeResults()
+experimentPool.exportReorganizedResultsAsTable("ip8179_epilepsie_dyadic")
 # experimentPool.exportReorganizedResultsToJsonFile("ip8179_epilepsie_dyadic")
 
 
