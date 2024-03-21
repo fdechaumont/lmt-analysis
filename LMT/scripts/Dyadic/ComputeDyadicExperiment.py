@@ -49,7 +49,7 @@ import numpy as np
 import pandas as pd
 
 
-def exportReorganizedResultsAsTable(reorganisedResults, typeData):
+def exportReorganizedResultsAsTable(reorganizedResults, typeData):
     '''
     reorganisedResults: a dictionary to convert into pandas dataframe
     typeData: could be habituationPhase or socialPhase
@@ -60,39 +60,40 @@ def exportReorganizedResultsAsTable(reorganisedResults, typeData):
     else:
         if typeData == "habituationPhase":
             tempDict = {}
-            for experiment in reorganisedResults["habituationPhase"]:
-                for variable in reorganisedResults["habituationPhase"][experiment]:
+            for experiment in reorganizedResults["habituationPhase"]:
+                for variable in reorganizedResults["habituationPhase"][experiment]:
                     if variable != 'trajectory' and variable != 'distancePerBin':
-                        for sex in reorganisedResults["habituationPhase"][experiment][variable]:
-                            for genotype in reorganisedResults["habituationPhase"][experiment][variable][sex]:
-                                if len(reorganisedResults["habituationPhase"][experiment][variable][sex][genotype]) > 0:
-                                    for animal in reorganisedResults["habituationPhase"][experiment][variable][sex][genotype]:
+                        for sex in reorganizedResults["habituationPhase"][experiment][variable]:
+                            for genotype in reorganizedResults["habituationPhase"][experiment][variable][sex]:
+                                if len(reorganizedResults["habituationPhase"][experiment][variable][sex][genotype]) > 0:
+                                    for animal in reorganizedResults["habituationPhase"][experiment][variable][sex][genotype]:
                                         if animal not in tempDict:
                                             tempDict[animal] = {
                                                 'Mouse label': animal,
                                                 'Genotype': genotype,
                                                 'Gender': sex
                                             }
-                                        tempDict[animal][variable] = reorganisedResults["habituationPhase"][experiment][variable][sex][genotype][animal]
+                                        tempDict[animal][variable] = reorganizedResults["habituationPhase"][experiment][variable][sex][genotype][animal]
 
         if typeData == "socialPhase":
             tempDict = {}
             listOfColumns = []
-            for experiment in reorganisedResults["socialPhase"]:
-                for animal in reorganisedResults["socialPhase"][experiment]:
-                    if animal not in tempDict:
-                        tempDict[animal] = {
-                            'Mouse label': animal
-                        }
-                        for variable in reorganisedResults["socialPhase"][experiment][animal]:
-                            tempDict[animal][variable] = reorganisedResults["socialPhase"][experiment][animal][variable]
-                            if variable not in listOfColumns:
-                                listOfColumns.append(variable)
+            counter = 0
+            for experiment in reorganizedResults["socialPhase"]:
+                for animal in reorganizedResults["socialPhase"][experiment]:
+                    counter += 1
+                    tempDict[counter] = {
+                        'Mouse label': animal
+                    }
+                    for variable in reorganizedResults["socialPhase"][experiment][animal]:
+                        tempDict[counter][variable] = reorganizedResults["socialPhase"][experiment][animal][variable]
+                        if variable not in listOfColumns:
+                            listOfColumns.append(variable)
 
-            for animal in tempDict:
+            for number in tempDict:
                 for variable in listOfColumns:
-                    if variable not in tempDict[animal]:
-                        tempDict[animal][variable] = np.nan
+                    if variable not in tempDict[number]:
+                        tempDict[number][variable] = np.nan
 
         table = pd.DataFrame([v for k, v in tempDict.items()])
         return table
