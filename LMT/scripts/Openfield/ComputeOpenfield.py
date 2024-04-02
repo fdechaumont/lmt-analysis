@@ -96,7 +96,7 @@ def computeOpenfield(file, centerCageCoordinates, wholeCageCoordinatesWithoutBor
     data['distancePerBin'][sex][geno][rfid] = dBin
     data['centerDistance'][sex][geno][rfid] = d1
     data['centerTime'][sex][geno][rfid] = t1 / 30
-    data['nbSap'][sex][geno][rfid] = sap1 / 30
+    data['nbSap'][sex][geno][rfid] = sap1
 
     # get the number and time of rearing
     rearTotalTimeLine = EventTimeLine(connection, "Rear isolated", minFrame=tmin, maxFrame=tmax,

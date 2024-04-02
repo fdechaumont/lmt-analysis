@@ -105,12 +105,12 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
             totalEventDuration = behavEventTimeLine.getTotalLength()
             nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame=minT, maxFrame=maxT)
             print("total event duration: ", totalEventDuration)
-            animalData[rfid][behavEventTimeLine.eventName + " TotalLen"] = totalEventDuration
+            animalData[rfid][behavEventTimeLine.eventName + " TotalLen"] = totalEventDuration / 30
             animalData[rfid][behavEventTimeLine.eventName + " Nb"] = nbEvent
             if nbEvent == 0:
                 meanDur = 0
             else:
-                meanDur = totalEventDuration / nbEvent
+                meanDur = (totalEventDuration/30) / nbEvent
             animalData[rfid][behavEventTimeLine.eventName + " MeanDur"] = meanDur
 
             print(behavEventTimeLine.eventName, pool.animalDictionary[animal].genotype, behavEventTimeLine.idA,
@@ -137,12 +137,12 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
         totalEventDuration = behavEventTimeLine.getTotalLength()
         nbEvent = behavEventTimeLine.getNumberOfEvent(minFrame=minT, maxFrame=maxT)
         print("total event duration: ", totalEventDuration)
-        animalData[pairName][behavEventTimeLine.eventName + " TotalLen"] = totalEventDuration
+        animalData[pairName][behavEventTimeLine.eventName + " TotalLen"] = totalEventDuration / 30
         animalData[pairName][behavEventTimeLine.eventName + " Nb"] = nbEvent
         if nbEvent == 0:
             meanDur = 0
         else:
-            meanDur = totalEventDuration / nbEvent
+            meanDur = (totalEventDuration/30) / nbEvent
         animalData[pairName][behavEventTimeLine.eventName + " MeanDur"] = meanDur
 
         print(behavEventTimeLine.eventName, genoPair, pairName, totalEventDuration, nbEvent, meanDur)
