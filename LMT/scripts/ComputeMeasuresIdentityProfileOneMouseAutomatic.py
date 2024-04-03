@@ -603,13 +603,13 @@ def singlePlotPerEventProfile(profileData, night, valueCat, behavEvent, ax):
 
     ax.set_xlim(-0.5, len(genotypeType))
     ax.set_ylim(min(y) - 0.2 * max(y), max(y) + 0.2 * max(y))
-    sns.boxplot(x, y, order=genotypeType, ax=ax, linewidth=0.5, showmeans=True,
+    sns.boxplot(x=x, y=y, order=genotypeType, ax=ax, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
                            "markersize": '8'}, color='white', showfliers=False, width=0.4)
-    #sns.stripplot(x, y, order=genotypeType, jitter=True, color='black', hue=group, s=5, ax=ax)
-    sns.stripplot(x, y, order=genotypeType, jitter=True, hue=group, s=5, ax=ax)
+    #sns.stripplot(x=x, y=y, order=genotypeType, jitter=True, color='black', hue=group, s=5, ax=ax)
+    sns.stripplot(x=x, y=y, order=genotypeType, jitter=True, hue=group, s=5, ax=ax)
     ax.set_title(behavEvent)
     labelTxtDic = {' TotalLen': 'duration (s)', ' MeanDur': 'mean duration (frames)', ' Nb': 'occurrences'}
     labelTxt = labelTxtDic[valueCat]
@@ -653,13 +653,13 @@ def singlePlotPerEventProfilePerGroup(profileData, night, valueCat, behavEvent, 
     yMin = min(y) - 0.2 * max(y)
     yMax = max(y) + 0.2 * max(y)
     ax.set_ylim(yMin, yMax)
-    sns.boxplot(x, y, order=genotypeType, ax=ax, linewidth=0.5, showmeans=True,
+    sns.boxplot(x=x, y=y, order=genotypeType, ax=ax, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
                            "markersize": '8'}, color='white', showfliers=False, width=0.4)
-    #sns.stripplot(x, y, order=genotypeType, jitter=True, color='black', hue=group, s=5, ax=ax)
-    sns.stripplot(x, y, order=genotypeType, jitter=True, hue=group, s=5, ax=ax)
+    #sns.stripplot(x=x, y=y, order=genotypeType, jitter=True, color='black', hue=group, s=5, ax=ax)
+    sns.stripplot(x=x, y=y, order=genotypeType, jitter=True, hue=group, s=5, ax=ax)
     if behavEvent == 'totalDistance':
         titleEvent = behavEvent
     else:
@@ -734,12 +734,12 @@ def singlePlotPerEventProfilePairs(profileData, night, valueCat, behavEvent, ax,
 
     ax.set_xlim(-0.5, 1.5)
     ax.set_ylim(min(y) - 0.1 * (max(y) - min(y)), max(y) + 0.3 * (max(y) - min(y)))
-    sns.boxplot(x, y, order=[genotypeType[0], genotypeType[1]], ax=ax, linewidth=0.5, showmeans=True,
+    sns.boxplot(x=x, y=y, order=[genotypeType[0], genotypeType[1]], ax=ax, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
                            "markersize": '8'}, showfliers=False, width=0.4)
-    sns.stripplot(x, y, order=[genotypeType[0], genotypeType[1]], jitter=True, color='black', hue=group, s=5,
+    sns.stripplot(x=x, y=y, order=[genotypeType[0], genotypeType[1]], jitter=True, color='black', hue=group, s=5,
                   ax=ax)
     ax.set_title( getFigureBehaviouralEventsLabelsFrench(behavEvent), y=1.05 )
     ax.set_ylabel("{} (s)".format(valueCat))
@@ -815,7 +815,7 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
 
     ax.text(-1, max(y) + 0.5 * (max(y) - min(y)), letter, fontsize=18, horizontalalignment='center', color='black', weight='bold')
     ax.set_ylim(min(y) - 0.2 * (max(y)-min(y)), max(y) + 0.4 * (max(y)-min(y)))
-    bp = sns.boxplot(sex, y, hue=x, hue_order=reversed(genotypeType), ax=ax, linewidth=0.5, showmeans=True,
+    bp = sns.boxplot(x=sex, y=y, hue=x, hue_order=reversed(genotypeType), ax=ax, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
@@ -825,7 +825,7 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
         r, g, b, a = patch.get_facecolor()
         patch.set_facecolor((r, g, b, .7))'''
 
-    sns.stripplot(sex, y, hue=x, hue_order=reversed(genotypeType), jitter=True, color='black', s=5,
+    sns.stripplot(x=sex, y=y, hue=x, hue_order=reversed(genotypeType), jitter=True, color='black', s=5,
                   dodge=True, ax=ax)
     ax.set_title(behavEvent, y=1, fontsize=14)
     ax.xaxis.set_tick_params(direction="in")
@@ -927,7 +927,7 @@ def singlePlotPerEventProfileBothSexesPerGroup(profileDataM, profileDataF, night
 
     ax.text(-1.2, max(y) + 0.5 * (max(y) - min(y)), letter, fontsize=18, horizontalalignment='center', color='black', weight='bold')
     ax.set_ylim(min(y) - 0.2 * (max(y)-min(y)), max(y) + 0.4 * (max(y)-min(y)))
-    bp = sns.boxplot(sex, y, hue=x, hue_order=reversed(genotypeType), ax=ax, linewidth=0.5, showmeans=True,
+    bp = sns.boxplot(x=sex, y=y, hue=x, hue_order=reversed(genotypeType), ax=ax, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
@@ -937,7 +937,7 @@ def singlePlotPerEventProfileBothSexesPerGroup(profileDataM, profileDataF, night
         r, g, b, a = patch.get_facecolor()
         patch.set_facecolor((r, g, b, .7))'''
 
-    sns.stripplot(sex, y, hue=x, hue_order=reversed(genotypeType), jitter=True, color='black', s=5,
+    sns.stripplot(x=sex, y=y, hue=x, hue_order=reversed(genotypeType), jitter=True, color='black', s=5,
                   dodge=True, ax=ax)
     
     if event == 'totalDistance':
@@ -1046,7 +1046,7 @@ def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, va
 
     ax.text(-1, max(y) + 0.5 * (max(y) - min(y)), letter, fontsize=20, horizontalalignment='center', color='black', weight='bold')
     ax.set_ylim(min(y) - 0.2 * (max(y)-min(y)), max(y) + 0.4 * (max(y)-min(y)))
-    bp = sns.boxplot(sex, y, hue=x, hue_order=list(reversed(orderedGenotypeType)), ax=ax, linewidth=0.5, showmeans=True,
+    bp = sns.boxplot(x=sex, y=y, hue=x, hue_order=list(reversed(orderedGenotypeType)), ax=ax, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
@@ -1056,7 +1056,7 @@ def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, va
         r, g, b, a = patch.get_facecolor()
         patch.set_facecolor((r, g, b, .7))'''
 
-    sns.stripplot(sex, y, hue=x, hue_order=list(reversed(orderedGenotypeType)), jitter=True, color='black', s=5,
+    sns.stripplot(x=sex, y=y, hue=x, hue_order=list(reversed(orderedGenotypeType)), jitter=True, color='black', s=5,
                   dodge=True, ax=ax)
     ax.set_title(behavEvent, y=1, fontsize=14)
     ax.xaxis.set_tick_params(direction="in")
@@ -1175,13 +1175,13 @@ def plotProfileDataDurationPairs( ax, profileData, night, valueCat, behavEvent, 
 
     ax.set_xlim(-0.5, 1.5)
     ax.set_ylim(min(y) - 0.2 * (max(y)-min(y)), max(y) + 0.4 * (max(y)-min(y)))
-    sns.boxplot(x, y, ax=ax, order=genotypeCat, linewidth=0.5, showmeans=True,
+    sns.boxplot(x=x, y=y, ax=ax, order=genotypeCat, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
                            "markersize": '10'}, showfliers=False)
-    #sns.stripplot(x, y, jitter=True, hue=group, s=5, ax=ax)
-    sns.stripplot(x, y, jitter=True, order=genotypeCat, color='black', s=5, ax=ax)
+    #sns.stripplot(x=x, y=y, jitter=True, hue=group, s=5, ax=ax)
+    sns.stripplot(x=x, y=y, jitter=True, order=genotypeCat, color='black', s=5, ax=ax)
     ax.set_title(getFigureBehaviouralEventsLabels(behavEvent), y=1, fontsize=16, weight='bold')
     if valueCat == ' Nb':
         unit = '(occurrences)'
@@ -1293,13 +1293,13 @@ def plotProfileDataDurationPairsDiffGeno( axes, row, col, profileData, night, va
 
     axes[row, col].set_xlim(-0.5, 1.5)
     axes[row, col].set_ylim(min(y) - 0.2 * max(y), max(y) + 0.2 * max(y))
-    sns.boxplot(x, y, ax=axes[row, col], order=genotypeCat, linewidth=0.5, showmeans=True,
+    sns.boxplot(x=x, y=y, ax=axes[row, col], order=genotypeCat, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
                            "markersize": '10'}, showfliers=False)
-    #sns.stripplot(x, y, jitter=True, hue=group, s=5, ax=axes[row, col])
-    sns.stripplot(x, y, jitter=True, order=genotypeCat, color='black', s=5, ax=axes[row, col])
+    #sns.stripplot(x=x, y=y, jitter=True, hue=group, s=5, ax=axes[row, col])
+    sns.stripplot(x=x, y=y, jitter=True, order=genotypeCat, color='black', s=5, ax=axes[row, col])
     axes[row, col].set_title(behavEvent)
     if event == 'totalDistance':
         valueCat = 'distance'
@@ -1975,10 +1975,11 @@ if __name__ == '__main__':
             tmin, tmax = getMinTMaxTInput()
             print ( files )
 
-            profileData = {}
+            
             nightComputation = input("Compute profile only during night events (Y or N)? ")
 
             for file in files:
+                profileData = {}
                 #get the path and the name of file
                 head, tail = os.path.split(file)
                 print(file)
