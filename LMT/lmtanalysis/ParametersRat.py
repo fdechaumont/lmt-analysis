@@ -52,7 +52,24 @@ class ParametersRat():
     SEQUENTIAL_REARING_POSITION_THRESHOLD = 50
     
     ''' threshold for the presence within the water zone '''
-    MAX_DISTANCE_TO_POINT = 5/scaleFactor
+    MAX_DISTANCE_TO_WATER_POINT = 11/scaleFactor 
+    
+    ''' threshold for the presence within the water zone to drink'''
+    MAX_DISTANCE_TO_WATER_NOSE_POSITION = 3/scaleFactor 
+    
+    ''' threshold for the presence within the gate zone to enter'''
+    MAX_DISTANCE_TO_GATE_NOSE_ENTRANCE = 3/scaleFactor 
+    
+    ''' threshold for the presence within the gate zone '''
+    MAX_DISTANCE_TO_GATE_POINT = 11/scaleFactor
+    
+    ''' water zone's coordinates'''
+    X_WATER_POINT = 123
+    Y_WATER_POINT = 82
+    
+    ''' gate zone's coordinates'''
+    X_GATE_POINT = 165
+    Y_GATE_POINT = 352
     
     ''' distance to an object, to take into account the vibrissae length '''
     DISTANCE_TO_OBJECT_NOR = 3 / scaleFactor
@@ -80,7 +97,10 @@ class ParametersRat():
     
     ''' Minimum duration for the animal to stop at the water point to be classified as drinking '''
     MIN_WATER_STOP_DURATION = 2*oneSecond
-        
+    
+    ''' Minimum duration for the animal to stop at the gate point to be classified as drinking '''
+    MIN_GATE_STOP_DURATION = 2*oneSecond
+     
     ''' Cage center in 100x100cm area'''
     cageCenterCoordinatesOpenFieldArea = Point( 256, 208 )
     
