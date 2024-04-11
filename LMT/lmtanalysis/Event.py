@@ -924,7 +924,7 @@ class EventTimeLine:
         self.saveTimeLine(connection)
 
     def deleteEventTimeLineInBase( self , connection ):
-         deleteEventTimeLineInBase(connection, self.eventName, self.idA, self.idB, self.idC, self.idD )
+        deleteEventTimeLineInBase(connection, self.eventName, self.idA, self.idB, self.idC, self.idD )
 
     def getDensityEventInTimeBin(self, tmin=0, tmax=None, binSize=1*oneMinute):
         '''
