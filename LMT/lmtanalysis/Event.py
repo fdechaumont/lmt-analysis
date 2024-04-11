@@ -112,7 +112,14 @@ class Event:
         
         return interval
         
-
+    def checkOverlapOfEventWithDic(self, dicToTest):
+        result = False
+        for t in range(self.startFrame, self.endFrame+1):
+            if t in dicToTest.keys():
+                result = True
+                break
+        return result
+    
     def __str__(self):
         return "Event\tstart:\t"+ str( self.startFrame) + "\tend:\t" + str( self.endFrame)
 
@@ -754,8 +761,7 @@ class EventTimeLine:
             dico.pop( k , None )
 
         self.reBuildWithDictionary( dico )
-
-
+    
     def removeEventsBelowLength(self , maxLen ):
         for event in self.eventList[:]:
             if ( event.duration() < maxLen ):
