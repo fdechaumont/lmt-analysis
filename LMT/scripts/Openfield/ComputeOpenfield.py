@@ -79,6 +79,7 @@ def computeOpenfield(file, centerCageCoordinates, wholeCageCoordinatesWithoutBor
     dt1 = animal.getDistance(tmin=tmin, tmax=tmax)  # compute the total distance traveled in the whole cage
     # get distance per time bin
     dBin = animal.getDistancePerBin(binFrameSize=1 * oneMinute, minFrame=tmin, maxFrame=tmax)
+
     # get distance and time spent in the middle of the cage
     d1 = animal.getDistanceSpecZone(tmin, tmax, xa=centerCageCoordinates['xa'], xb=centerCageCoordinates['xb'], ya=centerCageCoordinates['ya'],
                                     yb=centerCageCoordinates['yb'])  # compute the distance traveled in the center zone
@@ -92,9 +93,10 @@ def computeOpenfield(file, centerCageCoordinates, wholeCageCoordinatesWithoutBor
     sap1 = len(animal.getSap(tmin=tmin, tmax=tmax, xa=wholeCageCoordinatesWithoutBorder['xa'], xb=wholeCageCoordinatesWithoutBorder['xb'],
                              ya=wholeCageCoordinatesWithoutBorder['ya'], yb=wholeCageCoordinatesWithoutBorder['yb']))
     # fill the data dictionary with the computed data for each file:
-    data['totDistance'][sex][geno][rfid] = dt1
-    data['distancePerBin'][sex][geno][rfid] = dBin
-    data['centerDistance'][sex][geno][rfid] = d1
+    data['totDistance'][sex][geno][rfid] = dt1 / 100
+    # convert distance from cm to meter
+    data['distancePerBin'][sex][geno][rfid] = [distanceBin / 100 for distanceBin in dBin]
+    data['centerDistance'][sex][geno][rfid] = d1 / 100
     data['centerTime'][sex][geno][rfid] = t1 / 30
     data['nbSap'][sex][geno][rfid] = sap1
 
