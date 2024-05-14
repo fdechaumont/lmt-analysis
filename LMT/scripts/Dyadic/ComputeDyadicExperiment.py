@@ -507,22 +507,6 @@ def setAnimalType( aType ):
     global animalType
     animalType = aType
 
-### for test
-## single experiment
-# file = r"D:\base test manip dyadic\2024-02-05-h46-Experiment 1494.sqlite"
-setAnimalType(AnimalType.MOUSE)
-# xp = DyadicExperiment(file, getTrajectory=True)
-# dataHabituation = xp.computeDyadicHabituationPhase()
-# dataSocial = xp.computeDyadicSocialPhase()
-# dataManip = xp.computeWholeDyadicExperiment()
 
-## experiment pool test
-experimentPool = DyadicExperimentPool()
-experimentPool.addDyadicExperimentWithDialog()
-experimentPool.setCenterCageCoordinatesExperimentPool(10)
-experimentPool.computeDyadicBatch()
-experimentPool.organizeResults()
-experimentPool.exportReorganizedResultsAsTable("ip8179_epilepsie_dyadic")
-# experimentPool.exportReorganizedResultsToJsonFile("ip8179_epilepsie_dyadic")
 
 
