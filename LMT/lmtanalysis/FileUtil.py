@@ -151,6 +151,46 @@ def getCsvFileToProcess():
 
     return file
 
+def getCsvFilesToProcess():
+    root = tk.Tk()
+    root.withdraw()
+    root.update()
+
+    d = Dialog(
+        title="Select input for processing", text="Select file(s) or folder for processing", bitmap='question',
+        strings=('Files', 'Folder', 'Cancel'), default=0)
+
+    root.focus_force()
+    files = None
+    if (d.num == 0):
+        files = askopenfilename(title="Choose a set of file to process", multiple=1,
+                                filetypes=(("csv files", "*.csv"), ("all files", "*.*")))
+
+    if (d.num == 1):
+
+        folder = askdirectory(title="Choose a directory to process")
+        print("Folder: ", folder)
+        folder = folder + "/**/*.csv"
+        print("Fetching files...")
+        files = []
+        for file in glob.glob(folder, recursive=True):
+            print(file, "found.")
+            files.append(file)
+
+    d.destroy()
+    root.destroy()
+
+    return files
+
+
+def mergeDictionariesForProfiles(dicList):
+    #initiate the result dictionary with the keys of one example file
+    resultsDic = {}
+    for dic in dicList:
+        resultsDic = {**resultsDic, **dic}
+    print(resultsDic.keys())
+    
+    return resultsDic
 
 def mergeJsonFilesForProfiles(files):
     #initiate the result dictionary with the keys of one example file
@@ -184,10 +224,10 @@ def extractPValueFromLMMResult( result, keyword ):
         if keyword in l:
             print (l)
             lineWithoutSpace = ' '.join(l.split())
-            pValue = float( lineWithoutSpace.split(" ")[4] )
+            pValue = float( lineWithoutSpace.split(" ")[-3] )
             sign = 1
-            print( "test: " , lineWithoutSpace.split(" ")[1] )
-            if float( lineWithoutSpace.split(" ")[1] ) < 0:
+            print( "test: " , lineWithoutSpace.split(" ")[-6] )
+            if float( lineWithoutSpace.split(" ")[-6] ) < 0:
                 sign=-1
             print ( "P VALUE :" , pValue )
             print ( "SIGN :" , sign )
@@ -264,8 +304,14 @@ def getFigureBehaviouralEventsLabels(event):
     
     return behaviouralEventsLabels[event]
 
-
-
+def getExtensionLabelForCat( cat ):
+    if cat == " TotalLen":
+        extension = "duration"
+    if cat == " Nb":
+        extension = "occurrences"
+    if cat == " MeanDur":
+        extension = "mean duration"
+    return extension
 
 
 behaviouralEventOneMouse = ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
@@ -389,6 +435,7 @@ def getSpecificEventListForTest(cat, eventListDic):
 
 
 unitCatDic = {' TotalLen': 's', ' Nb': 'nb', ' MeanDur': 's'}
+unitCatDicMin = {' TotalLen': 'min', ' Nb': 'nb', ' MeanDur': 's'}
 
 def getBehaviouralEventName(behavEvent, cat):
     if behavEvent != 'totalDistance':
