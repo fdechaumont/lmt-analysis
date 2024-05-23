@@ -63,6 +63,9 @@ class ParametersRat():
     ''' threshold for the presence within the gate zone '''
     MAX_DISTANCE_TO_GATE_POINT = 11/scaleFactor
     
+    ''' threshold for the presence within the wheel zone '''
+    MAX_DISTANCE_TO_WHEEL_POINT = 11/scaleFactor 
+    
     ''' water zone's coordinates'''
     X_WATER_POINT = 123
     Y_WATER_POINT = 82
@@ -70,6 +73,10 @@ class ParametersRat():
     ''' gate zone's coordinates'''
     X_GATE_POINT = 165
     Y_GATE_POINT = 352
+    
+    ''' wheel zone's coordinates'''
+    X_WHEEL_POINT = 248
+    Y_WHEEL_POINT = 106
     
     ''' distance to an object, to take into account the vibrissae length '''
     DISTANCE_TO_OBJECT_NOR = 3 / scaleFactor
