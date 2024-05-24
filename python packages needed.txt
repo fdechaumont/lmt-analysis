@@ -1,6 +1,13 @@
 packages needed:
 
 numpy
+scipy
 matplotlib
 affine
 tabulate
+pandas
+lxml
+networkx
+psutil
+seaborn
+statsmodels
