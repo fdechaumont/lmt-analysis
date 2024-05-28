@@ -286,6 +286,10 @@ def getFigureBehaviouralEventsLabels(event):
                          "Break contact": 'break contact',
                          "Group 3 break": 'break group 3',
                          "Group 4 break": 'break group 4',
+                         "Social Wheel Zone Dyad" : 'wheel zone (dyad)',
+                         "Fast escape contact" : 'escape', 
+                         "Single Wheel Zone" : 'wheel zone (single)',
+                         "longChase" : 'long chase',
                          
                          'Oral-oral Contact exclusive': 'nose-nose (x)',
                            'Side by side Contact exclusive': 'side-side (x)',
@@ -321,6 +325,29 @@ behaviouralEventOneMouse = ["Move isolated", "Move in contact", "Stop isolated",
     "Group 3 make", "Group 4 make", "Break contact",
     "Group 3 break", "Group 4 break"
     ]
+
+behaviouralEventOneRat = ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
+    "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
+    "Train2", "FollowZone",
+    "Social approach", "Approach contact",
+    "Group 3 make", "Group 4 make", "Break contact",
+    "Group 3 break", "Group 4 break",
+    "Fast escape contact", "longChase", "Water Zone", "Single Wheel Zone", "Social Wheel Zone Dyad", "Social Wheel Zone Triad", "Social Wheel Zone Quartet"
+    ]
+
+
+behaviouralEventOneRatDic = {' TotalLen': ["Move isolated", "Stop isolated", "Rear isolated",
+    "Contact",  "Oral-oral Contact", "Oral-genital Contact", "Train2", "FollowZone", "Social Wheel Zone Dyad",
+     "Fast escape contact", "longChase", "Single Wheel Zone"],
+    
+    ' Nb': ["Move isolated",  "Stop isolated", "Rear isolated", 
+    "Contact", "Oral-oral Contact", "Oral-genital Contact", "Train2", "FollowZone", "Approach contact", "Social Wheel Zone Dyad",
+     "Fast escape contact", "longChase", "Single Wheel Zone"],
+    
+    ' MeanDur': ["Move isolated", "Stop isolated", "Rear isolated", "Contact", "Oral-oral Contact", "Oral-genital Contact", 
+               "Train2", "FollowZone", "Approach contact", "Social Wheel Zone Dyad","Fast escape contact", "longChase", "Single Wheel Zone"]
+    }
+
 
 behaviouralEventOneMouseDic = {' TotalLen': ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
