@@ -36,7 +36,7 @@ import matplotlib.image as mpimg
 
 import random
 from random import randint
-from scipy.stats._morestats import shapiro
+from scipy.stats.morestats import shapiro
 
 def computeProfile(file, minT, maxT, behaviouralEventList):
     
@@ -1991,7 +1991,7 @@ if __name__ == '__main__':
                     n = 0
                     extension = 'no_night_{}'.format(os.path.splitext(os.path.basename(tail))[0])
                     #Compute profile2 data and save them in a text file
-                    profileData[file][n] = computeProfilePair(file = file, minT=minT, maxT=maxT, behaviouralEventListSingle=behaviouralEventOneMouse, behaviouralEventListSocial=behaviouralEventOneMouse)
+                    profileData[file][n] = computeProfilePair(file = file, minT=minT, maxT=maxT, behaviouralEventListSingle=behaviouralEventOneMouseSingle, behaviouralEventListSocial=behaviouralEventOneMouseSocial)
                     
                     
                 else:
@@ -2040,8 +2040,8 @@ if __name__ == '__main__':
                 n = 0
                 # Compute profile2 data
                 profileData[file][n] = computeProfilePairFromPause(file=file, experimentDuration=experimentDuration,
-                                                                   behaviouralEventListSingle=behaviouralEventOneMouse,
-                                                                   behaviouralEventListSocial=behaviouralEventOneMouse)
+                                                                   behaviouralEventListSingle=behaviouralEventOneMouseSingle,
+                                                                   behaviouralEventListSocial=behaviouralEventOneMouseSocial)
 
                 # Create a json file to store the computation
                 with open("{}/profile_data_pair_from_pause_{}_{}.json".format(head, extension, experimentDuration), 'w') as fp:
