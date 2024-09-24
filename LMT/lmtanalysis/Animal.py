@@ -39,7 +39,7 @@ from lmtanalysis.ParametersMouse import ParametersMouse
 from lmtanalysis.ParametersRat import ParametersRat
 
 
-idAnimalColor = [ None, "red","green","blue","orange"]
+idAnimalColor = [ None, "red","green","purple","orange"]
 
 from enum import Enum
 
@@ -70,9 +70,11 @@ class Animal():
         self.animalType = animalType
 
         if self.animalType == AnimalType.MOUSE:
+            print("Animal type = MOUSE")
             self.parameters = ParametersMouse()
 
         if self.animalType == AnimalType.RAT:
+            print("Animal type = RAT")
             self.parameters = ParametersRat()
 
         if self.parameters == None:
