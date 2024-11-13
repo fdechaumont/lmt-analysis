@@ -21,6 +21,7 @@ class ParametersRat():
     
     ''' speed threshold to define high speed movements '''
     HIGH_SPEED_MOVE_THRESHOLD = 18
+    MAXIMUM_SPEED_THRESHOLD = 300
     
     ''' slope of the body between the nose and the tail basis '''
     BODY_SLOPE_THRESHOLD = 40
