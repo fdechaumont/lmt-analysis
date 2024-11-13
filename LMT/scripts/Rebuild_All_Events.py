@@ -13,7 +13,7 @@ from lmtanalysis.Measure import *
 from lmtanalysis.Util import getAllEvents
 
 from lmtanalysis import BuildEventApproachContact, BuildEventOtherContact, BuildEventPassiveAnogenitalSniff, BuildEventHuddling, BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, BuildEventFollowZone, BuildEventRear5, BuildEventCenterPeripheryLocation, BuildEventRearCenterPeriphery, BuildEventFloorSniffing, BuildEventSocialApproach, BuildEventSocialEscape, BuildEventApproachContact,BuildEventOralOralContact, BuildEventApproachRear, BuildEventGroup2, BuildEventGroup3, BuildEventGroup4, BuildEventOralGenitalContact, BuildEventStop, BuildEventWaterPoint, BuildEventMove, BuildEventGroup3MakeBreak, BuildEventGroup4MakeBreak, BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection, BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP, BuildEventOralSideSequence, CheckWrongAnimal, CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventGetAway,\
-    BuildEventInCorner
+    BuildEventInCorner, BuildEventMoveSpeedCategories, BuildEventLongChase
 
 
 from psutil import virtual_memory
@@ -34,8 +34,8 @@ from lmtanalysis.AnimalType import AnimalType
 ''' minT and maxT to process the analysis (in frame) '''
 minT = 0
 
-#maxT = 5000
-maxT = 2*oneDay
+#maxT = 50000
+maxT = 3*oneDay
 #maxT = (6+1)*oneHour
 ''' time window to compute the events. '''
 windowT = 1*oneDay
@@ -75,30 +75,14 @@ eventClassList = [
                 #BuildEventWaterPoint,
                 BuildEventApproachContact,
                 #BuildEventWallJump,
-                BuildEventSAP,
+                #BuildEventSAP,
                 BuildEventOralSideSequence,
                 BuildEventNest3,
-                BuildEventNest4
+                BuildEventNest4,
+                BuildEventMoveSpeedCategories,
+                BuildEventLongChase
                    ]
 
-#eventClassList = [BuildEventStop, BuildEventMove]
-#eventClassList = [BuildEventPassiveAnogenitalSniff, BuildEventOtherContact, BuildEventExclusiveSideSideNoseAnogenitalContact]
-#eventClassList = [BuildEventInCorner]
-
-'''eventClassList = [
-
-                BuildEventDetection,
-                BuildEventMove,
-                BuildEventRear5,
-                BuildEventCenterPeripheryLocation,
-                BuildEventRearCenterPeriphery,
-                BuildEventStop,
-                BuildEventWaterPoint,
-                BuildEventWallJump,
-                BuildEventSAP
-                   ]'''
-
-#eventClassList = [BuildEventOralOralContact]
 
 
 def flushEvents( connection ):
