@@ -44,7 +44,6 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
     
     pool = AnimalPool( )
     pool.loadAnimals( connection )
-    pool.loadDetection( start = tmin, end = tmax )
     
     eventTimeLineTrain2 = {}
     eventTimeLineContact = {}
