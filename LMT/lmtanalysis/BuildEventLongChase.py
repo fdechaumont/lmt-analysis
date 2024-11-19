@@ -8,12 +8,10 @@ from lmtanalysis.Parameters import getAnimalTypeParameters
 from lmtanalysis.Animal import AnimalPool
 
 
-eventName = "longChase"
-
 def flush( connection ):
     ''' flush event in database '''
-    print("Flushing " , eventName )
-    deleteEventTimeLineInBase(connection, eventName )
+    print("Flushing longChase" )
+    deleteEventTimeLineInBase(connection, "longChase" )
     
 def prolongateTimeLine(timeLine, timeLineDic):
     for event in timeLine.eventList:
@@ -111,7 +109,7 @@ def reBuildEvent( connection, file, tmin=None, tmax=None, pool = None, animalTyp
                 for event in eventTimeLineTrain2[(animalA, animalB)].getEventList():
                     longChaseEventTimeLineDic[(animalA, animalB)].addEvent(event)
 
-                longChaseEventTimeLineDic[(animalA, animalB)].endRebuildEventTimeLine(connection, deleteExistingEvent=True)
+                longChaseEventTimeLineDic[(animalA, animalB)].endRebuildEventTimeLine(connection)
 
     # log process
     from lmtanalysis.TaskLogger import TaskLogger
