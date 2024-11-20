@@ -105,7 +105,7 @@ class DyadicExperiment:
         :param file: path of the experiment file
         :param animalType: the animalType to get animalType's parameters
         :param tStartHabituationPhase: the first frame of the habituation phase
-        :param durationHabituationPhase: the last frame of the habituation phase
+        :param durationHabituationPhase: duration in minutes of the habituation phase
         :param durationSocialPhase: duration in minutes of the social phase
         :param getTrajectory: if True, get the trajectory of the animal during the habituation phase
         '''
