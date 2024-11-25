@@ -18,13 +18,15 @@ Kinect at 63 cm high from the floor.
 
 import sqlite3
 from lmtanalysis.Measure import oneMinute, oneHour
-from Util import getDatetimeFromFrame
+from Util import getDatetimeFromFrame, getNumberOfFrames
 from Parameters import getAnimalTypeParameters
 from ZoneArena import getZoneCoordinatesFromCornerCoordinatesOpenfieldArea
 from lmtanalysis.AnimalType import AnimalType
 from Animal_LMTtoolkit import AnimalPoolToolkit
 from FileUtil import getFilesToProcess
 import json
+import matplotlib.pyplot as plt
+from Event import EventTimeLine
 
 
 class ActivityExperiment:
@@ -52,6 +54,12 @@ class ActivityExperiment:
         self.startDatetime = getDatetimeFromFrame(connection, self.tStartPeriod)
         self.endDatetime = getDatetimeFromFrame(connection, self.tStopFramePeriod)
         connection.close()
+        if self.endDatetime is None:
+            self.tStopFramePeriod = getNumberOfFrames(file)
+            connection = sqlite3.connect(self.file)
+            self.endDatetime = getDatetimeFromFrame(connection, self.tStopFramePeriod)
+            connection.close()
+        self.numberOfTimeBin = (self.tStopFramePeriod - self.tStartPeriod) / self.timebinInFrame
         # Get animalPool to compute activity
         self.pool = self.extractActivityPerAnimalStartEndInput()
         self.animals = {}
@@ -102,7 +110,6 @@ class ActivityExperiment:
             'startFrame': self.tStartPeriod,
             'durationExperiment': self.durationPeriod,
             'timeBin': self.timebin,
-            # 'animals': self.animals,
             'startDatetime': self.startDatetime.strftime("%d/%m/%Y %H:%M:%S.%f"),
             'endDatetime': self.endDatetime.strftime("%d/%m/%Y %H:%M:%S.%f")
         }
@@ -140,9 +147,9 @@ class ActivityExperiment:
                 x = timeLine[t - 1] + self.timebin
                 timeLine.append(x)
 
-            self.results[rfid] = {'animal': rfid, 'totalDistance': self.totalDistance[rfid]}
+            self.results[rfid] = {}
             for time, distance in zip(timeLine, self.activity[rfid]):
-                self.results[rfid][f"t{time}"] = distance
+                self.results[rfid][time] = distance
 
 
         return {'totalDistance': self.totalDistance, 'activity': self.activity, 'results': self.results}
@@ -183,15 +190,60 @@ class ActivityExperiment:
                 self.reorganizedResults[rfid][key] = value
 
 
-
     def exportReorganizedResultsToJsonFile(self, nameFile="activityResults"):
         self.organizeResults()
         jsonFile = json.dumps(self.reorganizedResults, indent=4)
         with open(f"{self.name}_{nameFile}.json", "w") as outputFile:
             outputFile.write(jsonFile)
 
+    def convertFrameNumberForTimeBinTimeline(self, frameNumber):
+        # axe en minute depuis le début de période!
+        return ((frameNumber - self.tStartPeriod)/self.timebinInFrame)*self.timebin
 
+    def plotNightTimeLine(self):
+        connection = sqlite3.connect(self.file)
 
+        nightTimeLineList = []
+        nightTimeLine = EventTimeLine(connection, "night")
+        nightTimeLineList.append(nightTimeLine)
+
+        connection.close()
+
+        ax = plt.gca()
+        for nightEvent in nightTimeLine.getEventList():
+            print("Night")
+            if nightEvent.startFrame >= self.tStartPeriod and nightEvent.startFrame <= self.tStopFramePeriod:
+                print("gna")
+                print(self.tStartPeriod)
+                print(nightEvent.startFrame)
+                print(nightEvent.endFrame)
+                if nightEvent.endFrame >= self.tStopFramePeriod:
+                    nightEvent.endFrame = self.tStopFramePeriod
+                print(f"Start night: {self.convertFrameNumberForTimeBinTimeline(nightEvent.startFrame)}")
+                print(f"End night: {self.convertFrameNumberForTimeBinTimeline(nightEvent.endFrame)}")
+                ax.axvspan(self.convertFrameNumberForTimeBinTimeline(nightEvent.startFrame), self.convertFrameNumberForTimeBinTimeline(nightEvent.endFrame), alpha=0.1, color='black')
+                ax.text(self.convertFrameNumberForTimeBinTimeline(nightEvent.startFrame) + (self.convertFrameNumberForTimeBinTimeline(nightEvent.endFrame) - self.convertFrameNumberForTimeBinTimeline(nightEvent.startFrame)) / 2, 100, "dark phase",
+                        fontsize=8, ha='center')
+
+    def plotActivity(self):
+        if len(self.results) == 0:
+            print("No results")
+        else:
+            fig, ax = plt.subplots(1, 1, figsize=(8, 2))
+            ax = plt.gca()  # get current axis
+            ax.set_xlabel("time")
+
+            for animal in self.results:
+                print("plot: ")
+                print(self.results[animal])
+                ax.plot(self.results[animal].keys(), self.results[animal].values(), linewidth=0.6, label=f"{animal}: {round(self.totalDistance[animal])}")
+            plt.title(self.name)
+            ax.legend(loc="upper center")
+            self.plotNightTimeLine()
+
+            plt.show()
+
+            fig.savefig(f"activity_{self.name}.pdf")
 
 
 class ActivityExperimentPool:
@@ -230,6 +282,7 @@ class ActivityExperimentPool:
         for experiment in self.activityExperiments:
             self.results[experiment.getName()] = experiment.computeActivityPerTimeBin()
             experiment.exportReorganizedResultsToJsonFile()
+            experiment.plotActivity()
         return self.results
 
 
@@ -263,7 +316,7 @@ setAnimalType(AnimalType.MOUSE)
 
 ## experiment pool test
 experimentPool = ActivityExperimentPool()
-experimentPool.addActivityExperimentWithDialog(1, 1, 10)
+experimentPool.addActivityExperimentWithDialog(1, 48, 10)
 experimentPool.computeActivityBatch()
 # experimentPool.organizeResults()
 # experimentPool.exportReorganizedResultsAsTable("nameTableFile")
