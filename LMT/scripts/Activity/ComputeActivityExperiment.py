@@ -190,6 +190,7 @@ class ActivityExperiment:
                 self.reorganizedResults[rfid][key] = value
 
 
+
     def exportReorganizedResultsToJsonFile(self, nameFile="activityResults"):
         self.organizeResults()
         jsonFile = json.dumps(self.reorganizedResults, indent=4)
@@ -242,7 +243,6 @@ class ActivityExperiment:
             self.plotNightTimeLine()
 
             plt.show()
-
             fig.savefig(f"activity_{self.name}.pdf")
 
 
@@ -250,6 +250,7 @@ class ActivityExperimentPool:
     def __init__(self):
         self.activityExperiments = []
         self.results = {}
+        self.mergedResults = {}
         self.reorganizedResultsPerIndividual = {}
         self.reorganizedResults = {}
         self.sexesList = []
@@ -286,11 +287,23 @@ class ActivityExperimentPool:
         return self.results
 
 
-    def organizeResults(self):
+    def mergeResults(self):
         '''
         Organize the results of the activity experiment
         '''
-        pass
+        if len(self.activityExperiments) == 0:
+            print("There is no experiment yet")
+        else:
+            for experiment in self.activityExperiments:
+                self.mergedResults[experiment.getName()] = experiment.reorganizedResults
+
+
+    # def exportResultsSortedBy(self, filters: list):
+    #     '''
+    #     filters: list of filters to sort the results
+    #     Return the results sorted by the given filters
+    #     '''
+    #
 
 
     def exportReorganizedResultsToJsonFile(self, nameFile="activityResults"):
