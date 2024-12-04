@@ -29,6 +29,28 @@ import matplotlib.pyplot as plt
 from Event import EventTimeLine
 
 
+def completeDicoFromKey(dico: dict, keyList: list):
+    '''
+    Recursive function to structure dico from a list of keys
+    '''
+    dico[keyList[0]] = {}
+    if len(keyList[1:]) > 0:
+        completeDicoFromKey(dico[keyList[0]], keyList[1:])
+    return dico
+
+def completeDicoFromValues(mergedDictPart: dict, inConstructionDict: dict, keywordList: list):
+    '''
+    Recursive function to structure dico from values of dico and keylist
+    '''
+    if mergedDictPart[keywordList[0]] not in inConstructionDict:
+        inConstructionDict[mergedDictPart[keywordList[0]]] = {}
+    if len(keywordList[1:]) > 0:
+        completeDicoFromValues(mergedDictPart, inConstructionDict[mergedDictPart[keywordList[0]]], keywordList[1:])
+    else:
+        inConstructionDict[mergedDictPart[keywordList[0]]][mergedDictPart['rfid']] = mergedDictPart
+    return inConstructionDict
+
+
 class ActivityExperiment:
     def __init__(self, file, tStartPeriod=1, durationPeriod=24, timebin=10):
         '''
@@ -298,12 +320,32 @@ class ActivityExperimentPool:
                 self.mergedResults[experiment.getName()] = experiment.reorganizedResults
 
 
-    # def exportResultsSortedBy(self, filters: list):
-    #     '''
-    #     filters: list of filters to sort the results
-    #     Return the results sorted by the given filters
-    #     '''
-    #
+    def exportResultsSortedBy(self, filters: list):
+        '''
+        filters: list of filters to sort the results
+        Filters could be genotype, sex, treatment, strain or age
+        If values for a filter is None in a database, None will be returned as a key in the reorganizedResults
+        results have to be merged first
+        Return the results sorted by the given filters
+        '''
+        if len(self.mergedResults) == 0:
+            self.mergedResults()
+
+        # check filters
+        acceptedFilters = ["genotype", "sex", "age", "strain", "treatment"]
+        for filter in filters:
+            print(filter)
+            if filter not in acceptedFilters:
+                print(f"Filter {filter} not accepted")
+                return False
+
+
+        for experiment in self.mergedResults:
+            for animal in self.mergedResults[experiment].keys():
+                if animal != 'metadata':
+                    print(animal)
+                    self.reorganizedResults = completeDicoFromValues(self.mergedResults[experiment][animal], self.reorganizedResults, filters)
+
 
 
     def exportReorganizedResultsToJsonFile(self, nameFile="activityResults"):
@@ -331,6 +373,10 @@ setAnimalType(AnimalType.MOUSE)
 experimentPool = ActivityExperimentPool()
 experimentPool.addActivityExperimentWithDialog(1, 48, 10)
 experimentPool.computeActivityBatch()
+experimentPool.mergeResults()
+filterList = ["treatment", "sex"]
+experimentPool.exportResultsSortedBy(filterList)
+
 # experimentPool.organizeResults()
 # experimentPool.exportReorganizedResultsAsTable("nameTableFile")
 # experimentPool.exportReorganizedResultsToJsonFile("nameJsonFile")
