@@ -52,6 +52,9 @@ def completeDicoFromValues(mergedDictPart: dict, inConstructionDict: dict, keywo
     return inConstructionDict
 
 
+def changeStringKeysToIntKeys(dico: dict):
+    return {int(key): value for key, value in dico.items()}
+
 class ActivityExperiment:
     def __init__(self, file, tStartPeriod=1, durationPeriod=24, timebin=10):
         '''
@@ -91,6 +94,8 @@ class ActivityExperiment:
                 for animal in self.animals:
                     self.totalDistance[animal] = data[animal]['totalDistance']
                     self.results[animal] = data[animal]['results']
+                    self.results[animal] = changeStringKeysToIntKeys(self.results[animal])
+
 
 
         else:
