@@ -27,6 +27,7 @@ from FileUtil import getFilesToProcess
 import json
 import matplotlib.pyplot as plt
 from Event import EventTimeLine
+from datetime import datetime
 
 
 def completeDicoFromKey(dico: dict, keyList: list):
@@ -61,55 +62,83 @@ class ActivityExperiment:
         :param timebin: timebin in minutes to compute the distance travelled
         '''
         # global animalType
-        self.file = file
-        self.name = file.split('.sqlite')[0].split('\\')[-1].split("/")[-1]
         self.animalType = animalType
-        self.tStartPeriod = tStartPeriod   # framenumber
-        self.durationPeriod = durationPeriod*oneHour  # duration in number of frame
-        self.tStopFramePeriod = self.tStartPeriod+self.durationPeriod    # convert in framenumber
-        self.durationPeriod = durationPeriod    # duration in hours
-        self.durationPeriodInFrame = durationPeriod*oneMinute    # duration in number of frame
-        self.timebin = timebin # timebin in minutes
-        self.timebinInFrame = timebin*oneMinute # timebin in number of frame
-        # Get start datetime and end datetime for metadata
-        connection = sqlite3.connect(self.file)
-        self.startDatetime = getDatetimeFromFrame(connection, self.tStartPeriod)
-        self.endDatetime = getDatetimeFromFrame(connection, self.tStopFramePeriod)
-        connection.close()
-        if self.endDatetime is None:
-            self.tStopFramePeriod = getNumberOfFrames(file)
-            connection = sqlite3.connect(self.file)
-            self.endDatetime = getDatetimeFromFrame(connection, self.tStopFramePeriod)
-            connection.close()
-        self.numberOfTimeBin = (self.tStopFramePeriod - self.tStartPeriod) / self.timebinInFrame
-        # Get animalPool to compute activity
-        self.pool = self.extractActivityPerAnimalStartEndInput()
-        self.animals = {}
-        for animal in self.pool.animalDictionary:
-            print(self.pool.animalDictionary[animal])
-            self.animals[self.pool.animalDictionary[animal].RFID] = {
-                'id': self.pool.animalDictionary[animal].baseId,
-                'name': self.pool.animalDictionary[animal].name,
-                'rfid': self.pool.animalDictionary[animal].RFID,
-                'genotype': self.pool.animalDictionary[animal].genotype,
-                'sex': self.pool.animalDictionary[animal].sex,
-                'age': self.pool.animalDictionary[animal].age,
-                'strain': self.pool.animalDictionary[animal].strain,
-                'treatment': self.pool.animalDictionary[animal].treatment
-            }
-
-        ''' 
-        Cage parameters default to animalType parameters but can be modified
-        cage coordinates have this format:
-        {'xa': 168, 'xb': 343, 'ya': 120, 'yb': 296}
-        '''
         self.parameters = getAnimalTypeParameters(animalType)
-        self.wholeCageCoordinates = getZoneCoordinatesFromCornerCoordinatesOpenfieldArea(self.animalType)
-
-        self.activity = {}
+        self.file = file
+        # self.activity = {}
         self.totalDistance = {}
         self.results = {}
         self.reorganizedResults = {}
+        if ".json" in file:
+            self.name = file.split('.json')[0].split('\\')[-1].split("/")[-1]
+            # Get data from json
+            with open(self.file, "r") as f:
+                data = json.load(f)
+                self.wholeCageCoordinates = data['metadata']['wholeCageCoordinates']
+                self.tStartPeriod = data['metadata']['startFrame']
+                self.durationPeriod = data['metadata']['durationExperiment']
+                self.timebin = data['metadata']['timeBin']
+                self.startDatetime = datetime.strptime(data['metadata']['startDatetime'], "%d/%m/%Y %H:%M:%S.%f")
+                self.endDatetime = datetime.strptime(data['metadata']['endDatetime'], "%d/%m/%Y %H:%M:%S.%f")
+                self.tStartPeriod = data['metadata']['tStartPeriod']
+                self.tStopFramePeriod = data['metadata']['tStopFramePeriod']
+                self.durationPeriod = data['metadata']['durationPeriod']
+                self.durationPeriodInFrame = data['metadata']['durationPeriodInFrame']
+                self.timebinInFrame = data['metadata']['timebinInFrame']
+                self.numberOfTimeBin = data['metadata']['numberOfTimeBin']
+                self.animals = data['metadata']['animals']
+                self.nights = data['metadata']['nights']
+                for animal in self.animals:
+                    self.totalDistance[animal] = data[animal]['totalDistance']
+                    self.results[animal] = data[animal]['results']
+
+
+        else:
+            self.tStartPeriod = tStartPeriod   # framenumber
+            self.durationPeriod = durationPeriod  # duration in hours
+            self.durationPeriodInFrame = durationPeriod*oneHour    # duration in number of frame
+            self.tStopFramePeriod = self.tStartPeriod+self.durationPeriodInFrame    # convert in framenumber
+            self.timebin = timebin # timebin in minutes
+            self.timebinInFrame = timebin*oneMinute # timebin in number of frame
+
+            self.name = file.split('.sqlite')[0].split('\\')[-1].split("/")[-1]
+            # Get start datetime and end datetime for metadata
+            connection = sqlite3.connect(self.file)
+            self.startDatetime = getDatetimeFromFrame(connection, self.tStartPeriod)
+            self.endDatetime = getDatetimeFromFrame(connection, self.tStopFramePeriod)
+            connection.close()
+            if self.endDatetime is None:
+                self.tStopFramePeriod = getNumberOfFrames(file)
+                connection = sqlite3.connect(self.file)
+                self.endDatetime = getDatetimeFromFrame(connection, self.tStopFramePeriod)
+                connection.close()
+            self.numberOfTimeBin = (self.tStopFramePeriod - self.tStartPeriod) / self.timebinInFrame
+            # Get animalPool to compute activity
+            self.pool = self.extractActivityPerAnimalStartEndInput()
+            self.animals = {}
+            for animal in self.pool.animalDictionary:
+                print(self.pool.animalDictionary[animal])
+                self.animals[self.pool.animalDictionary[animal].RFID] = {
+                    'id': self.pool.animalDictionary[animal].baseId,
+                    'name': self.pool.animalDictionary[animal].name,
+                    'rfid': self.pool.animalDictionary[animal].RFID,
+                    'genotype': self.pool.animalDictionary[animal].genotype,
+                    'sex': self.pool.animalDictionary[animal].sex,
+                    'age': self.pool.animalDictionary[animal].age,
+                    'strain': self.pool.animalDictionary[animal].strain,
+                    'treatment': self.pool.animalDictionary[animal].treatment
+                }
+
+            ''' 
+            Cage parameters default to animalType parameters but can be modified
+            cage coordinates have this format:
+            {'xa': 168, 'xb': 343, 'ya': 120, 'yb': 296}
+            '''
+            self.wholeCageCoordinates = getZoneCoordinatesFromCornerCoordinatesOpenfieldArea(self.animalType)
+
+            self.nights = []
+
+
 
 
     def getName(self):
@@ -133,7 +162,15 @@ class ActivityExperiment:
             'durationExperiment': self.durationPeriod,
             'timeBin': self.timebin,
             'startDatetime': self.startDatetime.strftime("%d/%m/%Y %H:%M:%S.%f"),
-            'endDatetime': self.endDatetime.strftime("%d/%m/%Y %H:%M:%S.%f")
+            'endDatetime': self.endDatetime.strftime("%d/%m/%Y %H:%M:%S.%f"),
+            'tStartPeriod': self.tStartPeriod,
+            'tStopFramePeriod': self.tStopFramePeriod,
+            'durationPeriod': self.durationPeriod,
+            'durationPeriodInFrame': self.durationPeriodInFrame,
+            'timebinInFrame':self.timebinInFrame,
+            'numberOfTimeBin': self.numberOfTimeBin,
+            'animals': self.animals,
+            'nights': self.nights
         }
         return metadata
 
@@ -141,44 +178,53 @@ class ActivityExperiment:
         '''
         Load animals information and detections into an AnimalPool
         '''
-        connection = sqlite3.connect(self.file)
-        pool = AnimalPoolToolkit()
-        pool.loadAnimals(connection)
-        pool.loadDetection(start=self.tStartPeriod, end=self.tStopFramePeriod, lightLoad=True)
-        connection.close()
+        if '.sqlite' in self.file:
+            connection = sqlite3.connect(self.file)
+            pool = AnimalPoolToolkit()
+            pool.loadAnimals(connection)
+            pool.loadDetection(start=self.tStartPeriod, end=self.tStopFramePeriod, lightLoad=True)
+            connection.close()
 
-        return pool
+            return pool
+        else:
+            print("Experiment from json: cannot use extractActivityPerAnimalStartEndInput()")
+            return False
 
 
     def computeActivityPerTimeBin(self):
-        self.activity = {}
-        self.totalDistance = {}
-        self.results = {}
+        if '.sqlite' in self.file:
+            activity = {}
+            self.totalDistance = {}
+            self.results = {}
 
-        for animal in self.pool.animalDictionary.keys():
-            rfid = self.pool.animalDictionary[animal].RFID
-            self.activity[rfid] = self.pool.animalDictionary[animal].getDistancePerBin(binFrameSize=self.timebinInFrame,
-                                                                             minFrame=self.tStartPeriod, maxFrame=self.tStopFramePeriod)
-            self.totalDistance[rfid] = self.pool.animalDictionary[animal].getDistance(tmin=self.tStartPeriod, tmax=self.tStopFramePeriod)
+            for animal in self.pool.animalDictionary.keys():
+                rfid = self.pool.animalDictionary[animal].RFID
+                activity[rfid] = self.pool.animalDictionary[animal].getDistancePerBin(binFrameSize=self.timebinInFrame,
+                                                                                 minFrame=self.tStartPeriod, maxFrame=self.tStopFramePeriod)
+                self.totalDistance[rfid] = self.pool.animalDictionary[animal].getDistance(tmin=self.tStartPeriod, tmax=self.tStopFramePeriod)
 
-            nTimeBins = len(self.activity[rfid])
-            print(nTimeBins)
+                nTimeBins = len(activity[rfid])
+                print(nTimeBins)
 
-            timeLine = [0]
-            for t in range(1, nTimeBins):
-                x = timeLine[t - 1] + self.timebin
-                timeLine.append(x)
+                timeLine = [0]
+                for t in range(1, nTimeBins):
+                    x = timeLine[t - 1] + self.timebin
+                    timeLine.append(x)
 
-            self.results[rfid] = {}
-            for time, distance in zip(timeLine, self.activity[rfid]):
-                self.results[rfid][time] = distance
+                self.results[rfid] = {}
+                for time, distance in zip(timeLine, activity[rfid]):
+                    self.results[rfid][time] = distance
 
+            self.getNightTimeLine()
 
-        return {'totalDistance': self.totalDistance, 'activity': self.activity, 'results': self.results}
+            return {'totalDistance': self.totalDistance, 'results': self.results}
 
+        else:
+            print("Experiment from json: cannot use computeActivityPerTimeBin()")
+            return False
 
     def getAllResults(self):
-        return {'metadata': self.getMetadata(), 'totalDistance': self.totalDistance, 'activity': self.activity, 'results': self.results}
+        return {'metadata': self.getMetadata(), 'totalDistance': self.totalDistance, 'results': self.results}
 
 
     def organizeResults(self):
@@ -212,7 +258,6 @@ class ActivityExperiment:
                 self.reorganizedResults[rfid][key] = value
 
 
-
     def exportReorganizedResultsToJsonFile(self, nameFile="activityResults"):
         self.organizeResults()
         jsonFile = json.dumps(self.reorganizedResults, indent=4)
@@ -223,30 +268,33 @@ class ActivityExperiment:
         # axe en minute depuis le début de période!
         return ((frameNumber - self.tStartPeriod)/self.timebinInFrame)*self.timebin
 
+    def getNightTimeLine(self):
+        if '.sqlite' in self.file:
+            self.nights = []
+            connection = sqlite3.connect(self.file)
+            nightTimeLineList = []
+            nightTimeLine = EventTimeLine(connection, "night")
+            nightTimeLineList.append(nightTimeLine)
+            connection.close()
+
+            for nightEvent in nightTimeLine.getEventList():
+                if nightEvent.startFrame >= self.tStartPeriod and nightEvent.startFrame <= self.tStopFramePeriod:
+                    if nightEvent.endFrame >= self.tStopFramePeriod:
+                        nightEvent.endFrame = self.tStopFramePeriod
+
+                    self.nights.append(
+                            {'startFrame': self.convertFrameNumberForTimeBinTimeline(nightEvent.startFrame),
+                             'endFrame': self.convertFrameNumberForTimeBinTimeline(nightEvent.endFrame)})
+        else:
+            print("Experiment from json: cannot use getNightTimeLine()")
+            return False
+
     def plotNightTimeLine(self):
-        connection = sqlite3.connect(self.file)
-
-        nightTimeLineList = []
-        nightTimeLine = EventTimeLine(connection, "night")
-        nightTimeLineList.append(nightTimeLine)
-
-        connection.close()
-
         ax = plt.gca()
-        for nightEvent in nightTimeLine.getEventList():
-            print("Night")
-            if nightEvent.startFrame >= self.tStartPeriod and nightEvent.startFrame <= self.tStopFramePeriod:
-                print("gna")
-                print(self.tStartPeriod)
-                print(nightEvent.startFrame)
-                print(nightEvent.endFrame)
-                if nightEvent.endFrame >= self.tStopFramePeriod:
-                    nightEvent.endFrame = self.tStopFramePeriod
-                print(f"Start night: {self.convertFrameNumberForTimeBinTimeline(nightEvent.startFrame)}")
-                print(f"End night: {self.convertFrameNumberForTimeBinTimeline(nightEvent.endFrame)}")
-                ax.axvspan(self.convertFrameNumberForTimeBinTimeline(nightEvent.startFrame), self.convertFrameNumberForTimeBinTimeline(nightEvent.endFrame), alpha=0.1, color='black')
-                ax.text(self.convertFrameNumberForTimeBinTimeline(nightEvent.startFrame) + (self.convertFrameNumberForTimeBinTimeline(nightEvent.endFrame) - self.convertFrameNumberForTimeBinTimeline(nightEvent.startFrame)) / 2, 100, "dark phase",
-                        fontsize=8, ha='center')
+        for nightEvent in self.nights:
+            ax.axvspan(nightEvent['startFrame'], nightEvent['endFrame'], alpha=0.1, color='black')
+            ax.text(nightEvent['startFrame'] + (nightEvent['endFrame'] - nightEvent['startFrame']) / 2, 100, "dark phase",
+                    fontsize=8, ha='center')
 
     def plotActivity(self):
         if len(self.results) == 0:
@@ -304,6 +352,15 @@ class ActivityExperimentPool:
         '''
         for experiment in self.activityExperiments:
             self.results[experiment.getName()] = experiment.computeActivityPerTimeBin()
+            experiment.exportReorganizedResultsToJsonFile()
+            experiment.plotActivity()
+        return self.results
+
+    def ExportReorganizedResultsAndPlotActivityBatch(self):
+        '''
+        Compute a batch of activity experiment
+        '''
+        for experiment in self.activityExperiments:
             experiment.exportReorganizedResultsToJsonFile()
             experiment.plotActivity()
         return self.results
