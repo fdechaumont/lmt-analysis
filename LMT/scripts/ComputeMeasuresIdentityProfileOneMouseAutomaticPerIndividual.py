@@ -247,13 +247,13 @@ def plotProfilePerIndividualPerGenotype( axes, row, col, profileData, night, val
 
     axes[row, col].set_xlim(-0.5, 1.5)
     axes[row, col].set_ylim( yMin, yMax)
-    sns.boxplot(x, y, ax=axes[row, col], order=genotypeCat, linewidth=0.5, showmeans=True,
+    sns.boxplot(x=x, y=y, ax=axes[row, col], order=genotypeCat, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
                            "markersize": '10'}, showfliers=False)
     #sns.stripplot(x, y, jitter=True, hue=group, s=5, ax=axes[row, col])
-    sns.stripplot(x, y, jitter=True, order=genotypeCat, color='black', s=5, ax=axes[row, col])
+    sns.stripplot(x=x, y=y, jitter=True, order=genotypeCat, color='black', s=5, ax=axes[row, col])
     axes[row, col].set_title(behavEvent)
 
     axes[row, col].set_ylabel("{} {}".format(valueCat, unit))
@@ -457,18 +457,18 @@ def plotProfilePerIndividualPerGenotypeOnlySameGenotype( ax, profileData, night,
         ax.set_xlim(-0.5, 1.5)
         ax.set_ylim( yMin, yMax)
         colorList = ['black', 'darkgrey']
-        bp = sns.boxplot(x, y, ax=ax, order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], linewidth=0.5, showmeans=True,
+        bp = sns.boxplot(x=x, y=y, ax=ax, order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], linewidth=0.5, showmeans=True,
                     meanprops={"marker": 'o',
                                "markerfacecolor": 'white',
                                "markeredgecolor": 'black',
                                "markersize": '10'}, palette = {'same': colorList[0], 'diff': colorList[1]}, showfliers=False)
     
-        sns.stripplot(x, y, jitter=True, order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], palette=['grey', 'lightgrey'], dodge=True, s=5, ax=ax)
+        sns.stripplot(x=x, y=y, jitter=True, order=genotypeCat, hue=genoOther, hue_order=['same', 'diff'], palette=['grey', 'lightgrey'], dodge=True, s=5, ax=ax)
         
         ax.set_title(getFigureBehaviouralEventsLabels(behavEvent), fontsize=16)
     
         ax.set_ylabel("{} {}".format(valueCat, unit), fontsize=16)
-        ax.tick_params(axis='x', labelsize=16)
+        ax.tick_params(axis='x', labelsize=10, rotation=45)
         ax.tick_params(axis='y', labelsize=14)
         ax.legend().set_visible(False)
         ax.spines['right'].set_visible(False)
@@ -535,18 +535,18 @@ def plotProfilePerIndividualPerGenotypeOnlySameGenotype( ax, profileData, night,
         ax.axhline(100 / 3, ls='--', c='grey')
                 
         colorList = ['black', 'darkgrey']
-        bp = sns.boxplot(x, y, ax=ax, order=genotypeCat, hue=genoOther, hue_order=['same'], linewidth=0.5, showmeans=True,
+        bp = sns.boxplot(x=x, y=y, ax=ax, order=genotypeCat, hue=genoOther, hue_order=['same'], linewidth=0.5, showmeans=True,
                     meanprops={"marker": 'o',
                                "markerfacecolor": 'white',
                                "markeredgecolor": 'black',
                                "markersize": '10'}, palette = {'same': colorList[0]}, showfliers=False)
     
-        sns.stripplot(x, y, jitter=True, order=genotypeCat, hue=genoOther, color=[getColorGeno(genotypeCat[0]), getColorGeno(genotypeCat[1])], hue_order=['same'], palette=['grey'], s=5, ax=ax)
+        sns.stripplot(x=x, y=y, jitter=True, order=genotypeCat, hue=genoOther, color=[getColorGeno(genotypeCat[0]), getColorGeno(genotypeCat[1])], hue_order=['same'], palette=['grey'], s=5, ax=ax)
         
         ax.set_title(getFigureBehaviouralEventsLabels(behavEvent), fontsize=16)
     
         ax.set_ylabel("{} {}".format(valueCat, unit), fontsize=16)
-        ax.tick_params(axis='x', labelsize=16)
+        ax.tick_params(axis='x', labelsize=10, rotation=45)
         ax.tick_params(axis='y', labelsize=14)
         ax.legend().set_visible(False)
         ax.spines['right'].set_visible(False)
@@ -596,7 +596,8 @@ def plotProfilePerIndividualPerGenotypeOnlySameGenotype( ax, profileData, night,
             ax.text(x=pos[genotypeCat[k]], y=yMin + 0.95 * (yMax - yMin), s=getStarsFromPvalues(p, numberOfTests=1),
                                 fontsize=14, ha='center')
             text_file.write('\n')
-            
+
+
 
 def plotProfileValuesPerGenotype(night, categoryList, behaviouralEventOneMouseSocial, profileData, text_file):
                 for valueCat in categoryList:
@@ -639,15 +640,18 @@ def mergeProfilePerGenotypeOverNights( profileData, categoryList, behaviouralEve
 
 
             for cat in categoryList:
-                #traitList = [trait+cat for trait in behaviouralEventOneMouseSocial]
-                traitList = [trait+cat for trait in behaviouralEventOneMouseSocial[cat]]
+                traitList = [trait+cat for trait in behaviouralEventOneMouseSocial]
+                #traitList = [trait+cat for trait in behaviouralEventOneMouseSocial[cat]]
             
                 for trait in traitList:
                     print(trait)
                     mergeProfile[file]['all nights'][rfid][trait] = {}
+                    print("genoList: ", genoList)
                     for genoInteractor in genoList:
                         mergeProfile[file]['all nights'][rfid][trait][genoInteractor] = {}
+                        print("#####", profileData[file][nightList[0]][rfid][trait] )
                         for interactor in profileData[file][nightList[0]][rfid][trait][genoInteractor].keys():
+                            
                             dataNight = 0
                             for night in profileData[file].keys():
                                 dataNight += profileData[file][night][rfid][trait][genoInteractor][interactor]
@@ -724,7 +728,7 @@ if __name__ == '__main__':
                     addToFile = f'no_night_{os.path.splitext(os.path.basename(tail))[0]}'
                     
 
-                else:
+                if nightComputation == "Y":
                     nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=tmin, maxFrame=tmax )
                     n = 1
                     addToFile = f'over_night_{os.path.splitext(os.path.basename(tail))[0]}'
@@ -734,11 +738,14 @@ if __name__ == '__main__':
                         maxT = eventNight.endFrame
                         print("Night: ", n)
                         #Compute profile2 data and save them in a text file
-                        #profileData[file][n] = computeProfilePerIndividual(file=file, minT=minT, maxT=maxT, genoList=genoListLocal, categoryList=categoryList, behaviouralEventListTwoMice=behaviouralEventOneMouseSocial)
-                        profileData[file][n] = computeProfilePerIndividual(file=file, minT=minT, maxT=maxT, genoList=genoListLocal, categoryList=categoryList, behaviouralEventListTwoMice=["FollowZone"])
-                        
+                        profileData[file][n] = computeProfilePerIndividual(file=file, minT=minT, maxT=maxT, genoList=genoListLocal, categoryList=categoryList, behaviouralEventListTwoMice=behaviouralEventOneMouseSocial)
                         n+=1
                         print("Profile data saved.")
+                
+                else:
+                    print("You did not use the suggested answers.")
+                    break        
+                        
 
                 # Create a json file to store the computation
                 with open("{}/profile_data_per_ind_{}_{}_{}.json".format(head, addToFile, tmin, tmax), 'w') as fp:

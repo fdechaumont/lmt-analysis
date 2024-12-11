@@ -21,7 +21,8 @@ import matplotlib.patches as mpatches
 
 
 from tkinter.filedialog import askopenfilename
-from lmtanalysis.Util import getMinTMaxTAndFileNameInput
+from lmtanalysis.Util import getMinTMaxTAndFileNameInput, getColorGeno,\
+    getColorGenoTreatment
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 from lmtanalysis.FileUtil import *
 from lmtanalysis.Util import getFileNameInput, getStarsFromPvalues
@@ -493,7 +494,10 @@ def getProfileValuesPairsWithMode(profileData, night='0', event=None, mode=None)
             if mode == 'single':
                 if not '_' in animal:
                     dataDic['id'].append(profileData[file][str(night)][animal]["animal"])
-                    dataDic["value"].append(profileData[file][str(night)][animal][event])
+                    if "totalDistance" in event:
+                        dataDic["value"].append(profileData[file][str(night)][animal]["totalDistance"])
+                    else:
+                        dataDic["value"].append(profileData[file][str(night)][animal][event])
                     dataDic["exp"].append(profileData[file][str(night)][animal]["file"])
                     dataDic["group"].append(profileData[file][str(night)][animal]["group"])
                     dataDic["genotype"].append(profileData[file][str(night)][animal]["genotype"])
@@ -989,7 +993,7 @@ def singlePlotPerEventProfileBothSexesPerGroup(profileDataM, profileDataF, night
         text_file.write('{} {} {}'.format(behavEvent, valueCat, sexClass))
         text_file.write(result.summary().as_text())
         text_file.write('\n')
-        p, sign = extractPValueFromLMMResult(result=result, keyword='wt')
+        p, sign = extractPValueFromLMMResult(result=result, keyword='WT')
         #add p-values on the plot
         ax.text(n, max(y) + 0.25 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=16, horizontalalignment='center', color='black', weight='bold')
         n += 1
@@ -1172,23 +1176,20 @@ def plotProfileDataDurationPairs( ax, profileData, night, valueCat, behavEvent, 
     #print("group: ", group)
     experimentType = Counter(group)
     print("Nb of experiments: ", len(experimentType))
-
+    #generate color palette
+    my_pal = getColorPalette( genoList = genotypeCat )
+    
     ax.set_xlim(-0.5, 1.5)
     ax.set_ylim(min(y) - 0.2 * (max(y)-min(y)), max(y) + 0.4 * (max(y)-min(y)))
-    sns.boxplot(x=x, y=y, ax=ax, order=genotypeCat, linewidth=0.5, showmeans=True,
+    sns.boxplot(x=x, y=y, ax=ax, hue=x, order=genotypeCat, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
-                           "markersize": '10'}, showfliers=False)
+                           "markersize": '10'}, showfliers=False, palette=my_pal )
     #sns.stripplot(x=x, y=y, jitter=True, hue=group, s=5, ax=ax)
     sns.stripplot(x=x, y=y, jitter=True, order=genotypeCat, color='black', s=5, ax=ax)
     ax.set_title(getFigureBehaviouralEventsLabels(behavEvent), y=1, fontsize=16, weight='bold')
-    if valueCat == ' Nb':
-        unit = '(occurrences)'
-    if behavEvent == 'totalDistance':
-        unit = '(m)'
-    else:
-        unit = '(frames)'
+    
     ax.xaxis.set_tick_params(direction="in")
     ax.tick_params(axis='x', labelsize=14)
     ax.yaxis.set_tick_params(direction="in")
@@ -1203,6 +1204,10 @@ def plotProfileDataDurationPairs( ax, profileData, night, valueCat, behavEvent, 
     if event == 'totalDistance':
         ylabel = 'distance (m)'
     ax.set_ylabel(ylabel, fontsize=14)
+    #xlabels = [getShorterGenoNames(longGenoName=x) for x in genotypeCat]
+    xlabels = genotypeCat
+    ax.set_xticklabels(xlabels, fontsize=12)
+    
     ax.legend().set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -1240,7 +1245,8 @@ def plotProfileDataDurationPairs( ax, profileData, night, valueCat, behavEvent, 
         dfData = pandas.DataFrame({'group': profileValueDictionary["exp"],
                                    'genotype': profileValueDictionary["genotype"],
                                    'value': profileValueDictionary["value"]})
-
+        #dfData.loc[dfData["genotype"] != "Baseline"]
+        
         genotypeCat = list(Counter(dfData['genotype']).keys())
         genotypeCat.sort(reverse=True)
         print(genotypeCat)
@@ -1276,11 +1282,15 @@ def plotProfileDataDurationPairsDiffGeno( axes, row, col, profileData, night, va
         event = behavEvent
     print("event: ", event)
 
-    profileValueDictionary = getProfileValuesPairs(profileData=profileData, night=night, event=event)
-    y = profileValueDictionary["value"]
+    profileValueDictionary = getProfileValuesPairsWithMode(profileData=profileData, night=night, event=event, mode=mode)
+    yval = profileValueDictionary["value"]
+    if (valueCat == ' TotalLen') & (behavEvent != 'totalDistance'):
+        y = [i / 30 for i in yval]
+    else:
+        y = yval
     x = profileValueDictionary["genotype"]
     group = profileValueDictionary["exp"]
-
+    
     genotypeCat = list(Counter(x))
     genotypeCat.sort(reverse=True)
     print('genotype list: ', genotypeCat)
@@ -1297,7 +1307,7 @@ def plotProfileDataDurationPairsDiffGeno( axes, row, col, profileData, night, va
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
-                           "markersize": '10'}, showfliers=False)
+                           "markersize": '10'}, showfliers=False, palette=[getColorGeno(geno) for geno in genotypeCat])
     #sns.stripplot(x=x, y=y, jitter=True, hue=group, s=5, ax=axes[row, col])
     sns.stripplot(x=x, y=y, jitter=True, order=genotypeCat, color='black', s=5, ax=axes[row, col])
     axes[row, col].set_title(behavEvent)
@@ -1310,6 +1320,8 @@ def plotProfileDataDurationPairsDiffGeno( axes, row, col, profileData, night, va
         else:
             unit = '(frames)'
     axes[row, col].set_ylabel("{} {}".format(valueCat, unit))
+    xlabels = [getShorterGenoNames(longGenoName=x) for x in genotypeCat]
+    axes[row, col].set_xticklabels(xlabels, fontsize=12)
     axes[row, col].legend().set_visible(False)
     axes[row, col].spines['right'].set_visible(False)
     axes[row, col].spines['top'].set_visible(False)
@@ -1340,7 +1352,7 @@ def plotProfileDataDurationPairsDiffGeno( axes, row, col, profileData, night, va
     print('means of ', genotypeCat[0], np.mean(data[genotypeCat[0]]), 'mean of ', genotypeCat[1], np.mean(data[genotypeCat[1]]))
     print( 'Mann-Whitney U test ({} {} cages, {} {} cages) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p) )
     text_file.write('Mann-Whitney U test ({} {} cages, {} {} cages) {}: U={}, p={}'.format(len(data[genotypeCat[0]]), genotypeCat[0], len(data[genotypeCat[1]]), genotypeCat[1], event, U, p))
-    axes[row, col].text(x=0.5, y=max(y) + 0.1 * max(y), s = getStarsFromPvalues(p,numberOfTests=1), fontsize=14, ha='center' )
+    axes[row, col].text(x=0.5, y=max(y) + 0.05 * max(y), s = getStarsFromPvalues(p,numberOfTests=1), fontsize=20, ha='center' )
     text_file.write('\n')
 
 
@@ -1633,7 +1645,7 @@ def plotZScoreProfileAuto(ax, koDataframe, night, eventListForTest, eventListFor
         ax.text(-2.6, 8.8, s='CONTACT', color='white', fontsize=16, fontweight='bold', rotation='vertical',
                 verticalalignment='center')
     
-        ax.add_patch(mpatches.Rectangle((-3, 12.6), width=6, height=1.8, facecolor='grey', alpha=0.3))
+        ax.add_patch(mpatches.Rectangle((-3, 12.6), width=6, height=2.8, facecolor='grey', alpha=0.3))
         ax.text(-2.6, 13.55, s='FOLLOW', color='white', fontsize=16, fontweight='bold', rotation='vertical',
                 verticalalignment='center')
     
@@ -1650,15 +1662,15 @@ def plotZScoreProfileAuto(ax, koDataframe, night, eventListForTest, eventListFor
         ax.text(-2.6, 7.9, s='CONTACT', color='white', fontsize=14, fontweight='bold', rotation='vertical',
                 verticalalignment='center')
     
-        ax.add_patch(mpatches.Rectangle((-3, 11.6), width=6, height=1.8, facecolor='grey', alpha=0.3))
+        ax.add_patch(mpatches.Rectangle((-3, 11.6), width=6, height=2.8, facecolor='grey', alpha=0.3))
         ax.text(-2.6, 12.4, s='FOLLOW', color='white', fontsize=14, fontweight='bold', rotation='vertical',
                 verticalalignment='center')
     
-        ax.add_patch(mpatches.Rectangle((-3, 13.6), width=6, height=2.8, facecolor='grey', alpha=0.3))
+        ax.add_patch(mpatches.Rectangle((-3, 14.6), width=6, height=2.8, facecolor='grey', alpha=0.3))
         ax.text(-2.6, 15.05, s='APPROACH', color='white', fontsize=14, fontweight='bold', rotation='vertical',
                 verticalalignment='center')
     
-        ax.add_patch(mpatches.Rectangle((-3, 16.6), width=6, height=4.3, facecolor='grey', alpha=0.3))
+        ax.add_patch(mpatches.Rectangle((-3, 17.6), width=6, height=4.3, facecolor='grey', alpha=0.3))
         ax.text(-2.6, 18, s='ESCAPE', color='white', fontsize=14, fontweight='bold', rotation='vertical',
                 verticalalignment='center')
 
@@ -1675,15 +1687,15 @@ def plotZScoreProfileAuto(ax, koDataframe, night, eventListForTest, eventListFor
         ax.text(-2.6, 7.8, s='CONTACT', color='white', fontsize=14, fontweight='bold', rotation='vertical',
                 verticalalignment='center')
     
-        ax.add_patch(mpatches.Rectangle((-3, 11.6), width=6, height=1.8, facecolor='grey', alpha=0.3))
+        ax.add_patch(mpatches.Rectangle((-3, 11.6), width=6, height=2.8, facecolor='grey', alpha=0.3))
         ax.text(-2.6, 12.55, s='FOLLOW', color='white', fontsize=14, fontweight='bold', rotation='vertical',
                 verticalalignment='center')
     
-        ax.add_patch(mpatches.Rectangle((-3, 13.6), width=6, height=0.8, facecolor='grey', alpha=0.3))
+        ax.add_patch(mpatches.Rectangle((-3, 14.6), width=6, height=0.8, facecolor='grey', alpha=0.3))
         ax.text(-2.6, 14, s='APP.', color='white', fontsize=14, fontweight='bold', rotation='vertical',
                 verticalalignment='center')
     
-        ax.add_patch(mpatches.Rectangle((-3, 14.6), width=6, height=0.9, facecolor='grey', alpha=0.3))
+        ax.add_patch(mpatches.Rectangle((-3, 15.6), width=6, height=0.9, facecolor='grey', alpha=0.3))
         ax.text(-2.6, 15.05, s='ESC.', color='white', fontsize=14, fontweight='bold', rotation='vertical',
                 verticalalignment='center')
 
@@ -1720,34 +1732,37 @@ def plotZScoreProfileAutoHorizontal(ax, cat, koDataframe, night, eventListForTes
         print('Event: ', event)
 
         valList = selectedDataframe['value'][selectedDataframe['trait'] == event]
+        print("values: ", valList)
         W, pNorm = shapiro(valList)
         if pNorm >= 0.05:
             print("####normal data")
             T, p = ttest_1samp(valList, popmean=0, nan_policy='omit')
-        if pNorm < 0.05:
+        elif pNorm < 0.05:
             print("####data not normal")
             T, p = wilcoxon(valList, alternative="two-sided")
         print('p=', p)
-        #if np.isnan(p) == True:
-        """if getStarsFromPvalues(p, numberOfTests=1) == 'NA':
+        
+        if np.isnan(p) == True:
+            #if getStarsFromPvalues(p, numberOfTests=1) == 'NA':
             print('no test conducted.')
+            color = 'grey'
             pos += 1
-            continue"""
+            continue
 
-        #else:
-        color = 'grey'
-        if p < 0.05:
-            print(night, event, T, p)
-            
-            if np.mean(valList) > 0:
-                color = 'red'
-            elif np.mean(valList) < 0:
-                color = 'blue'
-            """elif T == 0:
-                color = 'grey'"""
-            ax.text(pos, -1.97, s=getStarsFromPvalues(p, numberOfTests=1), fontsize=21, c=color, ha='center')
+        else:
+            color = 'grey'
+            if p < 0.05:
+                print(night, event, T, p)
+                
+                if np.mean(valList) > 0:
+                    color = 'red'
+                elif np.mean(valList) < 0:
+                    color = 'blue'
+                """elif T == 0:
+                    color = 'grey'"""
+                ax.text(pos, -1.97, s=getStarsFromPvalues(p, numberOfTests=1), fontsize=21, c=color, ha='center')
         colorList.append(color)
-        print('event position: ', event, pos, T, p, getStarsFromPvalues(p, numberOfTests=1), color)
+        #print('event position: ', event, pos, T, p, getStarsFromPvalues(p, numberOfTests=1), color)
         pos += 1
     
 
@@ -1759,7 +1774,7 @@ def plotZScoreProfileAutoHorizontal(ax, cat, koDataframe, night, eventListForTes
     ax.spines['top'].set_visible(False)
     
     if cat == ' TotalLen':
-        ax.set_xlim(-1, 30)
+        ax.set_xlim(-1, 32)
         ax.add_patch(mpatches.Rectangle((-1, -3), width=4.4, height=6, facecolor='grey', alpha=0.3))
         ax.text(1.6, 2, s='ACTIVITY', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
                 horizontalalignment='center')
@@ -1772,13 +1787,13 @@ def plotZScoreProfileAutoHorizontal(ax, cat, koDataframe, night, eventListForTes
         ax.text(8.8, 2, s='CONTACT', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
                 horizontalalignment='center')
     
-        ax.add_patch(mpatches.Rectangle((12.6, -3), width=1.8, height=6, facecolor='grey', alpha=0.3))
-        ax.text(13.55, 2, s='FOLLOW', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
+        ax.add_patch(mpatches.Rectangle((12.6, -3), width=2.8, height=6, facecolor='grey', alpha=0.3))
+        ax.text(14, 2, s='FOLLOW', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
                 horizontalalignment='center')
 
     
     elif cat == ' Nb':
-        ax.set_xlim(-1, 30)
+        ax.set_xlim(-1, 32)
         ax.add_patch(mpatches.Rectangle((-1, -3), width=3.4, height=6, facecolor='grey', alpha=0.3))
         ax.text(1, 2, s='ACTIVITY', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
                 horizontalalignment='center')
@@ -1791,16 +1806,16 @@ def plotZScoreProfileAutoHorizontal(ax, cat, koDataframe, night, eventListForTes
         ax.text(7.9, 2, s='CONTACT', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
                 horizontalalignment='center')
     
-        ax.add_patch(mpatches.Rectangle((11.6, -3), width=1.8, height=6, facecolor='grey', alpha=0.3))
-        ax.text(12.35, 2, s='FOLLOW', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
+        ax.add_patch(mpatches.Rectangle((11.6, -3), width=2.8, height=6, facecolor='grey', alpha=0.3))
+        ax.text(13.15, 2, s='FOLLOW', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
                 horizontalalignment='center')
     
-        ax.add_patch(mpatches.Rectangle((13.6, -3), width=2.8, height=6, facecolor='grey', alpha=0.3))
-        ax.text(15.05, 2, s='APPROACH', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
+        ax.add_patch(mpatches.Rectangle((14.6, -3), width=2.8, height=6, facecolor='grey', alpha=0.3))
+        ax.text(16.05, 2, s='APPROACH', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
                 horizontalalignment='center')
     
-        ax.add_patch(mpatches.Rectangle((16.6, -3), width=4.3, height=6, facecolor='grey', alpha=0.3))
-        ax.text(18, 2, s='ESCAPE', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
+        ax.add_patch(mpatches.Rectangle((17.6, -3), width=4.3, height=6, facecolor='grey', alpha=0.3))
+        ax.text(19.1, 2, s='ESCAPE', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
                 horizontalalignment='center')
         
     elif cat == ' MeanDur':
@@ -1817,62 +1832,23 @@ def plotZScoreProfileAutoHorizontal(ax, cat, koDataframe, night, eventListForTes
         ax.text(7.8, 2, s='CONTACT', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
                 horizontalalignment='center')
     
-        ax.add_patch(mpatches.Rectangle((11.6, -3), width=1.8, height=6, facecolor='grey', alpha=0.3))
-        ax.text(12.55, 2, s='FOLLOW', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
+        ax.add_patch(mpatches.Rectangle((11.6, -3), width=2.8, height=6, facecolor='grey', alpha=0.3))
+        ax.text(13.05, 2, s='FOLLOW', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
                 horizontalalignment='center')
     
-        ax.add_patch(mpatches.Rectangle((13.6, -3), width=0.8, height=6, facecolor='grey', alpha=0.3))
-        ax.text(14, 2, s='APP.', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
+        ax.add_patch(mpatches.Rectangle((14.6, -3), width=0.8, height=6, facecolor='grey', alpha=0.3))
+        ax.text(15.05, 2, s='APP.', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
                 horizontalalignment='center')
     
-        ax.add_patch(mpatches.Rectangle((14.6, -3), width=0.9, height=6, facecolor='grey', alpha=0.3))
-        ax.text(15.05, 2, s='ESC.', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
+        ax.add_patch(mpatches.Rectangle((15.6, -3), width=0.9, height=6, facecolor='grey', alpha=0.3))
+        ax.text(16.02, 2, s='ESC.', color='white', fontsize=16, fontweight='bold', rotation='horizontal',
                 horizontalalignment='center')
     
-    
-        """
-        ax.set_xlim(-1, 30)
-        ax.add_patch(mpatches.Rectangle((-1, -3), width=5.3, height=6, facecolor='grey', alpha=0.3))
-        ax.text(2.1, 2, s='ACTIVITY', color='white', fontsize=14, fontweight='bold', rotation='horizontal',
-                horizontalalignment='center')
-    
-        ax.add_patch(mpatches.Rectangle((4.6, -3), width=1.7, height=6, facecolor='grey', alpha=0.3))
-        ax.text(5.5, 2, s='EXPLO', color='white', fontsize=14, fontweight='bold', rotation='horizontal',
-                horizontalalignment='center')
-    
-        ax.add_patch(mpatches.Rectangle((6.6, -3), width=6.7, height=6, facecolor='grey', alpha=0.3))
-        ax.text(9.6, 2, s='CONTACT', color='white', fontsize=14, fontweight='bold', rotation='horizontal',
-                horizontalalignment='center')
-    
-        ax.add_patch(mpatches.Rectangle((13.6, -3), width=1.7, height=6, facecolor='grey', alpha=0.3))
-        ax.text(14.5, 2, s='FOLLOW', color='white', fontsize=14, fontweight='bold', rotation='horizontal',
-                horizontalalignment='center')
-    
-        ax.add_patch(mpatches.Rectangle((15.6, -3), width=3.7, height=6, facecolor='grey', alpha=0.3))
-        ax.text(17.4, 2, s='APPROACH', color='white', fontsize=14, fontweight='bold', rotation='horizontal',
-                horizontalalignment='center')
-    
-        ax.add_patch(mpatches.Rectangle((19.6, -3), width=3.7, height=6, facecolor='grey', alpha=0.3))
-        ax.text(21.6, 2, s='ESCAPE', color='white', fontsize=14, fontweight='bold', rotation='horizontal',
-                horizontalalignment='center')"""
-
 
     meanprops = dict(marker='D', markerfacecolor='white', markeredgecolor='black')
     bp = sns.boxplot(data=selectedDataframe, x='trait', y='value', ax=ax, width=0.5, meanprops=meanprops,
                      showmeans=True, linewidth=0.4, palette=colorList, saturation=0.3, showfliers=False)
-    '''edgeList = 'black'
-    n = 0
-    print('################################################Number of boxes: ', len(bp.artists))
-    for box in bp.artists:
-        box.set_facecolor(colorList[n])
-        box.set_edgecolor(edgeList)
-        print('color: ', n, colorList[n])
-        n += 1
-    # Add transparency to colors
-    for box in bp.artists:
-        r, g, b, a = box.get_facecolor()
-        box.set_facecolor((r, g, b, .7))
-'''
+    
     sns.swarmplot(data=selectedDataframe, x='trait', y='value', ax=ax, color='black')
     # this following swarmplot should be used instead of the previous one if you want to see whether animals from the same cage are similar
     #sns.swarmplot(data=selectedDataframe, y='trait', x='value', ax=ax, hue='exp', orient='h')
@@ -1901,6 +1877,7 @@ if __name__ == '__main__':
         question = "Do you want to:"
         question += "\n\t [1] compute profile data (save json file)?"
         question += "\n\t [2] compute profile data for pairs of same genotype animals (save json file)?"
+        question += "\n\t [2a] compute profile data for pairs of different genotype animals (save json file)?"
         question += "\n\t [2b] compute profile data for pairs of same genotype animals from pause (save json file)?"
         question += "\n\t [3] plot and analyse profile data (from stored json files)?"
         question += "\n\t [4] plot and analyse profile data for pairs of same genotype animals (saved json files)?"
@@ -1945,7 +1922,7 @@ if __name__ == '__main__':
                     profileData[file][n] = computeProfile(file = file, minT=minT, maxT=maxT, behaviouralEventList=behaviouralEventOneMouse)
                     
 
-                else:
+                if nightComputation == "Y":
                     nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=tmin, maxFrame=tmax )
                     n = 1
                     #extension = tail[-24:-6]
@@ -1957,13 +1934,16 @@ if __name__ == '__main__':
                         maxT = eventNight.endFrame
                         print("Night: ", n)
                         #Compute profile2 data and save them in a text file
-                        profileData[file][n] = computeProfile(file=file, minT=minT, maxT=maxT, behaviouralEventList=behaviouralEventOneMouse)
+                        profileData[file][n] = computeProfile(file=file, minT=minT, maxT=maxT, behaviouralEventList=['longChase'])
                         
                         n+=1
                         print("Profile data saved.")
-
+                else:
+                    print("You did not use the suggested answers.")
+                    break
+                
                 # Create a json file to store the computation
-                with open( f"{head}/profile_data_{extension}_{tmin}_{tmax}.json", 'w') as fp:
+                with open( f"{head}/profile_data_{extension}_{tmin}_{tmax}_longChase.json", 'w') as fp:
                     json.dump(profileData, fp, indent=4)
                 print(extension)
                 print("json file with profile measurements created.")
@@ -1994,7 +1974,7 @@ if __name__ == '__main__':
                     profileData[file][n] = computeProfilePair(file = file, minT=minT, maxT=maxT, behaviouralEventListSingle=behaviouralEventOneMouseSingle, behaviouralEventListSocial=behaviouralEventOneMouseSocial)
                     
                     
-                else:
+                if nightComputation == "Y":
                     connection = sqlite3.connect(file)
                     nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=tmin, maxFrame=tmax )
                     connection.close()
@@ -2009,7 +1989,10 @@ if __name__ == '__main__':
                         
                         n+=1
                         print("Profile data saved.")
-
+                else:
+                    print("You did not use the suggested answers.")
+                    break
+                
                 # Create a json file to store the computation
                 print('#############################')
                 print(profileData)
@@ -2020,6 +2003,59 @@ if __name__ == '__main__':
 
             break
 
+        if answer == "2a":
+            """compute profile for pairs of different genotypes"""
+            files = getFilesToProcess()
+            tmin, tmax = getMinTMaxTInput()
+            print ( files )
+
+            
+            nightComputation = input("Compute profile only during night events (Y or N)? ")
+
+            for file in files:
+                profileData = {}
+                #get the path and the name of file
+                head, tail = os.path.split(file)
+                print(file)
+                profileData[file] = {}
+
+                if nightComputation == "N":
+                    minT = tmin
+                    maxT = tmax
+                    n = 0
+                    extension = 'no_night_{}'.format(os.path.splitext(os.path.basename(tail))[0])
+                    #Compute profile2 data and save them in a text file
+                    profileData[file][n] = computeProfilePair(file = file, minT=minT, maxT=maxT, behaviouralEventListSingle=behaviouralEventOneMouseSingle+["Contact", "Group2", "Oral-oral Contact", "Side by side Contact", "Side by side Contact, opposite way"], behaviouralEventListSocial=behaviouralEventOneMouseSocial)
+                    
+                    
+                if nightComputation == "Y":
+                    connection = sqlite3.connect(file)
+                    nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=tmin, maxFrame=tmax )
+                    connection.close()
+                    n = 1
+                    extension = 'over_night_{}'.format(os.path.splitext(os.path.basename(tail))[0])
+                    for eventNight in nightEventTimeLine.getEventList():
+                        minT = eventNight.startFrame
+                        maxT = eventNight.endFrame
+                        print("Night: ", n)
+                        #Compute profile2 data and save them in a text file
+                        profileData[file][n] = computeProfilePair(file=file, minT=minT, maxT=maxT, behaviouralEventListSingle=behaviouralEventOneMouseSingle+["Contact", "Group2", "Oral-oral Contact", "Side by side Contact", "Side by side Contact, opposite way"], behaviouralEventListSocial=behaviouralEventOneMouseSocial)
+                        
+                        n+=1
+                        print("Profile data saved.")
+                else:
+                    print("You did not use the suggested answers.")
+                    break
+                
+                # Create a json file to store the computation
+                print('#############################')
+                print(profileData)
+                print('#############################')
+                with open("{}/profile_data_pair_{}_{}_{}.json".format(head, extension, tmin, tmax), 'w') as fp:
+                    json.dump(profileData, fp, indent=4)
+                print("json file with profile measurements created.")
+
+            break
 
         if answer == "2b":
             '''compute profile data for pairs of animals from pause (save json file)'''
