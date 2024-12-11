@@ -18,7 +18,7 @@ Kinect at 63 cm high from the floor.
 
 import sqlite3
 from lmtanalysis.Measure import oneMinute, oneHour
-from Util import getDatetimeFromFrame, getNumberOfFrames
+from Util import getDatetimeFromFrame, getNumberOfFrames, getStartInDatetime
 from Parameters import getAnimalTypeParameters
 from ZoneArena import getZoneCoordinatesFromCornerCoordinatesOpenfieldArea
 from lmtanalysis.AnimalType import AnimalType
@@ -27,7 +27,7 @@ from FileUtil import getFilesToProcess
 import json
 import matplotlib.pyplot as plt
 from Event import EventTimeLine
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def completeDicoFromKey(dico: dict, keyList: list):
@@ -54,6 +54,20 @@ def completeDicoFromValues(mergedDictPart: dict, inConstructionDict: dict, keywo
 
 def changeStringKeysToIntKeys(dico: dict):
     return {int(key): value for key, value in dico.items()}
+
+
+def findFirstFrameFromTime(file, time):
+    '''
+    the time must have this format: hh:mm
+    for example 14:23
+    '''
+    startDateXp = getStartInDatetime(file)
+    timeConverted = datetime.strptime(time, '%H:%M').time()
+    dateFromTime = datetime.combine(startDateXp.date(), timeConverted)
+    if dateFromTime<startDateXp:
+        dateFromTime + timedelta(days=1)
+    numberOfFramesFromStartToTime = ((dateFromTime-startDateXp).days*24*60*60+(dateFromTime-startDateXp).seconds)*30
+    return numberOfFramesFromStartToTime
 
 class ActivityExperiment:
     def __init__(self, file, tStartPeriod=1, durationPeriod=24, timebin=10):
@@ -322,7 +336,12 @@ class ActivityExperiment:
 
 
 class ActivityExperimentPool:
-    def __init__(self):
+    def __init__(self, startTimePeriod, durationPeriod=24, timebin=10):
+        '''
+        dateStartPeriod: start time (hour and minute) in string format like "14:02"
+        durationPeriod: duration in hour of the period from the dateStartPeriod
+        timebin: time bin in minutes
+        '''
         self.activityExperiments = []
         self.results = {}
         self.mergedResults = {}
@@ -330,17 +349,21 @@ class ActivityExperimentPool:
         self.reorganizedResults = {}
         self.sexesList = []
         self.genotypeList = []
+        self.startTimePeriod = startTimePeriod
+        self.durationPeriod = durationPeriod
+        self.timebin = timebin
 
     def addActivityExperiment(self, experiment):
         self.activityExperiments.append(experiment)
 
-    def addActivityExperimentWithDialog(self, tStartPeriod=0, durationPeriod=24, timebin=10):
+    def addActivityExperimentWithDialog(self):
         files = getFilesToProcess()
         if (files != None):
             for file in files:
-                # create the activity experiment
+                # create the activity experiment*
                 print(file)
-                experiment = ActivityExperiment(file, tStartPeriod=tStartPeriod, durationPeriod=durationPeriod, timebin=timebin)
+                tStartPeriod = findFirstFrameFromTime(file, self.startTimePeriod)
+                experiment = ActivityExperiment(file, tStartPeriod=tStartPeriod, durationPeriod=self.durationPeriod, timebin=self.timebin)
                 self.addActivityExperiment(experiment)
 
     def setWholeCageCoordinatesExperimentPool(self, wholeCageCoordinates):
@@ -432,13 +455,16 @@ setAnimalType(AnimalType.MOUSE)
 # dataManip = xp.computeActivityPerTimeBin()
 
 ## experiment pool test
-experimentPool = ActivityExperimentPool()
-experimentPool.addActivityExperimentWithDialog(1, 48, 10)
+experimentPool = ActivityExperimentPool("17:00", 48, 10)
+experimentPool.addActivityExperimentWithDialog()
 experimentPool.computeActivityBatch()
 experimentPool.mergeResults()
 filterList = ["treatment", "sex"]
 experimentPool.exportResultsSortedBy(filterList)
+experimentPool.exportReorganizedResultsToJsonFile()
 
 # experimentPool.organizeResults()
 # experimentPool.exportReorganizedResultsAsTable("nameTableFile")
 # experimentPool.exportReorganizedResultsToJsonFile("nameJsonFile")
+
+# -> gérer le problème si une manip ne renvoie pas de donnée car en dehors du temps sélectionné
