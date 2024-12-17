@@ -28,6 +28,7 @@ import json
 import matplotlib.pyplot as plt
 from Event import EventTimeLine
 from datetime import datetime, timedelta
+import numpy as np
 
 
 def completeDicoFromKey(dico: dict, keyList: list):
@@ -68,6 +69,27 @@ def findFirstFrameFromTime(file, time):
         dateFromTime + timedelta(days=1)
     numberOfFramesFromStartToTime = ((dateFromTime-startDateXp).days*24*60*60+(dateFromTime-startDateXp).seconds)*30
     return numberOfFramesFromStartToTime
+
+
+def mergeDataFromReorganizedDico(resultDict: dict, mergeDict: dict, nbOfLevel: int):
+    '''
+    Recursive function to merge data by keys
+    '''
+    if nbOfLevel == 0:
+        for animal in resultDict:
+            mergeDict[animal] = resultDict[animal]['results']
+            if 'tabResult' not in mergeDict:
+                mergeDict['tabResult'] = np.array(resultDict[animal]['results'].keys())
+
+    else:
+        for key in resultDict.keys():
+            if key not in mergeDict.keys():
+                mergeDict[key] = {}
+            mergeDataFromReorganizedDico(resultDict[key], mergeDict[key], nbOfLevel-1)
+
+    return mergeDict
+
+
 
 class ActivityExperiment:
     def __init__(self, file, tStartPeriod=1, durationPeriod=24, timebin=10):
@@ -174,14 +196,22 @@ class ActivityExperiment:
 
     def getMetadata(self):
         animalTypeString = str(self.animalType).split('.')[1]
+        if self.startDatetime:
+            startDatetime = self.startDatetime.strftime("%d/%m/%Y %H:%M:%S.%f")
+        else:
+            startDatetime = None
+        if self.endDatetime:
+            endDatetime = self.endDatetime.strftime("%d/%m/%Y %H:%M:%S.%f")
+        else:
+            endDatetime = None
         metadata = {
             'animalType': animalTypeString,
             'wholeCageCoordinates': self.wholeCageCoordinates,
             'startFrame': self.tStartPeriod,
             'durationExperiment': self.durationPeriod,
             'timeBin': self.timebin,
-            'startDatetime': self.startDatetime.strftime("%d/%m/%Y %H:%M:%S.%f"),
-            'endDatetime': self.endDatetime.strftime("%d/%m/%Y %H:%M:%S.%f"),
+            'startDatetime': startDatetime,
+            'endDatetime': endDatetime,
             'tStartPeriod': self.tStartPeriod,
             'tStopFramePeriod': self.tStopFramePeriod,
             'durationPeriod': self.durationPeriod,
@@ -352,6 +382,7 @@ class ActivityExperimentPool:
         self.startTimePeriod = startTimePeriod
         self.durationPeriod = durationPeriod
         self.timebin = timebin
+        self.meanResults = {}
 
     def addActivityExperiment(self, experiment):
         self.activityExperiments.append(experiment)
@@ -437,6 +468,14 @@ class ActivityExperimentPool:
         jsonFile = json.dumps(self.reorganizedResults, indent=4)
         with open(f"{nameFile}.json", "w") as outputFile:
             outputFile.write(jsonFile)
+
+
+    def setMeanActivityFromPool(self):
+        if len(self.reorganizedResults) == 0:
+            print("results need to be organized first")
+        else:
+            self.meanResults = {}
+
 
 
 
