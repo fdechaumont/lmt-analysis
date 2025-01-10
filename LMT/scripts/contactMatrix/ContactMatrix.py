@@ -31,9 +31,7 @@ def computeMatrixFile( file ):
     
     connection = sqlite3.connect(file)
 
-    #contact, le break contact, le approach contact
-    
-    #genotype: Mock et ZIKA
+
 
     pool = AnimalPool()
     pool.loadAnimals(connection)
@@ -61,40 +59,17 @@ def computeMatrixFile( file ):
                 
                 nbEvent = behaviorEventTimeLine.getNbEvent()
                 duration = behaviorEventTimeLine.getTotalLength()
+                meanDuration = behaviorEventTimeLine.getMeanEventLength()
                 
                 result[ eventName, "nbEvent", animalA.RFID, animalB.RFID ] = nbEvent
                 result[ eventName, "duration", animalA.RFID, animalB.RFID ] = duration
+                result[ eventName, "meanDuration", animalA.RFID, animalB.RFID ] = meanDuration
                 
                 
                 
     return result
                 
     
-    '''
-    
-    for animalA in pool.animalDictionary.keys():
-    for animalB in pool.animalDictionary.keys():
-        if (animalA == animalB):
-            continue
-        
-        print("Load contact timeline for animal {} and animal {}".format(animalA, animalB))                
-
-
-
-        contactTimeLine[animalA, animalB] = EventTimeLine( connection, "Contact" , animalA, animalB, minFrame=night.startFrame, maxFrame=night.endFrame )
-    '''
-                    
-    
-    '''
-    for animal in pool.animalDictionary.keys():
-
-        genoA = pool.animalDictionary[animal].genotype
-        rfid = animal.rfid
-        
-        resultDic[file]  
-        
-    '''
-
 
 def computeMatrix( files ):
     
@@ -104,7 +79,9 @@ def computeMatrix( files ):
                 
         resultDic[file] = computeMatrixFile( file )
 
-    print ( resultDic )
+    import json
+    with open( "data.json", 'w') as fp:
+        json.dump( resultDic , fp, indent=4)
 
 if __name__ == '__main__':
 
