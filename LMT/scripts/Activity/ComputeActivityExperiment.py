@@ -95,7 +95,6 @@ class ActivityExperiment:
     def __init__(self, file, tStartPeriod=1, durationPeriod=24, timebin=10):
         '''
         :param file: path of the experiment file
-        :param animalType: the animalType to get animalType's parameters
         :param tStartExperiment: the first frame of the investigated period
         :param durationExperiment: duration in hours of the experiment
         :param timebin: timebin in minutes to compute the distance travelled
@@ -272,6 +271,7 @@ class ActivityExperiment:
             print("Experiment from json: cannot use computeActivityPerTimeBin()")
             return False
 
+
     def getAllResults(self):
         return {'metadata': self.getMetadata(), 'totalDistance': self.totalDistance, 'results': self.results}
 
@@ -411,6 +411,7 @@ class ActivityExperimentPool:
         '''
         for experiment in self.activityExperiments:
             self.results[experiment.getName()] = experiment.computeActivityPerTimeBin()
+            del experiment.pool
             experiment.exportReorganizedResultsToJsonFile()
             experiment.plotActivity()
         return self.results
