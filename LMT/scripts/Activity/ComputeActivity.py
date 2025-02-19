@@ -7,58 +7,183 @@ PHENOMIN, CNRS UMR7104, INSERM U964, Université de Strasbourg
 Code under GPL v3.0 licence
 '''
 
-import sqlite3
+
+import json
+import matplotlib.pyplot as plt
+from Activity.ComputeActivityExperiment import completeDicoFromValues
 from Animal_LMTtoolkit import *
+from FileUtil import getFilesToProcess
+import pandas as pd
 
 
-def findFirstFrameFromTime(file, time):
-    '''
-    the time must have this format: hh:mm
-    for example 14:23
-    '''
-    startDateXp = getStartInDatetime(file)
-    timeConverted = datetime.datetime.strptime(time, '%H:%M').time()
-    dateFromTime = datetime.datetime.combine(startDateXp.date(), timeConverted)
-    if dateFromTime<startDateXp:
-        dateFromTime + datetime.timedelta(days=1)
-    numberOfFramesFromStartToTime = ((dateFromTime-startDateXp).days*24*60*60+(dateFromTime-startDateXp).seconds)*30
-    return numberOfFramesFromStartToTime
 
 
-def extractActivityPerAnimalStartEndInput(file, tmin, tmax):
-    connection = sqlite3.connect(file)
+def exportResultsSortedBy(files, filters: list):
+    # check filters
+    acceptedFilters = ["genotype", "sex", "age", "strain", "treatment"]
+    for filter in filters:
+        print("###### Filters: ######")
+        print(filter)
+        print("###### ------ ######")
+        if filter not in acceptedFilters:
+            print(f"Filter {filter} not accepted")
+            return False
 
-    pool = AnimalPoolToolkit()
-    pool.loadAnimals(connection)
-
-    pool.loadDetection(start=tmin, end=tmax, lightLoad=True)
-
-    connection.close()
-
-    return pool
-
-
-def getActivitiesFromSeveralFiles(files, startTime, endTime):
-    '''
-    return a list of pool
-    '''
-    activityData = []
+    reorganizedResults = {}
     for file in files:
-        tmin = findFirstFrameFromTime(file, startTime)
-        # tmax = findLastFrameFromTime(file, endTime)
-        tmax = endTime + tmin
-        activityData.append(extractActivityPerAnimalStartEndInput(file, tmin, tmax))
-    return (activityData, tmin, tmax)
+        with open(file, 'r') as f:
+            file_content = f.read()
+        experiment = json.loads(file_content)
+        for animal in experiment.keys():
+            if animal != 'metadata':
+                print(animal)
+                reorganizedResults = completeDicoFromValues(experiment[animal], reorganizedResults, filters)
 
 
-def getActivityPerTimeBin(AnimalData, timeBin, tmin, tmax):
-    print("Get activity for animal "+AnimalData.RFID)
-    # print("tmin: "+str(tmin))
-    # print("tmax: "+str(tmax))
-    # print("timeBin: "+str(timeBin))
-    print(AnimalData.getDistancePerBin(binFrameSize=timeBin * oneMinute, minFrame=tmin, maxFrame=tmax))
-    return [x / 100 for x in AnimalData.getDistancePerBin(binFrameSize=timeBin * oneMinute, minFrame=tmin, maxFrame=tmax)]
+    return reorganizedResults
 
 
-def computeActivityFromStartTimeToEndTimeWithTimebin():
-    pass
+def getNightsFromJson(file):
+    with open(file, 'r') as f:
+        file_content = f.read()
+    experiment = json.loads(file_content)
+    nights = experiment['metadata']['nights']
+    return nights
+
+
+def getTimebinFromJson(file):
+    with open(file, 'r') as f:
+        file_content = f.read()
+    experiment = json.loads(file_content)
+    timebin = experiment['metadata']['timeBin']
+    return timebin
+
+
+def getColorGenoTreatment(treatment, geno):
+    if (treatment == "chow diet") and (geno == '+/+'):
+        return 'lightgrey'
+    if (treatment == "chow diet") and (geno == 'Dp(16)1Yey/+'):
+        return "yellow"
+    if (treatment == "high fat diet") and (geno == '+/+'):
+        return "gold"
+    if (treatment == "high fat diet") and (geno == 'Dp(16)1Yey/+'):
+        return "darkgoldenrod"
+    if (treatment == "chow diet") and (geno == 'B6_+/+'):
+        return 'white'
+    if (treatment == "chow diet") and (geno == 'B6_Dp(16)1Yey/+'):
+        return "yellow"
+    if (treatment == "high fat diet") and (geno == 'B6_+/+'):
+        return "gold"
+    if (treatment == "high fat diet") and (geno == 'B6_Dp(16)1Yey/+'):
+        return "darkgoldenrod"
+
+
+def getColorPalettePerTreatment(genoList, treatment):
+    paletteDic = {}
+    for geno in genoList:
+        paletteDic[geno] = getColorGenoTreatment(treatment, geno)
+    return paletteDic
+
+
+def getColorPaletteTreatment(conditionList, genoList):
+    paletteDic = {}
+    for condition in conditionList:
+        paletteDic[condition] = {}
+        for geno in genoList:
+            paletteDic[condition][geno] = getColorGenoTreatment(condition, geno)
+    return paletteDic
+
+
+def convertFrameNumberForTimeBinTimeline(frameNumber, timebin):
+    return frameNumber/timebin
+
+def plotNightTimeLine(nights, timebin):
+    for nightEvent in nights:
+        ax.axvspan(convertFrameNumberForTimeBinTimeline(nightEvent['startFrame'], timebin), convertFrameNumberForTimeBinTimeline(nightEvent['endFrame'], timebin), alpha=0.1, color='black')
+        ax.text(convertFrameNumberForTimeBinTimeline(nightEvent['startFrame'], timebin) + (convertFrameNumberForTimeBinTimeline(nightEvent['endFrame'], timebin) - convertFrameNumberForTimeBinTimeline(nightEvent['startFrame'], timebin)) / 2, 100, "dark phase",
+                fontsize=8, ha='center')
+
+
+if __name__ == '__main__':
+    files = getFilesToProcess()
+    filterList = ["sex", "treatment", "genotype"]
+    reorganizedResults = exportResultsSortedBy(files, filterList)
+
+    nights = getNightsFromJson(files[0])
+    timeBin = getTimebinFromJson(files[0])
+
+    meanAndSEM = {}
+    timeLine = []
+    timeLineDone = False
+    for sex in reorganizedResults:
+        if sex not in meanAndSEM:
+            meanAndSEM[sex] = {}
+        for treatment in reorganizedResults[sex]:
+            if treatment not in meanAndSEM[sex]:
+                meanAndSEM[sex][treatment] = {}
+            for genotype in reorganizedResults[sex][treatment]:
+                timeLineAsIndexCompleted = False
+                if genotype not in meanAndSEM[sex][treatment]:
+                    meanAndSEM[sex][treatment][genotype] = pd.DataFrame()
+                for animal in reorganizedResults[sex][treatment][genotype]:
+                    activity = []
+                    for timebin in reorganizedResults[sex][treatment][genotype][animal]["results"]:
+                        if not timeLineDone:
+                            print(timebin)
+                            timeLine.append(timebin)
+                        activity.append(reorganizedResults[sex][treatment][genotype][animal]["results"][timebin])
+                    timeLineDone = True
+                    meanAndSEM[sex][treatment][genotype][animal] = activity
+                    # if not timeLineAsIndexCompleted:
+                    #     meanAndSEM[sex][treatment][genotype]["timeLine"] = timeLine
+                    #     meanAndSEM[sex][treatment][genotype].set_index("timeLine", drop=True)
+                    #     timeLineAsIndexCompleted = True
+
+
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(14, 9))
+    # females
+    ax = axes[0]
+    ax.title.set_text('Activity females - ICS')
+    ax.set_xlabel("time")
+
+    for treatment in meanAndSEM['female']:
+        print("plot female")
+        for genotype in meanAndSEM['female'][treatment]:
+            # print(meanAndSEM['female'][treatment][genotype].mean(axis=1))
+            ax.plot(timeLine, meanAndSEM['female'][treatment][genotype].mean(axis=1), label=f"{treatment} - {genotype}",
+                    color=getColorGenoTreatment(treatment, genotype))
+            ax.fill_between(range(len(meanAndSEM['female'][treatment][genotype].mean(axis=1))),
+                             meanAndSEM['female'][treatment][genotype].mean(axis=1) - meanAndSEM['female'][treatment][genotype].sem(axis=1),
+                             meanAndSEM['female'][treatment][genotype].mean(axis=1) + meanAndSEM['female'][treatment][genotype].sem(axis=1),
+                            color=getColorGenoTreatment(treatment, genotype),
+                             alpha=0.2)
+
+    ax.legend(loc="upper center")
+    ax.xaxis.set_major_locator(plt.MaxNLocator(10))
+    plotNightTimeLine(nights, timeBin)
+
+    # males
+    ax = axes[1]
+    ax.title.set_text('Activity males - ICS')
+    ax.set_xlabel("time")
+
+    for treatment in meanAndSEM['male']:
+        print("plot male")
+        for genotype in meanAndSEM['male'][treatment]:
+            # print(meanAndSEM['female'][treatment][genotype].mean(axis=1))
+            ax.plot(timeLine, meanAndSEM['male'][treatment][genotype].mean(axis=1), label=f"{treatment} - {genotype}", color=getColorGenoTreatment(treatment, genotype))
+            ax.fill_between(range(len(meanAndSEM['male'][treatment][genotype].mean(axis=1))),
+                    meanAndSEM['male'][treatment][genotype].mean(axis=1) - meanAndSEM['male'][treatment][
+                        genotype].sem(axis=1),
+                    meanAndSEM['male'][treatment][genotype].mean(axis=1) + meanAndSEM['male'][treatment][
+                        genotype].sem(axis=1),
+                    color=getColorGenoTreatment(treatment, genotype),
+                    alpha=0.2)
+
+    ax.legend(loc="upper center")
+
+    ax.xaxis.set_major_locator(plt.MaxNLocator(10))
+    plotNightTimeLine(nights, timeBin)
+
+    plt.show()
+    fig.savefig(f"GO-DS21_activity_ICS_10min_timebin.pdf")

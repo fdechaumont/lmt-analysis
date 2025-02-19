@@ -314,7 +314,7 @@ class ActivityExperiment:
             outputFile.write(jsonFile)
 
     def convertFrameNumberForTimeBinTimeline(self, frameNumber):
-        # axe en minute depuis le début de période!
+        # axe in minute from the beginning of the period
         return ((frameNumber - self.tStartPeriod)/self.timebinInFrame)*self.timebin
 
     def getNightTimeLine(self):
@@ -479,32 +479,32 @@ class ActivityExperimentPool:
 
 
 
+if __name__ == '__main__':
+
+    def setAnimalType( aType ):
+        global animalType
+        animalType = aType
 
 
-def setAnimalType( aType ):
-    global animalType
-    animalType = aType
+    ### for test
+    ## single experiment
+    setAnimalType(AnimalType.MOUSE)
 
+    # file = r"C:\Users\torquetn\Documents\20200909_test_temp_Experiment 3580.sqlite"
+    # xp = ActivityExperiment(file, 1, 1, 10)
+    # dataManip = xp.computeActivityPerTimeBin()
 
-### for test
-## single experiment
-setAnimalType(AnimalType.MOUSE)
+    ## experiment pool test
+    experimentPool = ActivityExperimentPool("17:00", 48, 10)
+    experimentPool.addActivityExperimentWithDialog()
+    experimentPool.computeActivityBatch()
+    experimentPool.mergeResults()
+    filterList = ["treatment", "sex"]
+    experimentPool.exportResultsSortedBy(filterList)
+    experimentPool.exportReorganizedResultsToJsonFile()
 
-# file = r"C:\Users\torquetn\Documents\20200909_test_temp_Experiment 3580.sqlite"
-# xp = ActivityExperiment(file, 1, 1, 10)
-# dataManip = xp.computeActivityPerTimeBin()
+    # experimentPool.organizeResults()
+    # experimentPool.exportReorganizedResultsAsTable("nameTableFile")
+    # experimentPool.exportReorganizedResultsToJsonFile("nameJsonFile")
 
-## experiment pool test
-experimentPool = ActivityExperimentPool("17:00", 48, 10)
-experimentPool.addActivityExperimentWithDialog()
-experimentPool.computeActivityBatch()
-experimentPool.mergeResults()
-filterList = ["treatment", "sex"]
-experimentPool.exportResultsSortedBy(filterList)
-experimentPool.exportReorganizedResultsToJsonFile()
-
-# experimentPool.organizeResults()
-# experimentPool.exportReorganizedResultsAsTable("nameTableFile")
-# experimentPool.exportReorganizedResultsToJsonFile("nameJsonFile")
-
-# -> gérer le problème si une manip ne renvoie pas de donnée car en dehors du temps sélectionné
+    # -> gérer le problème si une manip ne renvoie pas de donnée car en dehors du temps sélectionné
