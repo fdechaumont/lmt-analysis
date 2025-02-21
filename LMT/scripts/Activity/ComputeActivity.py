@@ -97,14 +97,69 @@ def getColorPaletteTreatment(conditionList, genoList):
 def convertFrameNumberForTimeBinTimeline(frameNumber, timebin):
     return frameNumber/timebin
 
-def plotNightTimeLine(nights, timebin):
+def plotNightTimeLine(nights, timebin, ax):
     for nightEvent in nights:
         ax.axvspan(convertFrameNumberForTimeBinTimeline(nightEvent['startFrame'], timebin), convertFrameNumberForTimeBinTimeline(nightEvent['endFrame'], timebin), alpha=0.1, color='black')
         ax.text(convertFrameNumberForTimeBinTimeline(nightEvent['startFrame'], timebin) + (convertFrameNumberForTimeBinTimeline(nightEvent['endFrame'], timebin) - convertFrameNumberForTimeBinTimeline(nightEvent['startFrame'], timebin)) / 2, 100, "dark phase",
                 fontsize=8, ha='center')
 
 
+def plotActivityPerTimebin(meanAndSEM, timeLine, nights, title):
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(14, 9))
+    # females
+    ax = axes[0]
+    ax.title.set_text(f'{title} - male')
+    ax.set_xlabel("time")
+
+    for treatment in meanAndSEM['female']:
+        print("plot female")
+        for genotype in meanAndSEM['female'][treatment]:
+            # print(meanAndSEM['female'][treatment][genotype].mean(axis=1))
+            ax.plot(timeLine, meanAndSEM['female'][treatment][genotype].mean(axis=1), label=f"{treatment} - {genotype}",
+                    color=getColorGenoTreatment(treatment, genotype))
+            ax.fill_between(range(len(meanAndSEM['female'][treatment][genotype].mean(axis=1))),
+                            meanAndSEM['female'][treatment][genotype].mean(axis=1) - meanAndSEM['female'][treatment][
+                                genotype].sem(axis=1),
+                            meanAndSEM['female'][treatment][genotype].mean(axis=1) + meanAndSEM['female'][treatment][
+                                genotype].sem(axis=1),
+                            color=getColorGenoTreatment(treatment, genotype),
+                            alpha=0.2)
+
+    ax.legend(loc="upper center")
+    ax.xaxis.set_major_locator(plt.MaxNLocator(10))
+    plotNightTimeLine(nights, timeBin, ax)
+
+    # males
+    ax = axes[1]
+    ax.title.set_text(f'{title} - male')
+    ax.set_xlabel("time")
+
+    for treatment in meanAndSEM['male']:
+        print("plot male")
+        for genotype in meanAndSEM['male'][treatment]:
+            # print(meanAndSEM['female'][treatment][genotype].mean(axis=1))
+            ax.plot(timeLine, meanAndSEM['male'][treatment][genotype].mean(axis=1), label=f"{treatment} - {genotype}",
+                    color=getColorGenoTreatment(treatment, genotype))
+            ax.fill_between(range(len(meanAndSEM['male'][treatment][genotype].mean(axis=1))),
+                            meanAndSEM['male'][treatment][genotype].mean(axis=1) - meanAndSEM['male'][treatment][
+                                genotype].sem(axis=1),
+                            meanAndSEM['male'][treatment][genotype].mean(axis=1) + meanAndSEM['male'][treatment][
+                                genotype].sem(axis=1),
+                            color=getColorGenoTreatment(treatment, genotype),
+                            alpha=0.2)
+
+    ax.legend(loc="upper center")
+
+    ax.xaxis.set_major_locator(plt.MaxNLocator(10))
+    plotNightTimeLine(nights, timeBin, ax)
+
+    plt.show()
+    fig.savefig(f"{title}.pdf")
+
+
 if __name__ == '__main__':
+    # Data from ICS
+
     files = getFilesToProcess()
     filterList = ["sex", "treatment", "genotype"]
     reorganizedResults = exportResultsSortedBy(files, filterList)
@@ -126,64 +181,52 @@ if __name__ == '__main__':
                 if genotype not in meanAndSEM[sex][treatment]:
                     meanAndSEM[sex][treatment][genotype] = pd.DataFrame()
                 for animal in reorganizedResults[sex][treatment][genotype]:
+                    print(f"Animal: {animal}")
                     activity = []
                     for timebin in reorganizedResults[sex][treatment][genotype][animal]["results"]:
                         if not timeLineDone:
-                            print(timebin)
                             timeLine.append(timebin)
                         activity.append(reorganizedResults[sex][treatment][genotype][animal]["results"][timebin])
                     timeLineDone = True
+                    if len(timeLine) > len(activity):
+                        numberOfNaNToAdd = len(timeLine) - len(activity)
+                        listToAppend = [np.nan] * numberOfNaNToAdd
+                        for item in listToAppend:
+                            activity.append(item)
                     meanAndSEM[sex][treatment][genotype][animal] = activity
-                    # if not timeLineAsIndexCompleted:
-                    #     meanAndSEM[sex][treatment][genotype]["timeLine"] = timeLine
-                    #     meanAndSEM[sex][treatment][genotype].set_index("timeLine", drop=True)
-                    #     timeLineAsIndexCompleted = True
 
 
-    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(14, 9))
-    # females
-    ax = axes[0]
-    ax.title.set_text('Activity females - ICS')
-    ax.set_xlabel("time")
+    plotActivityPerTimebin(meanAndSEM, timeLine, nights, "GO-DS21 activity ICS timebin 10min")
 
-    for treatment in meanAndSEM['female']:
-        print("plot female")
-        for genotype in meanAndSEM['female'][treatment]:
-            # print(meanAndSEM['female'][treatment][genotype].mean(axis=1))
-            ax.plot(timeLine, meanAndSEM['female'][treatment][genotype].mean(axis=1), label=f"{treatment} - {genotype}",
-                    color=getColorGenoTreatment(treatment, genotype))
-            ax.fill_between(range(len(meanAndSEM['female'][treatment][genotype].mean(axis=1))),
-                             meanAndSEM['female'][treatment][genotype].mean(axis=1) - meanAndSEM['female'][treatment][genotype].sem(axis=1),
-                             meanAndSEM['female'][treatment][genotype].mean(axis=1) + meanAndSEM['female'][treatment][genotype].sem(axis=1),
-                            color=getColorGenoTreatment(treatment, genotype),
-                             alpha=0.2)
+    # Data from HMGU
+    files = getFilesToProcess()
 
-    ax.legend(loc="upper center")
-    ax.xaxis.set_major_locator(plt.MaxNLocator(10))
-    plotNightTimeLine(nights, timeBin)
+    meanAndSEM = {}
+    timeLine = []
+    timeLineDone = False
+    for sex in reorganizedResults:
+        if sex not in meanAndSEM:
+            meanAndSEM[sex] = {}
+        for treatment in reorganizedResults[sex]:
+            if treatment not in meanAndSEM[sex]:
+                meanAndSEM[sex][treatment] = {}
+            for genotype in reorganizedResults[sex][treatment]:
+                timeLineAsIndexCompleted = False
+                if genotype not in meanAndSEM[sex][treatment]:
+                    meanAndSEM[sex][treatment][genotype] = pd.DataFrame()
+                for animal in reorganizedResults[sex][treatment][genotype]:
+                    print(f"Animal: {animal}")
+                    activity = []
+                    for timebin in reorganizedResults[sex][treatment][genotype][animal]["results"]:
+                        if not timeLineDone:
+                            timeLine.append(timebin)
+                        activity.append(reorganizedResults[sex][treatment][genotype][animal]["results"][timebin])
+                    timeLineDone = True
+                    if len(timeLine) > len(activity):
+                        numberOfNaNToAdd = len(timeLine) - len(activity)
+                        listToAppend = [np.nan] * numberOfNaNToAdd
+                        for item in listToAppend:
+                            activity.append(item)
+                    meanAndSEM[sex][treatment][genotype][animal] = activity
 
-    # males
-    ax = axes[1]
-    ax.title.set_text('Activity males - ICS')
-    ax.set_xlabel("time")
-
-    for treatment in meanAndSEM['male']:
-        print("plot male")
-        for genotype in meanAndSEM['male'][treatment]:
-            # print(meanAndSEM['female'][treatment][genotype].mean(axis=1))
-            ax.plot(timeLine, meanAndSEM['male'][treatment][genotype].mean(axis=1), label=f"{treatment} - {genotype}", color=getColorGenoTreatment(treatment, genotype))
-            ax.fill_between(range(len(meanAndSEM['male'][treatment][genotype].mean(axis=1))),
-                    meanAndSEM['male'][treatment][genotype].mean(axis=1) - meanAndSEM['male'][treatment][
-                        genotype].sem(axis=1),
-                    meanAndSEM['male'][treatment][genotype].mean(axis=1) + meanAndSEM['male'][treatment][
-                        genotype].sem(axis=1),
-                    color=getColorGenoTreatment(treatment, genotype),
-                    alpha=0.2)
-
-    ax.legend(loc="upper center")
-
-    ax.xaxis.set_major_locator(plt.MaxNLocator(10))
-    plotNightTimeLine(nights, timeBin)
-
-    plt.show()
-    fig.savefig(f"GO-DS21_activity_ICS_10min_timebin.pdf")
+    plotActivityPerTimebin(meanAndSEM, timeLine, nights, "GO-DS21 activity HMGU timebin 10min")
