@@ -11,7 +11,7 @@ Code under GPL v3.0 licence
 import sqlite3
 from Activity.ComputeActivityExperiment import changeStringKeysToIntKeys
 from Animal_LMTtoolkit import AnimalPoolToolkit
-from FileUtil import behaviouralEventOneMouse
+from FileUtil import behaviouralEventOneMouse, getFilesToProcess
 from lmtanalysis.Event import EventTimeLine
 import json
 from lmtanalysis.Measure import oneMinute, oneHour
@@ -190,32 +190,37 @@ class EventsPerTimeBin:
 
                     distanceList = []
                     t = self.minFrame
-                    while (t < self.maxFrame):
-                        eventList[rfid][behavior] = EventTimeLine(connection, behavior, idA=animal.baseId, minFrame=t, maxFrame=t + self.binFrameSize).eventList
-                        distanceBin = self.getDistance(t, t + self.binFrameSize)
-                        print("Distance bin n:{} value:{}".format(t, distanceBin))
-                        distanceList.append(distanceBin)
-                        t = t + self.binFrameSize + 1
 
-                    return distanceList
-
-                # timebin à mettre en place: boucle
-                eventList[rfid][behavior] = EventTimeLine(connection, behavior, idA=animal.baseId).eventList
-                activity[rfid] = self.pool.animalDictionary[animal].getDistancePerBin(binFrameSize=self.timebinInFrame,
-                                                                                 minFrame=self.tStartPeriod, maxFrame=self.tStopFramePeriod)
-                self.totalDistance[rfid] = self.pool.animalDictionary[animal].getDistance(tmin=self.tStartPeriod, tmax=self.tStopFramePeriod)
-
-                nTimeBins = len(activity[rfid])
-                print(nTimeBins)
-
-                timeLine = [0]
-                for t in range(1, nTimeBins):
-                    x = timeLine[t - 1] + self.timebin
-                    timeLine.append(x)
-
-                self.results[rfid] = {}
-                for time, distance in zip(timeLine, activity[rfid]):
-                    self.results[rfid][time] = distance
+                    connection = sqlite3.connect(self.file)
+                    eventList[rfid][behavior] = EventTimeLine(connection, behavior, idA=animal.baseId, minFrame=t,
+                                                              maxFrame=t + self.binFrameSize).eventList
+                    connection.close()
+                #     while (t < self.maxFrame):
+                #         eventList[rfid][behavior] = EventTimeLine(connection, behavior, idA=animal.baseId, minFrame=t, maxFrame=t + self.binFrameSize).eventList
+                #         distanceBin = self.getDistance(t, t + self.binFrameSize)
+                #         print("Distance bin n:{} value:{}".format(t, distanceBin))
+                #         distanceList.append(distanceBin)
+                #         t = t + self.binFrameSize + 1
+                #
+                #     return distanceList
+                #
+                # # timebin à mettre en place: boucle
+                # eventList[rfid][behavior] = EventTimeLine(connection, behavior, idA=animal.baseId).eventList
+                # activity[rfid] = self.pool.animalDictionary[animal].getDistancePerBin(binFrameSize=self.timebinInFrame,
+                #                                                                  minFrame=self.tStartPeriod, maxFrame=self.tStopFramePeriod)
+                # self.totalDistance[rfid] = self.pool.animalDictionary[animal].getDistance(tmin=self.tStartPeriod, tmax=self.tStopFramePeriod)
+                #
+                # nTimeBins = len(activity[rfid])
+                # print(nTimeBins)
+                #
+                # timeLine = [0]
+                # for t in range(1, nTimeBins):
+                #     x = timeLine[t - 1] + self.timebin
+                #     timeLine.append(x)
+                #
+                # self.results[rfid] = {}
+                # for time, distance in zip(timeLine, activity[rfid]):
+                #     self.results[rfid][time] = distance
 
             self.getNightTimeLine()
 
@@ -238,3 +243,48 @@ if __name__ == '__main__':
     ### for test
     ## single experiment
     setAnimalType(AnimalType.MOUSE)
+
+    files = getFilesToProcess()
+    connection = sqlite3.connect(files[0])
+    pool = AnimalPoolToolkit()
+    pool.loadAnimals(connection)
+    pool.loadDetection(lightLoad=True)
+
+
+    eventList = {}
+
+    for animal in pool.animalDictionary.keys():
+        rfid = pool.animalDictionary[animal].RFID
+        eventList[rfid] = {}
+        for behavior in behaviouralEventOneMouse:
+            eventList[rfid][behavior] = []
+
+            distanceList = []
+
+            eventList[rfid][behavior] = EventTimeLine(connection, behavior,
+                                                      idA=pool.animalDictionary[animal].baseId).eventList
+
+    connection.close()
+
+    timebin = 10
+    timebinInFrame = 10 * oneMinute
+
+    # il va falloir affiner pour savoir si on prend en compte les frames qui sont sur deux timebin
+
+    eventPerTimeBin = {}
+    for animal in eventList:
+        eventPerTimeBin[animal] = {}
+        for behavior in eventList[animal]:
+            eventPerTimeBin[animal][behavior] = []
+            startWindow = 0
+            for frame in range(startWindow, startWindow + timebinInFrame):
+                nbFrameOfEvent = 0
+                for event in eventList[animal][behavior]:
+                    if frame >= event.startFrame and frame < event.endFrame:
+                        nbFrameOfEvent += 1
+                    if frame < event.endFrame:
+                        break
+                eventPerTimeBin[animal][behavior].append(nbFrameOfEvent)
+
+
+
