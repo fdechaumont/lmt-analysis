@@ -249,6 +249,7 @@ if __name__ == '__main__':
     pool = AnimalPoolToolkit()
     pool.loadAnimals(connection)
     pool.loadDetection(lightLoad=True)
+    maxFrame = getNumberOfFrames(files[0])
 
 
     eventList = {}
@@ -261,7 +262,7 @@ if __name__ == '__main__':
 
             distanceList = []
 
-            eventList[rfid][behavior] = EventTimeLine(connection, behavior,
+            eventList[rfid][behavior] = EventTimeLine(connection, behavior, minFrame=0, maxFrame=maxFrame,
                                                       idA=pool.animalDictionary[animal].baseId).eventList
 
     connection.close()
@@ -271,20 +272,25 @@ if __name__ == '__main__':
 
     # il va falloir affiner pour savoir si on prend en compte les frames qui sont sur deux timebin
 
+    nbOfTimeBins = round(maxFrame / timebinInFrame)
+
     eventPerTimeBin = {}
     for animal in eventList:
         eventPerTimeBin[animal] = {}
         for behavior in eventList[animal]:
             eventPerTimeBin[animal][behavior] = []
             startWindow = 0
-            for frame in range(startWindow, startWindow + timebinInFrame):
+            for window in range(0, nbOfTimeBins):
                 nbFrameOfEvent = 0
-                for event in eventList[animal][behavior]:
-                    if frame >= event.startFrame and frame < event.endFrame:
-                        nbFrameOfEvent += 1
-                    if frame < event.endFrame:
-                        break
+                for frame in range(startWindow, startWindow + timebinInFrame):
+                    for event in eventList[animal][behavior]:
+                        if frame >= event.startFrame and frame < event.endFrame:
+                            print(f'frame {frame} in event (start: {event.startFrame} - end: {event.endFrame})')
+                            nbFrameOfEvent += 1
+                        # if frame > event.endFrame:
+                        #     break
                 eventPerTimeBin[animal][behavior].append(nbFrameOfEvent)
+                startWindow += timebinInFrame
 
 
 
