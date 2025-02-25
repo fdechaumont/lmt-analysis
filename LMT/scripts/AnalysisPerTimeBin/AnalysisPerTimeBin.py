@@ -376,17 +376,38 @@ if __name__ == '__main__':
     for file in files:
         allTimeLineEvent[getFileName(file)] = exportEventTimeLineToJsonFile(file)
 
-        # habituation phase
-        resultsHabituation[getFileName(file)] = getNumberOfFramePerEventPerTimebin(allTimeLineEvent[getFileName(file)], 5, 0, 15)
-
-
-        # interaction phase (after pause)
+        # information about animals and frame after pause (for interaction phase in dyadic experiments)
         connection = sqlite3.connect(file)
         pool = AnimalPoolToolkit()
         pool.loadAnimals(connection)
         minT = getStartTestPhase(pool)
         connection.close()
 
-        resultsInteractions[getFileName(file)] = getNumberOfFramePerEventPerTimebin(allTimeLineEvent[getFileName(file)], 5, minT, 25)
+        # habituation phase
+        resultsHabituation[getFileName(file)] = getNumberOfFramePerEventPerTimebin(allTimeLineEvent[getFileName(file)], 5, 0, 15)
+        for animal in pool.animalDictionary:
+            resultsHabituation[getFileName(file)][pool.animalDictionary[animal].RFID]['metadata'] = {
+                'id': pool.animalDictionary[animal].baseId,
+                'name': pool.animalDictionary[animal].name,
+                'rfid': pool.animalDictionary[animal].RFID,
+                'genotype': pool.animalDictionary[animal].genotype,
+                'sex': pool.animalDictionary[animal].sex,
+                'age': pool.animalDictionary[animal].age,
+                'strain': pool.animalDictionary[animal].strain,
+                'treatment': pool.animalDictionary[animal].treatment
+            }
 
+        # interaction phase (after pause)
+        resultsInteractions[getFileName(file)] = getNumberOfFramePerEventPerTimebin(allTimeLineEvent[getFileName(file)], 5, minT, 25)
+        for animal in pool.animalDictionary:
+            resultsHabituation[getFileName(file)][pool.animalDictionary[animal].RFID]['metadata'] = {
+                'id': pool.animalDictionary[animal].baseId,
+                'name': pool.animalDictionary[animal].name,
+                'rfid': pool.animalDictionary[animal].RFID,
+                'genotype': pool.animalDictionary[animal].genotype,
+                'sex': pool.animalDictionary[animal].sex,
+                'age': pool.animalDictionary[animal].age,
+                'strain': pool.animalDictionary[animal].strain,
+                'treatment': pool.animalDictionary[animal].treatment
+            }
 
