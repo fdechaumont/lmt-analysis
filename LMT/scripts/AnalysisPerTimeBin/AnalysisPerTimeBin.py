@@ -17,8 +17,87 @@ import json
 from lmtanalysis.Measure import oneMinute, oneHour
 from lmtanalysis.AnimalType import AnimalType
 from datetime import datetime, timedelta
-from Util import getDatetimeFromFrame, getNumberOfFrames, getStartInDatetime
+from Util import getDatetimeFromFrame, getNumberOfFrames, getStartInDatetime, getStartTestPhase
 from ZoneArena import getZoneCoordinatesFromCornerCoordinatesOpenfieldArea
+
+
+def getFileName(file):
+    return file.split('.sqlite')[0].split('\\')[-1].split("/")[-1]
+
+
+def exportEventTimeLineToJsonFile(file, minFrame=0, maxFrame=None):
+    '''
+    Export an event timeline to a JSON file.
+    :param file: LMT sqlite file
+    :param minFrame: extract from the min frame
+    :param maxFrame: extract to the max frame
+    '''
+    connection = sqlite3.connect(file)
+    pool = AnimalPoolToolkit()
+    pool.loadAnimals(connection)
+    pool.loadDetection(lightLoad=True)
+    if maxFrame is None:
+        maxFrame = getNumberOfFrames(file)
+
+
+    eventList = {}
+
+    for animal in pool.animalDictionary.keys():
+        rfid = pool.animalDictionary[animal].RFID
+        eventList[rfid] = {}
+        for behavior in behaviouralEventOneMouse:
+            eventList[rfid][behavior] = []
+            eventList[rfid][behavior] = EventTimeLine(connection, behavior, minFrame=minFrame, maxFrame=maxFrame,
+                                                      idA=pool.animalDictionary[animal].baseId).eventList
+
+    connection.close()
+
+    # nameFile = getFileName(file)
+    # jsonFile = json.dumps(eventList, indent=4)
+    # with open(f"{nameFile}_event_timeline.json", "w") as outputFile:
+    #     outputFile.write(jsonFile)
+
+    return eventList
+
+
+def getNumberOfFramePerEventPerTimebin(eventList, timebin, minFrame, duration:int):
+    '''
+    Get the number of frames per event per timebin.
+    :param eventList: event list from the json. It is a dictionary.
+    :param timebin: timebin in minutes
+    :param minFrame: first frame of the period
+    :param duration: duration in minutes of the period
+    '''
+
+    timebinInFrame = timebin * oneMinute
+    nbOfTimeBins = round(duration*oneMinute / timebinInFrame)
+
+    maxFrame = minFrame + duration*oneMinute
+
+    eventPerTimeBin = {}
+    for animal in eventList:
+        eventPerTimeBin[animal] = {}
+        for behavior in eventList[animal]:
+            eventPerTimeBin[animal][behavior] = []
+            startWindow = minFrame
+            for window in range(0, nbOfTimeBins):
+                nbFrameOfEvent = 0
+                for frame in range(startWindow, startWindow + timebinInFrame -1):
+                    if startWindow > maxFrame:
+                        break
+                    for event in eventList[animal][behavior]:
+                        if event.startFrame > startWindow + timebinInFrame:
+                            break
+                        if frame >= event.startFrame and frame <= event.endFrame:
+                            print(f'frame {frame} in event (start: {event.startFrame} - end: {event.endFrame})')
+                            nbFrameOfEvent += 1
+                eventPerTimeBin[animal][behavior].append(nbFrameOfEvent)
+                startWindow += timebinInFrame
+                if startWindow > maxFrame:
+                    break
+
+    return eventPerTimeBin
+
 
 
 class EventsPerTimeBin:
@@ -58,8 +137,6 @@ class EventsPerTimeBin:
                     self.totalDistance[animal] = data[animal]['totalDistance']
                     self.results[animal] = data[animal]['results']
                     self.results[animal] = changeStringKeysToIntKeys(self.results[animal])
-
-
 
         else:
             self.tStartPeriod = tStartPeriod   # framenumber
@@ -244,53 +321,72 @@ if __name__ == '__main__':
     ## single experiment
     setAnimalType(AnimalType.MOUSE)
 
+
+    # get event from database
     files = getFilesToProcess()
-    connection = sqlite3.connect(files[0])
-    pool = AnimalPoolToolkit()
-    pool.loadAnimals(connection)
-    pool.loadDetection(lightLoad=True)
-    maxFrame = getNumberOfFrames(files[0])
+    # connection = sqlite3.connect(files[0])
+    # pool = AnimalPoolToolkit()
+    # pool.loadAnimals(connection)
+    # pool.loadDetection(lightLoad=True)
+    # maxFrame = getNumberOfFrames(files[0])
+    #
+    #
+    # eventList = {}
+    #
+    # for animal in pool.animalDictionary.keys():
+    #     rfid = pool.animalDictionary[animal].RFID
+    #     eventList[rfid] = {}
+    #     for behavior in behaviouralEventOneMouse:
+    #         eventList[rfid][behavior] = []
+    #
+    #         distanceList = []
+    #
+    #         eventList[rfid][behavior] = EventTimeLine(connection, behavior, minFrame=0, maxFrame=maxFrame,
+    #                                                   idA=pool.animalDictionary[animal].baseId).eventList
+    #
+    # connection.close()
+    #
+    #
+    # # get number of frames per timebin where events done by animals
+    # timebin = 10
+    # timebinInFrame = timebin * oneMinute
+    # nbOfTimeBins = round(maxFrame / timebinInFrame)
+    #
+    # eventPerTimeBin = {}
+    # for animal in eventList:
+    #     eventPerTimeBin[animal] = {}
+    #     for behavior in eventList[animal]:
+    #         eventPerTimeBin[animal][behavior] = []
+    #         startWindow = 0
+    #         for window in range(0, nbOfTimeBins):
+    #             nbFrameOfEvent = 0
+    #             for frame in range(startWindow, startWindow + timebinInFrame -1):
+    #                 for event in eventList[animal][behavior]:
+    #                     if event.startFrame > startWindow + timebinInFrame:
+    #                         break
+    #                     if frame >= event.startFrame and frame <= event.endFrame:
+    #                         print(f'frame {frame} in event (start: {event.startFrame} - end: {event.endFrame})')
+    #                         nbFrameOfEvent += 1
+    #             eventPerTimeBin[animal][behavior].append(nbFrameOfEvent)
+    #             startWindow += timebinInFrame
+
+    allTimeLineEvent = {}
+    resultsHabituation = {}
+    resultsInteractions = {}
+    for file in files:
+        allTimeLineEvent[getFileName(file)] = exportEventTimeLineToJsonFile(file)
+
+        # habituation phase
+        resultsHabituation[getFileName(file)] = getNumberOfFramePerEventPerTimebin(allTimeLineEvent[getFileName(file)], 5, 0, 15)
 
 
-    eventList = {}
+        # interaction phase (after pause)
+        connection = sqlite3.connect(file)
+        pool = AnimalPoolToolkit()
+        pool.loadAnimals(connection)
+        minT = getStartTestPhase(pool)
+        connection.close()
 
-    for animal in pool.animalDictionary.keys():
-        rfid = pool.animalDictionary[animal].RFID
-        eventList[rfid] = {}
-        for behavior in behaviouralEventOneMouse:
-            eventList[rfid][behavior] = []
-
-            distanceList = []
-
-            eventList[rfid][behavior] = EventTimeLine(connection, behavior, minFrame=0, maxFrame=maxFrame,
-                                                      idA=pool.animalDictionary[animal].baseId).eventList
-
-    connection.close()
-
-    timebin = 10
-    timebinInFrame = 10 * oneMinute
-
-    # il va falloir affiner pour savoir si on prend en compte les frames qui sont sur deux timebin
-
-    nbOfTimeBins = round(maxFrame / timebinInFrame)
-
-    eventPerTimeBin = {}
-    for animal in eventList:
-        eventPerTimeBin[animal] = {}
-        for behavior in eventList[animal]:
-            eventPerTimeBin[animal][behavior] = []
-            startWindow = 0
-            for window in range(0, nbOfTimeBins):
-                nbFrameOfEvent = 0
-                for frame in range(startWindow, startWindow + timebinInFrame):
-                    for event in eventList[animal][behavior]:
-                        if frame >= event.startFrame and frame < event.endFrame:
-                            print(f'frame {frame} in event (start: {event.startFrame} - end: {event.endFrame})')
-                            nbFrameOfEvent += 1
-                        # if frame > event.endFrame:
-                        #     break
-                eventPerTimeBin[animal][behavior].append(nbFrameOfEvent)
-                startWindow += timebinInFrame
-
+        resultsInteractions[getFileName(file)] = getNumberOfFramePerEventPerTimebin(allTimeLineEvent[getFileName(file)], 5, minT, 25)
 
 
