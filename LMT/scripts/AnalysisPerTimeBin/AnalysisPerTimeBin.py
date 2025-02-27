@@ -85,41 +85,21 @@ def getNumberOfFramePerEventPerTimebin(eventList, timebin, minFrame, duration:in
         eventPerTimeBin[animal] = {}
         for behavior in eventList[animal]:
             eventPerTimeBin[animal][behavior] = []
-            startWindow = minFrame
-
-            ####
             dicEvent = eventList[animal][behavior].getDictionary()
             frame = minFrame
-            ####
 
             for window in range(0, nbOfTimeBins):
-                # nbFrameOfEvent = 0
-                # for frame in range(startWindow, startWindow + timebinInFrame -1):
-                #     if startWindow > maxFrame:
-                #         break
-                #     for event in eventList[animal][behavior]:
-                #         if event.startFrame > startWindow + timebinInFrame:
-                #             break
-                #         if frame >= event.startFrame and frame <= event.endFrame:
-                #             print(f'frame {frame} in event (start: {event.startFrame} - end: {event.endFrame})')
-                #             nbFrameOfEvent += 1
-                #####
-
-
                 while (frame < maxFrame):
-
                     durationEventInBin = 0
 
                     for t in range(frame, frame + timebinInFrame):
-                        if (t in dicEvent.keys()):
+                        if t in dicEvent.keys():
                             durationEventInBin = durationEventInBin + 1
-                    eventPerTimeBin[animal][behavior].append(durationEventInBin)
+
+                    # conversion from frame to second
+                    durationEventInSeconds = durationEventInBin/30
+                    eventPerTimeBin[animal][behavior].append(durationEventInSeconds)
                     frame = frame + timebinInFrame
-                #####
-                # eventPerTimeBin[animal][behavior].append(nbFrameOfEvent)
-                # startWindow += timebinInFrame
-                # if startWindow > maxFrame:
-                #     break
 
     return eventPerTimeBin
 
@@ -425,7 +405,7 @@ if __name__ == '__main__':
                 print(newRow)
                 habituationDataFrame.loc[len(habituationDataFrame)] = newRow
 
-    habituationDataFrame.to_excel("habituationDataFrame_session0.xlsx", index=False, engine='xlsxwriter')
+    habituationDataFrame.to_excel("habituationDataFrame_session5.xlsx", index=False, engine='xlsxwriter')
 
 
 
@@ -445,7 +425,7 @@ if __name__ == '__main__':
                 print(newRow)
                 interactionDataFrame.loc[len(interactionDataFrame)] = newRow
 
-    interactionDataFrame.to_excel("interactionDataFrame_session0.xlsx", index=False, engine='xlsxwriter')
+    interactionDataFrame.to_excel("interactionDataFrame_session5.xlsx", index=False, engine='xlsxwriter')
 
 
 
