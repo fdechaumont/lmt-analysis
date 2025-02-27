@@ -19,13 +19,14 @@ from lmtanalysis.AnimalType import AnimalType
 from datetime import datetime, timedelta
 from Util import getDatetimeFromFrame, getNumberOfFrames, getStartInDatetime, getStartTestPhase
 from ZoneArena import getZoneCoordinatesFromCornerCoordinatesOpenfieldArea
+import pandas as pd
 
 
 def getFileName(file):
     return file.split('.sqlite')[0].split('\\')[-1].split("/")[-1]
 
 
-def exportEventTimeLineToJsonFile(file, minFrame=0, maxFrame=None):
+def getEventTimeLine(file, minFrame=0, maxFrame=None):
     '''
     Export an event timeline to a JSON file.
     :param file: LMT sqlite file
@@ -46,9 +47,14 @@ def exportEventTimeLineToJsonFile(file, minFrame=0, maxFrame=None):
         rfid = pool.animalDictionary[animal].RFID
         eventList[rfid] = {}
         for behavior in behaviouralEventOneMouse:
+            behavEventTimeLine = EventTimeLine(connection, behavior, minFrame=minFrame, maxFrame=maxFrame,
+                                                      idA=pool.animalDictionary[animal].baseId)
+            # clean the behavioural event timeline:
+            behavEventTimeLine.mergeCloseEvents(numberOfFrameBetweenEvent=1)
+            behavEventTimeLine.removeEventsBelowLength(maxLen=3)
             eventList[rfid][behavior] = []
-            eventList[rfid][behavior] = EventTimeLine(connection, behavior, minFrame=minFrame, maxFrame=maxFrame,
-                                                      idA=pool.animalDictionary[animal].baseId).eventList
+            # eventList[rfid][behavior] = behavEventTimeLine.eventList
+            eventList[rfid][behavior] = behavEventTimeLine
 
     connection.close()
 
@@ -80,23 +86,44 @@ def getNumberOfFramePerEventPerTimebin(eventList, timebin, minFrame, duration:in
         for behavior in eventList[animal]:
             eventPerTimeBin[animal][behavior] = []
             startWindow = minFrame
+
+            ####
+            dicEvent = eventList[animal][behavior].getDictionary()
+            frame = minFrame
+            ####
+
             for window in range(0, nbOfTimeBins):
-                nbFrameOfEvent = 0
-                for frame in range(startWindow, startWindow + timebinInFrame -1):
-                    if startWindow > maxFrame:
-                        break
-                    for event in eventList[animal][behavior]:
-                        if event.startFrame > startWindow + timebinInFrame:
-                            break
-                        if frame >= event.startFrame and frame <= event.endFrame:
-                            print(f'frame {frame} in event (start: {event.startFrame} - end: {event.endFrame})')
-                            nbFrameOfEvent += 1
-                eventPerTimeBin[animal][behavior].append(nbFrameOfEvent)
-                startWindow += timebinInFrame
-                if startWindow > maxFrame:
-                    break
+                # nbFrameOfEvent = 0
+                # for frame in range(startWindow, startWindow + timebinInFrame -1):
+                #     if startWindow > maxFrame:
+                #         break
+                #     for event in eventList[animal][behavior]:
+                #         if event.startFrame > startWindow + timebinInFrame:
+                #             break
+                #         if frame >= event.startFrame and frame <= event.endFrame:
+                #             print(f'frame {frame} in event (start: {event.startFrame} - end: {event.endFrame})')
+                #             nbFrameOfEvent += 1
+                #####
+
+
+                while (frame < maxFrame):
+
+                    durationEventInBin = 0
+
+                    for t in range(frame, frame + timebinInFrame):
+                        if (t in dicEvent.keys()):
+                            durationEventInBin = durationEventInBin + 1
+                    eventPerTimeBin[animal][behavior].append(durationEventInBin)
+                    frame = frame + timebinInFrame
+                #####
+                # eventPerTimeBin[animal][behavior].append(nbFrameOfEvent)
+                # startWindow += timebinInFrame
+                # if startWindow > maxFrame:
+                #     break
 
     return eventPerTimeBin
+
+
 
 
 
@@ -311,6 +338,7 @@ class EventsPerTimeBin:
 
 
 
+
 if __name__ == '__main__':
     def setAnimalType( aType ):
         global animalType
@@ -324,57 +352,21 @@ if __name__ == '__main__':
 
     # get event from database
     files = getFilesToProcess()
-    # connection = sqlite3.connect(files[0])
-    # pool = AnimalPoolToolkit()
-    # pool.loadAnimals(connection)
-    # pool.loadDetection(lightLoad=True)
-    # maxFrame = getNumberOfFrames(files[0])
-    #
-    #
-    # eventList = {}
-    #
-    # for animal in pool.animalDictionary.keys():
-    #     rfid = pool.animalDictionary[animal].RFID
-    #     eventList[rfid] = {}
-    #     for behavior in behaviouralEventOneMouse:
-    #         eventList[rfid][behavior] = []
-    #
-    #         distanceList = []
-    #
-    #         eventList[rfid][behavior] = EventTimeLine(connection, behavior, minFrame=0, maxFrame=maxFrame,
-    #                                                   idA=pool.animalDictionary[animal].baseId).eventList
-    #
-    # connection.close()
-    #
-    #
-    # # get number of frames per timebin where events done by animals
-    # timebin = 10
-    # timebinInFrame = timebin * oneMinute
-    # nbOfTimeBins = round(maxFrame / timebinInFrame)
-    #
-    # eventPerTimeBin = {}
-    # for animal in eventList:
-    #     eventPerTimeBin[animal] = {}
-    #     for behavior in eventList[animal]:
-    #         eventPerTimeBin[animal][behavior] = []
-    #         startWindow = 0
-    #         for window in range(0, nbOfTimeBins):
-    #             nbFrameOfEvent = 0
-    #             for frame in range(startWindow, startWindow + timebinInFrame -1):
-    #                 for event in eventList[animal][behavior]:
-    #                     if event.startFrame > startWindow + timebinInFrame:
-    #                         break
-    #                     if frame >= event.startFrame and frame <= event.endFrame:
-    #                         print(f'frame {frame} in event (start: {event.startFrame} - end: {event.endFrame})')
-    #                         nbFrameOfEvent += 1
-    #             eventPerTimeBin[animal][behavior].append(nbFrameOfEvent)
-    #             startWindow += timebinInFrame
 
     allTimeLineEvent = {}
-    resultsHabituation = {}
-    resultsInteractions = {}
+    # resultsHabituation = {}
+    # resultsInteractions = {}
+    results = {
+        'resultsHabituation': {},
+        'resultsInteractions': {}
+    }
+    reorganizedResults = {
+        'resultsHabituation': {},
+        'resultsInteractions': {}
+    }
+
     for file in files:
-        allTimeLineEvent[getFileName(file)] = exportEventTimeLineToJsonFile(file)
+        allTimeLineEvent[getFileName(file)] = getEventTimeLine(file)
 
         # information about animals and frame after pause (for interaction phase in dyadic experiments)
         connection = sqlite3.connect(file)
@@ -384,9 +376,9 @@ if __name__ == '__main__':
         connection.close()
 
         # habituation phase
-        resultsHabituation[getFileName(file)] = getNumberOfFramePerEventPerTimebin(allTimeLineEvent[getFileName(file)], 5, 0, 15)
+        results['resultsHabituation'][getFileName(file)] = getNumberOfFramePerEventPerTimebin(allTimeLineEvent[getFileName(file)], 5, 0, 15)
         for animal in pool.animalDictionary:
-            resultsHabituation[getFileName(file)][pool.animalDictionary[animal].RFID]['metadata'] = {
+            results['resultsHabituation'][getFileName(file)][pool.animalDictionary[animal].RFID]['metadata'] = {
                 'id': pool.animalDictionary[animal].baseId,
                 'name': pool.animalDictionary[animal].name,
                 'rfid': pool.animalDictionary[animal].RFID,
@@ -396,11 +388,15 @@ if __name__ == '__main__':
                 'strain': pool.animalDictionary[animal].strain,
                 'treatment': pool.animalDictionary[animal].treatment
             }
+            if pool.animalDictionary[animal].treatment != 'nan':
+                if pool.animalDictionary[animal].treatment not in reorganizedResults['resultsHabituation']:
+                    reorganizedResults['resultsHabituation'][pool.animalDictionary[animal].treatment] = {}
+                reorganizedResults['resultsHabituation'][pool.animalDictionary[animal].treatment][pool.animalDictionary[animal].RFID] = results['resultsHabituation'][getFileName(file)][pool.animalDictionary[animal].RFID]
 
         # interaction phase (after pause)
-        resultsInteractions[getFileName(file)] = getNumberOfFramePerEventPerTimebin(allTimeLineEvent[getFileName(file)], 5, minT, 25)
+        results['resultsInteractions'][getFileName(file)] = getNumberOfFramePerEventPerTimebin(allTimeLineEvent[getFileName(file)], 5, minT, 25)
         for animal in pool.animalDictionary:
-            resultsHabituation[getFileName(file)][pool.animalDictionary[animal].RFID]['metadata'] = {
+            results['resultsInteractions'][getFileName(file)][pool.animalDictionary[animal].RFID]['metadata'] = {
                 'id': pool.animalDictionary[animal].baseId,
                 'name': pool.animalDictionary[animal].name,
                 'rfid': pool.animalDictionary[animal].RFID,
@@ -410,4 +406,46 @@ if __name__ == '__main__':
                 'strain': pool.animalDictionary[animal].strain,
                 'treatment': pool.animalDictionary[animal].treatment
             }
+            if pool.animalDictionary[animal].treatment not in reorganizedResults['resultsInteractions']:
+                reorganizedResults['resultsInteractions'][pool.animalDictionary[animal].treatment] = {}
+            reorganizedResults['resultsInteractions'][pool.animalDictionary[animal].treatment][pool.animalDictionary[animal].RFID] = results['resultsInteractions'][getFileName(file)][pool.animalDictionary[animal].RFID]
+
+
+    # organize data in dataframes
+    listOfHabituationEvent = ['Move isolated', 'Stop isolated', 'Rear isolated']
+
+    for treatment in reorganizedResults['resultsHabituation']:
+        for animal in reorganizedResults['resultsHabituation'][treatment]:
+            for variable in listOfHabituationEvent:
+                if 'habituationDataFrame' not in locals():
+                    habituationDataFrame = pd.DataFrame(columns=['animal', 'treatment', 'behavior'] + list(range(0, len(reorganizedResults['resultsHabituation'][treatment][animal][variable]))))
+                newRow = [animal, treatment, variable]
+                for value in reorganizedResults['resultsHabituation'][treatment][animal][variable]:
+                    newRow.append(value)
+                print(newRow)
+                habituationDataFrame.loc[len(habituationDataFrame)] = newRow
+
+    habituationDataFrame.to_excel("habituationDataFrame_session0.xlsx", index=False, engine='xlsxwriter')
+
+
+
+    listOfInteractionEvent = ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
+    "Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
+    "Train2", "FollowZone", "Social approach", "Approach contact", "Break contact"]
+
+    for treatment in reorganizedResults['resultsInteractions']:
+        for animal in reorganizedResults['resultsInteractions'][treatment]:
+            for variable in listOfInteractionEvent:
+                if 'interactionDataFrame' not in locals():
+                    interactionDataFrame = pd.DataFrame(columns=['animal', 'treatment', 'behavior'] + list(
+                        range(0, len(reorganizedResults['resultsInteractions'][treatment][animal][variable]))))
+                newRow = [animal, treatment, variable]
+                for value in reorganizedResults['resultsInteractions'][treatment][animal][variable]:
+                    newRow.append(value)
+                print(newRow)
+                interactionDataFrame.loc[len(interactionDataFrame)] = newRow
+
+    interactionDataFrame.to_excel("interactionDataFrame_session0.xlsx", index=False, engine='xlsxwriter')
+
+
 
