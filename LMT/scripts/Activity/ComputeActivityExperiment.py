@@ -18,7 +18,7 @@ Kinect at 63 cm high from the floor.
 
 import sqlite3
 from lmtanalysis.Measure import oneMinute, oneHour
-from Util import getDatetimeFromFrame, getNumberOfFrames, getStartInDatetime
+from Util import getDatetimeFromFrame, getNumberOfFrames, getStartInDatetime, getStartTestPhase
 from Parameters import getAnimalTypeParameters
 from ZoneArena import getZoneCoordinatesFromCornerCoordinatesOpenfieldArea
 from lmtanalysis.AnimalType import AnimalType
@@ -90,6 +90,16 @@ def mergeDataFromReorganizedDico(resultDict: dict, mergeDict: dict, nbOfLevel: i
     return mergeDict
 
 
+def convertResultFromJsonIntoExcel(jsonFile):
+    '''
+    :param jsonFile: result json file from method exportReorganizedResultsToJsonFile of class ActivityExperimentPoolFromStartFrame
+    '''
+    name = jsonFile.split('.json')[0].split('\\')[-1].split("/")[-1]
+    # Get data from json
+    with open(jsonFile, "r") as f:
+        data = json.load(f)
+    # to complete
+
 
 class ActivityExperiment:
     def __init__(self, file, tStartPeriod=1, durationPeriod=24, timebin=10):
@@ -136,7 +146,7 @@ class ActivityExperiment:
         else:
             self.tStartPeriod = tStartPeriod   # framenumber
             self.durationPeriod = durationPeriod  # duration in hours
-            self.durationPeriodInFrame = durationPeriod*oneHour    # duration in number of frame
+            self.durationPeriodInFrame = round(durationPeriod*oneHour)    # duration in number of frame
             self.tStopFramePeriod = self.tStartPeriod+self.durationPeriodInFrame    # convert in framenumber
             self.timebin = timebin # timebin in minutes
             self.timebinInFrame = timebin*oneMinute # timebin in number of frame
@@ -244,6 +254,8 @@ class ActivityExperiment:
             activity = {}
             self.totalDistance = {}
             self.results = {}
+
+            print(f"maxFrame: {self.tStopFramePeriod}")
 
             for animal in self.pool.animalDictionary.keys():
                 rfid = self.pool.animalDictionary[animal].RFID
@@ -479,6 +491,48 @@ class ActivityExperimentPool:
 
 
 
+class ActivityExperimentPoolFromStartFrame(ActivityExperimentPool):
+    '''
+    Class ActivityExperimentPoolFromStartFrame derived from ActivityExperimentPool
+    This class is more appropriate for dyadic experiments
+    '''
+    def __init__(self, startFrame = 0, durationPeriod=15, timebin=5):
+        '''
+        startFrame: first frame number
+        durationPeriod: duration in minutes of the period from the dateStartPeriod
+        timebin: time bin in minutes
+        '''
+        self.activityExperiments = []
+        self.results = {}
+        self.mergedResults = {}
+        self.reorganizedResultsPerIndividual = {}
+        self.reorganizedResults = {}
+        self.sexesList = []
+        self.genotypeList = []
+        self.startFrame = startFrame
+        self.durationPeriod = (durationPeriod*oneMinute)/oneHour
+        self.timebin = timebin
+        self.meanResults = {}
+
+    def addActivityExperimentWithDialog(self):
+        files = getFilesToProcess()
+        if (files != None):
+            for file in files:
+                # create the activity experiment*
+                print(file)
+                print(f"Duration: {self.durationPeriod}")
+                if self.startFrame == "pause":
+                    connection = sqlite3.connect(file)
+                    pool = AnimalPoolToolkit()
+                    pool.loadAnimals(connection)
+                    self.startFrame = getStartTestPhase(pool)
+                    connection.close()
+                experiment = ActivityExperiment(file, tStartPeriod=self.startFrame, durationPeriod=self.durationPeriod, timebin=self.timebin)
+                self.addActivityExperiment(experiment)
+
+
+
+
 if __name__ == '__main__':
 
     def setAnimalType( aType ):
@@ -495,16 +549,34 @@ if __name__ == '__main__':
     # dataManip = xp.computeActivityPerTimeBin()
 
     ## experiment pool test
-    experimentPool = ActivityExperimentPool("17:00", 48, 10)
-    experimentPool.addActivityExperimentWithDialog()
-    experimentPool.computeActivityBatch()
-    experimentPool.mergeResults()
-    filterList = ["treatment", "sex"]
-    experimentPool.exportResultsSortedBy(filterList)
-    experimentPool.exportReorganizedResultsToJsonFile()
+    # experimentPool = ActivityExperimentPool("17:00", 48, 10)
+    # experimentPool.addActivityExperimentWithDialog()
+    # experimentPool.computeActivityBatch()
+    # experimentPool.mergeResults()
+    # filterList = ["treatment", "sex"]
+    # experimentPool.exportResultsSortedBy(filterList)
+    # experimentPool.exportReorganizedResultsToJsonFile()
 
     # experimentPool.organizeResults()
     # experimentPool.exportReorganizedResultsAsTable("nameTableFile")
     # experimentPool.exportReorganizedResultsToJsonFile("nameJsonFile")
 
-    # -> gérer le problème si une manip ne renvoie pas de donnée car en dehors du temps sélectionné
+
+
+    #### Morphine Project
+    experimentPoolHabituation = ActivityExperimentPoolFromStartFrame(0, 15, 5)
+    experimentPoolHabituation.addActivityExperimentWithDialog()
+    experimentPoolHabituation.computeActivityBatch()
+    experimentPoolHabituation.mergeResults()
+    filterList = ["treatment"]
+    experimentPoolHabituation.exportResultsSortedBy(filterList)
+    experimentPoolHabituation.exportReorganizedResultsToJsonFile(nameFile="habituation_session0")
+
+
+    experimentPoolHabituation = ActivityExperimentPoolFromStartFrame("pause", 25, 5)
+    experimentPoolHabituation.addActivityExperimentWithDialog()
+    experimentPoolHabituation.computeActivityBatch()
+    experimentPoolHabituation.mergeResults()
+    filterList = ["treatment"]
+    experimentPoolHabituation.exportResultsSortedBy(filterList)
+    experimentPoolHabituation.exportReorganizedResultsToJsonFile(nameFile="interaction_session0")
