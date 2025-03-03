@@ -23,12 +23,13 @@ from Parameters import getAnimalTypeParameters
 from ZoneArena import getZoneCoordinatesFromCornerCoordinatesOpenfieldArea
 from lmtanalysis.AnimalType import AnimalType
 from Animal_LMTtoolkit import AnimalPoolToolkit
-from FileUtil import getFilesToProcess
+from FileUtil import getFilesToProcess, getJsonFileToProcess
 import json
 import matplotlib.pyplot as plt
 from Event import EventTimeLine
 from datetime import datetime, timedelta
 import numpy as np
+import pandas as pd
 
 
 def completeDicoFromKey(dico: dict, keyList: list):
@@ -98,7 +99,32 @@ def convertResultFromJsonIntoExcel(jsonFile):
     # Get data from json
     with open(jsonFile, "r") as f:
         data = json.load(f)
-    # to complete
+    ### json structure:
+    # treatment
+    #   Individu
+    #       totalDistance
+    #       results
+    #           "0": xxxx
+    #           "t": yyyy
+    #       id
+    #       name
+    #       rfid
+    #       genotype
+    #       sex
+    #       age
+    #       strain
+    #       treatment
+    for treatment in data:
+        for animal in data[treatment]:
+            if 'distancePerTimeBin' not in locals():
+                distancePerTimeBin = pd.DataFrame(columns=['animal', 'treatment', 'total distance'] + list(
+                    range(0, len(data[treatment][animal]['results']))))
+            newRow = [animal, treatment, data[treatment][animal]['totalDistance']]
+            for key in data[treatment][animal]["results"]:
+                newRow.append(data[treatment][animal]["results"][key])
+            distancePerTimeBin.loc[len(distancePerTimeBin)] = newRow
+
+    distancePerTimeBin.to_excel(f"{name}.xlsx", index=False, engine='xlsxwriter')
 
 
 class ActivityExperiment:
@@ -570,13 +596,19 @@ if __name__ == '__main__':
     experimentPoolHabituation.mergeResults()
     filterList = ["treatment"]
     experimentPoolHabituation.exportResultsSortedBy(filterList)
-    experimentPoolHabituation.exportReorganizedResultsToJsonFile(nameFile="habituation_session0")
+    experimentPoolHabituation.exportReorganizedResultsToJsonFile(nameFile="habituation_session5")
 
 
-    experimentPoolHabituation = ActivityExperimentPoolFromStartFrame("pause", 25, 5)
-    experimentPoolHabituation.addActivityExperimentWithDialog()
-    experimentPoolHabituation.computeActivityBatch()
-    experimentPoolHabituation.mergeResults()
+    experimentPoolInteraction = ActivityExperimentPoolFromStartFrame("pause", 25, 5)
+    experimentPoolInteraction.addActivityExperimentWithDialog()
+    experimentPoolInteraction.computeActivityBatch()
+    experimentPoolInteraction.mergeResults()
     filterList = ["treatment"]
-    experimentPoolHabituation.exportResultsSortedBy(filterList)
-    experimentPoolHabituation.exportReorganizedResultsToJsonFile(nameFile="interaction_session0")
+    experimentPoolInteraction.exportResultsSortedBy(filterList)
+    experimentPoolInteraction.exportReorganizedResultsToJsonFile(nameFile="interaction_session5")
+
+    ## Export to excel file
+    jsonFileHabituation = getJsonFileToProcess()
+    convertResultFromJsonIntoExcel(jsonFileHabituation)
+    jsonFileIntraction = getJsonFileToProcess()
+    convertResultFromJsonIntoExcel(jsonFileIntraction)
