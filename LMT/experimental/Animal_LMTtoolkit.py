@@ -50,6 +50,23 @@ class AnimalToolkit(Animal):
         return trajectory
 
 
+    def getDistancePerBinSpecZone(self, binFrameSize, minFrame=0, maxFrame=None, xa=None, ya=None, xb=None, yb=None):
+        '''
+        Return the distance per timebin a specific zone (for example, the center of the cage)
+        '''
+        distanceList = []
+        t = minFrame
+        if maxFrame == None:
+            maxFrame = self.getMaxDetectionT()
+        while ( t < maxFrame ):
+            distanceBin = self.getDistanceSpecZone(t , t+binFrameSize, xa, ya, xb, yb)
+            print( "Distance bin n:{} value:{}".format ( t , distanceBin ) )
+            distanceList.append( distanceBin )
+            t=t+binFrameSize
+
+        return distanceList
+
+
 
 class AnimalPoolToolkit(AnimalPool):
     """

@@ -18,7 +18,8 @@ from lmtanalysis.Measure import oneMinute, oneHour
 from lmtanalysis.AnimalType import AnimalType
 from datetime import datetime, timedelta
 from Util import getDatetimeFromFrame, getNumberOfFrames, getStartInDatetime, getStartTestPhase
-from ZoneArena import getZoneCoordinatesFromCornerCoordinatesOpenfieldArea
+from ZoneArena import getZoneCoordinatesFromCornerCoordinatesOpenfieldArea, \
+    getSmallerZoneFromGivenWholeCageCoordinatesAndMargin
 import pandas as pd
 
 
@@ -331,101 +332,133 @@ if __name__ == '__main__':
 
 
     # get event from database
+    # files = getFilesToProcess()
+    #
+    # allTimeLineEvent = {}
+    # # resultsHabituation = {}
+    # # resultsInteractions = {}
+    # results = {
+    #     'resultsHabituation': {},
+    #     'resultsInteractions': {}
+    # }
+    # reorganizedResults = {
+    #     'resultsHabituation': {},
+    #     'resultsInteractions': {}
+    # }
+    #
+    # for file in files:
+    #     allTimeLineEvent[getFileName(file)] = getEventTimeLine(file)
+    #
+    #     # information about animals and frame after pause (for interaction phase in dyadic experiments)
+    #     connection = sqlite3.connect(file)
+    #     pool = AnimalPoolToolkit()
+    #     pool.loadAnimals(connection)
+    #     minT = getStartTestPhase(pool)
+    #     connection.close()
+    #
+    #     # habituation phase
+    #     results['resultsHabituation'][getFileName(file)] = getNumberOfFramePerEventPerTimebin(allTimeLineEvent[getFileName(file)], 5, 0, 15)
+    #     for animal in pool.animalDictionary:
+    #         results['resultsHabituation'][getFileName(file)][pool.animalDictionary[animal].RFID]['metadata'] = {
+    #             'id': pool.animalDictionary[animal].baseId,
+    #             'name': pool.animalDictionary[animal].name,
+    #             'rfid': pool.animalDictionary[animal].RFID,
+    #             'genotype': pool.animalDictionary[animal].genotype,
+    #             'sex': pool.animalDictionary[animal].sex,
+    #             'age': pool.animalDictionary[animal].age,
+    #             'strain': pool.animalDictionary[animal].strain,
+    #             'treatment': pool.animalDictionary[animal].treatment
+    #         }
+    #         if pool.animalDictionary[animal].treatment != 'nan':
+    #             if pool.animalDictionary[animal].treatment not in reorganizedResults['resultsHabituation']:
+    #                 reorganizedResults['resultsHabituation'][pool.animalDictionary[animal].treatment] = {}
+    #             reorganizedResults['resultsHabituation'][pool.animalDictionary[animal].treatment][pool.animalDictionary[animal].RFID] = results['resultsHabituation'][getFileName(file)][pool.animalDictionary[animal].RFID]
+    #
+    #     # interaction phase (after pause)
+    #     results['resultsInteractions'][getFileName(file)] = getNumberOfFramePerEventPerTimebin(allTimeLineEvent[getFileName(file)], 5, minT, 25)
+    #     for animal in pool.animalDictionary:
+    #         results['resultsInteractions'][getFileName(file)][pool.animalDictionary[animal].RFID]['metadata'] = {
+    #             'id': pool.animalDictionary[animal].baseId,
+    #             'name': pool.animalDictionary[animal].name,
+    #             'rfid': pool.animalDictionary[animal].RFID,
+    #             'genotype': pool.animalDictionary[animal].genotype,
+    #             'sex': pool.animalDictionary[animal].sex,
+    #             'age': pool.animalDictionary[animal].age,
+    #             'strain': pool.animalDictionary[animal].strain,
+    #             'treatment': pool.animalDictionary[animal].treatment
+    #         }
+    #         if pool.animalDictionary[animal].treatment not in reorganizedResults['resultsInteractions']:
+    #             reorganizedResults['resultsInteractions'][pool.animalDictionary[animal].treatment] = {}
+    #         reorganizedResults['resultsInteractions'][pool.animalDictionary[animal].treatment][pool.animalDictionary[animal].RFID] = results['resultsInteractions'][getFileName(file)][pool.animalDictionary[animal].RFID]
+    #
+    #
+    # # organize data in dataframes
+    # listOfHabituationEvent = ['Move isolated', 'Stop isolated', 'Rear isolated']
+    #
+    # for treatment in reorganizedResults['resultsHabituation']:
+    #     for animal in reorganizedResults['resultsHabituation'][treatment]:
+    #         for variable in listOfHabituationEvent:
+    #             if 'habituationDataFrame' not in locals():
+    #                 habituationDataFrame = pd.DataFrame(columns=['animal', 'treatment', 'behavior'] + list(range(0, len(reorganizedResults['resultsHabituation'][treatment][animal][variable]))))
+    #             newRow = [animal, treatment, variable]
+    #             for value in reorganizedResults['resultsHabituation'][treatment][animal][variable]:
+    #                 newRow.append(value)
+    #             print(newRow)
+    #             habituationDataFrame.loc[len(habituationDataFrame)] = newRow
+    #
+    # habituationDataFrame.to_excel("habituationDataFrame_session5.xlsx", index=False, engine='xlsxwriter')
+    #
+    #
+    #
+    # listOfInteractionEvent = ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
+    # "Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
+    # "Train2", "FollowZone", "Social approach", "Approach contact", "Break contact"]
+    #
+    # for treatment in reorganizedResults['resultsInteractions']:
+    #     for animal in reorganizedResults['resultsInteractions'][treatment]:
+    #         for variable in listOfInteractionEvent:
+    #             if 'interactionDataFrame' not in locals():
+    #                 interactionDataFrame = pd.DataFrame(columns=['animal', 'treatment', 'behavior'] + list(
+    #                     range(0, len(reorganizedResults['resultsInteractions'][treatment][animal][variable]))))
+    #             newRow = [animal, treatment, variable]
+    #             for value in reorganizedResults['resultsInteractions'][treatment][animal][variable]:
+    #                 newRow.append(value)
+    #             print(newRow)
+    #             interactionDataFrame.loc[len(interactionDataFrame)] = newRow
+    #
+    # interactionDataFrame.to_excel("interactionDataFrame_session5.xlsx", index=False, engine='xlsxwriter')
+
+
+
+    ### distance travelled per timebin in the center zone
     files = getFilesToProcess()
 
-    allTimeLineEvent = {}
-    # resultsHabituation = {}
-    # resultsInteractions = {}
-    results = {
-        'resultsHabituation': {},
-        'resultsInteractions': {}
-    }
-    reorganizedResults = {
-        'resultsHabituation': {},
-        'resultsInteractions': {}
-    }
-
+    resultsCenterZoneHabituation = {}
+    centerCageCoordinates = getSmallerZoneFromGivenWholeCageCoordinatesAndMargin(0,
+                                                                                 getZoneCoordinatesFromCornerCoordinatesOpenfieldArea(animalType),
+                                                                                 animalType)
     for file in files:
-        allTimeLineEvent[getFileName(file)] = getEventTimeLine(file)
-
         # information about animals and frame after pause (for interaction phase in dyadic experiments)
         connection = sqlite3.connect(file)
         pool = AnimalPoolToolkit()
         pool.loadAnimals(connection)
         minT = getStartTestPhase(pool)
+        for animal in pool.animalDictionary:
+            resultsCenterZoneHabituation[pool.animalDictionary[animal].RFID] = {
+                'id': pool.animalDictionary[animal].baseId,
+                'name': pool.animalDictionary[animal].name,
+                'rfid': pool.animalDictionary[animal].RFID,
+                'genotype': pool.animalDictionary[animal].genotype,
+                'sex': pool.animalDictionary[animal].sex,
+                'age': pool.animalDictionary[animal].age,
+                'strain': pool.animalDictionary[animal].strain,
+                'treatment': pool.animalDictionary[animal].treatment,
+                'results': pool.animalDictionary[animal].getDistancePerBinSpecZone(binFrameSize=5*oneMinute, minFrame=0, maxFrame=15*oneMinute,
+                                                            xa=centerCageCoordinates['xa'], ya=centerCageCoordinates['ya'],
+                                                            xb=centerCageCoordinates['xb'], yb=centerCageCoordinates['yb'])
+            }
+
         connection.close()
-
-        # habituation phase
-        results['resultsHabituation'][getFileName(file)] = getNumberOfFramePerEventPerTimebin(allTimeLineEvent[getFileName(file)], 5, 0, 15)
-        for animal in pool.animalDictionary:
-            results['resultsHabituation'][getFileName(file)][pool.animalDictionary[animal].RFID]['metadata'] = {
-                'id': pool.animalDictionary[animal].baseId,
-                'name': pool.animalDictionary[animal].name,
-                'rfid': pool.animalDictionary[animal].RFID,
-                'genotype': pool.animalDictionary[animal].genotype,
-                'sex': pool.animalDictionary[animal].sex,
-                'age': pool.animalDictionary[animal].age,
-                'strain': pool.animalDictionary[animal].strain,
-                'treatment': pool.animalDictionary[animal].treatment
-            }
-            if pool.animalDictionary[animal].treatment != 'nan':
-                if pool.animalDictionary[animal].treatment not in reorganizedResults['resultsHabituation']:
-                    reorganizedResults['resultsHabituation'][pool.animalDictionary[animal].treatment] = {}
-                reorganizedResults['resultsHabituation'][pool.animalDictionary[animal].treatment][pool.animalDictionary[animal].RFID] = results['resultsHabituation'][getFileName(file)][pool.animalDictionary[animal].RFID]
-
-        # interaction phase (after pause)
-        results['resultsInteractions'][getFileName(file)] = getNumberOfFramePerEventPerTimebin(allTimeLineEvent[getFileName(file)], 5, minT, 25)
-        for animal in pool.animalDictionary:
-            results['resultsInteractions'][getFileName(file)][pool.animalDictionary[animal].RFID]['metadata'] = {
-                'id': pool.animalDictionary[animal].baseId,
-                'name': pool.animalDictionary[animal].name,
-                'rfid': pool.animalDictionary[animal].RFID,
-                'genotype': pool.animalDictionary[animal].genotype,
-                'sex': pool.animalDictionary[animal].sex,
-                'age': pool.animalDictionary[animal].age,
-                'strain': pool.animalDictionary[animal].strain,
-                'treatment': pool.animalDictionary[animal].treatment
-            }
-            if pool.animalDictionary[animal].treatment not in reorganizedResults['resultsInteractions']:
-                reorganizedResults['resultsInteractions'][pool.animalDictionary[animal].treatment] = {}
-            reorganizedResults['resultsInteractions'][pool.animalDictionary[animal].treatment][pool.animalDictionary[animal].RFID] = results['resultsInteractions'][getFileName(file)][pool.animalDictionary[animal].RFID]
-
-
-    # organize data in dataframes
-    listOfHabituationEvent = ['Move isolated', 'Stop isolated', 'Rear isolated']
-
-    for treatment in reorganizedResults['resultsHabituation']:
-        for animal in reorganizedResults['resultsHabituation'][treatment]:
-            for variable in listOfHabituationEvent:
-                if 'habituationDataFrame' not in locals():
-                    habituationDataFrame = pd.DataFrame(columns=['animal', 'treatment', 'behavior'] + list(range(0, len(reorganizedResults['resultsHabituation'][treatment][animal][variable]))))
-                newRow = [animal, treatment, variable]
-                for value in reorganizedResults['resultsHabituation'][treatment][animal][variable]:
-                    newRow.append(value)
-                print(newRow)
-                habituationDataFrame.loc[len(habituationDataFrame)] = newRow
-
-    habituationDataFrame.to_excel("habituationDataFrame_session5.xlsx", index=False, engine='xlsxwriter')
-
-
-
-    listOfInteractionEvent = ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
-    "Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
-    "Train2", "FollowZone", "Social approach", "Approach contact", "Break contact"]
-
-    for treatment in reorganizedResults['resultsInteractions']:
-        for animal in reorganizedResults['resultsInteractions'][treatment]:
-            for variable in listOfInteractionEvent:
-                if 'interactionDataFrame' not in locals():
-                    interactionDataFrame = pd.DataFrame(columns=['animal', 'treatment', 'behavior'] + list(
-                        range(0, len(reorganizedResults['resultsInteractions'][treatment][animal][variable]))))
-                newRow = [animal, treatment, variable]
-                for value in reorganizedResults['resultsInteractions'][treatment][animal][variable]:
-                    newRow.append(value)
-                print(newRow)
-                interactionDataFrame.loc[len(interactionDataFrame)] = newRow
-
-    interactionDataFrame.to_excel("interactionDataFrame_session5.xlsx", index=False, engine='xlsxwriter')
 
 
 

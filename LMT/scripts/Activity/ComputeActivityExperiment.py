@@ -590,25 +590,30 @@ if __name__ == '__main__':
 
 
     #### Morphine Project
-    experimentPoolHabituation = ActivityExperimentPoolFromStartFrame(0, 15, 5)
-    experimentPoolHabituation.addActivityExperimentWithDialog()
-    experimentPoolHabituation.computeActivityBatch()
-    experimentPoolHabituation.mergeResults()
-    filterList = ["treatment"]
-    experimentPoolHabituation.exportResultsSortedBy(filterList)
-    experimentPoolHabituation.exportReorganizedResultsToJsonFile(nameFile="habituation_session5")
+    # experimentPoolHabituation = ActivityExperimentPoolFromStartFrame(0, 15, 5)
+    # experimentPoolHabituation.addActivityExperimentWithDialog()
+    # experimentPoolHabituation.computeActivityBatch()
+    # experimentPoolHabituation.mergeResults()
+    # filterList = ["treatment"]
+    # experimentPoolHabituation.exportResultsSortedBy(filterList)
+    # experimentPoolHabituation.exportReorganizedResultsToJsonFile(nameFile="habituation_session5")
+    #
+    #
+    # experimentPoolInteraction = ActivityExperimentPoolFromStartFrame("pause", 25, 5)
+    # experimentPoolInteraction.addActivityExperimentWithDialog()
+    # experimentPoolInteraction.computeActivityBatch()
+    # experimentPoolInteraction.mergeResults()
+    # filterList = ["treatment"]
+    # experimentPoolInteraction.exportResultsSortedBy(filterList)
+    # experimentPoolInteraction.exportReorganizedResultsToJsonFile(nameFile="interaction_session5")
+    #
+    # ## Export to excel file
+    # jsonFileHabituation = getJsonFileToProcess()
+    # convertResultFromJsonIntoExcel(jsonFileHabituation)
+    # jsonFileIntraction = getJsonFileToProcess()
+    # convertResultFromJsonIntoExcel(jsonFileIntraction)
 
 
-    experimentPoolInteraction = ActivityExperimentPoolFromStartFrame("pause", 25, 5)
-    experimentPoolInteraction.addActivityExperimentWithDialog()
-    experimentPoolInteraction.computeActivityBatch()
-    experimentPoolInteraction.mergeResults()
-    filterList = ["treatment"]
-    experimentPoolInteraction.exportResultsSortedBy(filterList)
-    experimentPoolInteraction.exportReorganizedResultsToJsonFile(nameFile="interaction_session5")
+    ### Morphine -> distance travelled in center of the arena and time spend per timebin (during habituation phase)
 
-    ## Export to excel file
-    jsonFileHabituation = getJsonFileToProcess()
-    convertResultFromJsonIntoExcel(jsonFileHabituation)
-    jsonFileIntraction = getJsonFileToProcess()
-    convertResultFromJsonIntoExcel(jsonFileIntraction)
+
