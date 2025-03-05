@@ -507,23 +507,27 @@ def setAnimalType( aType ):
     global animalType
     animalType = aType
 
-### for test
-## single experiment
-# setAnimalType(AnimalType.MOUSE)
 
 
-# xp = DyadicExperiment(file, getTrajectory=True)
-# dataHabituation = xp.computeDyadicHabituationPhase()
-# dataSocial = xp.computeDyadicSocialPhase()
-# dataManip = xp.computeWholeDyadicExperiment()
+if __name__ == '__main__':
 
-## experiment pool test
-# experimentPool = DyadicExperimentPool()
-# experimentPool.addDyadicExperimentWithDialog()
-# experimentPool.setCenterCageCoordinatesExperimentPool(10)
-# experimentPool.computeDyadicBatch()
-# experimentPool.organizeResults()
-# experimentPool.exportReorganizedResultsAsTable("nameTableFile")
-# experimentPool.exportReorganizedResultsToJsonFile("nameJsonFile")
+    ### for test
+    ## single experiment
+    setAnimalType(AnimalType.MOUSE)
+
+
+    # xp = DyadicExperiment(file, getTrajectory=True)
+    # dataHabituation = xp.computeDyadicHabituationPhase()
+    # dataSocial = xp.computeDyadicSocialPhase()
+    # dataManip = xp.computeWholeDyadicExperiment()
+
+    ## experiment pool test
+    # experimentPool = DyadicExperimentPool()
+    # experimentPool.addDyadicExperimentWithDialog()
+    # experimentPool.setCenterCageCoordinatesExperimentPool(10)
+    # experimentPool.computeDyadicBatch()
+    # experimentPool.organizeResults()
+    # experimentPool.exportReorganizedResultsAsTable("nameTableFile")
+    # experimentPool.exportReorganizedResultsToJsonFile("nameJsonFile")
 
 

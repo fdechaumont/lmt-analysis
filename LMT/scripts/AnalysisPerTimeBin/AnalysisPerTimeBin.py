@@ -317,14 +317,28 @@ class EventsPerTimeBin:
 
 
 
+def setAnimalType( aType ):
+    global animalType
+    animalType = aType
+
+
+def convertResultsToExcelFile(results, title):
+    for animal in results:
+        if animal != "metadata":
+            if 'resultDataFrame' not in locals():
+                resultDataFrame = pd.DataFrame(columns=['animal', 'treatment'] + list(
+                    range(0, len(results[animal]['results']))))
+            newRow = [animal, results[animal]['treatment']]
+            for value in results[animal]['results']:
+                newRow.append(value)
+            print(newRow)
+            resultDataFrame.loc[len(resultDataFrame)] = newRow
+
+    resultDataFrame.to_excel(f"{title}.xlsx", index=False, engine='xlsxwriter')
 
 
 
 if __name__ == '__main__':
-    def setAnimalType( aType ):
-        global animalType
-        animalType = aType
-
 
     ### for test
     ## single experiment
@@ -434,31 +448,64 @@ if __name__ == '__main__':
     files = getFilesToProcess()
 
     resultsCenterZoneHabituation = {}
-    centerCageCoordinates = getSmallerZoneFromGivenWholeCageCoordinatesAndMargin(0,
+    centerCageCoordinates = getSmallerZoneFromGivenWholeCageCoordinatesAndMargin(10,
                                                                                  getZoneCoordinatesFromCornerCoordinatesOpenfieldArea(animalType),
                                                                                  animalType)
+    wholeCageCoordinates = getZoneCoordinatesFromCornerCoordinatesOpenfieldArea(animalType)
+
+
+    # variables needed to compute
+    timeBin = 5 #timeBin in minutes
+    timeBinInFrame = timeBin * oneMinute
+    minFrame = 0 # the beginning of the habituation phase
+    maxFrame = 15 * oneMinute # the end of the habituation phase
+
+    resultsCenterZoneHabituation['metadata'] = {
+        'wholeCageCoordinates': wholeCageCoordinates,
+        'centerCageCoordinates': centerCageCoordinates,
+        'timeBin in minutes': timeBin,
+        'timeBin in frames': timeBinInFrame,
+        'minFrame': minFrame,
+        'maxFrame': maxFrame,
+    }
+
     for file in files:
         # information about animals and frame after pause (for interaction phase in dyadic experiments)
         connection = sqlite3.connect(file)
         pool = AnimalPoolToolkit()
         pool.loadAnimals(connection)
+        pool.loadDetection(lightLoad=True)
+
         minT = getStartTestPhase(pool)
         for animal in pool.animalDictionary:
-            resultsCenterZoneHabituation[pool.animalDictionary[animal].RFID] = {
-                'id': pool.animalDictionary[animal].baseId,
-                'name': pool.animalDictionary[animal].name,
-                'rfid': pool.animalDictionary[animal].RFID,
-                'genotype': pool.animalDictionary[animal].genotype,
-                'sex': pool.animalDictionary[animal].sex,
-                'age': pool.animalDictionary[animal].age,
-                'strain': pool.animalDictionary[animal].strain,
-                'treatment': pool.animalDictionary[animal].treatment,
-                'results': pool.animalDictionary[animal].getDistancePerBinSpecZone(binFrameSize=5*oneMinute, minFrame=0, maxFrame=15*oneMinute,
-                                                            xa=centerCageCoordinates['xa'], ya=centerCageCoordinates['ya'],
-                                                            xb=centerCageCoordinates['xb'], yb=centerCageCoordinates['yb'])
-            }
+            if pool.animalDictionary[animal].treatment != "nan":
+                print("***** distance totale centre *****")
+                print(pool.animalDictionary[animal].getDistanceSpecZone(tmin=minFrame, tmax=maxFrame,
+                                                                        xa=centerCageCoordinates['xa'],
+                                                                        ya=centerCageCoordinates['ya'],
+                                                                        xb=centerCageCoordinates['xb'],
+                                                                        yb=centerCageCoordinates['yb']))
+
+                resultsCenterZoneHabituation[pool.animalDictionary[animal].RFID] = {
+                    'id': pool.animalDictionary[animal].baseId,
+                    'name': pool.animalDictionary[animal].name,
+                    'rfid': pool.animalDictionary[animal].RFID,
+                    'genotype': pool.animalDictionary[animal].genotype,
+                    'sex': pool.animalDictionary[animal].sex,
+                    'age': pool.animalDictionary[animal].age,
+                    'strain': pool.animalDictionary[animal].strain,
+                    'treatment': pool.animalDictionary[animal].treatment,
+                    'results': pool.animalDictionary[animal].getDistancePerBinSpecZone(binFrameSize=timeBinInFrame, minFrame=minFrame, maxFrame=maxFrame,
+                                                                xa=centerCageCoordinates['xa'], ya=centerCageCoordinates['ya'],
+                                                                xb=centerCageCoordinates['xb'], yb=centerCageCoordinates['yb'])
+                }
 
         connection.close()
 
+    # save data into a json file
+    jsonFile = json.dumps(resultsCenterZoneHabituation, indent=4)
+    with open(f"ip8387_morphine_distanceCenterZonePerTimeBin5min_session5.json", "w") as outputFile:
+        outputFile.write(jsonFile)
 
-
+    # save data into an excel file
+    convertResultsToExcelFile(resultsCenterZoneHabituation, 'ip8387_morphine_distanceCenterZonePerTimeBin5min_session5')
