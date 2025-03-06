@@ -52,7 +52,7 @@ class AnimalToolkit(Animal):
 
     def getDistancePerBinSpecZone(self, binFrameSize, minFrame=0, maxFrame=None, xa=None, ya=None, xb=None, yb=None):
         '''
-        Return the distance per timebin a specific zone (for example, the center of the cage)
+        Return the distance per timebin in a specific zone (for example, the center of the cage)
         '''
         distanceList = []
         t = minFrame
@@ -66,6 +66,22 @@ class AnimalToolkit(Animal):
 
         return distanceList
 
+
+    def getTimePerBinSpecZone(self, binFrameSize, minFrame=0, maxFrame=None, xa=None, ya=None, xb=None, yb=None):
+        '''
+        Return the time in second per timebin in a specific zone (for example, the center of the cage)
+        '''
+        timeList = []
+        t = minFrame
+        if maxFrame == None:
+            maxFrame = self.getMaxDetectionT()
+        while ( t < maxFrame ):
+            nbOfFramesBin = self.getCountFramesSpecZone(t , t+binFrameSize, xa, ya, xb, yb)
+            print( "Number of frames bin n:{} value:{}".format ( t , nbOfFramesBin ) )
+            timeList.append( nbOfFramesBin / 30 ) # convertion frames in seconds
+            t=t+binFrameSize
+
+        return timeList
 
 
 class AnimalPoolToolkit(AnimalPool):

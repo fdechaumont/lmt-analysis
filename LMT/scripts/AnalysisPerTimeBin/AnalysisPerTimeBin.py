@@ -495,9 +495,16 @@ if __name__ == '__main__':
                     'age': pool.animalDictionary[animal].age,
                     'strain': pool.animalDictionary[animal].strain,
                     'treatment': pool.animalDictionary[animal].treatment,
-                    'results': pool.animalDictionary[animal].getDistancePerBinSpecZone(binFrameSize=timeBinInFrame, minFrame=minFrame, maxFrame=maxFrame,
+                    'distanceCenterZone': pool.animalDictionary[animal].getDistancePerBinSpecZone(binFrameSize=timeBinInFrame, minFrame=minFrame, maxFrame=maxFrame,
                                                                 xa=centerCageCoordinates['xa'], ya=centerCageCoordinates['ya'],
-                                                                xb=centerCageCoordinates['xb'], yb=centerCageCoordinates['yb'])
+                                                                xb=centerCageCoordinates['xb'], yb=centerCageCoordinates['yb']),
+                    'timeCenterZone': pool.animalDictionary[animal].getDistancePerBinSpecZone(binFrameSize=timeBinInFrame,
+                                                                                       minFrame=minFrame,
+                                                                                       maxFrame=maxFrame,
+                                                                                       xa=centerCageCoordinates['xa'],
+                                                                                       ya=centerCageCoordinates['ya'],
+                                                                                       xb=centerCageCoordinates['xb'],
+                                                                                       yb=centerCageCoordinates['yb'])
                 }
 
         connection.close()

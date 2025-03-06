@@ -522,12 +522,12 @@ if __name__ == '__main__':
     # dataManip = xp.computeWholeDyadicExperiment()
 
     ## experiment pool test
-    # experimentPool = DyadicExperimentPool()
-    # experimentPool.addDyadicExperimentWithDialog()
-    # experimentPool.setCenterCageCoordinatesExperimentPool(10)
-    # experimentPool.computeDyadicBatch()
-    # experimentPool.organizeResults()
-    # experimentPool.exportReorganizedResultsAsTable("nameTableFile")
-    # experimentPool.exportReorganizedResultsToJsonFile("nameJsonFile")
+    experimentPool = DyadicExperimentPool()
+    experimentPool.addDyadicExperimentWithDialog()
+    experimentPool.setCenterCageCoordinatesExperimentPool(10)
+    experimentPool.computeDyadicBatch()
+    experimentPool.organizeResults()
+    experimentPool.exportReorganizedResultsAsTable("ip8387_morphine_dyadicAnalysis_session5")
+    experimentPool.exportReorganizedResultsToJsonFile("ip8387_morphine_dyadicAnalysis_session5")
 
 
