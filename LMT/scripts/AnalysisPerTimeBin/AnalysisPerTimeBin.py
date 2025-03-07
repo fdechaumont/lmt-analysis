@@ -323,18 +323,32 @@ def setAnimalType( aType ):
 
 
 def convertResultsToExcelFile(results, title):
+    ##### To change !!!!
     for animal in results:
         if animal != "metadata":
-            if 'resultDataFrame' not in locals():
-                resultDataFrame = pd.DataFrame(columns=['animal', 'treatment'] + list(
-                    range(0, len(results[animal]['results']))))
+            if 'distanceCenterPerTimeBineDataFrame' not in locals():
+                distanceCenterPerTimeBineDataFrame = pd.DataFrame(columns=['animal', 'treatment'] + list(
+                    range(0, len(results[animal]['distanceCenterZone']))))
             newRow = [animal, results[animal]['treatment']]
-            for value in results[animal]['results']:
+            for value in results[animal]['distanceCenterZone']:
                 newRow.append(value)
             print(newRow)
-            resultDataFrame.loc[len(resultDataFrame)] = newRow
+            distanceCenterPerTimeBineDataFrame.loc[len(distanceCenterPerTimeBineDataFrame)] = newRow
 
-    resultDataFrame.to_excel(f"{title}.xlsx", index=False, engine='xlsxwriter')
+            if 'timeCenterPerTimeBineDataFrame' not in locals():
+                timeCenterPerTimeBineDataFrame = pd.DataFrame(columns=['animal', 'treatment'] + list(
+                    range(0, len(results[animal]['timeCenterZone']))))
+            newRow = [animal, results[animal]['treatment']]
+            for value in results[animal]['timeCenterZone']:
+                newRow.append(value)
+            print(newRow)
+            timeCenterPerTimeBineDataFrame.loc[len(timeCenterPerTimeBineDataFrame)] = newRow
+
+
+    resultDataFrame = pd.ExcelWriter(f'{title}.xlsx', engine="xlsxwriter")
+    distanceCenterPerTimeBineDataFrame.to_excel(resultDataFrame, sheet_name="distanceInCenter")
+    timeCenterPerTimeBineDataFrame.to_excel(resultDataFrame, sheet_name="timeInCenter")
+    resultDataFrame.close()
 
 
 
@@ -498,7 +512,7 @@ if __name__ == '__main__':
                     'distanceCenterZone': pool.animalDictionary[animal].getDistancePerBinSpecZone(binFrameSize=timeBinInFrame, minFrame=minFrame, maxFrame=maxFrame,
                                                                 xa=centerCageCoordinates['xa'], ya=centerCageCoordinates['ya'],
                                                                 xb=centerCageCoordinates['xb'], yb=centerCageCoordinates['yb']),
-                    'timeCenterZone': pool.animalDictionary[animal].getDistancePerBinSpecZone(binFrameSize=timeBinInFrame,
+                    'timeCenterZone': pool.animalDictionary[animal].getTimePerBinSpecZone(binFrameSize=timeBinInFrame,
                                                                                        minFrame=minFrame,
                                                                                        maxFrame=maxFrame,
                                                                                        xa=centerCageCoordinates['xa'],
@@ -511,8 +525,8 @@ if __name__ == '__main__':
 
     # save data into a json file
     jsonFile = json.dumps(resultsCenterZoneHabituation, indent=4)
-    with open(f"ip8387_morphine_distanceCenterZonePerTimeBin5min_session5.json", "w") as outputFile:
+    with open(f"ip8387_morphine_resultsCenterZonePerTimeBin5min_session1.json", "w") as outputFile:
         outputFile.write(jsonFile)
 
     # save data into an excel file
-    convertResultsToExcelFile(resultsCenterZoneHabituation, 'ip8387_morphine_distanceCenterZonePerTimeBin5min_session5')
+    convertResultsToExcelFile(resultsCenterZoneHabituation, 'ip8387_morphine_resultsCenterZonePerTimeBin5min_session1')
