@@ -200,6 +200,7 @@ if __name__ == '__main__':
 
     # Data from HMGU
     files = getFilesToProcess()
+    reorganizedResults = exportResultsSortedBy(files, filterList)
 
     meanAndSEM = {}
     timeLine = []
