@@ -136,3 +136,13 @@ class AnimalPoolToolkit(AnimalPool):
             sexes[animal.sex] = True
 
         return sexes.keys()
+
+
+    def getTreatmentList(self):
+        treatments = {}
+
+        for k in self.animalDictionary:
+            animal = self.animalDictionary[k]
+            treatments[animal.treatment] = True
+
+        return treatments.keys()
