@@ -43,7 +43,7 @@ from lmtanalysis.FileUtil import *
 from Parameters import getAnimalTypeParameters
 from ZoneArena import getZoneCoordinatesFromCornerCoordinatesOpenfieldArea, getSmallerZoneFromCornerCoordinatesAndMargin, getSmallerZoneFromGivenWholeCageCoordinatesAndMargin
 from Openfield.ComputeOpenfield import computeOpenfield
-from ComputeDyadic import computeProfilePairFromPause
+from ComputeDyadic import computeProfilePair
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -66,14 +66,18 @@ def exportReorganizedResultsAsTable(reorganizedResults, typeData):
                         for sex in reorganizedResults["habituationPhase"][experiment][variable]:
                             for genotype in reorganizedResults["habituationPhase"][experiment][variable][sex]:
                                 if len(reorganizedResults["habituationPhase"][experiment][variable][sex][genotype]) > 0:
-                                    for animal in reorganizedResults["habituationPhase"][experiment][variable][sex][genotype]:
-                                        if animal not in tempDict:
-                                            tempDict[animal] = {
-                                                'Mouse label': animal,
-                                                'Genotype': genotype,
-                                                'Gender': sex
-                                            }
-                                        tempDict[animal][variable] = reorganizedResults["habituationPhase"][experiment][variable][sex][genotype][animal]
+                                    for treatment in reorganizedResults["habituationPhase"][experiment][variable][sex][genotype]:
+                                        if len(reorganizedResults["habituationPhase"][experiment][variable][sex][
+                                                   genotype][treatment]) > 0:
+                                            for animal in reorganizedResults["habituationPhase"][experiment][variable][sex][genotype][treatment]:
+                                                if animal not in tempDict:
+                                                    tempDict[animal] = {
+                                                        'Mouse label': animal,
+                                                        'Genotype': genotype,
+                                                        'Sex': sex,
+                                                        'Treatment': treatment
+                                                    }
+                                                tempDict[animal][variable] = reorganizedResults["habituationPhase"][experiment][variable][sex][genotype][treatment][animal]
 
         if typeData == "socialPhase":
             tempDict = {}
@@ -100,12 +104,13 @@ def exportReorganizedResultsAsTable(reorganizedResults, typeData):
 
 
 class DyadicExperiment:
-    def __init__(self, file, tStartHabituationPhase=0, durationHabituationPhase=15, durationSocialPhase=25, getTrajectory = False):
+    def __init__(self, file, tStartHabituationPhase=0, durationHabituationPhase=15, tStartSocialPhase=0, durationSocialPhase=25, getTrajectory = False):
         '''
         :param file: path of the experiment file
         :param animalType: the animalType to get animalType's parameters
         :param tStartHabituationPhase: the first frame of the habituation phase
-        :param durationHabituationPhase: the last frame of the habituation phase
+        :param durationHabituationPhase: duration in minutes of the habituation phase
+        :param tStartSocialPhase: the first frame of the social phase, could be "after pause"
         :param durationSocialPhase: duration in minutes of the social phase
         :param getTrajectory: if True, get the trajectory of the animal during the habituation phase
         '''
@@ -117,6 +122,7 @@ class DyadicExperiment:
         self.tStartFrameHabituationPhase = tStartHabituationPhase   # framenumber
         self.durationHabituationPhase = durationHabituationPhase*oneMinute  # duration in number of frame
         self.tStopFrameHabituationPhase = self.tStartFrameHabituationPhase+self.durationHabituationPhase    # convert in framenumber
+        self.tStartSocialPhase = tStartSocialPhase
         self.durationSocialPhase = durationSocialPhase*oneMinute    # duration in number of frame
         self.getTrajectory = getTrajectory
 
@@ -234,7 +240,7 @@ class DyadicExperiment:
         Computing from the last frame +1 with a pause event to tmax (last frame +1 + tmax)
         extract animals information for metadata
         '''
-        self.dataSocial = computeProfilePairFromPause(self.file, self.durationSocialPhase, self.behaviouralEventOneMouseSingle, self.behaviouralEventOneMouseSocial)
+        self.dataSocial = computeProfilePair(self.file, self.durationSocialPhase, self.behaviouralEventOneMouseSingle, self.behaviouralEventOneMouseSocial, self.tStartSocialPhase)
 
         # extract animals information for metadata
         for animal in self.dataSocial:
@@ -247,6 +253,7 @@ class DyadicExperiment:
                 self.animals[animal]['age'] = self.dataSocial[animal]['age']
                 self.animals[animal]['strain'] = self.dataSocial[animal]['strain']
                 self.animals[animal]['group'] = self.dataSocial[animal]['group']
+                self.animals[animal]['treatment'] = self.dataSocial[animal]['treatment']
 
         return self.dataSocial
 
@@ -507,23 +514,27 @@ def setAnimalType( aType ):
     global animalType
     animalType = aType
 
-### for test
-## single experiment
-# setAnimalType(AnimalType.MOUSE)
 
 
-# xp = DyadicExperiment(file, getTrajectory=True)
-# dataHabituation = xp.computeDyadicHabituationPhase()
-# dataSocial = xp.computeDyadicSocialPhase()
-# dataManip = xp.computeWholeDyadicExperiment()
+if __name__ == '__main__':
 
-## experiment pool test
-# experimentPool = DyadicExperimentPool()
-# experimentPool.addDyadicExperimentWithDialog()
-# experimentPool.setCenterCageCoordinatesExperimentPool(10)
-# experimentPool.computeDyadicBatch()
-# experimentPool.organizeResults()
-# experimentPool.exportReorganizedResultsAsTable("nameTableFile")
-# experimentPool.exportReorganizedResultsToJsonFile("nameJsonFile")
+    ### for test
+    ## single experiment
+    setAnimalType(AnimalType.MOUSE)
+
+
+    # xp = DyadicExperiment(file, getTrajectory=True)
+    # dataHabituation = xp.computeDyadicHabituationPhase()
+    # dataSocial = xp.computeDyadicSocialPhase()
+    # dataManip = xp.computeWholeDyadicExperiment()
+
+    ## experiment pool test
+    experimentPool = DyadicExperimentPool()
+    experimentPool.addDyadicExperimentWithDialog()
+    experimentPool.setCenterCageCoordinatesExperimentPool(10)
+    experimentPool.computeDyadicBatch()
+    experimentPool.organizeResults()
+    experimentPool.exportReorganizedResultsAsTable("test")
+    experimentPool.exportReorganizedResultsToJsonFile("test")
 
 

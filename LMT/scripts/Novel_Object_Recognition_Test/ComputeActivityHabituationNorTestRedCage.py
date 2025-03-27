@@ -6,7 +6,7 @@
 
 from scripts.Novel_Object_Recognition_Test.ConfigurationNOR import getColorSetup,\
     getColorGeno
-from scripts.Rebuild_All_Event import *
+from scripts.Rebuild_All_Events import *
 import numpy as np; np.random.seed(0)
 from lmtanalysis.Animal import *
 from lmtanalysis.Util import *

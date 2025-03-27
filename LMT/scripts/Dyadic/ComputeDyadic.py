@@ -12,7 +12,12 @@ from EventTimeLineCache import EventTimeLineCached
 from lmtanalysis.Util import getStartTestPhase
 
 
-def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSingle, behaviouralEventListSocial):
+def computeProfilePair(file,  experimentDuration, behaviouralEventListSingle, behaviouralEventListSocial, startPeriod=0):
+    '''
+    :param file: yhe file to compute
+    :param startPeriod: start period of analysis, could be 'after pause' or the framenumber
+    :param experimentDuration: duration of period in frames
+    '''
     print("Start computeProfilePair")
 
     connection2 = sqlite3.connect(file)
@@ -20,7 +25,13 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
 
     pool = AnimalPoolToolkit()
     pool.loadAnimals(connection2)
-    minT = getStartTestPhase(pool)
+    if startPeriod=="after pause":
+        minT = getStartTestPhase(pool)
+    else:
+        if startPeriod is None:
+            minT = 0
+        else:
+            minT = startPeriod
     print('minT: ' + str(minT))
     maxT = minT + experimentDuration
 
@@ -36,13 +47,13 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
         rfid = pool.animalDictionary[animal].RFID
         geno = pool.animalDictionary[animal].genotype
         sexAnimal = pool.animalDictionary[animal].sex
-        # treatmentAnimal = pool.animalDictionary[animal].treatment
+        treatmentAnimal = pool.animalDictionary[animal].treatment
         ageAnimal = pool.animalDictionary[animal].age
         strainAnimal = pool.animalDictionary[animal].strain
         pair.append(rfid)
         genotype.append(geno)
         sex.append(sexAnimal)
-        # treatment.append(treatmentAnimal)
+        treatment.append(treatmentAnimal)
         age.append(ageAnimal)
         strain.append(strainAnimal)
 
@@ -55,7 +66,7 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
         sexPair = 'mixed'
     print('pair: ', pairName, genoPair, sexPair)
 
-    # treatmentPair = ('{}_{}'.format(treatment[0], treatment[1]))
+    treatmentPair = ('{}_{}'.format(treatment[0], treatment[1]))
 
     if strain[0] == strain[1]:
         strainPair = strain[0]
@@ -68,7 +79,7 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
     animalData[pairName]["file"] = file
     animalData[pairName]["animal"] = pairName
     animalData[pairName]['sex'] = sexPair
-    # animalData[pairName]['treatment'] = treatmentPair
+    animalData[pairName]['treatment'] = treatmentPair
     animalData[pairName]['age'] = agePair
     animalData[pairName]['strain'] = strainPair
     animalData[pairName]['group'] = pairName
@@ -90,6 +101,7 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
         animalData[rfid]['age'] = pool.animalDictionary[animal].age
         animalData[rfid]['strain'] = pool.animalDictionary[animal].strain
         animalData[rfid]['group'] = pairName
+        animalData[rfid]['treatment'] = pool.animalDictionary[animal].treatment
 
         # compute the profile for single behaviours
         for behavEvent in behaviouralEventListSingle:
