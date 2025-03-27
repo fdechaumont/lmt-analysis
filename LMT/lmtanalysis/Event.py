@@ -17,7 +17,7 @@ import numpy as np
 from lmtanalysis.Measure import *
 import sys
 import json
-from numpy import NaN
+from numpy import nan
 
 class Event:
     '''
