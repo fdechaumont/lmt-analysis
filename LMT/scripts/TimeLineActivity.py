@@ -453,11 +453,13 @@ if __name__ == '__main__':
             print('Extract activity data of mice during the whole experiment')
             files = getFilesToProcess()
             timeBin = int(input("Please enter the time bin in minute"))
+            dicoResult = {}
             if (files != None):
                 for file in files:
+                    name_file = file.split("\\")[1].split(".")[0]
                     try:
                         print("Processing file", file)
-                        dicoResult = extractActivityPerAnimalWholeExperiment(file, timeBin)
+                        dicoResult[name_file] = extractActivityPerAnimalWholeExperiment(file, timeBin)
                     except FileProcessException:
                         print("STOP PROCESSING FILE " + file, file=sys.stderr)
             break

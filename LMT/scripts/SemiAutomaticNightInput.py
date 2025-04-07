@@ -48,7 +48,7 @@ def insertNightEvent( file ):
     for event in nightTimeLine.eventList:
         print( event )
     print( "--------------")
-    
+
     startNight = input( "Start night frame:" )
     if not startNight.isdigit():
         print("Error on start night")
@@ -59,9 +59,9 @@ def insertNightEvent( file ):
     numberOfNight = input( "Number of night:" )
     if not numberOfNight.isdigit():
         print("Error on number of night")
-        
+
     lightDuration = 24*oneHour-int(nightDuration)
-    
+
     for i in range(0,int(numberOfNight)):
         startFollowingNight = startNight+ i*int(nightDuration) + i*int(lightDuration)
         endFollowingNight = startNight + i*int(lightDuration) + (i+1)*int(nightDuration)

@@ -253,7 +253,8 @@ mutantGeno = 'Del/+'
 
 colorSap = {'WT': 'dodgerblue', mutantGeno: 'darkorange', '1': 'dodgerblue', '2': 'red'}
 
-sexList = ['male', 'female']
+# sexList = ['male', 'female']
+sexList = ['M', 'F']
 #sexList = ['female']
 #genoList = ['WT', 'Del/+']
 genoList = ['WT', mutantGeno]
@@ -265,10 +266,15 @@ markerList = {'1': 'o', '2': 'v', '2i': 'v', '2s': 'o'} #for the setups
 markerListConfig = {'config1': 'o', 'config2': 'v'} #for the setups
 markerListSex = {'male': 'v', 'female': 'o'}
 
-xPos = {'male': {setupList[0]: 1.5, setupList[1]: 4.5},
-        'female': {'1': 1.5, '2': 4.5}}
-xPosConfig = {'male': {'config1': 1.5, 'config2': 4.5},
-        'female': {'config1': 7.5, 'config2': 10.5}}
+# xPos = {'male': {setupList[0]: 1.5, setupList[1]: 4.5},
+#         'female': {'1': 1.5, '2': 4.5}}
+# xPosConfig = {'male': {'config1': 1.5, 'config2': 4.5},
+#         'female': {'config1': 7.5, 'config2': 10.5}}
+
+xPos = {'M': {setupList[0]: 1.5, setupList[1]: 4.5},
+        'F': {'1': 1.5, '2': 4.5}}
+xPosConfig = {'M': {'config1': 1.5, 'config2': 4.5},
+        'F': {'config1': 7.5, 'config2': 10.5}}
 
 #VIBRISSAE = 3 #estimated size of the vibrissae to determine the contact zone with the object
 timeBin = 1 * oneMinute

@@ -53,6 +53,7 @@ def computeOpenfield(file, centerCageCoordinates, wholeCageCoordinatesWithoutBor
     pool.loadAnimals(connection)
     genoList = pool.getGenotypeList()
     sexesList = pool.getSexList()
+    treatmentsList = pool.getTreatmentList()
 
     for val in variableList:
         data[val] = {}
@@ -60,6 +61,8 @@ def computeOpenfield(file, centerCageCoordinates, wholeCageCoordinatesWithoutBor
             data[val][sex] = {}
             for geno in genoList:
                 data[val][sex][geno] = {}
+                for treatment in treatmentsList:
+                    data[val][sex][geno][treatment] = {}
 
     data['trajectory'] = {}
 
@@ -68,7 +71,10 @@ def computeOpenfield(file, centerCageCoordinates, wholeCageCoordinatesWithoutBor
     sex = animal.sex
     geno = animal.genotype
     rfid = animal.RFID
-    setup = animal.setup
+    treatment = animal.treatment
+    # strain = animal.strain
+    # age = animal.age
+    # setup = animal.setup
     if getTrajectory:
         trajectory = animal.getTrajectory()
     else:
@@ -93,12 +99,12 @@ def computeOpenfield(file, centerCageCoordinates, wholeCageCoordinatesWithoutBor
     sap1 = len(animal.getSap(tmin=tmin, tmax=tmax, xa=wholeCageCoordinatesWithoutBorder['xa'], xb=wholeCageCoordinatesWithoutBorder['xb'],
                              ya=wholeCageCoordinatesWithoutBorder['ya'], yb=wholeCageCoordinatesWithoutBorder['yb']))
     # fill the data dictionary with the computed data for each file:
-    data['totDistance'][sex][geno][rfid] = dt1 / 100
+    data['totDistance'][sex][geno][treatment][rfid] = dt1 / 100
     # convert distance from cm to meter
-    data['distancePerBin'][sex][geno][rfid] = [distanceBin / 100 for distanceBin in dBin]
-    data['centerDistance'][sex][geno][rfid] = d1 / 100
-    data['centerTime'][sex][geno][rfid] = t1 / 30
-    data['nbSap'][sex][geno][rfid] = sap1
+    data['distancePerBin'][sex][geno][treatment][rfid] = [distanceBin / 100 for distanceBin in dBin]
+    data['centerDistance'][sex][geno][treatment][rfid] = d1 / 100
+    data['centerTime'][sex][geno][treatment][rfid] = t1 / 30
+    data['nbSap'][sex][geno][treatment][rfid] = sap1
 
     # get the number and time of rearing
     rearTotalTimeLine = EventTimeLine(connection, "Rear isolated", minFrame=tmin, maxFrame=tmax,
@@ -108,12 +114,12 @@ def computeOpenfield(file, centerCageCoordinates, wholeCageCoordinatesWithoutBor
     rearPeripheryTimeLine = EventTimeLine(connection, "Rear at periphery", minFrame=tmin, maxFrame=tmax,
                                           loadEventIndependently=True)
 
-    data['rearTotal Nb'][sex][geno][rfid] = rearTotalTimeLine.getNbEvent()
-    data['rearTotal Duration'][sex][geno][rfid] = rearTotalTimeLine.getTotalLength() / 30
-    data['rearCenter Nb'][sex][geno][rfid] = rearCenterTimeLine.getNbEvent()
-    data['rearCenter Duration'][sex][geno][rfid] = rearCenterTimeLine.getTotalLength() / 30
-    data['rearPeriphery Nb'][sex][geno][rfid] = rearPeripheryTimeLine.getNbEvent()
-    data['rearPeriphery Duration'][sex][geno][rfid] = rearPeripheryTimeLine.getTotalLength() / 30
+    data['rearTotal Nb'][sex][geno][treatment][rfid] = rearTotalTimeLine.getNbEvent()
+    data['rearTotal Duration'][sex][geno][treatment][rfid] = rearTotalTimeLine.getTotalLength() / 30
+    data['rearCenter Nb'][sex][geno][treatment][rfid] = rearCenterTimeLine.getNbEvent()
+    data['rearCenter Duration'][sex][geno][treatment][rfid] = rearCenterTimeLine.getTotalLength() / 30
+    data['rearPeriphery Nb'][sex][geno][treatment][rfid] = rearPeripheryTimeLine.getNbEvent()
+    data['rearPeriphery Duration'][sex][geno][treatment][rfid] = rearPeripheryTimeLine.getTotalLength() / 30
 
     connection.close()
 
