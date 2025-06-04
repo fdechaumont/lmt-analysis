@@ -534,7 +534,7 @@ class EventTimeLine:
         #if no event or only one event in the timeline:
         if len(eventList) <= 1:
             print('No or only one event in timeline')
-            stdIntervalLength = NaN
+            stdIntervalLength = np.nan
         else:
             #if there are events in the timeline
             endFrameEvent1 = eventList[0].endFrame 
