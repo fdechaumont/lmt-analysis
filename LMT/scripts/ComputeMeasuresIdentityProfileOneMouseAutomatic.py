@@ -875,7 +875,7 @@ def singlePlotPerEventProfileBothSexes(profileDataM, profileDataF, night, valueC
         text_file.write('{} {} {}'.format(behavEvent, valueCat, sexClass))
         text_file.write(result.summary().as_text())
         text_file.write('\n')
-        p, sign = extractPValueFromLMMResult(result=result, keyword='WT')
+        p, sign = extractPValueFromLMMResult(result=result, keyword='+')
         #add p-values on the plot
         ax.text(n, max(y) + 0.1 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=16, horizontalalignment='center', color='black', weight='bold')
         n += 1
@@ -929,7 +929,7 @@ def singlePlotPerEventProfileBothSexesPerGroup(profileDataM, profileDataF, night
     experimentType = Counter(group)
     print("Nb of experiments: ", len(experimentType))
 
-    ax.text(-1.2, max(y) + 0.5 * (max(y) - min(y)), letter, fontsize=18, horizontalalignment='center', color='black', weight='bold')
+    ax.text(-0.3, 1.05, letter, fontsize=18, horizontalalignment='center', color='black', weight='bold', transform=ax.transAxes)
     ax.set_ylim(min(y) - 0.2 * (max(y)-min(y)), max(y) + 0.4 * (max(y)-min(y)))
     bp = sns.boxplot(x=sex, y=y, hue=x, hue_order=reversed(genotypeType), ax=ax, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
@@ -980,7 +980,7 @@ def singlePlotPerEventProfileBothSexesPerGroup(profileDataM, profileDataF, night
     # Mixed model: variable to explain: value; fixed factor = genotype; random effect: group
     dataDict = {'value': y, 'sex': sex, 'genotype': x, 'group': group}
     dfDataBothSexes = pd.DataFrame(dataDict)
-    n = 0
+    n = {"male": 0.25, "female": 0.75}
     for sexClass in ['male', 'female']:
         dfData = dfDataBothSexes[dfDataBothSexes['sex'] == sexClass]
         # create model:
@@ -993,10 +993,10 @@ def singlePlotPerEventProfileBothSexesPerGroup(profileDataM, profileDataF, night
         text_file.write('{} {} {}'.format(behavEvent, valueCat, sexClass))
         text_file.write(result.summary().as_text())
         text_file.write('\n')
-        p, sign = extractPValueFromLMMResult(result=result, keyword='WT')
+        p, sign = extractPValueFromLMMResult(result=result, keyword='wt')
         #add p-values on the plot
-        ax.text(n, max(y) + 0.25 * (max(y)-min(y)), getStarsFromPvalues(p, 1), fontsize=16, horizontalalignment='center', color='black', weight='bold')
-        n += 1
+        ax.text(n[sexClass], 0.9, getStarsFromPvalues(p, 1), fontsize=16, horizontalalignment='center', color='black', weight='bold', transform=ax.transAxes)
+
         
 
 def singlePlotPerEventProfilePairBothSexes(profileDataM, profileDataF, night, valueCat, behavEvent, ax, letter, text_file, image, zoom, mode):
@@ -1934,7 +1934,8 @@ if __name__ == '__main__':
                         maxT = eventNight.endFrame
                         print("Night: ", n)
                         #Compute profile2 data and save them in a text file
-                        profileData[file][n] = computeProfile(file=file, minT=minT, maxT=maxT, behaviouralEventList=['longChase'])
+                        #profileData[file][n] = computeProfile(file=file, minT=minT, maxT=maxT, behaviouralEventList=behaviouralEventOneMouse)
+                        profileData[file][n] = computeProfile(file=file, minT=minT, maxT=maxT, behaviouralEventList=behaviouralEventOneRat)
                         
                         n+=1
                         print("Profile data saved.")
@@ -1943,7 +1944,7 @@ if __name__ == '__main__':
                     break
                 
                 # Create a json file to store the computation
-                with open( f"{head}/profile_data_{extension}_{tmin}_{tmax}_longChase.json", 'w') as fp:
+                with open( f"{head}/profile_data_{extension}_{tmin}_{tmax}.json", 'w') as fp:
                     json.dump(profileData, fp, indent=4)
                 print(extension)
                 print("json file with profile measurements created.")
@@ -2028,7 +2029,7 @@ if __name__ == '__main__':
                     profileData[file][n] = computeProfilePair(file = file, minT=minT, maxT=maxT, behaviouralEventListSingle=behaviouralEventOneMouseSingle+["Contact", "Group2", "Oral-oral Contact", "Side by side Contact", "Side by side Contact, opposite way"], behaviouralEventListSocial=behaviouralEventOneMouseSocial)
                     
                     
-                if nightComputation == "Y":
+                elif nightComputation == "Y":
                     connection = sqlite3.connect(file)
                     nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=tmin, maxFrame=tmax )
                     connection.close()
@@ -2076,7 +2077,7 @@ if __name__ == '__main__':
                 n = 0
                 # Compute profile2 data
                 profileData[file][n] = computeProfilePairFromPause(file=file, experimentDuration=experimentDuration,
-                                                                   behaviouralEventListSingle=behaviouralEventOneMouseSingle,
+                                                                   behaviouralEventListSingle=behaviouralEventOneMouseSingle+["Contact", "Group2", "Oral-oral Contact", "Side by side Contact", "Side by side Contact, opposite way"],
                                                                    behaviouralEventListSocial=behaviouralEventOneMouseSocial)
 
                 # Create a json file to store the computation
