@@ -572,11 +572,9 @@ class Animal():
 
     def getDistanceTo (self, t, animalB):
         '''
-        determine the distance between the focal animal and another one specified in argument at one specified time point t
+        determine the distance (pixels) between the focal animal and another one specified in argument at one specified time point t
         check before that both animals are detected at this time point
         '''
-        distanceTo = None
-
         if ( not ( t in animalB.detectionDictionary ) ):
             return None
 
@@ -589,10 +587,43 @@ class Animal():
         dist = math.hypot( self.detectionDictionary[t].massX - animalB.detectionDictionary[t].massX, self.detectionDictionary[t].massY - animalB.detectionDictionary[t].massY ) 
         if dist > self.parameters.MAX_DISTANCE_THRESHOLD:
             return None
-
+        dist *= self.parameters.scaleFactor #convert the distance in cm
         return dist
 
+    def getMeanDistanceTo (self, startFrame, endFrame, animalB):
+        '''
+        determine the distance (pixels) between the focal animal and another one specified in argument during a specific time interval
+        check before that both animals are detected at this time point
+        '''
+        distanceList = []
+        
+        for t in range( startFrame, endFrame+1 ):
+            dist = self.getDistanceTo(t, animalB) #computed in cm already
+            distanceList.append( dist )
+        
+        for position in range(len(distanceList)):
+            if distanceList[position] == None:
+                distanceList[position] = np.nan
+                
+        meanDistance = np.nanmean( distanceList)
+        
+        return meanDistance
+    
+    def getMeanDistanceToAnimalPerBin(self , binFrameSize, startFrame, endFrame, animalB ):
+        if ( endFrame==None ):
+            endFrame= self.getMaxDetectionT()
 
+        distanceList = []
+        t = startFrame
+        while ( t < endFrame ):
+            print(t)
+            distanceBin = self.getMeanDistanceTo( t , t+binFrameSize, animalB ) #computed in cm already
+            print( "Distance bin n:{} value:{}".format ( t , distanceBin ) )
+            distanceList.append( distanceBin )
+            t=t+binFrameSize
+
+        return distanceList
+    
     def getDistanceToPoint (self, t, xPoint, yPoint):
         '''
         determine the distance between the focal animal and a specific point in the arena at one specified time point t
@@ -1078,7 +1109,7 @@ class AnimalPool():
             query+="ID,RFID,NAME,GENOTYPE,AGE,SEX,STRAIN,SETUP"
         elif ( nbField == 9 ):
             query+="ID,RFID,NAME,GENOTYPE,AGE,SEX,STRAIN,SETUP,IND"
-
+            
         query += " FROM ANIMAL ORDER BY GENOTYPE"
         print ( "SQL Query: " + query )
 
