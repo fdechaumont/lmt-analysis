@@ -135,7 +135,7 @@ if __name__ == '__main__':
     for file in files:
         print( file )
         head, tail = os.path.split(file)
-        text_file_name = f"{head}/reliability_per_night_day.txt"
+        text_file_name = f"{head}/reliability_per_night_day_{tail[0:-7]}.txt"
         text_file = open ( text_file_name, "w")
         connection = sqlite3.connect( file )
         c = connection.cursor()
@@ -148,8 +148,6 @@ if __name__ == '__main__':
         rows = c.fetchall()
         for row in rows:
             endFrame = row[0]
-        print(endFrame)
-
 
         pool = AnimalPool( )
         pool.loadAnimals( connection )
