@@ -1922,7 +1922,7 @@ if __name__ == '__main__':
                     profileData[file][n] = computeProfile(file = file, minT=minT, maxT=maxT, behaviouralEventList=behaviouralEventOneMouse)
                     
 
-                if nightComputation == "Y":
+                elif nightComputation == "Y":
                     nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=tmin, maxFrame=tmax )
                     n = 1
                     #extension = tail[-24:-6]
