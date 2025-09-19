@@ -429,7 +429,7 @@ class Animal():
             distanceBin = self.getDistance( t , t+binFrameSize )
             print( "Distance bin n:{} value:{}".format ( t , distanceBin ) )
             distanceList.append( distanceBin )
-            t=t+binFrameSize
+            t=t+binFrameSize+1
 
         return distanceList
 
@@ -830,7 +830,7 @@ class Animal():
     
     def getSpeedOverTimePeriod(self, tmin, tmax):
         '''Compute the speed of the animal over a time period'''          
-        duration = tmax - tmin
+        duration = tmax - tmin + 1
         sum = 0
         speedList = []
         
