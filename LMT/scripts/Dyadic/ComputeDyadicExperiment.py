@@ -240,7 +240,8 @@ class DyadicExperiment:
         Computing from the last frame +1 with a pause event to tmax (last frame +1 + tmax)
         extract animals information for metadata
         '''
-        self.dataSocial = computeProfilePair(self.file, self.durationSocialPhase, self.behaviouralEventOneMouseSingle, self.behaviouralEventOneMouseSocial, self.tStartSocialPhase)
+        self.dataSocial = computeProfilePair(self.file, self.durationSocialPhase, self.behaviouralEventOneMouseSingle,
+                                             self.behaviouralEventOneMouseSocial, self.tStartSocialPhase, getTrajectory=self.getTrajectory)
 
         # extract animals information for metadata
         for animal in self.dataSocial:
@@ -267,11 +268,29 @@ class DyadicExperiment:
             if self.dataHabituation['trajectory'][animal] != "No trajectory":
                 frames, coordinates = zip(*self.dataHabituation['trajectory'][animal].items())
                 x, y = zip(*coordinates)
-                plt.plot(x, y)
+                plt.plot(x, y, label=animal)
                 plt.title(f"{animal} trajectory - habituation phase")
+                plt.legend()
+                plt.savefig(f"{animal} trajectory - habituation phase.pdf", format='pdf')
                 plt.show()
             else:
                 print("No trajectory")
+
+
+    def plotTrajectorySocialPhase(self):
+        if self.getTrajectory:
+            for animal in self.dataSocial:
+                if not '_' in animal:
+                    if self.dataSocial[animal]['trajectory'] != "No trajectory":
+                        frames, coordinates = zip(*self.dataSocial[animal]['trajectory'].items())
+                        x, y = zip(*coordinates)
+                        plt.plot(x, y, label=animal)
+                    else:
+                        print(f"No trajectory for animal {animal}")
+            plt.title(f"Trajectory - social phase")
+            plt.legend()
+            plt.savefig("Trajectory - social phase.pdf", format='pdf')
+            plt.show()
 
     def getAllResults(self):
         return {'metadata': self.getMetadata(), 'dataHabituation': self.dataHabituation, 'dataSocial': self.dataSocial}
@@ -522,19 +541,21 @@ if __name__ == '__main__':
     ## single experiment
     setAnimalType(AnimalType.MOUSE)
 
-
-    # xp = DyadicExperiment(file, getTrajectory=True)
-    # dataHabituation = xp.computeDyadicHabituationPhase()
-    # dataSocial = xp.computeDyadicSocialPhase()
-    # dataManip = xp.computeWholeDyadicExperiment()
+    # files = getFilesToProcess()
+    #
+    # for file in files:
+    #     xp = DyadicExperiment(file, getTrajectory=True)
+    #     dataHabituation = xp.computeDyadicHabituationPhase()
+    #     dataSocial = xp.computeDyadicSocialPhase()
+    #     dataManip = xp.computeWholeDyadicExperiment()
 
     ## experiment pool test
-    experimentPool = DyadicExperimentPool()
-    experimentPool.addDyadicExperimentWithDialog()
-    experimentPool.setCenterCageCoordinatesExperimentPool(10)
-    experimentPool.computeDyadicBatch()
-    experimentPool.organizeResults()
-    experimentPool.exportReorganizedResultsAsTable("test")
-    experimentPool.exportReorganizedResultsToJsonFile("test")
+    # experimentPool = DyadicExperimentPool()
+    # experimentPool.addDyadicExperimentWithDialog()
+    # experimentPool.setCenterCageCoordinatesExperimentPool(10)
+    # experimentPool.computeDyadicBatch()
+    # experimentPool.organizeResults()
+    # experimentPool.exportReorganizedResultsAsTable("test")
+    # experimentPool.exportReorganizedResultsToJsonFile("test")
 
 

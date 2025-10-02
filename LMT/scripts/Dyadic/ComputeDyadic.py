@@ -12,7 +12,7 @@ from EventTimeLineCache import EventTimeLineCached
 from lmtanalysis.Util import getStartTestPhase
 
 
-def computeProfilePair(file,  experimentDuration, behaviouralEventListSingle, behaviouralEventListSocial, startPeriod=0):
+def computeProfilePair(file,  experimentDuration, behaviouralEventListSingle, behaviouralEventListSocial, startPeriod=0, getTrajectory=False):
     '''
     :param file: yhe file to compute
     :param startPeriod: start period of analysis, could be 'after pause' or the framenumber
@@ -103,6 +103,13 @@ def computeProfilePair(file,  experimentDuration, behaviouralEventListSingle, be
         animalData[rfid]['group'] = pairName
         animalData[rfid]['treatment'] = pool.animalDictionary[animal].treatment
 
+        if getTrajectory:
+            animalObject.loadDetection(start=minT, end=maxT, lightLoad=True)
+            trajectory = animalObject.getTrajectory()
+        else:
+            trajectory = "No trajectory"
+        animalData[rfid]['trajectory'] = trajectory
+
         # compute the profile for single behaviours
         for behavEvent in behaviouralEventListSingle:
 
@@ -131,7 +138,8 @@ def computeProfilePair(file,  experimentDuration, behaviouralEventListSingle, be
         # compute the total distance traveled per individual
         COMPUTE_TOTAL_DISTANCE = True
         if COMPUTE_TOTAL_DISTANCE == True:
-            animalObject.loadDetection(start=minT, end=maxT, lightLoad=True)
+            if len(animalObject.detectionDictionary)==0:
+                animalObject.loadDetection(start=minT, end=maxT, lightLoad=True)
             animalData[rfid]["totalDistance"] = animalObject.getDistance(tmin=minT, tmax=maxT) / 100
         else:
             animalData[rfid]["totalDistance"] = "totalDistance"
