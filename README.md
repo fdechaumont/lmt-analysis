@@ -4,7 +4,7 @@ Live Mouse Tracker analysis
 
 # What can you do with this package ?
 
-lmt-analysis provides all the analysis tools needed to extract information from the tracking performed by [live mouse tracker](https://livemousetracker.org).
+lmt-analysis provides all the analysis tools needed to extract information from the tracking performed by [live mouse tracker / MiceCraft](https://micecraft.org/lmt).
 
 ![Alt text](/LMT/images/lmt-mice-tracking.jpg?raw=true "live mouse tracker")
 This view shows the basic output of live mouse tracker, and this package let you get the juice of it :)
