@@ -228,6 +228,32 @@ class Animal():
                 nbRemoved+=1
 
         print( "Filtering area, number of detection removed:", nbRemoved )
+    
+    def filterDetectionByDistanceToPoint(self, x1, y1, maxDistance ):
+        '''
+        filter detection in the cage ( using centimeter, starting at top left of the cage )
+        '''
+        nbRemoved = 0
+        
+        for key in sorted(self.detectionDictionary.keys()):
+            a = self.detectionDictionary.get( key )
+
+            if ( a==None):
+                continue
+
+            x = (a.massX - self.parameters.cornerCoordinatesOpenFieldArea[0][0] )* self.parameters.scaleFactor
+            y = (a.massY - self.parameters.cornerCoordinatesOpenFieldArea[0][1] )* self.parameters.scaleFactor
+
+            dist = math.sqrt( (x-x1)**2 + (y-y1)**2 )
+            #dist = math.dist( [x,x1], [y,y1] )
+            
+            if dist > maxDistance:                        
+                self.detectionDictionary.pop( key )
+                nbRemoved+=1
+
+        print( "Filtering by distance to point, number of detection removed:", nbRemoved )
+
+        
 
     def filterDetectionByEventTimeLine( self, eventTimeLineVoc ):
         '''
@@ -1211,6 +1237,11 @@ class AnimalPool():
                     
         return tDic
         
+    def getRFIDList(self):
+        rfidList = []
+        for animal in self.getAnimalList():
+            rfidList.append( animal.RFID )
+        return rfidList
 
     def loadDetection (self , start = None, end=None , lightLoad = False ):
         self.detectionStartFrame = start
@@ -1229,6 +1260,10 @@ class AnimalPool():
     def filterDetectionByArea(self, x1, y1, x2, y2 ):
         for animal in self.animalDictionary.keys():
             self.animalDictionary[animal].filterDetectionByArea( x1, y1, x2, y2 )
+            
+    def filterDetectionByDistanceToPoint( self, x, y , maxDistance ):
+        for animal in self.animalDictionary.keys():
+            self.animalDictionary[animal].filterDetectionByDistanceToPoint( x, y, maxDistance )
 
     def filterDetectionByEventTimeLine(self, eventTimeLineVoc ):
         for animal in self.animalDictionary.keys():
