@@ -277,6 +277,8 @@ class Animal():
 
         self.detectionDictionary.clear()
 
+        
+
     def getMaxDetectionT(self):
         """
         returns the timepoint of the last detection.
@@ -1243,6 +1245,28 @@ class AnimalPool():
             rfidList.append( animal.RFID )
         return rfidList
 
+
+    def getMaxDataBaseT(self):
+        """
+        returns max data base frame
+        """
+        query = "select MAX(FRAMENUMBER) FROM FRAME"
+
+        cursor = self.conn.cursor()
+        cursor.execute( query )
+
+        rows = cursor.fetchall()
+        cursor.close()
+
+        if ( len(rows)!=1 ):
+            #print ("unexpected number of row: " , str( len(rows ) ) )
+            return None
+
+        row = rows[0]
+        data = row[0]
+
+        return data
+    
     def loadDetection (self , start = None, end=None , lightLoad = False ):
         self.detectionStartFrame = start
         self.detectionEndFrame   = end
@@ -1260,6 +1284,41 @@ class AnimalPool():
     def filterDetectionByArea(self, x1, y1, x2, y2 ):
         for animal in self.animalDictionary.keys():
             self.animalDictionary[animal].filterDetectionByArea( x1, y1, x2, y2 )
+        
+    def transformDistanceCmToPixel( self, dCm , parameters=ParametersMouse() ):
+        return dCm / parameters.scaleFactor
+        
+    def transformCoordinateCmToPixel( self, xCm , yCm, parameters=ParametersMouse() ):
+        '''
+        Transforms a point in CM to detection location in pixels
+        '''        
+        '''
+        cornerCoordinatesOpenFieldArea = [
+                            (114,63),
+                            (398,63),
+                            (398,353),
+                            (114,353)
+                            ]
+        '''
+        
+        xMin = parameters.cornerCoordinatesOpenFieldArea[0][0]
+        xMax = parameters.cornerCoordinatesOpenFieldArea[1][0]
+        yMin = parameters.cornerCoordinatesOpenFieldArea[0][1]
+        yMax = parameters.cornerCoordinatesOpenFieldArea[3][1]
+        print( xMin, xMax, yMin, yMax )
+        
+        widthPixel= xMax-xMin
+        heightPixel= yMax-yMin
+        print( widthPixel, heightPixel )
+        
+        xDetection =  xMin + ( widthPixel/50.0 ) * xCm
+        yDetection =  yMin + ( heightPixel/50.0 ) * yCm
+        
+        print( xDetection , yDetection )
+        
+        #xDetection = ( xCm - parameters.cornerCoordinatesOpenFieldArea[0][0] )* parameters.scaleFactor
+        #yDetection = ( yCm - parameters.cornerCoordinatesOpenFieldArea[0][1] )* parameters.scaleFactor
+        return xDetection,yDetection
             
     def filterDetectionByDistanceToPoint( self, x, y , maxDistance ):
         for animal in self.animalDictionary.keys():
