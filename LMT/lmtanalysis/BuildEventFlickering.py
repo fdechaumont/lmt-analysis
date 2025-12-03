@@ -2,18 +2,12 @@
 Created on 25-11-2025
 @author: Xavier Mousset
 """
-from typing import Any
 import sqlite3
-from time import *
-
-from lmtanalysis.Animal import *
-from lmtanalysis.Detection import *
-from lmtanalysis.Measure import *
-import matplotlib.pyplot as plt
 import numpy as np
-from lmtanalysis.Event import *
-from lmtanalysis.Measure import *
-from lmtanalysis.Chronometer import Chronometer
+from typing import Any
+
+from lmtanalysis.Animal import AnimalPool, EventTimeLine
+from lmtanalysis.Event import deleteEventTimeLineInBase
 from lmtanalysis.TaskLogger import TaskLogger
 
 
@@ -29,16 +23,15 @@ def reBuildEvent(
     tmax : int|None = None,
     pool: AnimalPool|None = None,
     animalType: Any = None,
+    window: int = 19,
+    few_frames_default_value: bool = False,
     ):
     """
     Rebuilds the "flickering" events for all animals in the database within a
     specified time window.
 
-    Flickering is calculated on the last 30 frames if available (equal to one
-    second) and with at least 6 frames.
-    Loads animal detections, computes local velocities and global displacements
-    over a rolling window, detects "flickering" events based on movement
-    criteria. Results are stored in the database as events.
+    Flickering is calculated on 19 frames (centered window, equal to 0.6
+    second) and with at least 7 frames (0.2 second).
 
     Parameters
     ----------
@@ -54,6 +47,13 @@ def reBuildEvent(
         Optional existing AnimalPool instance (create new one if None).
     animalType : Any
         Optional animal type filter (not used).
+    window : int, optional
+        The size of the rolling window (in frames) used to compute flickering
+        events. Must be at least 7. Default is 19 (0.6 second).
+    few_frames_default_value : bool, optional
+        Define if it is a flickering or not when there are not enough frames
+        available (<7) for flickering calculation. Default is False, so not a
+        flickering event.
 
     Returns
     -------
@@ -65,61 +65,80 @@ def reBuildEvent(
         pool.loadAnimals(connection)
         pool.loadDetection(start= tmin, end= tmax)
     
-    window = 30  # window size in frames
+    if window < 7:
+        raise ValueError("Minimum window size for flickering is 7 frames.")
+    
+    half_w = window // 2
+    left_w = half_w
+    right_w = half_w
+    if window % 2 == 0:
+        right_w = right_w - 1
+    
+    data = {}
     
     for animal_key in pool.animalDictionary.keys():
-        
         eventName = "flickering"
-        print(eventName)
         
         flickeringTimeLine = EventTimeLine(
             None, eventName, animal_key, None, None, None, loadEvent= False
         )
         
         animal = pool.animalDictionary[animal_key]
-        list_frames = sorted(animal.detectionDictionary.keys())
-        if list_frames == []:
+        animal_frames = sorted(animal.detectionDictionary.keys())
+        if animal_frames == []:
             continue
         
-        result = {}
-        list_vx = [0]
-        list_vy = [0]
-        previous_f = list_frames[0]
-
-        for idx, f in enumerate(list_frames[1:]):
+        # compute speed and acceleration
+        vx = [0.]
+        vy = [0.]
+        previous_f = animal_frames[0]
+        for f in animal_frames[1:]:
             frame_gap = f - previous_f
-            
-            # compute speed
-            data = animal.detectionDictionary.get(f)
+            detected_data = animal.detectionDictionary.get(f)
             previous_data = animal.detectionDictionary.get(previous_f)
-            vx = (data.massX - previous_data.massX) / frame_gap
-            vy = (data.massY - previous_data.massY) / frame_gap
-            
-            list_vx.append(vx)
-            list_vy.append(vy)
-
+            vx.append((detected_data.massX - previous_data.massX) / frame_gap)
+            vy.append((detected_data.massY - previous_data.massY) / frame_gap)
             previous_f = f
+        
+        # detect flickering
+        result = {}
+        for idx, f in enumerate(animal_frames[left_w: -right_w], start= left_w):
             
-            if len(list_vx) < window:
+            # ensure to not take big frame gaps
+            local_lw = left_w
+            local_rw = right_w
+            frame_ref = animal_frames[idx]
+            while (
+                local_lw > 0
+                and animal_frames[idx - local_lw] < frame_ref - left_w
+                ):
+                local_lw -= 1
+            while (
+                local_rw > 0
+                and animal_frames[idx + local_rw] > frame_ref + right_w
+                ):
+                local_rw -= 1
+            
+            # minimum number of frames required
+            if local_lw + local_rw < 6:
+                if few_frames_default_value:
+                    result[f] = True
                 continue
             
-            # ensure to take only frames from the last 30 frames (1 second)
-            local_window = 0
-            for local_window in range(window, 2, -1):
-                if list_frames[idx-local_window] >= list_frames[idx]-window+1:
-                    break
+            start = idx - local_lw
+            end = idx + local_rw
+            array_vx = np.array(vx[start : end])
+            array_vy = np.array(vy[start : end])
             
-            # keep at least 6 frames to have some statistics
-            if local_window < 6:
-                continue
-            
-            array_vx = np.array(list_vx[-window:])
-            array_vy = np.array(list_vy[-window:])
-            
-            mean_speed = np.mean(array_vx**2 + array_vy**2)
-            global_displacement = np.mean(array_vx)**2 + np.mean(array_vy)**2
+            speed = array_vx**2 + array_vy**2
+            max_speed = np.max(speed)
+            mean_speed = np.mean(speed)
+            real_speed = np.mean(array_vx)**2 + np.mean(array_vy)**2
 
-            if mean_speed > 5 and mean_speed > 10*global_displacement:
+            # flickering detection criteria
+            # 70 (px/frame)² ~ 1.5 cm/frame
+            # 16 (px/frame)² ~ 0.70 cm/frame
+            if max_speed > 70 and mean_speed - real_speed > 16:
                 result[f] = True
         
         flickeringTimeLine.reBuildWithDictionary(result)
