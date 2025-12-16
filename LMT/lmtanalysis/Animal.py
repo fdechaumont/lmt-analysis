@@ -462,44 +462,96 @@ class Animal():
         return distanceList
 
 
-    def getDistance(self , tmin=0, tmax= None ):
-        '''
-        Returns the distance traveled by the animal (in cm)
-        '''
-        print("Compute total distance min:{} max:{} ".format( tmin , tmax ))
+    def getDistance(
+        self,
+        f_min : int = 0,
+        f_max : int|None = None,
+        filter_flickering : bool = False,
+        filter_stop : bool = False
+        ):
+        """
+        Returns the distance traveled by `animal` (in cm) between `f_min` and
+        `f_max`. By default, the distance is computed until the last detection of
+        the animal. This function can filters out specified events but no
+        filtering is applied by default.
 
-
-        '''
-        keyList = list( self.detectionDictionary.keys() )
-        if not alreadySorted:
-            keyList = sorted(self.detectionDictionary.keys())
-        '''
-        if ( tmax==None ):
-            tmax= self.getMaxDetectionT()
-
-        totalDistance = 0
-        for t in range( tmin , tmax ):
+        Filters
+        ----------
+        flickering : bool, optional
+            If True, filter out the frames flagged as a 'Flickering' event for the
+            distance calculation.
+        stop : bool, optional
+            If True, filter out the frames flagged as a 'Stop' event for the
+            distance calculation.
+        """
+        # keyList = list( self.detectionDictionary.keys() )
+        # if not alreadySorted:
+        #     keyList = sorted(self.detectionDictionary.keys())
+        if f_max is None:
+            f_max = self.getMaxDetectionT()
+        
+        if filter_flickering or filter_stop:
+            msg = "filtered"
+        else:
+            msg = "total"
+        print(f"Compute {msg} distance between frames {f_min} and {f_max}")
+        
+        flicker_frames = {}
+        if filter_flickering:
+            flicker_frames = EventTimeLine(
+                conn= self.conn,
+                eventName= "Flickering",
+                idA= self.baseId
+            ).getDictionary()
+        
+        stop_frames = {}
+        if filter_stop:
+            stop_frames = EventTimeLine(
+                conn= self.conn,
+                eventName= "Stop",
+                idA= self.baseId
+            ).getDictionary()
+            
+        
         #for key in keyList:
-            '''
-            if ( key <= tmin or key >= tmax ):
+            # if ( key <= tmin or key >= tmax ):
+            #     continue
+        
+        skip_next = False
+        distance = 0
+        current_pos = self.detectionDictionary.get(f_min)
+        for f in range(f_min + 1, f_max):
+            
+            previous_pos = current_pos
+            current_pos = self.detectionDictionary.get(f)
+
+            if current_pos is None or previous_pos is None:
                 continue
-            '''
-
-            a = self.detectionDictionary.get( t )
-            b = self.detectionDictionary.get( t+1 )
-
-            if b==None or a==None:
+            
+            if f in flicker_frames:
+                skip_next = True
                 continue
-            distance = math.hypot( a.massX - b.massX, a.massY - b.massY )
-            #print('distance: ', distance)
-            if ( distance >85.5): #if the distance calculated between two frames is too large, discard
+            
+            if f in stop_frames:
+                skip_next = True
+                continue
+            
+            if skip_next:
+                skip_next = False
+                continue
+            
+            iter_dist = math.hypot(
+                current_pos.massX - previous_pos.massX,
+                current_pos.massY - previous_pos.massY
+            )
+            
+            # discard if distance between 2 frames is too large or too small
+            if iter_dist > 85.5:
                 continue
 
-            totalDistance += distance
+            distance += iter_dist
 
-        totalDistance *= self.parameters.scaleFactor
-
-        return totalDistance
+        return distance*self.parameters.scaleFactor
 
 
     def getOrientationVector(self, t):
