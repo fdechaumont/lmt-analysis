@@ -478,7 +478,7 @@ class Animal():
         Filters
         ----------
         flickering : bool, optional
-            If True, filter out the frames flagged as a 'flickering' event for the
+            If True, filter out the frames flagged as a 'Flickering' event for the
             distance calculation.
         stop : bool, optional
             If True, filter out the frames flagged as a 'Stop' event for the
@@ -500,7 +500,7 @@ class Animal():
         if filter_flickering:
             flicker_frames = EventTimeLine(
                 conn= self.conn,
-                eventName= "flickering",
+                eventName= "Flickering",
                 idA= self.baseId
             ).getDictionary()
         
