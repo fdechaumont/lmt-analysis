@@ -478,11 +478,11 @@ class Animal():
         Filters
         ----------
         flickering : bool, optional
-            If True, filter out the frames flagged as a 'Flickering' event for the
-            distance calculation.
+            If True, filter out if both frames are flagged as a 'Flickering'
+            event for the distance calculation.
         stop : bool, optional
-            If True, filter out the frames flagged as a 'Stop' event for the
-            distance calculation.
+            If True, filter out if both frames are flagged as a 'Stop' event
+            for the distance calculation.
         """
         # keyList = list( self.detectionDictionary.keys() )
         # if not alreadySorted:
@@ -519,25 +519,19 @@ class Animal():
         
         skip_next = False
         distance = 0
-        current_pos = self.detectionDictionary.get(f_min)
-        for f in range(f_min + 1, f_max):
+        for f in range(f_min + 1, f_max + 1):
             
-            previous_pos = current_pos
-            current_pos = self.detectionDictionary.get(f)
-
-            if current_pos is None or previous_pos is None:
-                continue
-            
-            if f in flicker_frames:
+            if f in flicker_frames or f in stop_frames:
+                if skip_next:
+                    continue
                 skip_next = True
-                continue
-            
-            if f in stop_frames:
-                skip_next = True
-                continue
-            
-            if skip_next:
+            else:
                 skip_next = False
+            
+            previous_pos = self.detectionDictionary.get(f-1)
+            current_pos = self.detectionDictionary.get(f)
+            
+            if current_pos is None or previous_pos is None:
                 continue
             
             iter_dist = math.hypot(
