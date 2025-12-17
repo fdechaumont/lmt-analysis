@@ -542,7 +542,7 @@ class Animal():
         distanceList : List[float] = []
         t = minFrame
         while t < maxFrame:
-            distanceBin = self._distance(t, t+binFrameSize, filters_frames)
+            distanceBin = self._getDistance(t, t+binFrameSize, filters_frames)
             distanceList.append(distanceBin)
             t += binFrameSize + 1
         
@@ -599,7 +599,7 @@ class Animal():
         
         filters_frames = flicker_frames|stop_frames
         
-        return self._distance(tmin, tmax, filters_frames)
+        return self._getDistance(tmin, tmax, filters_frames)
 
 
     def getOrientationVector(self, t):
