@@ -2,7 +2,7 @@
 Created on 7 sept. 2017
 @author: Fab
 '''
-
+from typing import Dict, List
 from lmtanalysis.Detection import *
 
 #matplotlib fix for mac (uncomment if needed)
@@ -445,20 +445,107 @@ class Animal():
         ax.legend()
 
         plt.show()
+    
+    
+    def _getDistance(
+        self,
+        tmin : int,
+        tmax : int,
+        filters_frames : Dict = {},
+        ):
+        """Internal function to compute distance traveled by `animal` (in cm)
+        between `tmin` and `tmax`, applying specified filters.
+        """
+        distance = 0
+        skip_next = False
+        for t in range(tmin+1, tmax+1):
+            
+            if t in filters_frames:
+                if skip_next:
+                    continue
+                skip_next = True
+            else:
+                skip_next = False
+            
+            previous_pos = self.detectionDictionary.get(t-1)
+            current_pos = self.detectionDictionary.get(t)
+            
+            if current_pos is None or previous_pos is None:
+                continue
+            
+            iter_dist = math.hypot(
+                current_pos.massX - previous_pos.massX,
+                current_pos.massY - previous_pos.massY
+            )
+            
+            # discard if distance between 2 frames is too large or too small
+            # 85.5 pixels = 15.0 cm
+            if iter_dist > 85.5:
+                continue
 
-
-    def getDistancePerBin(self , binFrameSize , minFrame=0, maxFrame=None ):
-        if ( maxFrame==None ):
-            maxFrame= self.getMaxDetectionT()
-
-        distanceList = []
+            distance += iter_dist
+        
+        return distance*self.parameters.scaleFactor
+    
+    
+    def getDistancePerBin(
+        self,
+        binFrameSize : int,
+        minFrame: int = 0,
+        maxFrame: int|None = None,
+        filter_flickering : bool = False,
+        filter_stop : bool = False
+        ):
+        """
+        Returns a list of distances traveled by `animal` (in cm) per bin of
+        `binFrameSize` frames, between `minFrame` and `maxFrame`. By default,
+        the distance is computed until the last detection of the animal. This
+        function can filters out specified events but no filtering is applied
+        by default.
+        
+        Parameters
+        ----------
+        filter_flickering : bool, optional
+            If True, filter out the distance calculation when successive frames
+            are both flagged as a 'Flickering' event.
+        filter_stop : bool, optional
+            If True, filter out the distance calculation when successive frames
+            are both flagged as a 'Stop' event.
+        """
+        if maxFrame is None:
+            maxFrame = self.getMaxDetectionT()
+        
+        if filter_flickering or filter_stop:
+            msg = "filtered"
+        else:
+            msg = "total"
+        print(f"Compute {msg} distance between frames {minFrame} and {maxFrame}")
+        
+        flicker_frames = {}
+        if filter_flickering:
+            flicker_frames = EventTimeLine(
+                conn= self.conn,
+                eventName= "Flickering",
+                idA= self.baseId
+            ).getDictionary()
+        
+        stop_frames = {}
+        if filter_stop:
+            stop_frames = EventTimeLine(
+                conn= self.conn,
+                eventName= "Stop",
+                idA= self.baseId
+            ).getDictionary()
+        
+        filters_frames = flicker_frames|stop_frames
+        
+        distanceList : List[float] = []
         t = minFrame
-        while ( t < maxFrame ):
-            distanceBin = self.getDistance( t , t+binFrameSize )
-            print( "Distance bin n:{} value:{}".format ( t , distanceBin ) )
-            distanceList.append( distanceBin )
-            t=t+binFrameSize+1
-
+        while t < maxFrame:
+            distanceBin = self._distance(t, t+binFrameSize, filters_frames)
+            distanceList.append(distanceBin)
+            t += binFrameSize + 1
+        
         return distanceList
 
 
@@ -467,7 +554,8 @@ class Animal():
         tmin : int = 0,
         tmax : int|None = None,
         filter_flickering : bool = False,
-        filter_stop : bool = False
+        filter_stop : bool = False,
+        _bins = None
         ):
         """
         Returns the distance traveled by `animal` (in cm) between `tmin` and
@@ -475,18 +563,15 @@ class Animal():
         of the animal. This function can filters out specified events but no
         filtering is applied by default.
 
-        Filters
+        Parameters
         ----------
-        flickering : bool, optional
-            If True, filter out if both frames are flagged as a 'Flickering'
-            event for the distance calculation.
-        stop : bool, optional
-            If True, filter out if both frames are flagged as a 'Stop' event
-            for the distance calculation.
+        filter_flickering : bool, optional
+            If True, filter out the distance calculation when successive frames
+            are both flagged as a 'Flickering' event.
+        filter_stop : bool, optional
+            If True, filter out the distance calculation when successive frames
+            are both flagged as a 'Stop' event.
         """
-        # keyList = list( self.detectionDictionary.keys() )
-        # if not alreadySorted:
-        #     keyList = sorted(self.detectionDictionary.keys())
         if tmax is None:
             tmax = self.getMaxDetectionT()
         
@@ -511,42 +596,10 @@ class Animal():
                 eventName= "Stop",
                 idA= self.baseId
             ).getDictionary()
-            
         
-        #for key in keyList:
-            # if ( key <= tmin or key >= tmax ):
-            #     continue
+        filters_frames = flicker_frames|stop_frames
         
-        skip_next = False
-        distance = 0
-        for f in range(tmin+1, tmax+1):
-            
-            if f in flicker_frames or f in stop_frames:
-                if skip_next:
-                    continue
-                skip_next = True
-            else:
-                skip_next = False
-            
-            previous_pos = self.detectionDictionary.get(f-1)
-            current_pos = self.detectionDictionary.get(f)
-            
-            if current_pos is None or previous_pos is None:
-                continue
-            
-            iter_dist = math.hypot(
-                current_pos.massX - previous_pos.massX,
-                current_pos.massY - previous_pos.massY
-            )
-            
-            # discard if distance between 2 frames is too large or too small
-            # 85.5 pixels = 15.0 cm
-            if iter_dist > 85.5:
-                continue
-
-            distance += iter_dist
-
-        return distance*self.parameters.scaleFactor
+        return self._distance(tmin, tmax, filters_frames)
 
 
     def getOrientationVector(self, t):
