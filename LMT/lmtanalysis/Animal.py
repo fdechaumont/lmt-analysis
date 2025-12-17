@@ -464,15 +464,15 @@ class Animal():
 
     def getDistance(
         self,
-        f_min : int = 0,
-        f_max : int|None = None,
+        tmin : int = 0,
+        tmax : int|None = None,
         filter_flickering : bool = False,
         filter_stop : bool = False
         ):
         """
-        Returns the distance traveled by `animal` (in cm) between `f_min` and
-        `f_max`. By default, the distance is computed until the last detection of
-        the animal. This function can filters out specified events but no
+        Returns the distance traveled by `animal` (in cm) between `tmin` and
+        `tmax`. By default, the distance is computed until the last detection
+        of the animal. This function can filters out specified events but no
         filtering is applied by default.
 
         Filters
@@ -487,14 +487,14 @@ class Animal():
         # keyList = list( self.detectionDictionary.keys() )
         # if not alreadySorted:
         #     keyList = sorted(self.detectionDictionary.keys())
-        if f_max is None:
-            f_max = self.getMaxDetectionT()
+        if tmax is None:
+            tmax = self.getMaxDetectionT()
         
         if filter_flickering or filter_stop:
             msg = "filtered"
         else:
             msg = "total"
-        print(f"Compute {msg} distance between frames {f_min} and {f_max}")
+        print(f"Compute {msg} distance between frames {tmin} and {tmax}")
         
         flicker_frames = {}
         if filter_flickering:
@@ -519,7 +519,7 @@ class Animal():
         
         skip_next = False
         distance = 0
-        for f in range(f_min + 1, f_max + 1):
+        for f in range(tmin+1, tmax+1):
             
             if f in flicker_frames or f in stop_frames:
                 if skip_next:
@@ -540,6 +540,7 @@ class Animal():
             )
             
             # discard if distance between 2 frames is too large or too small
+            # 85.5 pixels = 15.0 cm
             if iter_dist > 85.5:
                 continue
 
