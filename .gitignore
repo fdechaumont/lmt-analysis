@@ -123,7 +123,3 @@ LMT/scripts/paire new.txt
 *.txt
 *.png
 *.jpg
-
-# Xavier MD test files
-test.*
-*.sqlite
