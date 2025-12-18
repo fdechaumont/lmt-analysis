@@ -458,7 +458,7 @@ class Animal():
         """
         distance = 0
         skip_next = False
-        for t in range(tmin+1, tmax+1):
+        for t in range(tmin+1, tmax):
             
             if t in filters_frames:
                 if skip_next:
@@ -544,7 +544,7 @@ class Animal():
         while t < maxFrame:
             distanceBin = self._getDistance(t, t+binFrameSize, filters_frames)
             distanceList.append(distanceBin)
-            t += binFrameSize + 1
+            t += binFrameSize
         
         return distanceList
 
