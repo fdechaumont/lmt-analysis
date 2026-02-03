@@ -747,6 +747,6 @@ if __name__ == '__main__':
     experimentPoolFromTimeBeforeNight.setTreatmentList()
     filterList = ["treatment", "sex"]
     experimentPoolFromTimeBeforeNight.exportResultsSortedBy(filterList)
-    experimentPoolFromTimeBeforeNight.exportReorganizedResultsToJsonFile(nameFile="GO-DS21_all")
+    # experimentPoolFromTimeBeforeNight.exportReorganizedResultsToJsonFile(nameFile="GO-DS21_all")
 
 
