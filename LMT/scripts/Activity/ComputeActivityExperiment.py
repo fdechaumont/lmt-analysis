@@ -23,7 +23,7 @@ from Parameters import getAnimalTypeParameters
 from ZoneArena import getZoneCoordinatesFromCornerCoordinatesOpenfieldArea
 from lmtanalysis.AnimalType import AnimalType
 from Animal_LMTtoolkit import AnimalPoolToolkit
-from FileUtil import getFilesToProcess, getJsonFileToProcess
+from FileUtil import getFilesToProcess, getJsonFileToProcess, getJsonFilesToProcess
 import json
 import matplotlib.pyplot as plt
 from Event import EventTimeLine
@@ -70,6 +70,40 @@ def findFirstFrameFromTime(file, time):
         dateFromTime + timedelta(days=1)
     numberOfFramesFromStartToTime = ((dateFromTime-startDateXp).days*24*60*60+(dateFromTime-startDateXp).seconds)*30
     return numberOfFramesFromStartToTime
+
+
+def getStartFrameOfTheFirstNight(file):
+    '''
+    :param file: path of the experiment file
+    :return: the number of the first frame of the first night
+    '''
+    connection = sqlite3.connect(file)
+    cursor = connection.cursor()
+    request = 'SELECT STARTFRAME from EVENT WHERE name = "night" ORDER BY STARTFRAME LIMIT 1'
+    cursor.execute(request)
+    rows = cursor.fetchall()
+    start_night = "no night"
+    for line in rows:
+        start_night = line[0]
+    cursor.close()
+    connection.close()
+    return start_night
+
+
+def findFrameFromTimeBeforeNight(file, time:int=60):
+    '''
+    :param file: path of the experiment file
+    :param time: time in minutes
+    '''
+    time_in_frame = time*oneMinute
+    start_night = getStartFrameOfTheFirstNight(file)
+    if start_night<time_in_frame:
+        print(f"{file}: night already started")
+        return "error"
+    if start_night == "no night":
+        print(f"{file}: no night")
+        return "error"
+    return start_night - time_in_frame
 
 
 def mergeDataFromReorganizedDico(resultDict: dict, mergeDict: dict, nbOfLevel: int):
@@ -144,6 +178,7 @@ class ActivityExperiment:
         self.results = {}
         self.reorganizedResults = {}
         if ".json" in file:
+            print("loading json file")
             self.name = file.split('.json')[0].split('\\')[-1].split("/")[-1]
             # Get data from json
             with open(self.file, "r") as f:
@@ -275,19 +310,26 @@ class ActivityExperiment:
             return False
 
 
-    def computeActivityPerTimeBin(self):
+    def computeActivityPerTimeBin(self, filter_flickering=True, filter_stop=True):
         if '.sqlite' in self.file:
             activity = {}
             self.totalDistance = {}
             self.results = {}
+            connection = sqlite3.connect(self.file)
 
             print(f"maxFrame: {self.tStopFramePeriod}")
 
             for animal in self.pool.animalDictionary.keys():
+                self.pool.animalDictionary[animal].conn = connection
                 rfid = self.pool.animalDictionary[animal].RFID
                 activity[rfid] = self.pool.animalDictionary[animal].getDistancePerBin(binFrameSize=self.timebinInFrame,
-                                                                                 minFrame=self.tStartPeriod, maxFrame=self.tStopFramePeriod)
-                self.totalDistance[rfid] = self.pool.animalDictionary[animal].getDistance(tmin=self.tStartPeriod, tmax=self.tStopFramePeriod)
+                                                                                 minFrame=self.tStartPeriod, maxFrame=self.tStopFramePeriod,
+                                                                                      filter_flickering=filter_flickering, filter_stop=filter_stop)
+                self.totalDistance[rfid] = self.pool.animalDictionary[animal].getDistance(tmin=self.tStartPeriod, tmax=self.tStopFramePeriod,
+                                                                                          filter_flickering=filter_flickering, filter_stop=filter_stop)
+
+                # delete the trajectory to free up memory space
+                del self.pool.animalDictionary[animal].detectionDictionary
 
                 nTimeBins = len(activity[rfid])
                 print(nTimeBins)
@@ -302,6 +344,7 @@ class ActivityExperiment:
                     self.results[rfid][time] = distance
 
             self.getNightTimeLine()
+            connection.close()
 
             return {'totalDistance': self.totalDistance, 'results': self.results}
 
@@ -417,6 +460,7 @@ class ActivityExperimentPool:
         self.reorganizedResults = {}
         self.sexesList = []
         self.genotypeList = []
+        self.treatmentList = []
         self.startTimePeriod = startTimePeriod
         self.durationPeriod = durationPeriod
         self.timebin = timebin
@@ -429,7 +473,7 @@ class ActivityExperimentPool:
         files = getFilesToProcess()
         if (files != None):
             for file in files:
-                # create the activity experiment*
+                # create the activity experiment
                 print(file)
                 tStartPeriod = findFirstFrameFromTime(file, self.startTimePeriod)
                 experiment = ActivityExperiment(file, tStartPeriod=tStartPeriod, durationPeriod=self.durationPeriod, timebin=self.timebin)
@@ -443,16 +487,22 @@ class ActivityExperimentPool:
             experiment.setWholeCageCoordinates(wholeCageCoordinates)
 
 
-    def computeActivityBatch(self):
+    def computeActivityBatch(self, filter_flickering=True, filter_stop=True):
         '''
         Compute a batch of activity experiment
         '''
         for experiment in self.activityExperiments:
-            self.results[experiment.getName()] = experiment.computeActivityPerTimeBin()
+            self.results[experiment.getName()] = experiment.computeActivityPerTimeBin(filter_flickering=filter_flickering,
+                                                                                      filter_stop=filter_stop)
             del experiment.pool
             experiment.exportReorganizedResultsToJsonFile()
             experiment.plotActivity()
         return self.results
+
+    def OrganizeResults(self):
+        for experiment in self.activityExperiments:
+            experiment.organizeResults()
+
 
     def ExportReorganizedResultsAndPlotActivityBatch(self):
         '''
@@ -473,6 +523,30 @@ class ActivityExperimentPool:
         else:
             for experiment in self.activityExperiments:
                 self.mergedResults[experiment.getName()] = experiment.reorganizedResults
+
+
+    def setSexesList(self):
+        self.sexesList = []
+        for experiment in self.activityExperiments:
+            for animal in experiment.animals:
+                if experiment.animals[animal]['sex'] not in self.sexesList:
+                    self.sexesList.append(experiment.animals[animal]['sex'])
+
+
+    def setGenotypeList(self):
+        self.genotypeList = []
+        for experiment in self.activityExperiments:
+            for animal in experiment.animals:
+                if experiment.animals[animal]['genotype'] not in self.genotypeList:
+                    self.genotypeList.append(experiment.animals[animal]['genotype'])
+
+
+    def setTreatmentList(self):
+        self.treatmentList = []
+        for experiment in self.activityExperiments:
+            for animal in experiment.animals:
+                if experiment.animals[animal]['treatment'] not in self.treatmentList:
+                    self.treatmentList.append(experiment.animals[animal]['treatment'])
 
 
     def exportResultsSortedBy(self, filters: list):
@@ -535,26 +609,71 @@ class ActivityExperimentPoolFromStartFrame(ActivityExperimentPool):
         self.reorganizedResults = {}
         self.sexesList = []
         self.genotypeList = []
+        self.treatmentList = []
         self.startFrame = startFrame
         self.durationPeriod = (durationPeriod*oneMinute)/oneHour
         self.timebin = timebin
         self.meanResults = {}
 
+
     def addActivityExperimentWithDialog(self):
         files = getFilesToProcess()
         if (files != None):
             for file in files:
-                # create the activity experiment*
+                # create the activity experiment
+                print(file)
+                tStartPeriod = findFirstFrameFromTime(file, self.startTimePeriod)
+                experiment = ActivityExperiment(file, tStartPeriod=tStartPeriod, durationPeriod=self.durationPeriod, timebin=self.timebin)
+                self.addActivityExperiment(experiment)
+
+
+class ActivityExperimentPoolFromTimeBeforeNight(ActivityExperimentPool):
+    '''
+    Class ActivityExperimentPoolFromTimeBeforeNight derived from ActivityExperimentPool
+    This class is more appropriate to get results from a time before the first night event
+    '''
+    def __init__(self, timeBeforeNight = 60, durationPeriod=24, timebin=10):
+        '''
+        timeBeforeNight: time in minutes before the beginning of the night
+        durationPeriod: duration in hour of the period from the dateStartPeriod
+        timebin: time bin in minutes
+        '''
+        self.activityExperiments = []
+        self.results = {}
+        self.mergedResults = {}
+        self.reorganizedResultsPerIndividual = {}
+        self.reorganizedResults = {}
+        self.sexesList = []
+        self.genotypeList = []
+        self.treatmentList = []
+        self.timeBeforeNight = timeBeforeNight
+        self.durationPeriod = durationPeriod
+        self.timebin = timebin
+        self.meanResults = {}
+
+    def addActivityExperimentWithDialog(self):
+        files = getJsonFilesToProcess()
+        if (files != None):
+            for file in files:
+                # create the activity experiment
                 print(file)
                 print(f"Duration: {self.durationPeriod}")
-                if self.startFrame == "pause":
-                    connection = sqlite3.connect(file)
-                    pool = AnimalPoolToolkit()
-                    pool.loadAnimals(connection)
-                    self.startFrame = getStartTestPhase(pool)
-                    connection.close()
-                experiment = ActivityExperiment(file, tStartPeriod=self.startFrame, durationPeriod=self.durationPeriod, timebin=self.timebin)
-                self.addActivityExperiment(experiment)
+                if(".sqlite" in file):
+                    start_frame = findFrameFromTimeBeforeNight(file)
+                    if start_frame != "error":
+                        print("Create ActivityExperiment from sqlite")
+                        experiment = ActivityExperiment(file, tStartPeriod=start_frame, durationPeriod=self.durationPeriod, timebin=self.timebin)
+                        self.addActivityExperiment(experiment)
+                    else:
+                        print("Error when trying to find first frame")
+                        break
+                elif(".json" in file):
+                    print("Create ActivityExperiment from json")
+                    experiment = ActivityExperiment(file)
+                    self.addActivityExperiment(experiment)
+
+
+
 
 
 
@@ -615,5 +734,19 @@ if __name__ == '__main__':
 
 
     ### Morphine -> distance travelled in center of the arena and time spend per timebin (during habituation phase)
+
+    ## experiment test time from first night
+    experimentPoolFromTimeBeforeNight = ActivityExperimentPoolFromTimeBeforeNight(timeBeforeNight = 60, durationPeriod=62, timebin=10)
+    experimentPoolFromTimeBeforeNight.addActivityExperimentWithDialog()
+    # experimentPoolFromTimeBeforeNight.computeActivityBatch(filter_flickering=True, filter_stop=True)
+    # experimentPoolFromTimeBeforeNight.mergeResults()
+    experimentPoolFromTimeBeforeNight.OrganizeResults()
+    experimentPoolFromTimeBeforeNight.mergeResults()
+    experimentPoolFromTimeBeforeNight.setSexesList()
+    experimentPoolFromTimeBeforeNight.setGenotypeList()
+    experimentPoolFromTimeBeforeNight.setTreatmentList()
+    filterList = ["treatment", "sex"]
+    experimentPoolFromTimeBeforeNight.exportResultsSortedBy(filterList)
+    experimentPoolFromTimeBeforeNight.exportReorganizedResultsToJsonFile(nameFile="GO-DS21_all")
 
 
