@@ -1,13 +1,15 @@
 """
 @creation: 15-01-2026
-@author: Xavier MD
+@author: xmousset
 """
 
+import os
 import sys
 from pathlib import Path
 from typing import Literal
 
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QMovie
 from PyQt6.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -25,11 +27,19 @@ from PyQt6.QtWidgets import (
 
 class UserSelector(QDialog):
     def __init__(
-        self, type: Literal["file", "folder"], parent: QWidget | None = None
+        self,
+        parent: QWidget,
+        type: Literal["file", "folder"],
+        window_title: str | None = None,
     ):
         super().__init__(parent)
-        self.selected_path = None
-        self.init_ui(type)
+        if window_title is None:
+            window_title = f"Select {type.capitalize()}"
+        self.init_ui(type, window_title)
+        if type == "file":
+            self.select_sqlite_file()
+        else:
+            self.select_folder()
 
     def select_folder(self):
         folder_str = QFileDialog.getExistingDirectory(self, "Select Folder")
@@ -37,7 +47,6 @@ class UserSelector(QDialog):
             self.selected_path = Path(folder_str)
             self.selection_label.setText(self.selected_path.name)
         else:
-            self.selected_path = None
             self.selection_label.setText("<i>No folder selected</i>")
 
     def select_sqlite_file(self):
@@ -51,11 +60,10 @@ class UserSelector(QDialog):
             self.selected_path = Path(file_path)
             self.selection_label.setText(self.selected_path.name)
         else:
-            self.selected_path = None
             self.selection_label.setText("<i>No file selected</i>")
 
-    def init_ui(self, type: str):
-        self.setWindowTitle(f"Select {type.capitalize()}")
+    def init_ui(self, type: str, window_title: str):
+        self.setWindowTitle(window_title)
         self.setFixedSize(420, 170)
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(30, 25, 30, 25)
@@ -81,7 +89,7 @@ class UserSelector(QDialog):
             icon = QStyle.StandardPixmap.SP_DirIcon
             label = "<i>No folder selected</i>"
         else:
-            raise ValueError("Invalid selection type. Use 'file' or 'folder'.")
+            raise ValueError("Invalid selection type, use 'file' or 'folder'")
 
         selection_pixmap = style.standardIcon(icon).pixmap(28, 28)
         selection_icon.setPixmap(selection_pixmap)
@@ -155,7 +163,7 @@ class UserSelector(QDialog):
 
 
 class YesNoQuestion(QDialog):
-    def __init__(self, question: str, parent: QWidget | None = None):
+    def __init__(self, parent: QWidget, question: str):
         super().__init__(parent)
         self.question = question
         self.init_ui()
@@ -222,43 +230,59 @@ class YesNoQuestion(QDialog):
         self.setLayout(layout)
 
 
-def test_yes_no_question():
-    if QApplication.instance() is None:
-        raise RuntimeError("QApplication instance is required for testing.")
-    dialog = YesNoQuestion("Test: Do you agree?")
-    dialog.yes_clicked()
-    assert dialog.result() == 1, "Yes should accept the dialog (result=1)"
-    dialog = YesNoQuestion("Test: Do you agree?")
-    dialog.no_clicked()
-    assert dialog.result() == 0, "No should reject the dialog (result=0)"
-    print("test_yes_no_question passed.")
-    dialog.close()
+def get_btn_style(
+    size: int | None = None,
+    bold: bool = False,
+    txt_color: str | None = None,
+    bg_color: str | None = None,
+    border_color: str | None = None,
+    hover_txt_color: str | None = None,
+    hover_bg_color: str | None = None,
+    hover_border_color: str | None = None,
+) -> str:
 
+    # base style
+    style = "QPushButton {"
 
-def test_file_selector():
-    if QApplication.instance() is None:
-        raise RuntimeError("QApplication instance is required for testing.")
-    dialog = UserSelector("file")
-    assert dialog.selected_path is None
-    dialog.selection_label.setText("Selected file: test.sqlite")
-    print("test_file_selector passed.")
-    dialog.close()
+    if size is not None:
+        style += f"font-size: {size}px; "
 
+    if bold:
+        style += f"font-weight: bold; "
 
-def test_folder_selector():
-    if QApplication.instance() is None:
-        raise RuntimeError("QApplication instance is required for testing.")
-    dialog = UserSelector("folder")
-    assert dialog.selected_path is None
-    dialog.selection_label.setText("Selected folder: testfolder")
-    print("test_folder_selector passed.")
-    dialog.close()
+    if bg_color is None:
+        bg_color = "#333333"
+    style += f"background-color: {bg_color}; "
 
+    if txt_color is None:
+        txt_color = "#f0f0f0"
+    style += f"color: {txt_color}; "
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    test_yes_no_question()
-    test_file_selector()
-    test_folder_selector()
-    print("All automatic tests passed.")
-    app.quit()
+    if border_color is not None:
+        border_color = "#f0f0f0"
+        style += f"border: 1px solid {border_color}; "
+        style += "border-radius: 6px; "
+
+    style += "margin: 6px 6px; padding: 3px 3px; "
+    style += " }"
+
+    # hover
+    style += "QPushButton:hover {"
+
+    if hover_bg_color is None:
+        hover_bg_color = txt_color
+    style += f"background-color: {hover_bg_color}; "
+
+    if hover_txt_color is None:
+        hover_txt_color = bg_color
+    style += f"color: {hover_txt_color}; "
+
+    if hover_border_color is not None:
+        hover_border_color = bg_color
+        style += f"border: 1.5px solid {hover_border_color};"
+        style += "border-radius: 6px; "
+
+    style += " }"
+
+    # return style
+    return style

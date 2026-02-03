@@ -5,9 +5,9 @@
 
 import sys
 import traceback
+from enum import Enum
 from sqlite3 import Connection
 from typing import Any, List, Literal, Set, Tuple
-from types import ModuleType
 
 import pandas as pd
 
@@ -16,7 +16,6 @@ from dim_c_brains.scripts.events_and_modules import (
     get_modules,
 )
 from dim_c_brains.scripts.binner import Binner
-from dim_c_brains.LMT_analyser import RebuildOption
 
 from lmtanalysis.Animal import AnimalPool
 from lmtanalysis.AnimalType import AnimalType
@@ -30,6 +29,27 @@ from lmtanalysis.EventTimeLineCache import (
 )
 
 from psutil import virtual_memory
+
+
+class RebuildOption(Enum):
+    """The options for rebuilding events before analysis.
+    - NO_REBUILD: do not rebuild any events.
+    - ALL: rebuild all events that exist for LMT.
+    - MISSING: rebuild only missing events in database.
+    - ANALYSIS: rebuild analysis-related events (those in
+    `LMTAnalyser.events_to_analyse`).
+    - CUSTOM: rebuild only events specified (those in
+    `LMTAnalyser.events_to_rebuild`).
+    """
+
+    NO_REBUILD = 0
+    ALL = 1
+    MISSING = 2
+    ANALYSIS = 3
+    CUSTOM = 4
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class EventsRebuilder:

@@ -3,7 +3,6 @@
 """
 
 import sqlite3
-from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Literal
 
@@ -11,7 +10,10 @@ import pandas as pd
 
 from dim_c_brains.scripts.reports_manager import HTMLReportManager
 from dim_c_brains.scripts.data_extractor import DataFrameConstructor
-from dim_c_brains.scripts.events_rebuilder import EventsRebuilder
+from dim_c_brains.scripts.events_rebuilder import (
+    RebuildOption,
+    EventsRebuilder,
+)
 from dim_c_brains.reports import (
     event_reports,
     sensors_reports,
@@ -26,28 +28,47 @@ from dim_c_brains.scripts.tkinter_tools import (
 from lmtanalysis.Measure import oneMinute, oneDay
 
 
-class RebuildOption(Enum):
-    """The options for rebuilding events before analysis.
-    - NO_REBUILD: do not rebuild any events.
-    - ALL: rebuild all events that exist for LMT.
-    - MISSING: rebuild only missing events in database.
-    - ANALYSIS: rebuild analysis-related events (those in
-    `LMTAnalyser.events_to_analyse`).
-    - CUSTOM: rebuild only events specified (those in
-    `LMTAnalyser.events_to_rebuild`).
-    """
-
-    NO_REBUILD = 0
-    ALL = 1
-    MISSING = 2
-    ANALYSIS = 3
-    CUSTOM = 4
-
-    def __str__(self) -> str:
-        return self.name
-
-
 class LMTAnalyser:
+
+    @staticmethod
+    def get_informations(database_path: Path):
+        """Get basic information about the experiment stored in the database.
+        Returns a dictionary with keys:
+            - 'n_animals': number of animals in the experiment.
+            - 'start_time': start time of the experiment (pd.Timestamp).
+            - 'end_time': end time of the experiment (pd.Timestamp).
+            - 'duration': duration of the experiment (pd.Timedelta).
+        """
+        connection = sqlite3.connect(str(database_path))
+
+        query = """
+            SELECT
+                COUNT(DISTINCT RFID) AS n_animals,
+                (SELECT TIMESTAMP FROM FRAME ORDER BY FRAMENUMBER ASC LIMIT 1) AS first_timestamp,
+                (SELECT TIMESTAMP FROM FRAME ORDER BY FRAMENUMBER DESC LIMIT 1) AS last_timestamp
+            FROM ANIMAL;
+        """
+        cursor = connection.cursor()
+        cursor.execute(query)
+        result = cursor.fetchone()
+        n_animals: int = result[0]
+        start_frame: int = result[1]
+        end_frame: int = result[2]
+        start_time: pd.Timestamp = pd.to_datetime(start_frame, unit="ms")
+        end_time: pd.Timestamp = pd.to_datetime(end_frame, unit="ms")
+        duration: pd.Timedelta = end_time - start_time
+
+        connection.close()
+
+        info = {
+            "database_name": database_path.stem,
+            "n_animals": n_animals,
+            "start_time": start_time,
+            "end_time": end_time,
+            "duration": duration,
+        }
+        return info
+
     def __init__(self, **kwargs):
         """
         Analysis workflow for LMT data. Can rebuild events, generate dataframes
@@ -159,6 +180,9 @@ class LMTAnalyser:
     def set_events_to_analyse(self, event_list: list[str] | None):
         """Load the list of event names to analyze."""
         self.events_to_analyse: List[str] = []
+
+        if event_list is not None:
+            self.events_to_analyse = event_list
 
         if (
             "Flickering" not in self.events_to_analyse
@@ -320,6 +344,8 @@ class LMTAnalyser:
 
         parameters["database_path"] = self.database_path
 
+        parameters["rebuild_option"] = self.rebuild_option
+
         parameters["events_to_rebuild"] = self.events_to_rebuild
         parameters["events_to_analyse"] = self.events_to_analyse
         parameters["events_in_overview"] = self.events_in_overview
@@ -340,6 +366,8 @@ class LMTAnalyser:
         return parameters
 
     def rebuild_database(self):
+        """Rebuild events in the database according to the selected rebuild
+        option."""
         connection = sqlite3.connect(str(self.database_path))
 
         rebuilder = EventsRebuilder(
@@ -355,6 +383,8 @@ class LMTAnalyser:
         connection.close()
 
     def run_analysis(self):
+        """Run the analysis workflow, generating dataframes and HTML reports.
+        Save the reports to the selected output folder."""
         connection = sqlite3.connect(str(self.database_path))
         repo_manager = HTMLReportManager()
 
