@@ -302,10 +302,11 @@ def getStarsFromPvalues(pvalue=None, U=None, numberOfTests=1):
     s3 = 0.001 / numberOfTests
     '''if pvalue == "NA":
         stars = "NA"'''
-
+    
+    
     if (pvalue == 0) & (U == 0):
         stars = "NA"
-
+    
     elif (pvalue == 0) & (U != 0):
         stars = "***"
 
@@ -316,9 +317,11 @@ def getStarsFromPvalues(pvalue=None, U=None, numberOfTests=1):
             stars = "**"
         if pvalue >= s2 and pvalue < s1:
             stars = "*"
-        if pvalue >= s1:
+        if pvalue >= s1 and pvalue < 0.1:
+            stars = np.round(pvalue, 3)
             #stars = ""
-            stars = "ns"
+        if pvalue > 0.1:
+            stars=""
 
     return stars
 
@@ -355,22 +358,48 @@ def getStartTestPhase(pool):
     return startFrameTestPhase
 
 def getColorGeno(geno):
-    if (geno=="WT-WT") or (geno=="wt-wt"):
-        return 'steelblue'
-    if (geno=="KO-KO") or (geno=="ko-ko"):
-        return 'darkorange'
-    if geno=="Del/+-Del/+":
-        return 'darkorange'
-    if (geno == 'WT') or (geno=="wt"):
+    if (geno=="WT-WT") or (geno=="wt-wt") or (geno=="WT_WT"):
         #return 'steelblue'
         return 'lightblue'
-    if geno == 'Del/+':
+    if (geno=="KO-KO") or (geno=="ko-ko"):
+        return 'darkorange'
+    if (geno=="Del/+-Del/+") or (geno=="Del/+_Del/+"):
         #return 'darkorange'
         return 'gold'
-    if geno == 'wt/wt':
+    if (geno == 'WT') or (geno=="wt"):
         return 'steelblue'
-    if geno == 'Dup/wt':
+        #return 'lightblue'
+    if geno == 'Del/+':
         return 'darkorange'
+        #return 'gold'
+    if 'wt/wt' in geno or 'WT/WT' in geno:
+        #return 'darkblue'
+        return "dodgerblue"
+    if 'Dup/wt' in geno or 'DUP/WT' in geno:
+        #return 'red'
+        return "darkorange"
+    if geno == "B6":
+        return "green"
+    if geno == "WT_Baseline":
+        return "blue"
+    if geno == "KO_Baseline":
+        return "red"
+    if geno == "KO":
+        return "orange"
+    if geno == "DlxCre wt ; Dyrk1acKO/+":
+        return "dodgerblue"
+    if geno == "DlxCre Tg ; Dyrk1acKO/+":
+        return "#D81B60"
+    if geno == "Baseline":
+        return "green"
+    if "DlxCre wt ; Dyrk1acKO/+" in geno:
+        return "dodgerblue"
+    if "DlxCre Tg ; Dyrk1acKO/+" in geno:
+        return "darkorange"
+
+    if geno == "cKO":
+        return "darkorange"
+
 
 def getColorPalette(genoList):
     paletteDic = {}
@@ -378,9 +407,58 @@ def getColorPalette(genoList):
         paletteDic[geno] = getColorGeno(geno)
     return paletteDic
 
+def getColorGenoTreatment(treatment, geno):
+    if (treatment == "control") and (geno == '+/+'):
+        return 'darkblue'
+    if (treatment == "control") and (geno == 'Dp(16)1Yey/+'):
+        return "red"
+    if (treatment == "treatment") and (geno == '+/+'):
+        return "dodgerblue"
+    if (treatment == "treatment") and (geno == 'Dp(16)1Yey/+'):
+        return "darkorange"
+    if (treatment == "CD") and (geno == '+/+'):
+        return 'white'
+    if (treatment == "CD") and (geno == 'Dp(16)1Yey/+'):
+        return "yellow"
+    if (treatment == "HFD") and (geno == '+/+'):
+        return "gold"
+    if (treatment == "HFD") and (geno == 'Dp(16)1Yey/+'):
+        return "darkgoldenrod"
+    if (treatment == "CD") and (geno == 'B6_+/+'):
+        return 'white'
+    if (treatment == "CD") and (geno == 'B6_Dp(16)1Yey/+'):
+        return "yellow"
+    if (treatment == "HFD") and (geno == 'B6_+/+'):
+        return "gold"
+    if (treatment == "HFD") and (geno == 'B6_Dp(16)1Yey/+'):
+        return "darkgoldenrod"
+    if (treatment == "CD") and (geno == '+/+_+/+'):
+        return 'white'
+    if (treatment == "CD") and (geno == 'Dp(16)1Yey/+_Dp(16)1Yey/+'):
+        return "yellow"
+    if (treatment == "HFD") and (geno == '+/+_+/+'):
+        return "gold"
+    if (treatment == "HFD") and (geno == 'Dp(16)1Yey/+_Dp(16)1Yey/+'):
+        return "darkgoldenrod"
+    
+def getColorPalettePerTreatment(genoList, treatment):
+    paletteDic = {}
+    for geno in genoList:
+        paletteDic[geno] = getColorGenoTreatment(treatment, geno)
+    return paletteDic
+
+def getColorPaletteTreatment(conditionList, genoList):
+    paletteDic = {}
+    for condition in conditionList:
+        paletteDic[condition] = {}
+        for geno in genoList:
+            paletteDic[condition][geno] = getColorGenoTreatment(condition, geno)
+    return paletteDic
+
 def getLetterList():
     letterList = list(string.ascii_uppercase)
     return letterList
+
 
 def factorial(n):
     if n == 0:
