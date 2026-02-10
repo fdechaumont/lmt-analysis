@@ -15,7 +15,7 @@ from dim_c_brains.scripts.plotting_functions import (
 from dim_c_brains.reports.overview_reports import get_activity_card
 
 
-def generic(
+def generic_reports(
     report_manager: HTMLReportManager,
     df_constructor: DataFrameConstructor,
     **kwargs,

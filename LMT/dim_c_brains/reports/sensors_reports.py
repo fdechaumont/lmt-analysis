@@ -14,7 +14,7 @@ from dim_c_brains.scripts.plotting_functions import (
 )
 
 
-def generic(
+def generic_reports(
     report_manager: HTMLReportManager,
     df_constructor: DataFrameConstructor,
     **kwargs,
@@ -107,7 +107,8 @@ def generic(
         name="Time interval unit",
         content=f"""
         Calculated time bin is {df_constructor.binner.bin_size} frames.<br>
-        It corresponds to {df_constructor.binner.bin_size / 30 / 60} minutes.
+        It corresponds to {df_constructor.binner.bin_size
+        / df_constructor.binner.fps / 60} minutes.
         """,
     )
     report_manager.add_card(

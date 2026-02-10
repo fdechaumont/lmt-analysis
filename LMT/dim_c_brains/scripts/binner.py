@@ -67,19 +67,19 @@ class Binner:
         bin_size: int | None = None,
         start_frame: int | None = None,
         end_frame: int | None = None,
-        fps: int = 30,
+        fps: int | None = None,
     ):
         """Set bin size (in *frames*), frame limits (in *frames*), and FPS
         (*frames/second*).
         """
-
-        if fps < 1:
-            raise ValueError("FPS must be at least 1")
-        self.fps = fps
+        if fps is not None:
+            if fps < 1:
+                raise ValueError("FPS must be at least 1")
+            self.fps = fps
 
         self.bin_0: Dict[str, Any] = {
             "FRAMENUMBER": 0,
-            "TIMESTAMP": self.last_timestamp - (self.last_frame / fps * 1000),
+            "TIMESTAMP": self.last_timestamp - (self.last_frame / self.fps * 1000),
             "DATETIME": None,
         }
         self.bin_0["DATETIME"] = self.frame_to_time(0)

@@ -191,34 +191,18 @@ class YesNoQuestion(QDialog):
         btn_layout.setSpacing(40)
 
         # YES button
+        btn_style = get_btn_style(size=15, bold=True, bg_color="#449225")
         yes_btn = QPushButton("Yes")
         yes_btn.clicked.connect(self.yes_clicked)
         yes_btn.setFixedWidth(90)
-        yes_btn.setStyleSheet(
-            """
-            background-color: #4CAF50;
-            color: white;
-            font-size: 15px;
-            font-weight: bold;
-            padding: 8px 0;
-            border-radius: 6px;
-        """
-        )
+        yes_btn.setStyleSheet(btn_style)
 
         # NO button
+        btn_style = get_btn_style(size=15, bold=True, bg_color="#D24D19")
         no_btn = QPushButton("No")
         no_btn.clicked.connect(self.no_clicked)
         no_btn.setFixedWidth(90)
-        no_btn.setStyleSheet(
-            """
-            background-color: #F44336;
-            color: white;
-            font-size: 15px;
-            font-weight: bold;
-            padding: 8px 0;
-            border-radius: 6px;
-        """
-        )
+        no_btn.setStyleSheet(btn_style)
 
         # layout setup
         btn_layout.addStretch(1)

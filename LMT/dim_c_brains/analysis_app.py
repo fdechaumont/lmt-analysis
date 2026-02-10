@@ -114,6 +114,7 @@ class AnalysisAppWindow(QWidget):
                 f"<tr><td><b>Start:</b></td><td>{infos["start_time"].strftime(t_format)}</td></tr>"
                 f"<tr><td><b>End:</b></td><td>{infos["end_time"].strftime(t_format)}</td></tr>"
                 f"<tr><td><b>Duration:</b></td><td>{infos["duration"].days} days, {infos["duration"].seconds // 3600} hours and {(infos["duration"].seconds // 60) % 60} minutes</td></tr>"
+                f"<tr><td><b>FPS:</b></td><td>{infos["fps"]:.1f}</td></tr>"
                 "</table>"
             )
             self.info_label.setText(info_html)
@@ -249,6 +250,33 @@ class SettingsWindow(QDialog):
     """Dialog to select/edit all main LMTAnalyser parameters."""
 
     @staticmethod
+    def reset_settings():
+        """Reset settings to initial values."""
+
+        settings: dict[str, Any] = {
+            "analysis_limits": [None, None],
+            "events_in_overview": [],
+            "events_to_analyse": [],
+            "events_to_rebuild": [
+                "Flickering",
+                "Stop",
+                "Stop in contact",
+                "Stop isolated",
+            ],
+            "filter_flickering": True,
+            "filter_stop": True,
+            "fps": 30,
+            "night_begin": 20,
+            "night_duration": 12,
+            "output_folder": None,
+            "processing_window": oneDay,
+            "rebuild_option": RebuildOption.MISSING.name,
+            "time_window": 15 * oneMinute,
+        }
+
+        return settings
+
+    @staticmethod
     def get_default_settings():
         """Load default settings if available."""
         default_path = (
@@ -297,7 +325,9 @@ class SettingsWindow(QDialog):
         self.setWindowTitle("Select LMT Analysis Settings")
         # self.setFixedSize(700, 600)
         self.selected_settings = {}
-        self._init_ui(current_settings)
+        settings = self.reset_settings()
+        settings.update(current_settings)
+        self._init_ui(settings)
 
     def _init_ui(self, settings: dict[str, Any]):
 
@@ -305,8 +335,6 @@ class SettingsWindow(QDialog):
         form = QFormLayout()
 
         # output_folder
-        if "output_folder" not in settings:
-            settings["output_folder"] = None
         if settings["output_folder"] is None:
             self.output_folder_edit = QLineEdit()
         else:
@@ -326,10 +354,7 @@ class SettingsWindow(QDialog):
         self.rebuild_box = QComboBox()
         options = [ro.name for ro in RebuildOption]
         self.rebuild_box.addItems(options)
-        if "rebuild_option" in settings:
-            current_opt = str(settings["rebuild_option"])
-        else:
-            current_opt = RebuildOption.MISSING.name
+        current_opt = str(settings["rebuild_option"])
         if current_opt in options:
             self.rebuild_box.setCurrentText(current_opt)
         form.addRow("Rebuild Option:", self.rebuild_box)
@@ -358,8 +383,6 @@ class SettingsWindow(QDialog):
 
         # Flickering
         self.flickering_cb = QCheckBox()
-        if "filter_flickering" not in settings:
-            settings["filter_flickering"] = True
         self.flickering_cb.setChecked(settings["filter_flickering"])
         filter_row.addWidget(QLabel("Flickering:"))
         filter_row.addWidget(self.flickering_cb)
@@ -368,8 +391,6 @@ class SettingsWindow(QDialog):
 
         # Stop
         self.stop_cb = QCheckBox()
-        if "filter_stop" not in settings:
-            settings["filter_stop"] = True
         self.stop_cb.setChecked(settings["filter_stop"])
         filter_row.addWidget(QLabel("Stop:"))
         filter_row.addWidget(self.stop_cb)
@@ -380,20 +401,12 @@ class SettingsWindow(QDialog):
 
         form.addRow(self.Qhline())
         #######################################
-        #   TIME & PROCESSING WINDOWS   #
+        #   TIME, PROCESSING & FPS   #
         #######################################
-        # fps (needed for conversion but will be added later to form)
-        self.fps_spin = QSpinBox()
-        if "fps" not in settings:
-            settings["fps"] = 30
-        self.fps_spin.setValue(settings["fps"])
-        self.fps_spin.setFixedWidth(70)
 
         # time_window (frames and minutes)
         self.time_window_frames = QSpinBox()
         self.time_window_frames.setRange(1, 100_000_000)
-        if "time_window" not in settings:
-            settings["time_window"] = 15 * oneMinute
         self.time_window_frames.setValue(settings["time_window"])
 
         self.time_window_minutes = QDoubleSpinBox()
@@ -407,8 +420,6 @@ class SettingsWindow(QDialog):
         # processing_window (frames and minutes)
         self.process_window_frames = QSpinBox()
         self.process_window_frames.setRange(1, 100_000_000)
-        if "processing_window" not in settings:
-            settings["processing_window"] = oneDay
         self.process_window_frames.setValue(settings["processing_window"])
 
         self.process_window_hours = QDoubleSpinBox()
@@ -419,7 +430,12 @@ class SettingsWindow(QDialog):
         )
         self.process_window_hours_label = QLabel("hours")
 
-        # sync logic for time and processing windows
+        # fps
+        self.fps_spin = QSpinBox()
+        self.fps_spin.setValue(settings["fps"])
+        self.fps_spin.setFixedWidth(70)
+
+        # sync logic for time, processing and fps
         self.time_window_frames.valueChanged.connect(
             self._on_time_frames_changed
         )
@@ -434,6 +450,7 @@ class SettingsWindow(QDialog):
         )
         self.fps_spin.valueChanged.connect(self._on_fps_changed)
 
+        # layout for time, processing and fps
         time_row = QHBoxLayout()
         time_row.addWidget(QLabel("Frames:"))
         time_row.addWidget(self.time_window_frames)
@@ -452,6 +469,8 @@ class SettingsWindow(QDialog):
         proc_row.addWidget(self.process_window_hours_label)
         form.addRow("Processing Window:", proc_row)
 
+        form.addRow("FPS (frames per second):", self.fps_spin)
+
         form.addRow(self.Qhline())
         #######################################
         #   NIGHT TIME   #
@@ -461,8 +480,6 @@ class SettingsWindow(QDialog):
         # night begin
         self.night_begin_spin = QSpinBox()
         self.night_begin_spin.setRange(0, 23)
-        if "night_begin" not in settings:
-            settings["night_begin"] = 20
         self.night_begin_spin.setValue(settings["night_begin"])
         night_row.addWidget(QLabel("Begin (h):"))
         night_row.addWidget(self.night_begin_spin)
@@ -472,8 +489,6 @@ class SettingsWindow(QDialog):
         # night duration
         self.night_duration_spin = QSpinBox()
         self.night_duration_spin.setRange(1, 24)
-        if "night_duration" not in settings:
-            settings["night_duration"] = 12
         self.night_duration_spin.setValue(settings["night_duration"])
         night_row.addWidget(QLabel("Duration (h):"))
         night_row.addWidget(self.night_duration_spin)
@@ -498,9 +513,6 @@ class SettingsWindow(QDialog):
         #   ANALYSIS LIMITS (start, end)   #
         #######################################
         lim_row = QHBoxLayout()
-
-        if "analysis_limits" not in settings:
-            settings["analysis_limits"] = [None, None]
 
         # start
         if settings["analysis_limits"][0] is None:
@@ -538,13 +550,13 @@ class SettingsWindow(QDialog):
             lim_container,
         )
 
-        #######################################
-        #   FPS (frames per second)   #
-        #######################################
-        # fps (previously implemented but not added to form)
-        form.addRow("FPS (frames per second):", self.fps_spin)
+        # #######################################
+        # #   FPS (frames per second)   #
+        # #######################################
+        # # fps (previously implemented but not added to form)
+        # form.addRow("FPS (frames per second):", self.fps_spin)
 
-        # End of form section
+        # # End of form section
         layout.addLayout(form)
 
         # Add separator before events section
@@ -575,7 +587,7 @@ class SettingsWindow(QDialog):
 
         # buttons
         btn_event_layout = QHBoxLayout()
-        btn_style = get_btn_style(size=15, bold=True)
+        btn_style = get_btn_style(size=15, bold=True, bg_color="#1976D2")
 
         # events to analyse
         self.events_to_analyse_btn = QPushButton("Analysis")
@@ -600,10 +612,10 @@ class SettingsWindow(QDialog):
         # Add separator before config section
         layout.addWidget(self.Qhline())
         #######################################
-        #   CONFIG BUTTONS   #
+        #   SETTINGS CONFIGURATION BUTTONS   #
         #######################################
         # events title
-        events_title = QLabel("CONFIG")
+        events_title = QLabel("SETTINGS")
         events_title.setStyleSheet(
             """
             font-size: 16px; font-weight: bold;
@@ -614,7 +626,7 @@ class SettingsWindow(QDialog):
         layout.addWidget(events_title, alignment=Qt.AlignmentFlag.AlignHCenter)
 
         btn_config_layout = QHBoxLayout()
-        btn_style = get_btn_style(size=15, bold=True, bg_color="#1976D2")
+        btn_style = get_btn_style(size=15, bold=True)
 
         # load config
         self.load_config_btn = QPushButton("Load Config")
@@ -826,7 +838,8 @@ class SettingsWindow(QDialog):
 
     def on_save_config(self):
         """Save current settings from UI to a JSON file."""
-        settings = self._get_current_settings_for_save()
+        settings = self.get_current_settings()
+        settings = self._set_settings_as_strings(settings)
         save_folder = Path(__file__).parent / "res" / "saved_configs"
         saver = ParameterSaver(save_folder)
         saver.set_values(settings)
@@ -851,7 +864,8 @@ class SettingsWindow(QDialog):
     def on_define_default(self):
         """Save current settings as the default settings
         (default_settings.json in the same directory)."""
-        settings = self._get_current_settings_for_save()
+        settings = self.get_current_settings()
+        settings = self._set_settings_as_strings(settings)
         save_folder = Path(__file__).parent / "res" / "saved_configs"
         saver = ParameterSaver(save_folder)
         saver.set_values(settings)
@@ -889,12 +903,29 @@ class SettingsWindow(QDialog):
         }
         return settings
 
-    def _get_current_settings_for_save(self) -> dict[str, Any]:
-        """Collect all current settings from the UI widgets for saving."""
-        settings = self.get_current_settings()
-        if settings["output_folder"] is not None:
+    def _set_settings_as_strings(self, settings) -> dict[str, Any]:
+        """Transform the appropriate variables as str for a json save."""
+        if isinstance(settings["output_folder"], Path):
             settings["output_folder"] = str(settings["output_folder"])
-        settings["rebuild_option"] = settings["rebuild_option"].name
+        else:
+            if (
+                "output_folder" in settings
+                and settings["output_folder"] is not None
+            ):
+                print(
+                    "Warning: 'output_folder' should be of type Path. Saving "
+                    "as string but it may cause issues when loading."
+                )
+
+        if isinstance(settings["rebuild_option"], RebuildOption):
+            settings["rebuild_option"] = settings["rebuild_option"].name
+        else:
+            if "rebuild_option" in settings:
+                print(
+                    "Warning: 'rebuild_option' should be of type "
+                    "RebuildOption. Saving as string but it may cause issues "
+                    "when loading."
+                )
         return settings
 
     def set_current_settings(self, settings: dict[str, Any]):
@@ -950,12 +981,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
     window = AnalysisAppWindow()
-
-    # window = EventChooser()
-    # aaa = LMTAnalyser()
-    # window = ParametersChooser(aaa.get_parameters())
-
     window.show()
-    window.raise_()
-    window.activateWindow()
+    # # window.raise_()
+    # # window.activateWindow()
     sys.exit(app.exec())

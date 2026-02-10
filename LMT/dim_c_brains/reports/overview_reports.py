@@ -17,7 +17,7 @@ from dim_c_brains.scripts.plotting_functions import (
 )
 
 
-def generic(
+def generic_reports(
     report_manager: HTMLReportManager,
     df_constructor: DataFrameConstructor,
     df_activity: pd.DataFrame | None = None,
@@ -30,7 +30,7 @@ def generic(
     activity, analyzed events, and sensor readings.
 
     kwargs:
-    - file_path (Path): Path to the dataset.
+    - database_path (Path): Path to the dataset.
     - filter_flickering (bool): Whether to filter flickering activity.
     - filter_stop (bool): Whether to filter stop activity.
     - night_begin (int): The hour when the night begins.
@@ -52,7 +52,7 @@ def generic(
     EXP_DURATION = EXP_END - EXP_START
     NB_DAYS = EXP_DURATION.total_seconds() / 3600 / 24
 
-    EXP_NAME = kwargs.get("file_path", None)
+    EXP_NAME = kwargs.get("database_path", None)
     if EXP_NAME is not None:
         EXP_NAME = EXP_NAME.stem
     else:
@@ -113,7 +113,8 @@ def generic(
                     {(EXP_DURATION.seconds // 60) % 60} minutes
                     </strong></p>
                     <p style="margin: 0.5em 0;">Binned every <strong>
-                    {df_constructor.binner.bin_size / 30 / 60} minutes
+                    {df_constructor.binner.bin_size
+                    / df_constructor.binner.fps / 60} minutes
                     </strong></p>
                     <p style="margin: 0.5em 0;">
                     {EXP_START.strftime(t_format)} - start

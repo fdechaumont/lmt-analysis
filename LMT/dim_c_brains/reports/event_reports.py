@@ -15,7 +15,7 @@ from dim_c_brains.scripts.plotting_functions import (
 from dim_c_brains.reports.overview_reports import get_event_card
 
 
-def generic(
+def generic_reports(
     report_manager: HTMLReportManager,
     df_constructor: DataFrameConstructor,
     event_name: str,
@@ -88,7 +88,8 @@ def generic(
         name="Time interval unit",
         content=f"""
         Calculated time bin is {df_constructor.binner.bin_size} frames.<br>
-        It corresponds to {df_constructor.binner.bin_size / 30 / 60} minutes.
+        It corresponds to {df_constructor.binner.bin_size
+        / df_constructor.binner.fps / 60} minutes.
         """,
     )
     report_manager.add_card(
@@ -172,7 +173,7 @@ def generic(
     ]
 
     label = f"EVENT_COUNT per bin ({int(
-        df_constructor.binner.bin_size / 30 / 60
+        df_constructor.binner.bin_size / df_constructor.binner.fps / 60
     )} min)"
     figs.append(
         px.bar(
@@ -188,7 +189,7 @@ def generic(
     )
 
     label = f"DURATION (min) per bin ({int(
-        df_constructor.binner.bin_size / 30 / 60
+        df_constructor.binner.bin_size / df_constructor.binner.fps / 60
     )} min)"
     figs.append(
         px.bar(
