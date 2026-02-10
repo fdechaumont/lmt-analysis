@@ -41,10 +41,12 @@ def reBuildEvent(
         The SQLite database connection.
     file : Any or None, optional
         The file path or object.
+        Can be used by EventTimeLineCached to cache event loading.
+        Default is None.
     tmin : int or None, optional
-        The start time for loading detections in frame.
+        The start time for loading detections (in frame).
     tmax : int or None, optional
-        The end time for loading detections in frame.
+        The end time for loading detections (in frame).
     pool : AnimalPool or None, optional
         Optional existing AnimalPool instance (create new one if None).
     animalType : AnimalType or None, optional
@@ -125,7 +127,7 @@ def reBuildEvent(
     # log process for debugging and record keeping
     t = TaskLogger(connection)
     if tmin is None or tmax is None:
-        t.addLog("Build Event Flickering (tmin or tmax is None)")
+        t.addLog(f"Build Event {EVENT_NAME} (tmin or tmax is None)")
     else:
-        t.addLog("Build Event Flickering", tmin= tmin, tmax= tmax)
+        t.addLog(f"Build Event {EVENT_NAME}", tmin= tmin, tmax= tmax)
     print(f"Rebuild {EVENT_NAME} event finished.")
