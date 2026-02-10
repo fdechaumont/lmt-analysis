@@ -112,6 +112,13 @@ def reBuildEvent(
         vx = np.zeros_like(massX)
         vx[1:] = np.diff(massX) / frame_gaps
 
+        # example of how to get the frames corresponding to an existing event
+        stop_frames = EventTimeLine(
+            conn=connection,
+            eventName="Stop",
+            idA=animal_key,
+        ).getDictionary()
+
         #######################################
         #   END OF YOUR CODE   #
         #######################################
