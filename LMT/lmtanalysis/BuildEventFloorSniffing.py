@@ -114,12 +114,6 @@ def reBuildEvent(
 
         animal_frames = np.array(sorted(animal.detectionDictionary.keys()))
 
-        half_w = window // 2
-        left_w = half_w
-        right_w = half_w
-        if window % 2 == 0:
-            right_w = right_w - 1
-
         for f_str in animal_frames:
             f_int = int(f_str)
 
@@ -258,9 +252,6 @@ def check_head_movement(
         "max_displacement": 1,  # need adjustements
     }
 
-    local_vx = []
-    local_vy = []
-
     half_w = window // 2
     left_w = half_w
     right_w = half_w
@@ -288,7 +279,7 @@ def check_head_movement(
     head_vy = np.diff(head_y)
 
     head_cumul_speed = np.sum(head_vx**2 + head_vy**2)
-    if head_cumul_speed < criteria["min_speed"]:
+    if head_cumul_speed < criteria["min_cumul_speed"]:
         return False
 
     head_displacement = np.mean(head_vx) ** 2 + np.mean(head_vy) ** 2
