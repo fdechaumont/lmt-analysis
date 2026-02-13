@@ -2,12 +2,14 @@
 @author: xmousset
 """
 
+import json
 import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List, Literal
 
 import pandas as pd
 
+from dim_c_brains.scripts.parameter_saver import ParameterSaver
 from dim_c_brains.scripts.reports_manager import HTMLReportManager
 from dim_c_brains.scripts.data_extractor import DataFrameConstructor
 from dim_c_brains.scripts.events_rebuilder import (
@@ -25,7 +27,116 @@ from dim_c_brains.scripts.tkinter_tools import (
     select_folder,
 )
 
+from lmtanalysis.Animal import AnimalType
 from lmtanalysis.Measure import oneMinute, oneDay
+
+
+class AnalysisSettings:
+    """Class to hold analysis settings."""
+
+    @staticmethod
+    def get_all_keys():
+        """Get all attribute names except those starting with an underscore."""
+        keys = [
+            key
+            for key in AnalysisSettings().__dict__
+            if not key.startswith("_")
+        ]
+        return keys
+
+    @staticmethod
+    def convert_in_str(initial_dict: Dict[str, Any]) -> Dict[str, Any]:
+        """Convert the settings values in string for better readability."""
+        new_dict = initial_dict.copy()
+
+        new_dict["animal_type"] = new_dict["animal_type"].name
+
+        if new_dict["output_folder"] is not None:
+            new_dict["output_folder"] = str(new_dict["output_folder"])
+
+        new_dict["rebuild_option"] = new_dict["rebuild_option"].name
+
+        return new_dict
+
+    @staticmethod
+    def convert_from_str(initial_dict: Dict[str, Any]) -> Dict[str, Any]:
+        """Convert the settings values from string to their original type."""
+        new_dict = initial_dict.copy()
+
+        new_dict["animal_type"] = AnimalType[new_dict["animal_type"]]
+
+        if new_dict["output_folder"] is not None:
+            new_dict["output_folder"] = Path(new_dict["output_folder"])
+
+        new_dict["rebuild_option"] = RebuildOption[new_dict["rebuild_option"]]
+
+        return new_dict
+
+    def __init__(self):
+        """Initialize the settings with default values."""
+        self.reset()
+        self._saver = ParameterSaver()
+
+    def reset(self):
+        """Reset the settings to their initial values."""
+        self.analysis_limits: List[int | str | None] = [None, None]
+        self.animal_type: AnimalType = AnimalType.MOUSE
+        self.events_in_overview: List[str] = []
+        self.events_to_analyse: List[str] = []
+        self.events_to_rebuild: List[str] = []
+        self.filter_flickering: bool = False
+        self.filter_stop: bool = False
+        self.fps: int = 30
+        self.night_begin: int = 20
+        self.night_duration: int = 12
+        self.output_folder: Path | None = None
+        self.processing_window: int = oneDay
+        self.rebuild_option: RebuildOption = RebuildOption.MISSING
+        self.time_window: int = 15 * oneMinute
+
+    def get_as_dict(self) -> Dict[str, Any]:
+        """Get the settings as a dictionary."""
+        settings = {}
+        for key in self.get_all_keys():
+            settings[key] = getattr(self, key)
+        return settings
+
+    def update_from_dict(self, settings_dict: Dict[str, Any]):
+        """Update the settings from a dictionary."""
+        update_dict = self.get_as_dict()
+        update_dict.update(settings_dict)
+
+        for key in self.get_all_keys():
+            setattr(self, key, update_dict[key])
+
+    def save(self, file_path: Path):
+        """Save the settings to a JSON file."""
+
+        if self._saver is None:
+            raise ValueError(
+                "No saver defined for AnalysisSettings. Cannot save settings."
+            )
+
+        settings = AnalysisSettings.convert_in_str(self.get_as_dict())
+
+        self._saver.set_values(settings)
+        if file_path:
+            self._saver.save(file_path)
+        else:
+            print("No file selected.")
+
+    def load(self, file_path: Path):
+        """Load the settings from a JSON file."""
+
+        if self._saver is None:
+            raise ValueError(
+                "No saver defined for AnalysisSettings. Cannot load settings."
+            )
+
+        self._saver.load(file_path)
+        settings = self._saver.get_parameters()
+        settings = AnalysisSettings.convert_from_str(settings)
+        self.update_from_dict(settings)
 
 
 class LMTAnalyser:
@@ -401,7 +512,7 @@ class LMTAnalyser:
             start=self.analysis_limits[0],
             end=self.analysis_limits[1],
         )
-        
+
         df_constructor.binner.set_parameters(
             fps=self.fps,
         )

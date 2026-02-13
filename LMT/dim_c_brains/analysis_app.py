@@ -4,8 +4,12 @@
 """
 
 import sys
+import sqlite3
 from pathlib import Path
-from typing import Any, Dict, List, Literal
+from typing import Any, Literal
+
+import numpy as np
+import pandas as pd
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
@@ -14,18 +18,22 @@ from PyQt6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QDialog,
+    QDialogButtonBox,
+    QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
     QFrame,
     QGridLayout,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QLineEdit,
     QMessageBox,
     QPushButton,
     QScrollArea,
     QSpinBox,
-    QDoubleSpinBox,
+    QTableWidget,
+    QTableWidgetItem,
     QVBoxLayout,
     QWidget,
 )
@@ -39,10 +47,11 @@ from dim_c_brains.scripts.pyqt6_tools import (
     get_btn_style,
 )
 from dim_c_brains.scripts.events_and_modules import ALL_EVENTS
-from dim_c_brains.LMT_analyser import LMTAnalyser
+from dim_c_brains.LMT_analyser import LMTAnalyser, AnalysisSettings
 from dim_c_brains.scripts.events_rebuilder import RebuildOption
 from dim_c_brains.scripts.parameter_saver import ParameterSaver
 from lmtanalysis.Measure import oneMinute, oneDay
+from lmtanalysis.Animal import AnimalType
 
 
 class AnalysisAppWindow(QWidget):
@@ -53,8 +62,24 @@ class AnalysisAppWindow(QWidget):
         self.setWindowIcon(QIcon("LMT/dim_c_brains/res/app_icon.png"))
 
         self.database_path = None
+
+        self.settings = AnalysisSettings()
+        self.load_default_settings()
+
         self.init_ui()
-        self.settings = SettingsWindow.get_default_settings()
+
+    def load_default_settings(self):
+        """Load default settings if available."""
+        default_path = (
+            Path(__file__).parent
+            / "res"
+            / "saved_configs"
+            / "default_settings.json"
+        )
+        if default_path.is_file():
+            self.settings.load(default_path)
+        else:
+            print("Warning: 'default_settings.json' not found.")
 
     def init_ui(self):
         main_layout = QVBoxLayout()
@@ -65,7 +90,9 @@ class AnalysisAppWindow(QWidget):
         self.info_label.setText("<b>No loaded database.</b>")
         main_layout.addWidget(self.info_label)
 
-        # Buttons row
+        #######################################
+        #   First buttons row   #
+        #######################################
         btn_layout = QHBoxLayout()
 
         # database button
@@ -75,8 +102,16 @@ class AnalysisAppWindow(QWidget):
         self.load_db_btn.clicked.connect(self.on_load_db)
         btn_layout.addWidget(self.load_db_btn)
 
-        # settings button
+        # all other buttons
         btn_style = get_btn_style(size=15, bold=True)
+
+        # update animals information button
+        self.update_info_btn = QPushButton("Animals Infos")
+        self.update_info_btn.setStyleSheet(btn_style)
+        self.update_info_btn.clicked.connect(self.on_update_info)
+        btn_layout.addWidget(self.update_info_btn)
+
+        # settings button
         self.settings_btn = QPushButton("Settings")
         self.settings_btn.setStyleSheet(btn_style)
         self.settings_btn.clicked.connect(self.on_settings)
@@ -84,23 +119,32 @@ class AnalysisAppWindow(QWidget):
 
         main_layout.addLayout(btn_layout)
 
+        #######################################
+        #   Second buttons row   #
+        #######################################
+        btn_layout = QHBoxLayout()
+
+        # Rebuild button
+        self.rebuild_btn = QPushButton("Rebuild")
+        self.rebuild_btn.setStyleSheet(btn_style)
+        self.rebuild_btn.clicked.connect(self.on_rebuild)
+        btn_layout.addWidget(self.rebuild_btn)
+
+        # Process and Rebuild button
+        self.rebuild_process_btn = QPushButton("Rebuild + Process")
+        self.rebuild_process_btn.setStyleSheet(btn_style)
+        self.rebuild_process_btn.clicked.connect(self.on_rebuild_analyse)
+        btn_layout.addWidget(self.rebuild_process_btn)
+
         # Process button
         self.process_btn = QPushButton("Process")
-        self.process_btn.setFixedWidth(250)
-        self.set_process_btn_style(False)
-        self.process_btn.clicked.connect(self.on_process)
-        main_layout.addWidget(
-            self.process_btn, alignment=Qt.AlignmentFlag.AlignHCenter
-        )
+        self.process_btn.setStyleSheet(btn_style)
+        self.process_btn.clicked.connect(self.on_analyse)
+        btn_layout.addWidget(self.process_btn)
+
+        main_layout.addLayout(btn_layout)
 
         self.setLayout(main_layout)
-
-    def set_process_btn_style(self, enabled: bool):
-        if enabled:
-            btn_style = get_btn_style(size=15, bold=True, bg_color="#449225")
-        else:
-            btn_style = get_btn_style(size=15, bold=True, bg_color="#D24D19")
-        self.process_btn.setStyleSheet(btn_style)
 
     def update_info(self):
         infos = {}
@@ -137,35 +181,98 @@ class AnalysisAppWindow(QWidget):
         )
         if not file_path:
             return
-        self.set_process_btn_style(True)
         self.database_path = Path(file_path)
         self.update_info()
 
-    def on_settings(self):
-        """Launches a dialog/class for rebuild options."""
-        current_settings = self.settings.copy()
-        dlg = SettingsWindow(self, current_settings)
-        if dlg.exec() == QDialog.DialogCode.Accepted:
-            self.settings = dlg.selected_settings
+        btn_style = get_btn_style(size=15, bold=True)
+        self.load_db_btn.setStyleSheet(btn_style)
 
-    def on_process(self):
-        """Launches a dialog/class for processing."""
+        btn_style = get_btn_style(size=15, bold=True, bg_color="#1976D2")
+        self.rebuild_btn.setStyleSheet(btn_style)
+        self.rebuild_process_btn.setStyleSheet(btn_style)
+        self.process_btn.setStyleSheet(btn_style)
+
+    def warning_message_load_database(self):
+        """Check if a database is loaded, and show a warning if not."""
+        QMessageBox.warning(
+            self,
+            "No Database",
+            "Please load a database before anything.",
+        )
+
+    def on_update_info(self):
+        """Update animals information in database."""
         if self.database_path is None:
-            QMessageBox.warning(
-                self,
-                "No Database",
-                "Please load a database before processing.",
-            )
+            self.warning_message_load_database()
             return
 
-        dlg = YesNoQuestion(self, f"Process {self.database_path.stem} ?")
+        # UpdateDatabaseInfo(self, self.database_path).exec()
+
+    def on_settings(self):
+        """Launches a dialog/class for rebuild options."""
+        dlg = SettingsWindow(self, self.settings)
+        if dlg.exec() == QDialog.DialogCode.Accepted:
+            self.settings.update_from_dict(dlg.selected_settings)
+
+    def on_rebuild(self):
+        """Rebuild database without processing."""
+        if self.database_path is None:
+            self.warning_message_load_database()
+            return
+
+        msg = f"Rebuild {self.database_path.stem} ?"
+        dlg = YesNoQuestion(self, msg)
 
         if dlg.exec():
-            current_settings = self.settings.copy()
+            print("Rebuilding database...")
+            current_settings = self.settings.get_as_dict()
             current_settings["database_path"] = self.database_path
             self.lmt_analyser = LMTAnalyser(**current_settings)
             self.lmt_analyser.rebuild_database()
+            print("Rebuild finished.")
+        else:
+            print("Process cancelled.")
+
+    def on_rebuild_analyse(self):
+        """Rebuild database then analyse it."""
+        if self.database_path is None:
+            self.warning_message_load_database()
+            return
+
+        msg = f"Rebuild and analyse {self.database_path.stem} ?"
+        dlg = YesNoQuestion(self, msg)
+
+        if dlg.exec():
+            current_settings = self.settings.get_as_dict()
+            current_settings["database_path"] = self.database_path
+            self.lmt_analyser = LMTAnalyser(**current_settings)
+            print("Rebuilding database...")
+            self.lmt_analyser.rebuild_database()
+            print("Rebuild finished.")
+            print("Starting analysis...")
             self.lmt_analyser.run_analysis()
+            print("Analysis finished.")
+        else:
+            print("Process cancelled.")
+
+    def on_analyse(self):
+        """Analyse database without rebuild."""
+        if self.database_path is None:
+            self.warning_message_load_database()
+            return
+
+        msg = f"Analyse {self.database_path.stem} ?"
+        dlg = YesNoQuestion(self, msg)
+
+        if dlg.exec():
+            current_settings = self.settings.get_as_dict()
+            current_settings["database_path"] = self.database_path
+            self.lmt_analyser = LMTAnalyser(**current_settings)
+            print("Starting analysis...")
+            self.lmt_analyser.run_analysis()
+            print("Analysis finished.")
+        else:
+            print("Process cancelled.")
 
 
 class EventChooser(QDialog):
@@ -247,98 +354,30 @@ class EventChooser(QDialog):
 
 
 class SettingsWindow(QDialog):
-    """Dialog to select/edit all main LMTAnalyser parameters."""
+    """Dialog to edit LMTAnalyser settings."""
 
-    @staticmethod
-    def reset_settings():
-        """Reset settings to initial values."""
-
-        settings: dict[str, Any] = {
-            "analysis_limits": [None, None],
-            "events_in_overview": [],
-            "events_to_analyse": [],
-            "events_to_rebuild": [
-                "Flickering",
-                "Stop",
-                "Stop in contact",
-                "Stop isolated",
-            ],
-            "filter_flickering": True,
-            "filter_stop": True,
-            "fps": 30,
-            "night_begin": 20,
-            "night_duration": 12,
-            "output_folder": None,
-            "processing_window": oneDay,
-            "rebuild_option": RebuildOption.MISSING.name,
-            "time_window": 15 * oneMinute,
-        }
-
-        return settings
-
-    @staticmethod
-    def get_default_settings():
-        """Load default settings if available."""
-        default_path = (
-            Path(__file__).parent
-            / "res"
-            / "saved_configs"
-            / "default_settings.json"
-        )
-        settings: dict[str, Any] = {}
-
-        if default_path.is_file():
-            saver = ParameterSaver(default_path.parent)
-            saver.load(default_path.stem)
-            settings = saver.get_parameters()
-        else:
-            print("'default_settings.json' not found.")
-            return settings
-
-        if "analysis_limits" in settings:
-            l_low = settings["analysis_limits"][0]
-            l_high = settings["analysis_limits"][1]
-            if l_low:
-                settings["analysis_limits"][0] = int(l_low)
-            else:
-                l_low = None
-
-            if l_high:
-                settings["analysis_limits"][1] = int(l_high)
-            else:
-                settings["analysis_limits"][1] = None
-
-        if "output_folder" in settings:
-            if settings["output_folder"]:
-                current_path = Path(settings["output_folder"])
-                current_path.mkdir(parents=True, exist_ok=True)
-                settings["output_folder"] = current_path
-            else:
-                settings["output_folder"] = None
-
-        settings["rebuild_option"] = RebuildOption[settings["rebuild_option"]]
-        return settings
-
-    def __init__(self, parent: QWidget, current_settings: dict[str, Any]):
+    def __init__(self, parent: QWidget, settings: AnalysisSettings):
         """Initialize the settings window with current settings."""
         super().__init__(parent)
         self.setWindowTitle("Select LMT Analysis Settings")
         # self.setFixedSize(700, 600)
-        self.selected_settings = {}
-        settings = self.reset_settings()
-        settings.update(current_settings)
-        self._init_ui(settings)
+        self.selected_settings = settings.get_as_dict()
+        self._init_ui()
 
-    def _init_ui(self, settings: dict[str, Any]):
+    def _init_ui(self):
 
         layout = QVBoxLayout()
         form = QFormLayout()
 
-        # output_folder
-        if settings["output_folder"] is None:
+        #######################################
+        #   Output folder   #
+        #######################################
+        if self.selected_settings["output_folder"] is None:
             self.output_folder_edit = QLineEdit()
         else:
-            self.output_folder_edit = QLineEdit(str(settings["output_folder"]))
+            self.output_folder_edit = QLineEdit(
+                str(self.selected_settings["output_folder"])
+            )
         out_btn = QPushButton("Browse")
         btn_style = get_btn_style()
         out_btn.setStyleSheet(btn_style)
@@ -350,30 +389,24 @@ class SettingsWindow(QDialog):
         out_row.addWidget(out_btn)
         form.addRow("Output Folder:", out_row)
 
-        # rebuild_option
-        self.rebuild_box = QComboBox()
-        options = [ro.name for ro in RebuildOption]
-        self.rebuild_box.addItems(options)
-        current_opt = str(settings["rebuild_option"])
-        if current_opt in options:
-            self.rebuild_box.setCurrentText(current_opt)
-        form.addRow("Rebuild Option:", self.rebuild_box)
-
-        # Add info about each rebuild option
-        rebuild_info = QLabel(
-            """
-            <span style='display:inline-block; width:20px; font-size:12px; color:#666;'>
-            <span style=""></span><b>NO_REBUILD</b>: do not rebuild any events.<br>
-            <b>ALL</b>: rebuild all events that exist for LMT.<br>
-            <b>MISSING</b>: rebuild only missing events in database.<br>
-            <b>ANALYSIS</b>: rebuild analysis-related events (those in <code>LMTAnalyser.events_to_analyse</code>).<br>
-            <b>CUSTOM</b>: rebuild only events specified (those in <code>LMTAnalyser.events_to_rebuild</code>).
-            </span>
-            """
-        )
-        rebuild_info.setTextFormat(Qt.TextFormat.RichText)
-        rebuild_info.setStyleSheet("font-size: 12px; color: #666;")
-        form.addRow(rebuild_info)
+        #######################################
+        #   Animal Type   #
+        #######################################
+        self.animal_type_box = QComboBox()
+        options = [animal_type.name for animal_type in AnimalType]
+        self.animal_type_box.addItems(options)
+        current_type = str(self.selected_settings["animal_type"])
+        if current_type in options:
+            self.animal_type_box.setCurrentText(current_type)
+        animal_type_row = QHBoxLayout()
+        animal_type_label = QLabel("Animal Type:")
+        animal_type_row.addWidget(animal_type_label)
+        animal_type_row.addSpacing(10)
+        animal_type_row.addWidget(self.animal_type_box)
+        animal_type_row.addStretch(1)
+        animal_type_widget = QWidget()
+        animal_type_widget.setLayout(animal_type_row)
+        form.addRow(animal_type_widget)
 
         form.addRow(self.Qhline())
         #######################################
@@ -383,7 +416,9 @@ class SettingsWindow(QDialog):
 
         # Flickering
         self.flickering_cb = QCheckBox()
-        self.flickering_cb.setChecked(settings["filter_flickering"])
+        self.flickering_cb.setChecked(
+            self.selected_settings["filter_flickering"]
+        )
         filter_row.addWidget(QLabel("Flickering:"))
         filter_row.addWidget(self.flickering_cb)
 
@@ -391,7 +426,7 @@ class SettingsWindow(QDialog):
 
         # Stop
         self.stop_cb = QCheckBox()
-        self.stop_cb.setChecked(settings["filter_stop"])
+        self.stop_cb.setChecked(self.selected_settings["filter_stop"])
         filter_row.addWidget(QLabel("Stop:"))
         filter_row.addWidget(self.stop_cb)
 
@@ -401,39 +436,53 @@ class SettingsWindow(QDialog):
 
         form.addRow(self.Qhline())
         #######################################
-        #   TIME, PROCESSING & FPS   #
+        #   TIME, PROCESSING and FPS   #
         #######################################
 
         # time_window (frames and minutes)
         self.time_window_frames = QSpinBox()
         self.time_window_frames.setRange(1, 100_000_000)
-        self.time_window_frames.setValue(settings["time_window"])
+        self.time_window_frames.setValue(self.selected_settings["time_window"])
 
         self.time_window_minutes = QDoubleSpinBox()
         self.time_window_minutes.setDecimals(0)
         self.time_window_minutes.setRange(0, 100_000)
         self.time_window_minutes.setValue(
-            int(settings["time_window"] / (settings["fps"] * 60))
+            int(
+                self.selected_settings["time_window"]
+                / (self.selected_settings["fps"] * 60)
+            )
         )
         self.time_window_minutes_label = QLabel("min")
 
         # processing_window (frames and minutes)
         self.process_window_frames = QSpinBox()
         self.process_window_frames.setRange(1, 100_000_000)
-        self.process_window_frames.setValue(settings["processing_window"])
+        self.process_window_frames.setValue(
+            self.selected_settings["processing_window"]
+        )
 
         self.process_window_hours = QDoubleSpinBox()
         self.process_window_hours.setDecimals(0)
         self.process_window_hours.setRange(0, 10_000)
         self.process_window_hours.setValue(
-            int(settings["processing_window"] / (settings["fps"] * 60 * 60))
+            int(
+                self.selected_settings["processing_window"]
+                / (self.selected_settings["fps"] * 60 * 60)
+            )
         )
         self.process_window_hours_label = QLabel("hours")
 
         # fps
         self.fps_spin = QSpinBox()
-        self.fps_spin.setValue(settings["fps"])
+        self.fps_spin.setValue(self.selected_settings["fps"])
         self.fps_spin.setFixedWidth(70)
+        fps_row = QHBoxLayout()
+        fps_label = QLabel("FPS (frames per second):")
+        fps_row.addWidget(fps_label)
+        fps_row.addSpacing(10)
+        fps_row.addWidget(self.fps_spin)
+        fps_row.addStretch(1)
 
         # sync logic for time, processing and fps
         self.time_window_frames.valueChanged.connect(
@@ -469,7 +518,7 @@ class SettingsWindow(QDialog):
         proc_row.addWidget(self.process_window_hours_label)
         form.addRow("Processing Window:", proc_row)
 
-        form.addRow("FPS (frames per second):", self.fps_spin)
+        form.addRow(fps_row)
 
         form.addRow(self.Qhline())
         #######################################
@@ -480,7 +529,7 @@ class SettingsWindow(QDialog):
         # night begin
         self.night_begin_spin = QSpinBox()
         self.night_begin_spin.setRange(0, 23)
-        self.night_begin_spin.setValue(settings["night_begin"])
+        self.night_begin_spin.setValue(self.selected_settings["night_begin"])
         night_row.addWidget(QLabel("Begin (h):"))
         night_row.addWidget(self.night_begin_spin)
 
@@ -489,7 +538,9 @@ class SettingsWindow(QDialog):
         # night duration
         self.night_duration_spin = QSpinBox()
         self.night_duration_spin.setRange(1, 24)
-        self.night_duration_spin.setValue(settings["night_duration"])
+        self.night_duration_spin.setValue(
+            self.selected_settings["night_duration"]
+        )
         night_row.addWidget(QLabel("Duration (h):"))
         night_row.addWidget(self.night_duration_spin)
 
@@ -515,19 +566,23 @@ class SettingsWindow(QDialog):
         lim_row = QHBoxLayout()
 
         # start
-        if settings["analysis_limits"][0] is None:
+        if self.selected_settings["analysis_limits"][0] is None:
             self.start_edit = QLineEdit()
         else:
-            self.start_edit = QLineEdit(str(settings["analysis_limits"][0]))
+            self.start_edit = QLineEdit(
+                str(self.selected_settings["analysis_limits"][0])
+            )
         self.start_edit.setMinimumHeight(30)
         lim_row.addWidget(QLabel("Start:"))
         lim_row.addWidget(self.start_edit)
 
         # end
-        if settings["analysis_limits"][1] is None:
+        if self.selected_settings["analysis_limits"][1] is None:
             self.end_edit = QLineEdit()
         else:
-            self.end_edit = QLineEdit(str(settings["analysis_limits"][1]))
+            self.end_edit = QLineEdit(
+                str(self.selected_settings["analysis_limits"][1])
+            )
         self.end_edit.setMinimumHeight(30)
         lim_row.addWidget(QLabel("End:"))
         lim_row.addWidget(self.end_edit)
@@ -550,13 +605,7 @@ class SettingsWindow(QDialog):
             lim_container,
         )
 
-        # #######################################
-        # #   FPS (frames per second)   #
-        # #######################################
-        # # fps (previously implemented but not added to form)
-        # form.addRow("FPS (frames per second):", self.fps_spin)
-
-        # # End of form section
+        # End of form section
         layout.addLayout(form)
 
         # Add separator before events section
@@ -564,13 +613,13 @@ class SettingsWindow(QDialog):
         #######################################
         #   EVENTS BUTTONS   #
         #######################################
-        self.events_to_analyse: list[str] = settings.get(
+        self.events_to_analyse: list[str] = self.selected_settings.get(
             "events_to_analyse", []
         )
-        self.events_to_rebuild: list[str] = settings.get(
+        self.events_to_rebuild: list[str] = self.selected_settings.get(
             "events_to_rebuild", []
         )
-        self.events_in_overview: list[str] = settings.get(
+        self.events_in_overview: list[str] = self.selected_settings.get(
             "events_in_overview", []
         )
 
@@ -609,7 +658,43 @@ class SettingsWindow(QDialog):
 
         layout.addLayout(btn_event_layout)
 
-        # Add separator before config section
+        #######################################
+        #   Rebuild option   #
+        #######################################
+
+        self.rebuild_box = QComboBox()
+        options = [ro.name for ro in RebuildOption]
+        self.rebuild_box.addItems(options)
+        current_opt = str(self.selected_settings["rebuild_option"])
+        if current_opt in options:
+            self.rebuild_box.setCurrentText(current_opt)
+        layout.addWidget(self.Qhline())
+        rebuild_row = QHBoxLayout()
+        rebuild_label = QLabel("Rebuild Option:")
+        rebuild_row.addWidget(rebuild_label)
+        rebuild_row.addSpacing(10)
+        rebuild_row.addWidget(self.rebuild_box)
+        rebuild_row.addStretch(1)
+        rebuild_widget = QWidget()
+        rebuild_widget.setLayout(rebuild_row)
+        layout.addWidget(rebuild_widget)
+
+        # Add info about each rebuild option
+        rebuild_info = QLabel(
+            """
+            <span style='display:inline-block; width:20px; font-size:12px; color:#666;'>
+            <span style=""></span><b>NO_REBUILD</b>: do not rebuild any events.<br>
+            <b>ALL</b>: rebuild all events that exist for LMT.<br>
+            <b>MISSING</b>: rebuild only missing events in database.<br>
+            <b>ANALYSIS</b>: rebuild analysis-related events (those in <code>LMTAnalyser.events_to_analyse</code>).<br>
+            <b>CUSTOM</b>: rebuild only events specified (those in <code>LMTAnalyser.events_to_rebuild</code>).
+            </span>
+            """
+        )
+        rebuild_info.setTextFormat(Qt.TextFormat.RichText)
+        rebuild_info.setStyleSheet("font-size: 12px; color: #666;")
+        layout.addWidget(rebuild_info)
+
         layout.addWidget(self.Qhline())
         #######################################
         #   SETTINGS CONFIGURATION BUTTONS   #
@@ -838,43 +923,42 @@ class SettingsWindow(QDialog):
 
     def on_save_config(self):
         """Save current settings from UI to a JSON file."""
-        settings = self.get_current_settings()
-        settings = self._set_settings_as_strings(settings)
         save_folder = Path(__file__).parent / "res" / "saved_configs"
-        saver = ParameterSaver(save_folder)
-        saver.set_values(settings)
-        config_path = self.choose_config(save_folder, option="save")
-        if config_path:
-            saver.save(name=config_path.stem)
+        save_path = self.choose_config(save_folder, option="save")
+        if save_path:
+            save_settings = AnalysisSettings()
+            save_settings.update_from_dict(self.get_current_settings())
+            save_settings.save(save_path)
         else:
             print("No file selected.")
 
     def on_load_config(self):
         """Load settings from a JSON file and update UI."""
         save_folder = Path(__file__).parent / "res" / "saved_configs"
-        config_path = self.choose_config(save_folder, option="load")
-        if config_path:
-            saver = ParameterSaver(save_folder)
-            saver.load(config_path.stem)
-            settings = saver.get_parameters()
-            self.set_current_settings(settings)
+        load_path = self.choose_config(save_folder, option="load")
+        if load_path:
+            load_settings = AnalysisSettings()
+            load_settings.load(load_path)
+            self.set_current_settings(load_settings.get_as_dict())
         else:
             print("No file selected.")
 
     def on_define_default(self):
         """Save current settings as the default settings
         (default_settings.json in the same directory)."""
-        settings = self.get_current_settings()
-        settings = self._set_settings_as_strings(settings)
-        save_folder = Path(__file__).parent / "res" / "saved_configs"
-        saver = ParameterSaver(save_folder)
-        saver.set_values(settings)
-        file_dir = save_folder / "default_settings.json"
-        saver.save(name=Path(file_dir).stem)
+        save_path = (
+            Path(__file__).parent
+            / "res"
+            / "saved_configs"
+            / "default_settings.json"
+        )
+        save_settings = AnalysisSettings()
+        save_settings.update_from_dict(self.get_current_settings())
+        save_settings.save(save_path)
 
     def get_current_settings(self) -> dict[str, Any]:
         """Collect all current settings from the UI widgets."""
-        limits: List[int | None] = [None, None]
+        limits: list[int | None] = [None, None]
         if self.start_edit.text():
             limits[0] = int(self.start_edit.text())
 
@@ -888,6 +972,7 @@ class SettingsWindow(QDialog):
 
         settings = {
             "analysis_limits": limits,
+            "animal_type": AnimalType[self.animal_type_box.currentText()],
             "events_in_overview": self.events_in_overview,
             "events_to_analyse": self.events_to_analyse,
             "events_to_rebuild": self.events_to_rebuild,
@@ -903,37 +988,14 @@ class SettingsWindow(QDialog):
         }
         return settings
 
-    def _set_settings_as_strings(self, settings) -> dict[str, Any]:
-        """Transform the appropriate variables as str for a json save."""
-        if isinstance(settings["output_folder"], Path):
-            settings["output_folder"] = str(settings["output_folder"])
-        else:
-            if (
-                "output_folder" in settings
-                and settings["output_folder"] is not None
-            ):
-                print(
-                    "Warning: 'output_folder' should be of type Path. Saving "
-                    "as string but it may cause issues when loading."
-                )
-
-        if isinstance(settings["rebuild_option"], RebuildOption):
-            settings["rebuild_option"] = settings["rebuild_option"].name
-        else:
-            if "rebuild_option" in settings:
-                print(
-                    "Warning: 'rebuild_option' should be of type "
-                    "RebuildOption. Saving as string but it may cause issues "
-                    "when loading."
-                )
-        return settings
-
     def set_current_settings(self, settings: dict[str, Any]):
         """Set UI widgets based on provided settings."""
         if "analysis_limits" in settings:
             limits = settings["analysis_limits"]
             self.start_edit.setText(str(limits[0]) if limits[0] else "")
             self.end_edit.setText(str(limits[1]) if limits[1] else "")
+        if "animal_type" in settings:
+            self.animal_type_box.setCurrentText(settings["animal_type"].name)
         if "events_in_overview" in settings:
             self.events_in_overview = settings["events_in_overview"]
         if "events_to_analyse" in settings:
@@ -951,11 +1013,15 @@ class SettingsWindow(QDialog):
         if "night_duration" in settings:
             self.night_duration_spin.setValue(settings["night_duration"])
         if "output_folder" in settings:
-            self.output_folder_edit.setText(str(settings["output_folder"]))
+            if settings["output_folder"] is None:
+                output_str = ""
+            else:
+                output_str = str(settings["output_folder"])
+            self.output_folder_edit.setText(output_str)
         if "processing_window" in settings:
             self.process_window_frames.setValue(settings["processing_window"])
         if "rebuild_option" in settings:
-            self.rebuild_box.setCurrentText(settings["rebuild_option"])
+            self.rebuild_box.setCurrentText(settings["rebuild_option"].name)
         if "time_window" in settings:
             self.time_window_frames.setValue(settings["time_window"])
 
@@ -970,6 +1036,7 @@ class SettingsWindow(QDialog):
         self.reject()
 
     def Qhline(self):
+        """Utility function to create a horizontal line separator."""
         hline = QFrame()
         hline.setFrameShape(QFrame.Shape.HLine)
         hline.setFrameShadow(QFrame.Shadow.Sunken)
