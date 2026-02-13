@@ -11,7 +11,7 @@ from typing import Any, Literal
 import numpy as np
 import pandas as pd
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QEvent
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QApplication,
@@ -41,15 +41,12 @@ from PyQt6.QtWidgets import (
 lmt_analysis_path = Path(__file__).parent.parent
 sys.path.append(lmt_analysis_path.as_posix())
 
-from dim_c_brains.scripts.pyqt6_tools import (
-    UserSelector,
-    YesNoQuestion,
-    get_btn_style,
-)
-from dim_c_brains.scripts.events_and_modules import ALL_EVENTS
-from dim_c_brains.LMT_analyser import LMTAnalyser, AnalysisSettings
 from dim_c_brains.scripts.events_rebuilder import RebuildOption
 from dim_c_brains.scripts.parameter_saver import ParameterSaver
+from dim_c_brains.scripts.events_and_modules import ALL_EVENTS
+from dim_c_brains.LMT_analyser import LMTAnalyser, AnalysisSettings
+from dim_c_brains.scripts.pyqt6_tools import YesNoQuestion, get_btn_style
+
 from lmtanalysis.Measure import oneMinute, oneDay
 from lmtanalysis.Animal import AnimalType
 
@@ -84,7 +81,29 @@ class AnalysisAppWindow(QWidget):
     def init_ui(self):
         main_layout = QVBoxLayout()
 
-        # Info display
+        #######################################
+        #   Help button   #
+        #######################################
+        help_row = QHBoxLayout()
+        help_row.addStretch(1)
+        help_btn = QPushButton("?")
+        help_btn.setFixedSize(42, 42)
+        btn_style = get_btn_style(
+            size=18,
+            bold=True,
+            txt_color="#FFFFFF",
+            bg_color="#EA2A94",
+            radius=15,
+        )
+        help_btn.setStyleSheet(btn_style)
+        help_btn.setToolTip("Help / About")
+        help_btn.clicked.connect(self.show_help_dialog)
+        help_row.addWidget(help_btn)
+        main_layout.addLayout(help_row)
+
+        #######################################
+        #   Database informations   #
+        #######################################
         self.info_label = QLabel()
         self.info_label.setTextFormat(Qt.TextFormat.RichText)
         self.info_label.setText("<b>No loaded database.</b>")
@@ -93,14 +112,15 @@ class AnalysisAppWindow(QWidget):
         #######################################
         #   First buttons row   #
         #######################################
-        btn_layout = QHBoxLayout()
+
+        btn_layout_1 = QHBoxLayout()
 
         # database button
         btn_style = get_btn_style(size=15, bold=True, bg_color="#1976D2")
         self.load_db_btn = QPushButton("Load Database")
         self.load_db_btn.setStyleSheet(btn_style)
         self.load_db_btn.clicked.connect(self.on_load_db)
-        btn_layout.addWidget(self.load_db_btn)
+        btn_layout_1.addWidget(self.load_db_btn)
 
         # all other buttons
         btn_style = get_btn_style(size=15, bold=True)
@@ -109,40 +129,40 @@ class AnalysisAppWindow(QWidget):
         self.update_info_btn = QPushButton("Animals Infos")
         self.update_info_btn.setStyleSheet(btn_style)
         self.update_info_btn.clicked.connect(self.on_update_info)
-        btn_layout.addWidget(self.update_info_btn)
+        btn_layout_1.addWidget(self.update_info_btn)
 
         # settings button
         self.settings_btn = QPushButton("Settings")
         self.settings_btn.setStyleSheet(btn_style)
         self.settings_btn.clicked.connect(self.on_settings)
-        btn_layout.addWidget(self.settings_btn)
+        btn_layout_1.addWidget(self.settings_btn)
 
-        main_layout.addLayout(btn_layout)
+        main_layout.addLayout(btn_layout_1)
 
         #######################################
         #   Second buttons row   #
         #######################################
-        btn_layout = QHBoxLayout()
+        btn_layout_2 = QHBoxLayout()
 
         # Rebuild button
         self.rebuild_btn = QPushButton("Rebuild")
         self.rebuild_btn.setStyleSheet(btn_style)
         self.rebuild_btn.clicked.connect(self.on_rebuild)
-        btn_layout.addWidget(self.rebuild_btn)
+        btn_layout_2.addWidget(self.rebuild_btn)
 
         # Process and Rebuild button
-        self.rebuild_process_btn = QPushButton("Rebuild + Process")
-        self.rebuild_process_btn.setStyleSheet(btn_style)
-        self.rebuild_process_btn.clicked.connect(self.on_rebuild_analyse)
-        btn_layout.addWidget(self.rebuild_process_btn)
+        self.rebuild_analyse_btn = QPushButton("Rebuild + Analyse")
+        self.rebuild_analyse_btn.setStyleSheet(btn_style)
+        self.rebuild_analyse_btn.clicked.connect(self.on_rebuild_analyse)
+        btn_layout_2.addWidget(self.rebuild_analyse_btn)
 
         # Process button
-        self.process_btn = QPushButton("Process")
-        self.process_btn.setStyleSheet(btn_style)
-        self.process_btn.clicked.connect(self.on_analyse)
-        btn_layout.addWidget(self.process_btn)
+        self.analyse_btn = QPushButton("Analyse")
+        self.analyse_btn.setStyleSheet(btn_style)
+        self.analyse_btn.clicked.connect(self.on_analyse)
+        btn_layout_2.addWidget(self.analyse_btn)
 
-        main_layout.addLayout(btn_layout)
+        main_layout.addLayout(btn_layout_2)
 
         self.setLayout(main_layout)
 
@@ -189,8 +209,8 @@ class AnalysisAppWindow(QWidget):
 
         btn_style = get_btn_style(size=15, bold=True, bg_color="#1976D2")
         self.rebuild_btn.setStyleSheet(btn_style)
-        self.rebuild_process_btn.setStyleSheet(btn_style)
-        self.process_btn.setStyleSheet(btn_style)
+        self.rebuild_analyse_btn.setStyleSheet(btn_style)
+        self.analyse_btn.setStyleSheet(btn_style)
 
     def warning_message_load_database(self):
         """Check if a database is loaded, and show a warning if not."""
@@ -220,8 +240,7 @@ class AnalysisAppWindow(QWidget):
             self.warning_message_load_database()
             return
 
-        msg = f"Rebuild {self.database_path.stem} ?"
-        dlg = YesNoQuestion(self, msg)
+        dlg = YesNoQuestion(self, "REBUILD ?")
 
         if dlg.exec():
             print("Rebuilding database...")
@@ -239,9 +258,7 @@ class AnalysisAppWindow(QWidget):
             self.warning_message_load_database()
             return
 
-        msg = f"Rebuild and analyse {self.database_path.stem} ?"
-        dlg = YesNoQuestion(self, msg)
-
+        dlg = YesNoQuestion(self, "REBUILD + ANALYSE ?")
         if dlg.exec():
             current_settings = self.settings.get_as_dict()
             current_settings["database_path"] = self.database_path
@@ -252,6 +269,10 @@ class AnalysisAppWindow(QWidget):
             print("Starting analysis...")
             self.lmt_analyser.run_analysis()
             print("Analysis finished.")
+
+            dlg = YesNoQuestion(self, "OPEN ANALYSIS ?")
+            if dlg.exec():
+                self.lmt_analyser.open_analysis_output()
         else:
             print("Process cancelled.")
 
@@ -261,9 +282,7 @@ class AnalysisAppWindow(QWidget):
             self.warning_message_load_database()
             return
 
-        msg = f"Analyse {self.database_path.stem} ?"
-        dlg = YesNoQuestion(self, msg)
-
+        dlg = YesNoQuestion(self, "ANALYSE ?")
         if dlg.exec():
             current_settings = self.settings.get_as_dict()
             current_settings["database_path"] = self.database_path
@@ -271,8 +290,42 @@ class AnalysisAppWindow(QWidget):
             print("Starting analysis...")
             self.lmt_analyser.run_analysis()
             print("Analysis finished.")
+
+            dlg = YesNoQuestion(self, "OPEN ANALYSIS ?")
+            if dlg.exec():
+                self.lmt_analyser.open_analysis_output()
         else:
             print("Process cancelled.")
+
+    def show_help_dialog(self):
+        info_msg = """
+            To seek for help, visit LMT website:<br>
+            <a href='https://micecraft.org/lmt/'>
+            https://micecraft.org/lmt/</a><br>
+            <br>
+            You can also go on the LMT Discord server to ask LMT creators and
+            other users about your problems to have a quick answer:<br>
+            <a href='https://discord.com/invite/zWDHNf9eHM'>
+            https://discord.com/invite/zWDHNf9eHM</a><br>
+        """
+        dlg = QDialog(self)
+        dlg.setWindowTitle("Help")
+        dlg.setFixedWidth(300)
+        layout = QVBoxLayout(dlg)
+        label = QLabel()
+        label.setTextFormat(Qt.TextFormat.RichText)
+        label.setText(info_msg)
+        label.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+            | Qt.TextInteractionFlag.LinksAccessibleByMouse
+        )
+        label.setOpenExternalLinks(True)
+        label.setWordWrap(True)
+        layout.addWidget(label)
+        btn_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
+        btn_box.accepted.connect(dlg.accept)
+        layout.addWidget(btn_box)
+        dlg.exec()
 
 
 class EventChooser(QDialog):

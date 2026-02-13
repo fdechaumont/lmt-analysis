@@ -220,9 +220,11 @@ def get_btn_style(
     txt_color: str | None = None,
     bg_color: str | None = None,
     border_color: str | None = None,
+    border_size: float = 1.5,
     hover_txt_color: str | None = None,
     hover_bg_color: str | None = None,
     hover_border_color: str | None = None,
+    radius: int | None = 6,
 ) -> str:
 
     # base style
@@ -243,9 +245,8 @@ def get_btn_style(
     style += f"color: {txt_color}; "
 
     if border_color is not None:
-        border_color = "#f0f0f0"
-        style += f"border: 1px solid {border_color}; "
-        style += "border-radius: 6px; "
+        style += f"border: {border_size}px solid {border_color}; "
+    style += f"border-radius: {radius}px; "
 
     style += "margin: 6px 6px; padding: 3px 3px; "
     style += " }"
@@ -263,10 +264,9 @@ def get_btn_style(
 
     if hover_border_color is not None:
         hover_border_color = bg_color
-        style += f"border: 1.5px solid {hover_border_color};"
-        style += "border-radius: 6px; "
+        style += f"border: {border_size}px solid {hover_border_color};"
+    style += f"border-radius: {radius}px; "
 
     style += " }"
 
-    # return style
     return style

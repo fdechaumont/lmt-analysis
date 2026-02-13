@@ -70,6 +70,17 @@ class AnalysisSettings:
 
         new_dict["rebuild_option"] = RebuildOption[new_dict["rebuild_option"]]
 
+        if new_dict["events_in_overview"] == [None]:
+            new_dict["events_in_overview"] = None
+
+        if new_dict["events_to_analyse"] == [None]:
+            new_dict["events_to_analyse"] = None
+
+        if new_dict["events_to_rebuild"] == [None]:
+            new_dict["events_to_rebuild"] = None
+
+        print(f"Converted settings from str: {new_dict}")
+
         return new_dict
 
     def __init__(self):
@@ -293,6 +304,9 @@ class LMTAnalyser:
         if database_path is None:
             database_path = select_sqlite_file()
         self.database_path = database_path
+        self.default_output_path = self.database_path.parent / (
+            self.database_path.stem + " - analysis"
+        )
 
     def set_events_to_analyse(self, event_list: list[str] | None):
         """Load the list of event names to analyze."""
@@ -370,8 +384,7 @@ class LMTAnalyser:
         output_folder: Path | str | Literal["manual_selection"] | None = None,
     ):
         """Set the output folder for saving reports. If 'manual_selection' is
-        provided, prompts the user to select a folder. If None is provided,
-        the output folder will the folder of the selected .sqlite file."""
+        provided, prompts the user to select a folder."""
         if isinstance(output_folder, str):
             if output_folder != "manual_selection":
                 output_folder = Path(output_folder)
@@ -395,7 +408,7 @@ class LMTAnalyser:
 
         match self.rebuild_option:
             case RebuildOption.NO_REBUILD:
-                self.events_to_rebuild = None
+                self.events_to_rebuild = []
 
             case RebuildOption.ANALYSIS:
                 self.events_to_rebuild = self.events_to_analyse
@@ -522,7 +535,7 @@ class LMTAnalyser:
             repo_manager, df_constructor, **self.get_parameters()
         )
 
-        if self.events_to_analyse is None:
+        if not self.events_to_analyse:
             df_dic["events"] = None
         else:
             df_dic["events"] = pd.DataFrame()
@@ -554,13 +567,26 @@ class LMTAnalyser:
 
         self.set_output_folder(self.output_folder)
 
-        if self.output_folder:
-            repo_manager.generate_local_output(self.output_folder)
-            print(f"Save analysis at\n{self.output_folder}")
-        else:
-            output_folder = self.database_path.parent / (
-                self.database_path.stem + " - analysis"
+        if self.output_folder is None:
+            print(
+                f"Save analysis in database folder\n{self.default_output_path}"
             )
-            print(f"Save analysis to default folder\n{output_folder}")
+            repo_manager.generate_local_output(self.default_output_path)
+        else:
+            print(f"Save analysis in defined folder\n{self.output_folder}")
+            repo_manager.generate_local_output(self.output_folder)
 
         return df_dic
+
+    def open_analysis_output(self):
+        """Open the generated analysis output in the default web browser."""
+        if self.output_folder is None:
+            output_folder = self.default_output_path
+        else:
+            output_folder = self.output_folder
+
+        index_file = output_folder / "index.html"
+        if index_file.exists():
+            HTMLReportManager.open_local_output(output_folder)
+        else:
+            print(f"Output file not found: {index_file}")

@@ -39,6 +39,17 @@ class HTMLReportManager:
             folder organization).
     """
 
+    @staticmethod
+    def open_local_output(output_folder: Path):
+        """Open the generated local HTML output in the default web browser."""
+        if not (output_folder / "index.html").exists():
+            print(
+                """Error: index.html not found in the specified output folder.
+                Please generate the local output first."""
+            )
+        else:
+            webbrowser.open(str(output_folder / "index.html"))
+
     def __init__(self):
         self.reports = []
         self.exp_name = "main"
@@ -233,5 +244,6 @@ class HTMLReportManager:
             webSite.addReport(report)
 
         webSite.generateWebSite()
-        print(output_folder / "index.html")
-        webbrowser.open(str(output_folder / "index.html"))
+        print(
+            "Local output generated at:\n" + str(output_folder / "index.html")
+        )
