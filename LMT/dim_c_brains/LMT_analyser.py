@@ -2,20 +2,16 @@
 @author: xmousset
 """
 
-import json
 import sqlite3
+from typing import Any
 from pathlib import Path
-from typing import Any, Dict, List, Literal
 
 import pandas as pd
 
 from dim_c_brains.scripts.parameter_saver import ParameterSaver
 from dim_c_brains.scripts.reports_manager import HTMLReportManager
 from dim_c_brains.scripts.data_extractor import DataFrameConstructor
-from dim_c_brains.scripts.events_rebuilder import (
-    RebuildOption,
-    EventsRebuilder,
-)
+from dim_c_brains.scripts.events_rebuilder import EventsRebuilder
 from dim_c_brains.reports import (
     activity_reports,
     event_reports,
@@ -31,21 +27,76 @@ from lmtanalysis.Animal import AnimalType
 from lmtanalysis.Measure import oneMinute, oneDay
 
 
-class AnalysisSettings:
-    """Class to hold analysis settings."""
+class LMTSettings:
+    """Manage parameters for LMT analysis workflow.
+
+    Parameters
+    ----------
+    analysis_limits : tuple of (int or str or None, int or str or None), optional
+        Start and end of the analysis period. Each can be an integer frame
+        number or a timestamp string. Defaults to (None, None).
+        *(timestamp string example: "2026-01-01 00:00:00")*
+    animal_type : AnimalType, optional
+        Type of animal for event processing. Defaults to AnimalType.MOUSE.
+    events : set of str, optional
+        Set of event names to analyze. By default, no event analysis is
+        performed (empty set).
+    filter_flickering : bool, optional
+        Whether to filter the 'Flickering' event for animal activity.
+        Defaults to False.
+    filter_stop : bool, optional
+        Whether to filter the 'Stop' event for animal activity.
+        Defaults to False.
+    fps : int, optional
+        Frame rate of the recording in *frames per second*. Defaults to 30.
+    night_begin : int, optional
+        Hour when the night begins (0-23). Defaults to 20 (8 *p.m.*).
+    night_duration : int, optional
+        Duration of the night in hours. Defaults to 12 (12 hours so from
+        8 *p.m.* to 8 *a.m.* for example).
+    output_folder : Path or str or None, optional
+        Folder to save the output reports. By default, prompts user to
+        select folder ('manual selection').
+    processing_window : int, optional
+        Load a maximum of 'processing_window' *frames* simultaneously. If the
+        data is bigger than this window, the computation will be splitted into
+        chunks of 'processing_window' size. Defaults to *2 592 000 frames (=1
+        day)*.
+    rebuild_events : bool, optional
+        Whether to rebuild all the events to analyse in the database before
+        analysis. If False, only missing events will be rebuilt. Defaults to
+        False.
+    time_window : int, optional
+        Time window for data binning in *frames*. Defaults to *27 000 (= 15
+        min)*.
+    """
+
+    @staticmethod
+    def get_default_settings() -> dict[str, Any]:
+        """Get the default settings values as a dictionary."""
+        default_settings = {
+            "analysis_limits": (None, None),
+            "animal_type": AnimalType.MOUSE,
+            "events": set(),
+            "filter_flickering": False,
+            "filter_stop": False,
+            "fps": 30,
+            "night_begin": 20,
+            "night_duration": 12,
+            "output_folder": None,
+            "processing_window": 30 * oneDay,
+            "rebuild_events": False,
+            "time_window": 15 * oneMinute,
+        }
+        return default_settings
 
     @staticmethod
     def get_all_keys():
-        """Get all attribute names except those starting with an underscore."""
-        keys = [
-            key
-            for key in AnalysisSettings().__dict__
-            if not key.startswith("_")
-        ]
-        return keys
+        """Get all settings names."""
+        return [key for key in LMTSettings.get_default_settings()]
 
     @staticmethod
-    def convert_in_str(initial_dict: Dict[str, Any]) -> Dict[str, Any]:
+    def convert_in_str(initial_dict: dict[str, Any]) -> dict[str, Any]:
         """Convert the settings values in string for better readability."""
         new_dict = initial_dict.copy()
 
@@ -54,12 +105,13 @@ class AnalysisSettings:
         if new_dict["output_folder"] is not None:
             new_dict["output_folder"] = str(new_dict["output_folder"])
 
-        new_dict["rebuild_option"] = new_dict["rebuild_option"].name
+        if isinstance(new_dict["events"], set):
+            new_dict["events"] = list(new_dict["events"])
 
         return new_dict
 
     @staticmethod
-    def convert_from_str(initial_dict: Dict[str, Any]) -> Dict[str, Any]:
+    def convert_from_str(initial_dict: dict[str, Any]) -> dict[str, Any]:
         """Convert the settings values from string to their original type."""
         new_dict = initial_dict.copy()
 
@@ -68,56 +120,63 @@ class AnalysisSettings:
         if new_dict["output_folder"] is not None:
             new_dict["output_folder"] = Path(new_dict["output_folder"])
 
-        new_dict["rebuild_option"] = RebuildOption[new_dict["rebuild_option"]]
-
-        if new_dict["events_in_overview"] == [None]:
-            new_dict["events_in_overview"] = None
-
-        if new_dict["events_to_analyse"] == [None]:
-            new_dict["events_to_analyse"] = None
-
-        if new_dict["events_to_rebuild"] == [None]:
-            new_dict["events_to_rebuild"] = None
+        if new_dict["events"] == [None]:
+            new_dict["events"] = set()
 
         print(f"Converted settings from str: {new_dict}")
 
         return new_dict
 
-    def __init__(self):
-        """Initialize the settings with default values."""
+    def __init__(self, **kwargs):
+        """Initialize the settings with default or specified values."""
         self.reset()
+        self.update_from_dict(kwargs)
         self._saver = ParameterSaver()
 
     def reset(self):
         """Reset the settings to their initial values."""
-        self.analysis_limits: List[int | str | None] = [None, None]
-        self.animal_type: AnimalType = AnimalType.MOUSE
-        self.events_in_overview: List[str] = []
-        self.events_to_analyse: List[str] = []
-        self.events_to_rebuild: List[str] = []
-        self.filter_flickering: bool = False
-        self.filter_stop: bool = False
-        self.fps: int = 30
-        self.night_begin: int = 20
-        self.night_duration: int = 12
-        self.output_folder: Path | None = None
-        self.processing_window: int = oneDay
-        self.rebuild_option: RebuildOption = RebuildOption.MISSING
-        self.time_window: int = 15 * oneMinute
 
-    def get_as_dict(self) -> Dict[str, Any]:
+        default_settings = LMTSettings.get_default_settings()
+
+        self.analysis_limits: tuple[int | str | None, int | str | None] = (
+            default_settings["analysis_limits"]
+        )
+        self.animal_type: AnimalType = default_settings["animal_type"]
+        self.events: set[str] = default_settings["events"]
+        self.filter_flickering: bool = default_settings["filter_flickering"]
+        self.filter_stop: bool = default_settings["filter_stop"]
+        self.fps: int = default_settings["fps"]
+        self.night_begin: int = default_settings["night_begin"]
+        self.night_duration: int = default_settings["night_duration"]
+        self.output_folder: Path | None = default_settings["output_folder"]
+        self.processing_window: int = default_settings["processing_window"]
+        self.rebuild_events: bool = default_settings["rebuild_events"]
+        self.time_window: int = default_settings["time_window"]
+
+    def logic_update(self):
+        """Update the settings values based on the current settings. Useful,
+        for example, to add events if filters are activated."""
+        if self.filter_flickering:
+            self.events.add("Flickering")
+
+        if self.filter_stop:
+            self.events.add("Stop")
+            self.events.add("Stop in contact")
+            self.events.add("Stop isolated")
+
+    def get_as_dict(self) -> dict[str, Any]:
         """Get the settings as a dictionary."""
         settings = {}
-        for key in self.get_all_keys():
+        for key in LMTSettings.get_all_keys():
             settings[key] = getattr(self, key)
         return settings
 
-    def update_from_dict(self, settings_dict: Dict[str, Any]):
+    def update_from_dict(self, settings_dict: dict[str, Any]):
         """Update the settings from a dictionary."""
         update_dict = self.get_as_dict()
         update_dict.update(settings_dict)
 
-        for key in self.get_all_keys():
+        for key in LMTSettings.get_all_keys():
             setattr(self, key, update_dict[key])
 
     def save(self, file_path: Path):
@@ -125,10 +184,10 @@ class AnalysisSettings:
 
         if self._saver is None:
             raise ValueError(
-                "No saver defined for AnalysisSettings. Cannot save settings."
+                "No saver defined for LMTSettings. Cannot save settings."
             )
 
-        settings = AnalysisSettings.convert_in_str(self.get_as_dict())
+        settings = LMTSettings.convert_in_str(self.get_as_dict())
 
         self._saver.set_values(settings)
         if file_path:
@@ -141,16 +200,18 @@ class AnalysisSettings:
 
         if self._saver is None:
             raise ValueError(
-                "No saver defined for AnalysisSettings. Cannot load settings."
+                "No saver defined for LMTSettings. Cannot load settings."
             )
 
         self._saver.load(file_path)
         settings = self._saver.get_parameters()
-        settings = AnalysisSettings.convert_from_str(settings)
+        settings = LMTSettings.convert_from_str(settings)
         self.update_from_dict(settings)
 
 
-class LMTAnalyser:
+class LMTDataAnalyzer:
+    """Class to analyze LMT data, generate reports and save them to an output
+    folder."""
 
     @staticmethod
     def get_informations(database_path: Path):
@@ -197,396 +258,190 @@ class LMTAnalyser:
         }
         return info
 
-    def __init__(self, **kwargs):
+    def __init__(
+        self,
+        database_path: Path | str | None = None,
+        settings: LMTSettings | None = None,
+    ):
         """
         Analysis workflow for LMT data. Can rebuild events, generate dataframes
         and generate HTML reports.
 
         Parameters
         ----------
-        analysis_limits : tuple of (int or str or None, int or str or None), optional
-            Start and end of the analysis period. Each can be an integer frame
-            number or a timestamp string. Defaults to (None, None).
-            *(timestamp string example: "2026-01-01 00:00:00")*
         database_path : Path, optional
             Path to the SQLite data file. If not provided, prompts user to
             select file.
-        events_in_overview : list of str, optional
-            List of event names for overview reports. By default, no overview
-            event analysis is performed (None).
-        events_to_analyse : list of str, optional
-            List of event names to analyze. By default, no event analysis is
-            performed (None).
-        events_to_rebuild : list of str or None, optional
-            List of event names to rebuild if `rebuild_option` is set to
-            'custom', otherwise, it is filled automatically. By default, None.
-        filter_flickering : bool, optional
-            Whether to filter flickering activity. Defaults to False.
-        filter_stop : bool, optional
-            Whether to filter stop activity. Defaults to False.
-        fps : int, optional
-            Frame rate of the recording. Defaults to 30 *frames per second*.
-        night_begin : int, optional
-            Hour when the night begins. Defaults to 20 (8 *p.m.*).
-        night_duration : int, optional
-            Duration of the night in hours. Defaults to 12 (8 *p.m.* to 8
-            *a.m.*).
-        output_folder : Path or str or None, optional
-            Folder to save the output reports. By default, prompts user to
-            select folder ('manual selection').
-        processing_window : int, optional
-            Maximum processing duration in seconds. Defaults to 1 *day* (2 592
-            000 *frames*).
-        rebuild_option : RebuildOption, optional
-            Rebuild option for events before analysis. Defaults to
-            RebuildOption.MISSING.
-            Possible values:
-                - RebuildOption.ALL: rebuild all events that exist for LMT.
-                - RebuildOption.MISSING: rebuild only missing events in
-                    database.
-                - RebuildOption.ANALYSIS: rebuild analysis-related events
-                    (those in `LMTAnalyser.events_to_analyse`).
-                - RebuildOption.CUSTOM: rebuild only events specified in
-                    `LMTAnalyser.events_to_rebuild`.
-        time_window : int, optional
-            Time window in seconds for binning data. Defaults to 15 *min*
-            (27 000 *frames*).
+        settings : LMTSettings, optional
+            Analysis settings. If not provided, defaults to a new instance
+            of LMTSettings.
         """
-
-        self.load_sqlite_file(kwargs.get("database_path", None))
-
-        self.set_time_window(
-            time_window=kwargs.get("time_window", 15 * oneMinute)
-        )
-        self.set_frame_rate(fps=kwargs.get("fps", 30))
-
-        self.set_processing_window(
-            processing_window=kwargs.get("processing_window", oneDay)
-        )
-
-        self.set_night_hours(
-            night_begin=kwargs.get("night_begin", 20),
-            night_duration=kwargs.get("night_duration", 12),
-        )
-
-        self.set_filters(
-            flickering=kwargs.get("filter_flickering", True),
-            stop=kwargs.get("filter_stop", True),
-        )
-
-        self.set_events_to_analyse(kwargs.get("events_to_analyse", None))
-
-        self.set_events_in_overview(kwargs.get("events_in_overview", None))
-
-        self.set_output_folder(output_folder=kwargs.get("output_folder", None))
-
-        self.set_rebuild_option(
-            rebuild_option=kwargs.get("rebuild_option", RebuildOption.MISSING)
-        )
-
-        rebuild_list = kwargs.get("events_to_rebuild", None)
-        if (
-            rebuild_list is not None
-            and self.rebuild_option == RebuildOption.CUSTOM
-        ):
-            self.set_custom_rebuild(rebuild_list)
-
-        self.set_analysis_limits(
-            start=kwargs.get("start", None),
-            end=kwargs.get("end", None),
-        )
-
-    def load_sqlite_file(self, database_path: Path | str | None):
-        """Load the SQLite data file. If no file path is provided, prompts the
-        user to select a file."""
         if isinstance(database_path, str):
             database_path = Path(database_path)
-        if database_path is None:
-            database_path = select_sqlite_file()
         self.database_path = database_path
-        self.default_output_path = self.database_path.parent / (
-            self.database_path.stem + " - analysis"
-        )
+        if database_path is None:
+            self.database_path = self.choose_sqlite_file()
 
-    def set_events_to_analyse(self, event_list: list[str] | None):
-        """Load the list of event names to analyze."""
-        self.events_to_analyse: List[str] = []
+        if settings is None:
+            self.settings = LMTSettings()
+        else:
+            self.settings = settings
 
-        if event_list is not None:
-            self.events_to_analyse = event_list
+    def choose_sqlite_file(self):
+        """Load the SQLite data file. If no file path is provided, prompts the
+        user to select a file."""
+        database_path = select_sqlite_file()
+        if database_path is None:
+            return
+        self.database_path = database_path
+
+    def choose_output_folder(self, output_folder: Path | str | None = None):
+        """Choose the output folder for the analysis reports. If no folder path
+        is provided, prompts the user to select a folder."""
+        output_folder = select_folder()
+        if output_folder is None:
+            return
+        self.settings.output_folder = output_folder
+
+    def _convert_analysis_limits(self):
+        """Get the analysis limits values in frames."""
+
+        start_f, end_f = self.settings.analysis_limits
 
         if (
-            "Flickering" not in self.events_to_analyse
-            and self.filter_flickering
+            start_f is not None
+            and end_f is not None
+            and type(start_f) != type(end_f)
         ):
-            self.events_to_analyse.append("Flickering")
-
-        if "Stop" not in self.events_to_analyse and self.filter_stop:
-            self.events_to_analyse.append("Stop")
-
-        if (
-            "Stop in contact" not in self.events_to_analyse
-            and self.filter_stop
-        ):
-            self.events_to_analyse.append("Stop in contact")
-
-        if "Stop isolated" not in self.events_to_analyse and self.filter_stop:
-            self.events_to_analyse.append("Stop isolated")
-
-    def set_events_in_overview(
-        self, overview_card_event_list: list[str] | None
-    ):
-        """Set the list of event names for overview reports."""
-        self.events_in_overview = overview_card_event_list
-
-    def set_time_window(self, time_window: int):
-        """Set the time window for data binning (in *frames*)."""
-        self.time_window = time_window
-
-    def set_frame_rate(self, fps: int):
-        """Set the frame rate of the recording (in *frames per second*)."""
-        self.fps = fps
-
-    def set_processing_window(self, processing_window: int):
-        """Set the maximum processing frame window to compute (in *frames*).
-        If the data is longer than this window, the computation of the data
-        will be splitted into chunks of this size."""
-        self.processing_window = processing_window
-
-    def set_night_hours(self, night_begin: int, night_duration: int):
-        """Set the night period for the analysis.
-
-        Parameters
-        ----------
-        night_begin : int
-            Hour when the night begins (0-23).
-        night_duration : int
-            Duration of the night in hours.
-        """
-        self.night_begin = night_begin
-        self.night_duration = night_duration
-
-    def set_filters(self, flickering: bool = True, stop: bool = True):
-        """Set the filters for activity analysis.
-
-        Parameters
-        ----------
-        flickering : bool, optional
-            Whether to filter the 'Flickering' event. Defaults to True.
-        stop : bool, optional
-            Whether to filter the 'Stop' event. Defaults to True.
-        """
-        self.filter_flickering = flickering
-        self.filter_stop = stop
-
-    def set_output_folder(
-        self,
-        output_folder: Path | str | Literal["manual_selection"] | None = None,
-    ):
-        """Set the output folder for saving reports. If 'manual_selection' is
-        provided, prompts the user to select a folder."""
-        if isinstance(output_folder, str):
-            if output_folder != "manual_selection":
-                output_folder = Path(output_folder)
-            else:
-                output_folder = select_folder()
-        self.output_folder = output_folder
-
-    def set_rebuild_option(self, rebuild_option: RebuildOption):
-        """Set the rebuild option for events before analysis.
-
-        Args:
-            rebuild_option (RebuildOption): rebuild option. Can be one of the following:
-                - RebuildOption.ALL: rebuild all events that exist for LMT.
-                - RebuildOption.MISSING: rebuild only missing events in database.
-                - RebuildOption.ANALYSIS: rebuild analysis-related events (those in
-                    `events_to_analyse`).
-                - RebuildOption.CUSTOM: rebuild only events specified in
-                    `events_to_rebuild`.
-        """
-        self.rebuild_option = rebuild_option
-
-        match self.rebuild_option:
-            case RebuildOption.NO_REBUILD:
-                self.events_to_rebuild = []
-
-            case RebuildOption.ANALYSIS:
-                self.events_to_rebuild = self.events_to_analyse
-
-            case RebuildOption.MISSING:
-                # Handled by EventsRebuilder
-                self.events_to_rebuild = ["auto_missing"]
-
-            case RebuildOption.ALL:
-                # Handled by EventsRebuilder
-                self.events_to_rebuild = ["auto_all"]
-
-            case RebuildOption.CUSTOM:
-                self.events_to_rebuild = []
-
-    def set_custom_rebuild(self, events_to_rebuild: List[str]):
-        """Set the rebuild list of event names and set the rebuild option to
-        CUSTOM."""
-        self.rebuild_option = RebuildOption.CUSTOM
-        self.events_to_rebuild = events_to_rebuild
-
-    def set_analysis_limits(
-        self, start: int | str | None, end: int | str | None
-    ):
-        """Set the analysis limits for the data.
-
-        Parameters
-        ----------
-        start : int or str or None
-            Start of the analysis period. Can be an integer frame number or a
-            timestamp string. Defaults to None. *(timestamp string example:
-            "2026-01-01 00:00:00")*
-        end : int or str or None
-            End of the analysis period. Can be an integer frame number or a
-            timestamp string. Defaults to None.*(timestamp string example:
-            "2026-01-01 00:00:00")*
-        """
-
-        if start is not None and end is not None and type(start) != type(end):
             raise ValueError(
                 f"set_analysis_limits inputs must be of the same type "
-                f"({type(start)} != {type(end)})"
+                f"({type(start_f)} != {type(end_f)})"
             )
 
-        if isinstance(start, str):
-            new_start = pd.Timestamp(start)
+        if isinstance(start_f, str):
+            new_start = pd.Timestamp(start_f)
         else:
-            new_start = start
+            new_start = start_f
 
-        if isinstance(end, str):
-            new_end = pd.Timestamp(end)
+        if isinstance(end_f, str):
+            new_end = pd.Timestamp(end_f)
         else:
-            new_end = end
+            new_end = end_f
 
-        self.analysis_limits = (new_start, new_end)
-
-    def get_parameters(self):
-        """Get the current analysis parameters. Useful for kwargs passing
-        arguments."""
-        parameters: Dict[str, Any] = {}
-
-        parameters["analysis_limits"] = self.analysis_limits
-
-        parameters["database_path"] = self.database_path
-
-        parameters["rebuild_option"] = self.rebuild_option
-
-        parameters["events_to_rebuild"] = self.events_to_rebuild
-        parameters["events_to_analyse"] = self.events_to_analyse
-        parameters["events_in_overview"] = self.events_in_overview
-
-        parameters["time_window"] = self.time_window
-        parameters["processing_window"] = self.processing_window
-
-        parameters["output_folder"] = self.output_folder
-
-        parameters["fps"] = self.fps
-
-        parameters["filter_stop"] = self.filter_stop
-        parameters["filter_flickering"] = self.filter_flickering
-
-        parameters["night_begin"] = self.night_begin
-        parameters["night_duration"] = self.night_duration
-
-        return parameters
+        return (new_start, new_end)
 
     def rebuild_database(self):
         """Rebuild events in the database according to the selected rebuild
         option."""
         connection = sqlite3.connect(str(self.database_path))
 
+        start, end = self._convert_analysis_limits()
+
         rebuilder = EventsRebuilder(
             connection,
             str(self.database_path),
-            self.rebuild_option,
-            self.events_to_rebuild,
-            self.processing_window,
-            self.analysis_limits[0],
-            self.analysis_limits[1],
+            self.settings.processing_window,
+            start,
+            end,
+            self.settings.animal_type,
         )
-        rebuilder.rebuild()
+        self.settings.logic_update()
+        if self.settings.rebuild_events:
+            events_to_rebuild = self.settings.events
+        else:
+            events_to_rebuild = (
+                self.settings.events - rebuilder.get_events_in_database()
+            )
+
+        rebuilder.rebuild(events_to_rebuild)
         connection.close()
 
     def run_analysis(self):
         """Run the analysis workflow, generating dataframes and HTML reports.
         Save the reports to the selected output folder."""
+
+        if self.database_path is None:
+            raise ValueError("No database path provided for analysis.")
+
+        self.settings.logic_update()
+
         connection = sqlite3.connect(str(self.database_path))
         repo_manager = HTMLReportManager()
 
+        start, end = self._convert_analysis_limits()
         df_constructor = DataFrameConstructor(
             connection,
-            bin_window=self.time_window,
-            processing_window=self.processing_window,
-            start=self.analysis_limits[0],
-            end=self.analysis_limits[1],
+            self.settings.time_window,
+            self.settings.processing_window,
+            start,
+            end,
         )
 
         df_constructor.binner.set_parameters(
-            fps=self.fps,
+            fps=self.settings.fps,
         )
 
-        df_dic: Dict[str, pd.DataFrame | None] = {}
-        df_dic["activity"] = activity_reports.generic_reports(
-            repo_manager, df_constructor, **self.get_parameters()
+        activity_df = activity_reports.generic_reports(
+            repo_manager, df_constructor, **self.settings.get_as_dict()
         )
 
-        if not self.events_to_analyse:
-            df_dic["events"] = None
+        if not self.settings.events:
+            events_df = None
         else:
-            df_dic["events"] = pd.DataFrame()
-            for event_name in self.events_to_analyse:
-                df_dic["events"] = pd.concat(
+            events_df = pd.DataFrame()
+            for event_name in self.settings.events:
+                events_df = pd.concat(
                     [
-                        df_dic["events"],
+                        events_df,
                         event_reports.generic_reports(
                             repo_manager,
                             df_constructor,
                             event_name=event_name,
-                            **self.get_parameters(),
+                            **self.settings.get_as_dict(),
                         ),
                     ]
                 )
 
-        df_dic["sensors"] = sensors_reports.generic_reports(
-            repo_manager, df_constructor, **self.get_parameters()
+        sensors_df = sensors_reports.generic_reports(
+            repo_manager, df_constructor, **self.settings.get_as_dict()
         )
 
-        df_dic["mice"] = overview_reports.generic_reports(
+        animal_df = overview_reports.generic_reports(
             repo_manager,
             df_constructor,
-            df_activity=df_dic["activity"],
-            df_events=df_dic["events"],
-            df_sensors=df_dic["sensors"],
-            **self.get_parameters(),
+            df_activity=activity_df,
+            df_events=events_df,
+            df_sensors=sensors_df,
+            **self.settings.get_as_dict(),
         )
 
-        self.set_output_folder(self.output_folder)
-
-        if self.output_folder is None:
-            print(
-                f"Save analysis in database folder\n{self.default_output_path}"
+        if self.settings.output_folder is None:
+            self.settings.output_folder = self.database_path.parent / (
+                self.database_path.stem + " - analysis"
             )
-            repo_manager.generate_local_output(self.default_output_path)
-        else:
-            print(f"Save analysis in defined folder\n{self.output_folder}")
-            repo_manager.generate_local_output(self.output_folder)
 
-        return df_dic
+        print(f"Saving in \n{self.settings.output_folder}")
+        repo_manager.generate_local_output(self.settings.output_folder)
+
+        results_df: list[pd.DataFrame | None] = [
+            activity_df,
+            events_df,
+            sensors_df,
+            animal_df,
+        ]
+
+        return results_df
 
     def open_analysis_output(self):
         """Open the generated analysis output in the default web browser."""
-        if self.output_folder is None:
-            output_folder = self.default_output_path
-        else:
-            output_folder = self.output_folder
+        if self.settings.output_folder is None:
+            raise ValueError(
+                "Output folder is not defined. Please run the analysis first "
+                "to generate the output folder."
+            )
 
-        index_file = output_folder / "index.html"
+        index_file = self.settings.output_folder / "index.html"
         if index_file.exists():
-            HTMLReportManager.open_local_output(output_folder)
+            HTMLReportManager.open_local_output(self.settings.output_folder)
         else:
             print(f"Output file not found: {index_file}")

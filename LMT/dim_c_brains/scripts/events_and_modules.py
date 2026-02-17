@@ -167,13 +167,15 @@ def get_module(event_name: str):
     return module
 
 
-def get_modules(event_list: List[str]):
+def get_modules(events: list[str] | set[str]):
     """Get a set of unique modules associated with a list of event names."""
-    module_list: List[ModuleType] = []
+    modules_set: set[ModuleType] = set()
 
-    for event in event_list:
+    if isinstance(events, list):
+        events = set(events)
+
+    for event in events:
         module = get_module(event)
         if module is not None:
-            module_list.append(module)
-    module_set = set(module_list)
-    return module_set
+            modules_set.add(module)
+    return modules_set

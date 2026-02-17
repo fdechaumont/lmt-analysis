@@ -7,17 +7,23 @@ from pathlib import Path
 def select_sqlite_file():
     root = tk.Tk()
     root.withdraw()
-    file_path = filedialog.askopenfilename(
+    file_str = filedialog.askopenfilename(
         title="Select SQLite file",
         filetypes=[("SQLite files", "*.sqlite"), ("All files", "*.*")],
     )
     root.destroy()
-    return Path(file_path)
+    if not file_str:
+        print("No file selected.")
+        return None
+    return Path(file_str)
 
 
 def select_folder():
     root = tk.Tk()
     root.withdraw()
-    folder_path = filedialog.askdirectory(title="Select Folder")
+    dir_str = filedialog.askdirectory(title="Select Folder")
     root.destroy()
-    return Path(folder_path)
+    if not dir_str:
+        print("No folder selected.")
+        return None
+    return Path(dir_str)
