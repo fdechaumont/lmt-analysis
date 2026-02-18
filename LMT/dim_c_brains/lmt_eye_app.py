@@ -4,15 +4,29 @@
 """
 
 import sys
-import sqlite3
+import traceback
 from pathlib import Path
-from typing import Any, Literal
 
+# CREATE APP
+APP_CREATION = False
+APP_VERSION = "1.0"
+APP_DATE = "2026-02-18"
+# command for executable creation (run in terminal at project root):
+# pyinstaller -p LMT --onefile --icon=LMT/dim_c_brains/res/lmt_icon.png --add-data "LMT/dim_c_brains/res/template;dim_c_brains/res/template" --add-data "LMT/dim_c_brains/res/assets;dim_c_brains/res/assets" LMT\dim_c_brains\analysis_app.py
+
+if APP_CREATION:
+    print("Starting LMT-EYE...")
+else:
+    # ADD LMT FOLDER TO PYTHON PATH
+    lmt_analysis_path = Path(__file__).parent.parent
+    sys.path.append(str(lmt_analysis_path))
+
+import sqlite3
 import numpy as np
 import pandas as pd
 
-from PyQt6.QtCore import Qt, QEvent
-from PyQt6.QtGui import QIcon, QIntValidator
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QApplication,
     QCheckBox,
@@ -38,11 +52,8 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-lmt_analysis_path = Path(__file__).parent.parent
-sys.path.append(lmt_analysis_path.as_posix())
-
 from dim_c_brains.scripts.events_and_modules import ALL_EVENTS
-from dim_c_brains.LMT_analyser import LMTDataAnalyzer, LMTSettings
+from LMT.dim_c_brains.lmt_eye import LMTEYEDataAnalyzer, LMTEYESettings
 from dim_c_brains.scripts.pyqt6_tools import YesNoQuestion, get_btn_style
 
 from lmtanalysis.Animal import AnimalType
@@ -51,7 +62,7 @@ from lmtanalysis.Animal import AnimalType
 class AnalysisAppWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("LMT Analysis App")
+        self.setWindowTitle("LMT-EYE - v" + APP_VERSION)
         self.setFixedSize(550, 400)
         self.setWindowIcon(QIcon("LMT/dim_c_brains/res/app_icon.png"))
 
@@ -131,7 +142,7 @@ class AnalysisAppWindow(QWidget):
         infos = {}
         if self.database_path is not None:
             t_format = "%Y %B - %A %d - %H:%M"
-            infos = LMTDataAnalyzer.get_informations(self.database_path)
+            infos = LMTEYEDataAnalyzer.get_informations(self.database_path)
             info_html = (
                 "<table style='font-size:13px;'>"
                 f"<tr><td><b>Database:</b></td><td>{infos["database_name"]}</td></tr>"
@@ -201,7 +212,7 @@ class AnalysisAppWindow(QWidget):
             print("Process cancelled.")
             return
 
-        analyzer = LMTDataAnalyzer(self.database_path, settings)
+        analyzer = LMTEYEDataAnalyzer(self.database_path, settings)
         print("Rebuilding database...")
         analyzer.rebuild_database()
         print("Rebuild finished.")
@@ -229,7 +240,12 @@ class AnalysisAppWindow(QWidget):
         return analyzer
 
     def show_help_dialog(self):
-        info_msg = """
+        info_msg = f"""
+            <b>LMT-EYE</b> - <i>Explore Your Experiments !</i><br>
+            <br>
+            Version: {APP_VERSION}<br>
+            Last update: {APP_DATE}<br>
+            <br>
             To seek for help, visit LMT website:<br>
             <a href='https://micecraft.org/lmt/'>
             https://micecraft.org/lmt/</a><br>
@@ -237,7 +253,7 @@ class AnalysisAppWindow(QWidget):
             You can also go on the LMT Discord server to ask LMT creators and
             other users about your problems to have a quick answer:<br>
             <a href='https://discord.com/invite/zWDHNf9eHM'>
-            https://discord.com/invite/zWDHNf9eHM</a><br>
+            https://discord.com/invite/zWDHNf9eHM</a>
         """
         dlg = QDialog(self)
         dlg.setWindowTitle("Help")
@@ -260,15 +276,19 @@ class AnalysisAppWindow(QWidget):
 
 
 class SettingsWindow(QDialog):
-    """Dialog to edit LMTAnalysisSetting settings."""
+    """Dialog to edit LMT-EYE settings."""
 
-    SAVING_PATH = Path(__file__).parent / "res" / "saved_configs"
+    if APP_CREATION:
+        SAVING_PATH = Path.home() / "documents" / "LMT-EYE_settings"
+    else:
+        SAVING_PATH = Path(__file__).parent / "res" / "saved_configs"
+    SAVING_PATH.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
     def load_default_settings():
         """Load default settings if available."""
 
-        settings = LMTSettings()
+        settings = LMTEYESettings()
 
         default_path = SettingsWindow.SAVING_PATH / "default_settings.json"
 
@@ -282,8 +302,7 @@ class SettingsWindow(QDialog):
     def __init__(self, parent: QWidget | None):
         """Initialize the settings window by loading default settings."""
         super().__init__(parent)
-        self.setWindowTitle("LMT Settings")
-        # self.setFixedSize(700, 600)
+        self.setWindowTitle("LMT-EYE - Settings")
 
         self.settings = self.load_default_settings()
         self._init_ui()
@@ -300,7 +319,10 @@ class SettingsWindow(QDialog):
             output_text = str(self.settings.output_folder)
 
         self.output_folder_edit = QLineEdit(output_text)
-        self.output_folder_edit.setPlaceholderText("no folder selected")
+        self.output_folder_edit.setReadOnly(True)
+        self.output_folder_edit.setPlaceholderText(
+            "same folder as database by default"
+        )
         self.output_folder_edit.setToolTip(
             "Folder where analysis results will be saved."
         )
@@ -320,6 +342,9 @@ class SettingsWindow(QDialog):
         #   Animal Type   #
         #######################################
         self.animal_type_box = QComboBox()
+        self.animal_type_box.setToolTip(
+            "Type of animals used in the experiment."
+        )
         options = [animal_type.name for animal_type in AnimalType]
         self.animal_type_box.addItems(options)
         current_type = self.settings.animal_type.name
@@ -475,7 +500,7 @@ class SettingsWindow(QDialog):
         )
         self.fps_spin.setRange(1, 60)
         self.fps_spin.setValue(self.settings.fps)
-        self.fps_spin.setFixedWidth(70)
+        self.fps_spin.setMinimumWidth(75)
 
         # sync logic for time, processing and fps
         self.time_window_frames.valueChanged.connect(
@@ -533,7 +558,7 @@ class SettingsWindow(QDialog):
         )
         self.night_begin_spin.setRange(0, 23)
         self.night_begin_spin.setValue(self.settings.night_begin)
-        self.night_begin_spin.setFixedWidth(60)
+        self.night_begin_spin.setMinimumWidth(75)
 
         # night duration
         self.night_duration_spin = QSpinBox()
@@ -543,7 +568,7 @@ class SettingsWindow(QDialog):
         )
         self.night_duration_spin.setRange(0, 24)
         self.night_duration_spin.setValue(self.settings.night_duration)
-        self.night_duration_spin.setFixedWidth(60)
+        self.night_duration_spin.setMinimumWidth(75)
 
         # night end (calculated)
         self.night_end_label = QLabel()
@@ -696,7 +721,7 @@ class SettingsWindow(QDialog):
     #######################################
 
     def _update_ui_from_settings(self):
-        """Update UI elements based on LMT settings."""
+        """Update UI elements based on LMT-EYE settings."""
         output_text = (
             str(self.settings.output_folder)
             if self.settings.output_folder is not None
@@ -729,7 +754,7 @@ class SettingsWindow(QDialog):
         self.rebuild_box.setChecked(self.settings.rebuild_events)
 
     def _update_settings_from_ui(self):
-        """Update LMT settings based on current UI values."""
+        """Update LMT-EYE settings based on current UI values."""
         self.settings.output_folder = (
             Path(self.output_folder_edit.text())
             if self.output_folder_edit.text()
@@ -1041,10 +1066,22 @@ class EventSelectionDialog(QDialog):
 class UpdateDatabaseInfo(QDialog):
     """Dialog to update animals information in the database."""
 
+    AVAILABLE_COLUMNS = {
+        "ID",
+        "RFID",
+        "GENOTYPE",
+        "NAME",
+        "AGE",
+        "SEX",
+        "STRAIN",
+        "SETUP",
+        "IND",
+    }
+
     @staticmethod
     def smart_cast(s: str):
-        """Try to convert a string to int or float if possible, otherwise return
-        the original string."""
+        """Try to convert a string to int or float if possible, otherwise
+        return the original string."""
         s = s.strip()
         try:
             value = int(s)
@@ -1058,7 +1095,7 @@ class UpdateDatabaseInfo(QDialog):
     def __init__(self, parent: QWidget | None, database_path: Path):
         """Initialize the dialog and load database information."""
         super().__init__(parent)
-        self.setWindowTitle("Update LMT Database Animals Informations")
+        self.setWindowTitle("LMT-EYE - Animals Table")
 
         self.database_path = database_path
         self.df = self.get_db_df()
@@ -1186,21 +1223,45 @@ class UpdateDatabaseInfo(QDialog):
             self.df.at[row, col_name] = correct_value
 
     def on_add_column(self):
-        col_name, ok = QInputDialog.getText(self, "Add Column", "Column name:")
-        col_name = col_name.strip().upper()
-        if not ok:
-            return
-        if not col_name:
-            QMessageBox.information(self, "Cancel", f"Invalid column name.")
-            return
-        for col in self.df.columns:
-            if col_name == col:
-                QMessageBox.information(
-                    self, "Cancel", f"Column '{col_name}' already exists."
-                )
-                return
+        #######################################
+        #   Choose any column name   #
+        #######################################
+        # col_name, ok = QInputDialog.getText(self, "Add Column", "Column name:")
+        # col_name = col_name.strip().upper()
+        # if not ok:
+        #     return
+        # if not col_name:
+        #     QMessageBox.information(self, "Cancel", f"Invalid column name.")
+        #     return
+        # for col in self.df.columns:
+        #     if col_name == col:
+        #         QMessageBox.information(
+        #             self, "Cancel", f"Column '{col_name}' already exists."
+        #         )
+        #         return
 
-        dlg = TypeDialog(self)
+        #######################################
+        #   Choose column name from list   #
+        #######################################
+        available = list(self.AVAILABLE_COLUMNS - set(self.df.columns))
+        if not available:
+            QMessageBox.information(
+                self,
+                "No Available Columns",
+                "All available columns have already been added.",
+            )
+            return
+        col_name, ok = QInputDialog.getItem(
+            self,
+            "Add Column",
+            "Select column to add:",
+            available,
+            editable=False,
+        )
+        if not ok or not col_name:
+            return
+
+        dlg = SQLTypeDialog(self)
         if not dlg.exec():
             return
 
@@ -1338,7 +1399,7 @@ class UpdateDatabaseInfo(QDialog):
             )
 
 
-class TypeDialog(QDialog):
+class SQLTypeDialog(QDialog):
     """Dialog to select a type for a new column in the database."""
 
     INFOS = {
@@ -1373,14 +1434,29 @@ class TypeDialog(QDialog):
         self.desc.setText(f"<i>{self.INFOS[t]}</i>")
 
     def get_choosen_type(self):
-        """Return the numpy dtype or str for the selected type."""
+        """Return the selected SQL type as a string."""
         return self.combo.currentText()
+
+
+def exception_hook(type_, value, tb):
+    """Global exception hook to catch unhandled exceptions and display them in
+    a message box."""
+    traceback.print_exception(type_, value, tb)
+    msg = QMessageBox()
+    msg.setIcon(QMessageBox.Icon.Critical)
+    msg.setWindowTitle("Application Error")
+    msg.setText("An unexpected error occurred.")
+    msg.setDetailedText("".join(traceback.format_exception(type_, value, tb)))
+    msg.exec()
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
+
+    sys.excepthook = exception_hook
+
     window = AnalysisAppWindow()
-    # window = SettingsWindow(None)
+
     window.show()
     sys.exit(app.exec())

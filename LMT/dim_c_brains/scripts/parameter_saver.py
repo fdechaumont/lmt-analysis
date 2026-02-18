@@ -73,7 +73,6 @@ class ParameterSaver(object):
                 with open(load_path, "r", encoding="utf-8") as f:
                     self.data = json.load(f)
                 print(f"Load data from: {load_path}")
-                print(f"Loaded data: {self.data}")
             except Exception as e:
                 print(f"Failed to load json: {e}")
         else:

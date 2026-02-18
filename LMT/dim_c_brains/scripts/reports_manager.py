@@ -32,11 +32,6 @@ class HTMLReportManager:
         - Add tables (from pandas DataFrames) and custom HTML titles/notes.
         - Generate a local HTML output website with all reports, using
           templates and assets.
-
-    Parameters
-    ----------
-        exp_name (str): Name of the experiment or report collection (used for
-            folder organization).
     """
 
     @staticmethod
@@ -51,6 +46,7 @@ class HTMLReportManager:
             webbrowser.open(str(output_folder / "index.html"))
 
     def __init__(self):
+        """Initialize the HTMLReportManager."""
         self.reports = []
         self.exp_name = "main"
         self.html_param = {
@@ -58,7 +54,7 @@ class HTMLReportManager:
             "include_plotlyjs": "cdn",
             "config": {"displaylogo": False},
         }
-        self.cwd = Path(__file__).parent.parent
+        self.dimcbrains_path = Path(__file__).parent.parent
 
     def reports_creation_focus(self, exp_name: str = "main"):
         """Define where the new reports will be added. The main page is
@@ -232,9 +228,9 @@ class HTMLReportManager:
         """Generate an HTML output locally from the accumulated reports."""
         output_folder.mkdir(parents=True, exist_ok=True)
         webSite = WebSite(
-            templateFolder=str(self.cwd / "res" / "template"),
+            templateFolder=str(self.dimcbrains_path / "res" / "template"),
             outFolder=str(output_folder.absolute()) + "/",
-            defaultWebSiteFolder=str(self.cwd / "res" / "assets"),
+            defaultWebSiteFolder=str(self.dimcbrains_path / "res" / "assets"),
             passFile="None",
         )
 

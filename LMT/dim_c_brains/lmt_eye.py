@@ -27,8 +27,8 @@ from lmtanalysis.Animal import AnimalType
 from lmtanalysis.Measure import oneMinute, oneDay
 
 
-class LMTSettings:
-    """Manage parameters for LMT analysis workflow.
+class LMTEYESettings:
+    """Manage parameters for LMT-EYE analyzer.
 
     Parameters
     ----------
@@ -84,7 +84,7 @@ class LMTSettings:
             "night_begin": 20,
             "night_duration": 12,
             "output_folder": None,
-            "processing_window": 30 * oneDay,
+            "processing_window": oneDay,
             "rebuild_events": False,
             "time_window": 15 * oneMinute,
         }
@@ -93,7 +93,7 @@ class LMTSettings:
     @staticmethod
     def get_all_keys():
         """Get all settings names."""
-        return [key for key in LMTSettings.get_default_settings()]
+        return [key for key in LMTEYESettings.get_default_settings()]
 
     @staticmethod
     def convert_in_str(initial_dict: dict[str, Any]) -> dict[str, Any]:
@@ -123,8 +123,6 @@ class LMTSettings:
         if new_dict["events"] == [None]:
             new_dict["events"] = set()
 
-        print(f"Converted settings from str: {new_dict}")
-
         return new_dict
 
     def __init__(self, **kwargs):
@@ -136,7 +134,7 @@ class LMTSettings:
     def reset(self):
         """Reset the settings to their initial values."""
 
-        default_settings = LMTSettings.get_default_settings()
+        default_settings = LMTEYESettings.get_default_settings()
 
         self.analysis_limits: tuple[int | str | None, int | str | None] = (
             default_settings["analysis_limits"]
@@ -167,7 +165,7 @@ class LMTSettings:
     def get_as_dict(self) -> dict[str, Any]:
         """Get the settings as a dictionary."""
         settings = {}
-        for key in LMTSettings.get_all_keys():
+        for key in LMTEYESettings.get_all_keys():
             settings[key] = getattr(self, key)
         return settings
 
@@ -176,7 +174,7 @@ class LMTSettings:
         update_dict = self.get_as_dict()
         update_dict.update(settings_dict)
 
-        for key in LMTSettings.get_all_keys():
+        for key in LMTEYESettings.get_all_keys():
             setattr(self, key, update_dict[key])
 
     def save(self, file_path: Path):
@@ -184,10 +182,10 @@ class LMTSettings:
 
         if self._saver is None:
             raise ValueError(
-                "No saver defined for LMTSettings. Cannot save settings."
+                "No saver defined for LMT-EYE settings. Cannot save settings."
             )
 
-        settings = LMTSettings.convert_in_str(self.get_as_dict())
+        settings = LMTEYESettings.convert_in_str(self.get_as_dict())
 
         self._saver.set_values(settings)
         if file_path:
@@ -200,17 +198,17 @@ class LMTSettings:
 
         if self._saver is None:
             raise ValueError(
-                "No saver defined for LMTSettings. Cannot load settings."
+                "No saver defined for LMT-EYE settings. Cannot load settings."
             )
 
         self._saver.load(file_path)
         settings = self._saver.get_parameters()
-        settings = LMTSettings.convert_from_str(settings)
+        settings = LMTEYESettings.convert_from_str(settings)
         self.update_from_dict(settings)
 
 
-class LMTDataAnalyzer:
-    """Class to analyze LMT data, generate reports and save them to an output
+class LMTEYEDataAnalyzer:
+    """Class to analyze LMT-EYE data, generate reports and save them to an output
     folder."""
 
     @staticmethod
@@ -261,20 +259,20 @@ class LMTDataAnalyzer:
     def __init__(
         self,
         database_path: Path | str | None = None,
-        settings: LMTSettings | None = None,
+        settings: LMTEYESettings | None = None,
     ):
         """
-        Analysis workflow for LMT data. Can rebuild events, generate dataframes
-        and generate HTML reports.
+        LMT-EYE analysis workflow for LMT database. Can rebuild events,
+        generate dataframes and HTML reports.
 
         Parameters
         ----------
         database_path : Path, optional
             Path to the SQLite data file. If not provided, prompts user to
             select file.
-        settings : LMTSettings, optional
+        settings : LMTEYESettings, optional
             Analysis settings. If not provided, defaults to a new instance
-            of LMTSettings.
+            of LMTEYESettings.
         """
         if isinstance(database_path, str):
             database_path = Path(database_path)
@@ -283,7 +281,7 @@ class LMTDataAnalyzer:
             self.database_path = self.choose_sqlite_file()
 
         if settings is None:
-            self.settings = LMTSettings()
+            self.settings = LMTEYESettings()
         else:
             self.settings = settings
 

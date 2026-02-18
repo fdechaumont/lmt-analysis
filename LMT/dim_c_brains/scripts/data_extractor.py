@@ -4,8 +4,7 @@
 
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from typing import Any, Dict, List, Literal, Tuple, Union
+from typing import Any, Literal
 
 from sqlite3 import Connection
 
@@ -113,11 +112,11 @@ class DataFrameConstructor:
 
     def get_analysis_limits(
         self, unit: Literal["FRAME", "TIME"] = "FRAME"
-    ) -> Tuple[Any, Any]:
+    ) -> tuple[Any, Any]:
         """Get the analysis frame limits.
 
         Returns:
-            Tuple: The start and end limits in the specified unit.
+            tuple: The start and end limits in the specified unit.
             It is either in frames (int) or timestamps (pd.Timestamp).
         """
         if unit == "FRAME":
@@ -140,16 +139,16 @@ class DataFrameConstructor:
         self,
         animal: Animal,
         event: str,
-        bin_iterator: List[tuple[int, int]],
+        bin_iterator: list[tuple[int, int]],
     ):
         """Count occurrences of a specific event according to binning.
 
         Returns
         -------
-        Tuple of two lists (counts, durations)
-            counts : List[int]
+        tuple of two lists (counts, durations)
+            counts : list[int]
                 Number of occurrences of the event in each bin.
-            durations : List[int]
+            durations : list[int]
                 Total duration (in frames) of the event in each bin.
         """
 
@@ -161,8 +160,8 @@ class DataFrameConstructor:
             maxFrame=bin_iterator[-1][1],
         )
 
-        counts: List[int] = []
-        durations: List[int] = []
+        counts: list[int] = []
+        durations: list[int] = []
         for f_min, f_max in bin_iterator:
             counts.append(event_timeline.getNumberOfEvent(f_min, f_max))
             durations.append(
@@ -172,7 +171,7 @@ class DataFrameConstructor:
         return (counts, durations)
 
     def get_df_event(
-        self, event: str, bin_iterator: List[tuple[int, int]] | None = None
+        self, event: str, bin_iterator: list[tuple[int, int]] | None = None
     ):
         """Get a DataFrame containing event counts and durations for specified
         event and bin_iterator.
@@ -245,7 +244,7 @@ class DataFrameConstructor:
 
     def get_df_activity(
         self,
-        bin_iterator: List[tuple[int, int]] | None = None,
+        bin_iterator: list[tuple[int, int]] | None = None,
         filter_flickering: bool = False,
         filter_stop: bool = False,
     ):
@@ -387,9 +386,9 @@ class DataFrameConstructor:
     def calculate_sensors_statistics(
         self,
         sensor_name: str,
-        frame_values: List[int],
-        sensor_values: List[float],
-        bin_iterator: List[tuple[int, int]],
+        frame_values: list[int],
+        sensor_values: list[float],
+        bin_iterator: list[tuple[int, int]],
     ):
         """Get sensors data (mean, min, max, std, sem) for a bin bordered by
         bin_start_frame and bin_end_frame.
@@ -398,7 +397,7 @@ class DataFrameConstructor:
         If no data in a bin, fills with np.nan.
         """
 
-        results: List[Dict[str, float]] = []
+        results: list[dict[str, float]] = []
         i_min = 0
         i_max = 0
         for _, f_max in bin_iterator:
@@ -424,7 +423,7 @@ class DataFrameConstructor:
         return results
 
     def get_df_sensors(
-        self, bin_iterator: List[tuple[int, int]] | None = None
+        self, bin_iterator: list[tuple[int, int]] | None = None
     ):
 
         if bin_iterator is None:
@@ -446,7 +445,7 @@ class DataFrameConstructor:
         cursor.close()
         frames = [row[0] for row in frame_rows]
 
-        sensors_data: Dict[str, List[Dict[str, float]]] = {}
+        sensors_data: dict[str, list[dict[str, float]]] = {}
         for sensor in sensors:
             print(f"Creating SENSOR dataframe ({sensor})")
             try:
@@ -468,7 +467,7 @@ class DataFrameConstructor:
                 if sensor not in sensors_data:
                     sensors.remove(sensor)
 
-        results: List[Dict[str, Any]] = []
+        results: list[dict[str, Any]] = []
         for i in range(len(bin_iterator)):
             results.append(
                 {
