@@ -117,6 +117,8 @@ class LMTEYESettings:
 
         if new_dict["events"] == [None]:
             new_dict["events"] = set()
+        elif isinstance(new_dict["events"], list):
+            new_dict["events"] = set(new_dict["events"])
 
         new_dict["processing_limits"] = tuple(
             pd.Timestamp(ts) if ts is not None else None
@@ -154,13 +156,16 @@ class LMTEYESettings:
     def logic_update(self):
         """Update the settings values based on the current settings. Useful,
         for example, to add events if filters are activated."""
+        # need to filter flickering
         if self.filter_flickering:
             self.events.add("Flickering")
 
-        if self.filter_stop:
-            self.events.add("Stop")
-            self.events.add("Stop in contact")
-            self.events.add("Stop isolated")
+        # always needed for activity analysis
+        self.events.add("Stop")
+        self.events.add("Stop in contact")
+        self.events.add("Stop isolated")
+        self.events.add("Move isolated")
+        self.events.add("Move in contact")
 
     def get_as_dict(self) -> dict[str, Any]:
         """Get the settings as a dictionary."""

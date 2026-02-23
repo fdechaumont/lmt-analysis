@@ -339,20 +339,15 @@ def generic_reports(
     Number of <i>{event_name}</i> event (EVENT_COUNT) for each
     animal (RFID) over time ({TIME}) during the interval time window.
     <br>
-    This graph allows a visualization of how many times each animal has
-    performed the event over time.
+    This graph allows a visualization of the time spent by each animal in this
+    event over time.<br>
     <br>
-    <div style="color: #b30000; background: #fff0f0; border: 1px solid #b30000;
-    padding: 1em; border-radius: 6px; font-weight: bold; display: flex;
-    align-items: center; gap: 0.5em;">
-    <span style="font-size: 1.5em;">&#9888;</span>
-    <span>
-        Data for each animal is always valid.
-        <br>
-        However, if an event involves N animals simultaneously,
-        the total (cumulative) values summed across all RFIDs should be
-        divided by N to obtain the total number of events.
-    </span>
+    <div style="color: #DE9BDE">
+    <i><b>Note:</b> Data for each animal is always valid.<br>
+    However, if an event involves N animals simultaneously and is symmetrical
+    (e.g. 'Oral-oral contact' event), the total (cumulative) values summed
+    across all RFIDs should be divided by N to obtain the total number of
+    events.</i>
     </div>
     """
 
@@ -383,19 +378,14 @@ def generic_reports(
     animal (RFID) over time ({TIME}) during the interval time window.
     <br>
     This graph allows a visualization of the time spent by each animal in this
-    event over time.
+    event over time.<br>
     <br>
-    <div style="color: #b30000; background: #fff0f0; border: 1px solid #b30000;
-    padding: 1em; border-radius: 6px; font-weight: bold; display: flex;
-    align-items: center; gap: 0.5em;">
-    <span style="font-size: 1.5em;">&#9888;</span>
-    <span>
-        Data for each animal is always valid.
-        <br>
-        However, if an event involves N animals simultaneously,
-        the total (cumulative) values summed across all RFIDs should be
-        divided by N to obtain the total number of events.
-    </span>
+    <div style="color: #DE9BDE">
+    <i><b>Note:</b> Data for each animal is always valid.<br>
+    However, if an event involves N animals simultaneously and is symmetrical
+    (e.g. 'Oral-oral contact' event), the total (cumulative) values summed
+    across all RFIDs should be divided by N to obtain the total number of
+    events.</i>
     </div>
     """
 

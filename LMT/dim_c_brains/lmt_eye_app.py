@@ -12,6 +12,7 @@ from pathlib import Path
 APP_CREATION = False
 APP_VERSION = "1.0"
 APP_RELEASE = "2026-02-23"
+APP_ICON = Path(__file__).parent / "res" / "lmt_eye_icon.png"
 # command for executable creation (run in terminal at project root):
 # pyinstaller -p LMT --onefile --icon=LMT/dim_c_brains/res/lmt_eye_icon.png --add-data "LMT/dim_c_brains/res/template;dim_c_brains/res/template" --add-data "LMT/dim_c_brains/res/assets;dim_c_brains/res/assets" LMT/dim_c_brains/lmt_eye_app.py
 
@@ -70,7 +71,7 @@ class AnalysisAppWindow(QWidget):
         super().__init__()
         self.setWindowTitle("LMT-EYE - v" + APP_VERSION)
         self.setFixedSize(550, 400)
-        self.setWindowIcon(QIcon("LMT/dim_c_brains/res/lmt_icon.png"))
+        self.setWindowIcon(QIcon(str(APP_ICON)))
 
         self.database_path = None
 
@@ -253,9 +254,6 @@ class AnalysisAppWindow(QWidget):
         self.show()  # Show main window again after processing
 
         if analyzer.settings.output_folder is None:
-            # analyzer.settings.output_folder = self.database_path.parent / (
-            #     self.database_path.stem + " - analysis"
-            # )
             raise ValueError(
                 "Output folder is not defined after running analysis. "
                 "This should not happen."
@@ -419,7 +417,7 @@ class SettingsWindow(QDialog):
             "Separate multiple events with commas.\n"
             "(e.g.: Event1, Event2, Event3)"
         )
-        self.custom_event_edit.textChanged.connect(self._update_events)
+        self.custom_event_edit.textChanged.connect(self._update_custom_events)
 
         # Rebuild events checkbox
         self.rebuild_box = QCheckBox()
@@ -774,6 +772,10 @@ class SettingsWindow(QDialog):
         self.end_edit.setText(settings["processing_limits"][1])
         self.output_folder_edit.setText(settings["output_folder"])
 
+        selected_known_events = self.get_selected_known_events()
+        custom_events = self.settings.events - selected_known_events
+        self.custom_event_edit.setText(", ".join(custom_events))
+
         self.animal_type_box.setCurrentText(self.settings.animal_type.name)
         self.flickering_cb.setChecked(self.settings.filter_flickering)
         self.stop_cb.setChecked(self.settings.filter_stop)
@@ -804,7 +806,7 @@ class SettingsWindow(QDialog):
         self.settings.night_begin = self.night_begin_spin.value()
         self.settings.night_duration = self.night_duration_spin.value()
         self.settings.rebuild_events = self.rebuild_box.isChecked()
-        self._update_events()
+        self._update_custom_events()
 
         start_text = self.start_edit.text()
         if not start_text:
@@ -934,33 +936,38 @@ class SettingsWindow(QDialog):
         end = (begin + duration) % 24
         self.night_end_label.setText(f"End: {end} h")
 
+    def _update_custom_events(self):
+        """Update settings.events from the UI by keeping only known events and
+        current custom events."""
+        selected_known_events = self.get_selected_known_events()
+        custom_events = self.get_custom_events_from_ui()
+        self.settings.events = selected_known_events | custom_events
+
     #######################################
     #   UTILS FUNCTIONS   #
     #######################################
 
-    def get_custom_events(self):
-        """Get the custom events as a set."""
+    def get_custom_events_from_ui(self):
+        """Get the custom events from UI as a set."""
         custom_list = self.custom_event_edit.text().split(",")
         custom_set = {event.strip() for event in custom_list if event.strip()}
         return custom_set
 
-    def split_events(self):
-        """Split custom events from selected events."""
-        selected_events = self.settings.events & ALL_EVENTS.keys()
-        custom_events = self.get_custom_events()
-        return selected_events, custom_events
-
-    def _update_events(self):
-        """Update settings events by keeping only known events and current
-        custom events."""
-        selected_events, custom_events = self.split_events()
-        self.settings.events = selected_events | custom_events
+    def get_selected_known_events(self):
+        """Get all events present in both settings.events and ALL_EVENTS.
+        It corresponds to the events that are selected in the UI (through
+        EventSelectionDialog) and are known by the app (i.e. for which the
+        app has a specific analysis implemented).
+        """
+        known_events = set(ALL_EVENTS.keys())
+        selected_events = self.settings.events & known_events
+        return selected_events
 
     def on_select_events(self):
         dlg = EventSelectionDialog(self, self.settings.events)
         if dlg.exec():
             self.settings.events = dlg.selected_events
-            self._update_events()
+            self._update_custom_events()
 
     def select_output_folder(self):
         """Open a dialog to choose output folder."""
@@ -1530,6 +1537,8 @@ def exception_hook(type_, value, tb):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
+    app.setApplicationVersion(APP_VERSION)
+    app.setApplicationName("LMT-EYE")
 
     sys.excepthook = exception_hook
 

@@ -151,8 +151,8 @@ class EventsRebuilder:
 
             event_chrono = Chronometer(str(build_event_module))
             build_event_module.reBuildEvent(
-                self.conn,
-                self.database_path,
+                connection=self.conn,
+                file=None,
                 tmin=window[0],
                 tmax=window[1],
                 pool=animalPool,
@@ -192,7 +192,7 @@ class EventsRebuilder:
             for window in self.binner.get_bin_iterator():
                 window_chrono = Chronometer(
                     "File "
-                    + self.database_path
+                    + str(self.database_path)
                     + " from "
                     + str(window[0])
                     + " to "

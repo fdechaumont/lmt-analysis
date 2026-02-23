@@ -120,11 +120,15 @@ class LMTEYEDataAnalyzer:
     def rebuild_database(self):
         """Rebuild events in the database according to the selected rebuild
         option."""
-        connection = sqlite3.connect(str(self.database_path))
+
+        if self.database_path is None:
+            raise ValueError("No database path provided for analysis.")
+
+        connection = sqlite3.connect(self.database_path)
 
         rebuilder = EventsRebuilder(
             connection,
-            str(self.database_path),
+            self.database_path,
             self.settings.animal_type,
             self.settings.processing_limits[0],
             self.settings.processing_limits[1],
@@ -151,8 +155,10 @@ class LMTEYEDataAnalyzer:
             raise ValueError("No database path provided for analysis.")
 
         self.settings.logic_update()
+        dic_settings = self.settings.get_as_dict()
+        dic_settings["database_path"] = self.database_path
 
-        connection = sqlite3.connect(str(self.database_path))
+        connection = sqlite3.connect(self.database_path)
         repo_manager = HTMLReportManager()
 
         print(
@@ -170,7 +176,7 @@ class LMTEYEDataAnalyzer:
         )
 
         activity_df = activity_reports.generic_reports(
-            repo_manager, df_constructor, **self.settings.get_as_dict()
+            repo_manager, df_constructor, **dic_settings
         )
 
         if not self.settings.events:
@@ -185,13 +191,13 @@ class LMTEYEDataAnalyzer:
                             repo_manager,
                             df_constructor,
                             event_name=event_name,
-                            **self.settings.get_as_dict(),
+                            **dic_settings,
                         ),
                     ]
                 )
 
         sensors_df = sensors_reports.generic_reports(
-            repo_manager, df_constructor, **self.settings.get_as_dict()
+            repo_manager, df_constructor, **dic_settings
         )
 
         animal_df = overview_reports.generic_reports(
@@ -200,7 +206,7 @@ class LMTEYEDataAnalyzer:
             df_activity=activity_df,
             df_events=events_df,
             df_sensors=sensors_df,
-            **self.settings.get_as_dict(),
+            **dic_settings,
         )
 
         if self.settings.output_folder is None:
