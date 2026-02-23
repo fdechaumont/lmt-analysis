@@ -6,7 +6,7 @@ import os
 import sys
 import webbrowser
 from pathlib import Path
-from typing import Literal, List
+from typing import Literal
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -108,7 +108,7 @@ class HTMLReportManager:
     def add_multi_fig_report(
         self,
         name: str,
-        figures: List[go.Figure | str],
+        figures: list[go.Figure | str],
         top_note: str | None = None,
         max_fig_in_row: int | None = None,
         graph_datas: pd.DataFrame | None = None,
@@ -121,7 +121,7 @@ class HTMLReportManager:
         ----------
         name : str
             The name of the report.
-        figures : List[go.Figure | str]
+        figures : list[go.Figure | str]
             A list of Plotly figures or HTML strings to include in the report.
         note : str | None
             An optional note to include above the figures.
@@ -217,6 +217,41 @@ class HTMLReportManager:
             df,
             experimentName=self.exp_name,
             template="table.html",
+        )
+        report.setDownloadableContent("Download .xlsx", df)
+        self.reports.append(report)
+
+    def add_table_headers(
+        self,
+        name: str,
+        df: pd.DataFrame,
+        headers_info: dict[str, str] | None = None,
+    ):
+        """Add a report from a pandas DataFrame displaying only the headers and
+        the header's information if provided."""
+
+        html = """
+            The complete table used to make all the reports on this page. It
+            can be downloaded in Excel format by clicking on the '<i>Download
+            .xlsx</i>' link on the top-right hand corner.<br><br>
+            <strong>Table headers</strong><br>
+        """
+
+        if headers_info is None:
+            html += ", ".join(df.columns)
+        else:
+            for header in df.columns:
+                html += header
+                if header in headers_info:
+                    html += f": <i>{headers_info[header]}</i>"
+                else:
+                    html += ": <i>no information available</i>"
+                html += "<br>"
+
+        report = Report(
+            name,
+            html,
+            experimentName=self.exp_name,
         )
         report.setDownloadableContent("Download .xlsx", df)
         self.reports.append(report)

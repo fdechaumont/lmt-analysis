@@ -33,31 +33,40 @@ class EventsRebuilder:
         self,
         connection: Connection,
         database_path: Any,
-        processing_window: int = oneDay,
+        animal_type: AnimalType = AnimalType.MOUSE,
         start: int | pd.Timestamp | None = None,
         end: int | pd.Timestamp | None = None,
-        animal_type: AnimalType = AnimalType.MOUSE,
+        fps: int = 30,
+        processing_window: int = oneDay,
     ):
         """Class to handle the rebuilding of events in the database.
 
         Args:
             connection (Connection): SQLite database connection.
             database_path (Any): The path to the database file.
-            processing_window (int): Processing window size in frames.
-                Default is one day (in frames).
+            animal_type (AnimalType): Type of animal for event processing.
             start (int | pd.Timestamp | None): Start limit for analysis.
                 Can be in frames (int) or timestamps (pd.Timestamp).
             end (int | pd.Timestamp | None): End limit for analysis.
                 Can be in frames (int) or timestamps (pd.Timestamp).
-            animal_type (AnimalType): Type of animal for event processing.
+            fps (int): Frame rate of the recording in frames per second.
+                Default is 30.
+            processing_window (int): Processing window size in frames.
+                Default is one day (in frames).
         """
         self.conn = connection
         self.database_path = database_path
         self.animal_type = animal_type
 
-        self._init_binner()
-        self.set_processing_window(processing_window)
-        self.set_analysis_limits(start, end)
+        last_framenumber, last_timestamp = Binner.get_last_frame(self.conn)
+        self.binner = Binner(
+            last_framenumber,
+            last_timestamp,
+            bin_size=processing_window,
+            start=start,
+            end=end,
+            fps=fps,
+        )
 
     def get_events_in_database(self) -> set[str]:
         """Get the list of existing events in the SQLite database."""
@@ -71,26 +80,12 @@ class EventsRebuilder:
         database_events = set([row[0] for row in results])
         return database_events
 
-    def _init_binner(self):
-        """Initialize the DatetimeBinner object to compute the time bins."""
-        query = "SELECT FRAMENUMBER, TIMESTAMP FROM FRAME ORDER BY FRAMENUMBER DESC LIMIT 1"
-        cursor = self.conn.cursor()
-        cursor.execute(query)
-        result = cursor.fetchone()
-        cursor.close()
-
-        if not result:
-            raise ValueError("No data found in FRAME table")
-
-        lastframe, timestamp = result
-        self.binner = Binner(lastframe, timestamp)
-
     def set_processing_window(self, processing_window: int):
-        """set the processing window (in *frames*) for processing."""
+        """Set the processing window (in *frames*) for processing."""
         self.binner.set_parameters(bin_size=processing_window)
 
     def get_processing_window(self, unit: Literal["FRAME", "TIME"] = "FRAME"):
-        """Get the processing window for data analysis."""
+        """Get the processing window (data chunk size)."""
         if unit == "FRAME":
             return self.binner.bin_size
         elif unit == "TIME":
@@ -98,35 +93,20 @@ class EventsRebuilder:
         else:
             raise ValueError("Invalid unit. Choose 'FRAME' or 'TIME'.")
 
-    def set_analysis_limits(
+    def set_processing_limits(
         self,
         start: int | pd.Timestamp | None = None,
         end: int | pd.Timestamp | None = None,
     ):
-        """set the analysis limits for data processing from frames or
+        """Set the processing limits for data processing from frames or
         timestamps."""
 
-        if isinstance(start, pd.Timestamp):
-            f_start = self.binner.time_to_frame(start)
-        else:
-            f_start = start
+        self.binner.set_parameters(start=start, end=end)
 
-        if isinstance(end, pd.Timestamp):
-            f_end = self.binner.time_to_frame(end)
-        else:
-            f_end = end
-
-        self.binner.set_parameters(start_frame=f_start, end_frame=f_end)
-
-    def get_analysis_limits(
+    def get_processing_limits(
         self, unit: Literal["FRAME", "TIME"] = "FRAME"
-    ) -> tuple[Any, Any]:
-        """Get the analysis frame limits.
-
-        Returns:
-            tuple: The start and end limits in the specified unit.
-            It is either in frames (int) or timestamps (pd.Timestamp).
-        """
+    ) -> tuple[int | pd.Timestamp, int | pd.Timestamp]:
+        """Get the processing frame limits."""
         if unit == "FRAME":
             return (self.binner.start_frame, self.binner.end_frame)
         elif unit == "TIME":
@@ -184,7 +164,7 @@ class EventsRebuilder:
         """Rebuild events in the database from 'self.start' to 'self.end' using
         the specified modules."""
         if not events:
-            print("No events to process in the database.")
+            print("No events to rebuild.")
             return
 
         modules = get_modules(events)
@@ -202,8 +182,6 @@ class EventsRebuilder:
             print("METADATA field already exists")
 
         BuildDataBaseIndex.buildDataBaseIndex(self.conn, force=False)
-        animalPool = AnimalPool()
-        animalPool.loadAnimals(self.conn)
 
         try:
             chrono = Chronometer("Flushing events")
@@ -240,4 +218,4 @@ class EventsRebuilder:
             print(error, file=sys.stderr)
             raise Exception()
 
-        print("*** ALL JOBS DONE ***")
+        print("\n*** REBUILD FINISHED ***\n")

@@ -2,6 +2,7 @@
 @author: xmousset
 """
 
+from sqlite3 import Connection
 import pandas as pd
 from typing import Any, Dict, List, Literal
 
@@ -12,14 +13,37 @@ class Binner:
     It cannot manage bins smaller than OneMinute.
     All bin size must be at least 1."""
 
+    @staticmethod
+    def get_last_frame(connection: Connection):
+        """Get the last FRAMENUMBER and TIMESTAMP from LMT FRAME table. Useful
+        to initialize the Binner with the correct time reference."""
+        query = "SELECT FRAMENUMBER, TIMESTAMP FROM FRAME ORDER BY FRAMENUMBER DESC LIMIT 1"
+        cursor = connection.cursor()
+        cursor.execute(query)
+        result = cursor.fetchone()
+        cursor.close()
+
+        if not result:
+            raise ValueError("No data found in FRAME table")
+
+        last_FRAMENUMBER = result[0]
+        last_TIMESTAMP = result[1]
+
+        if not (isinstance(last_FRAMENUMBER, int)) or not (
+            isinstance(last_TIMESTAMP, int)
+        ):
+            raise ValueError("Invalid type of data found in FRAME table")
+
+        return last_FRAMENUMBER, last_TIMESTAMP
+
     def __init__(
         self,
         last_frame: int,
         last_timestamp: int,
+        bin_size: int | pd.Timedelta = 15 * 60 * 30,  # 15 minutes at 30 FPS
+        start: int | pd.Timestamp | None = None,
+        end: int | pd.Timestamp | None = None,
         fps: int = 30,  # frames per second
-        bin_size: int = 15 * 60 * 30,  # 15 minutes at 30 FPS
-        start_frame: int | None = None,
-        end_frame: int | None = None,
     ):
         """
         Initialize Binner with last FRAMENUMBER and TIMESTAMP of a
@@ -27,16 +51,18 @@ class Binner:
 
         Args:
             last_frame (int): last FRAMENUMBER value in LMT FRAME table.
-            last_timestamp (int): TIMESTAMP value of 'last_frame' (in ms).
-            fps (int): frames per second of the experiment (default is 30).
-            bin_size (int | None): binning value (in frames). (default is 15
-                minutes at 30 FPS).
-            start_frame (int | None): starting frame number for binning.
-            end_frame (int | None): ending frame number for binning.
+            last_timestamp (int): TIMESTAMP value of 'last_frame' (in *ms*).
+            fps (int): frames per second of the experiment (default is *30*).
+            bin_size (int | pd.Timedelta | None): binning value (in *frames* or
+                *timedelta*). (default is *15 min* at *30 FPS*).
+            start (int | pd.Timestamp | None): starting frame number or
+                timestamp for binning.
+            end (int | pd.Timestamp | None): ending frame number or timestamp
+                for binning.
         """
         self.last_frame = last_frame
         self.last_timestamp = last_timestamp
-        self.set_parameters(bin_size, start_frame, end_frame, fps)
+        self.set_parameters(bin_size, start, end, fps)
 
         print(f"Binner initialized with:")
         print(f"last FRAMENUMBER: {self.last_frame}")
@@ -64,9 +90,9 @@ class Binner:
 
     def set_parameters(
         self,
-        bin_size: int | None = None,
-        start_frame: int | None = None,
-        end_frame: int | None = None,
+        bin_size: int | pd.Timedelta | None = None,
+        start: int | pd.Timestamp | None = None,
+        end: int | pd.Timestamp | None = None,
         fps: int | None = None,
     ):
         """Set bin size (in *frames*), frame limits (in *frames*), and FPS
@@ -79,34 +105,40 @@ class Binner:
 
         self.bin_0: Dict[str, Any] = {
             "FRAMENUMBER": 0,
-            "TIMESTAMP": self.last_timestamp - (self.last_frame / self.fps * 1000),
+            "TIMESTAMP": self.last_timestamp
+            - (self.last_frame / self.fps * 1000),
             "DATETIME": None,
         }
         self.bin_0["DATETIME"] = self.frame_to_time(0)
 
+        if isinstance(bin_size, pd.Timedelta):
+            bin_size = self.timedelta_to_frames(bin_size)
+
         if bin_size is not None:
-            if bin_size < 60 * self.fps:
-                raise ValueError("Bin size must be at least 1 minute")
+            if bin_size < 1:
+                raise ValueError("bin_size must be at least 1 frame")
             self.bin_size = bin_size
 
-        if start_frame is None or start_frame < 1:
+        if isinstance(start, pd.Timestamp):
+            start = self.time_to_frame(start)
+        if start is None or start < 1:
             self.start_frame = 1
-        elif start_frame > self.last_frame:
+        elif start > self.last_frame:
             raise ValueError(
-                f"start_frame out of range (start_frame = {start_frame} "
+                f"start_frame out of range (start_frame = {start} "
                 f"> last_frame = {self.last_frame})"
             )
         else:
-            self.start_frame = start_frame
+            self.start_frame = start
 
-        if end_frame is None or end_frame > self.last_frame:
+        if isinstance(end, pd.Timestamp):
+            end = self.time_to_frame(end)
+        if end is None or end > self.last_frame:
             self.end_frame = self.last_frame
-        elif end_frame < 1:
-            raise ValueError(
-                f"end_frame out of range (end_frame = {end_frame} < 1)"
-            )
+        elif end < 1:
+            raise ValueError(f"end_frame out of range (end_frame = {end} < 1)")
         else:
-            self.end_frame = end_frame
+            self.end_frame = end
 
         if self.start_frame >= self.end_frame:
             raise ValueError(
@@ -229,12 +261,16 @@ class Binner:
 
     def split_iterator_in_chunks(
         self,
-        chunk_size: int,
+        chunk_size: int | pd.Timedelta,
         bin_iterator: List[tuple[int, int]],
     ):
         """Split the given bin iterator (list of (start, end) tuples), in
-        chunks of chunk_size (in *frames*).
+        chunks of chunk_size (in *frames* or *timedelta*). Useful to split the
+        processing of bins in smaller chunks for memory usage reduction.
         """
+
+        if isinstance(chunk_size, pd.Timedelta):
+            chunk_size = self.timedelta_to_frames(chunk_size)
 
         chunked_iterator: List[List[tuple[int, int]]] = [
             [bin_iterator[0]],

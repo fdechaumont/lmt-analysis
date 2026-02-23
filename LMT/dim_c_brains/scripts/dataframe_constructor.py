@@ -26,9 +26,10 @@ class DataFrameConstructor:
         self,
         connection: Connection,
         bin_window: int = 15 * oneMinute,
-        processing_window: int = oneDay,
+        processing_window: int | pd.Timedelta = oneDay,
         start: int | pd.Timestamp | None = None,
         end: int | pd.Timestamp | None = None,
+        fps: int = 30,
     ):
         """
         instanciate pandas dataframes constructor. All datas will be binned
@@ -37,39 +38,40 @@ class DataFrameConstructor:
 
         Args:
             connection (Connection): SQLite database connection.
-            bin_window (int, optional): The bin window (in frames) for\
+            bin_window (int | pd.Timedelta, optional): The bin window (in frames or pandas.Timedelta) for
                 binning data. Defaults to 15 minutes.
-            processing_window (int, optional): The size (in frames) of each\
-            data chunk to load into memory. Defaults to 1 day.
+            processing_window (int | pd.Timedelta, optional): The size (in
+            frames or pandas.Timedelta) of each
+                data chunk to load into memory. Defaults to 1 day.
+            start (int | pd.Timestamp | None, optional): The starting frame or
+                timestamp for data processing. If None, it will start from the
+                beginning of the dataset. Defaults to None.
+            end (int | pd.Timestamp | None, optional): The ending frame or
+                timestamp for data processing. If None, it will process until
+                the end of the dataset. Defaults to None.
+            fps (int, optional): Frames per second. Defaults to 30.
         """
         self.animal_pool = AnimalPool()
         self.animal_pool.loadAnimals(connection)
 
-        self._init_binner()
-        self.set_bin_window(bin_window)
-        self.set_analysis_limits(start, end)
+        last_framenumber, last_timestamp = Binner.get_last_frame(connection)
+        self.binner = Binner(
+            last_framenumber,
+            last_timestamp,
+            bin_size=bin_window,
+            start=start,
+            end=end,
+            fps=fps,
+        )
         self.processing_window = processing_window
 
-    def _init_binner(self):
-        """Initialize the DatetimeBinner object to compute the time bins."""
-        query = "SELECT FRAMENUMBER, TIMESTAMP FROM FRAME ORDER BY FRAMENUMBER DESC LIMIT 1"
-        cursor = self.animal_pool.conn.cursor()
-        cursor.execute(query)
-        result = cursor.fetchone()
-        cursor.close()
-
-        if not result:
-            raise ValueError("No data found in FRAME table")
-
-        lastframe, timestamp = result
-        self.binner = Binner(lastframe, timestamp)
-
-    def set_bin_window(self, bin_window: int):
-        """Set the bin window (in *frames*) for data binning."""
-        self.binner.set_parameters(bin_window)
+    def set_bin_window(self, bin_window: int | pd.Timedelta):
+        """Set the bin window (in *frames* or *pandas.Timedelta*) for data
+        binning."""
+        self.binner.set_parameters(bin_size=bin_window)
 
     def get_bin_window(self, unit: Literal["FRAME", "TIME"] = "FRAME"):
-        """Get the bin window for data analysis."""
+        """Get the binning window for data analysis."""
         if unit == "FRAME":
             return self.binner.bin_size
         elif unit == "TIME":
@@ -77,43 +79,37 @@ class DataFrameConstructor:
         else:
             raise ValueError("Invalid unit. Choose 'FRAME' or 'TIME'.")
 
-    def set_processing_window(self, processing_window: int):
-        """Set the processing window (in *frames*) for data chunking."""
+    def set_processing_window(self, processing_window: int | pd.Timedelta):
+        """Set the processing window (in *frames* or *pandas.Timedelta*)
+        for data chunking."""
         self.processing_window = processing_window
 
     def get_processing_window(self, unit: Literal["FRAME", "TIME"] = "FRAME"):
         """Get the current processing window for data chunking."""
         if unit == "FRAME":
+            if isinstance(self.processing_window, pd.Timedelta):
+                return self.binner.timedelta_to_frames(self.processing_window)
             return self.processing_window
         elif unit == "TIME":
-            return self.binner.frames_to_timedelta(self.processing_window)
+            if isinstance(self.processing_window, int):
+                return self.binner.frames_to_timedelta(self.processing_window)
+            return self.processing_window
         else:
             raise ValueError("Invalid unit. Choose 'FRAME' or 'TIME'.")
 
-    def set_analysis_limits(
+    def set_processing_limits(
         self,
         start: int | pd.Timestamp | None = None,
         end: int | pd.Timestamp | None = None,
     ):
-        """Set the analysis limits for data processing from frames or
+        """Set the processing limits for data processing from frames or
         timestamps."""
+        self.binner.set_parameters(start=start, end=end)
 
-        if isinstance(start, pd.Timestamp):
-            f_start = self.binner.time_to_frame(start)
-        else:
-            f_start = start
-
-        if isinstance(end, pd.Timestamp):
-            f_end = self.binner.time_to_frame(end)
-        else:
-            f_end = end
-
-        self.binner.set_parameters(start_frame=f_start, end_frame=f_end)
-
-    def get_analysis_limits(
+    def get_processing_limits(
         self, unit: Literal["FRAME", "TIME"] = "FRAME"
     ) -> tuple[Any, Any]:
-        """Get the analysis frame limits.
+        """Get the processing frame limits.
 
         Returns:
             tuple: The start and end limits in the specified unit.
@@ -190,25 +186,19 @@ class DataFrameConstructor:
                 animal, event, bin_iterator
             )
 
-            for i in range(len(bin_iterator)):
+            for i, bin_i in enumerate(bin_iterator):
                 results.append(
                     {
                         "RFID": animal.RFID,
                         "ANIMALID": animal.baseId,
                         "EVENT": event,
-                        "START_FRAME": bin_iterator[i][0],
-                        "END_FRAME": bin_iterator[i][1],
-                        "START_TIME": self.binner.frame_to_time(
-                            bin_iterator[i][0]
-                        ),
-                        "END_TIME": self.binner.frame_to_time(
-                            bin_iterator[i][1]
-                        ),
+                        "START_FRAME": bin_i[0],
+                        "END_FRAME": bin_i[1],
+                        "START_TIME": self.binner.frame_to_time(bin_i[0]),
+                        "END_TIME": self.binner.frame_to_time(bin_i[1]),
                         "EVENT_COUNT": counts[i],
                         "FRAME_COUNT": durations[i],
-                        "DURATION": durations[i]
-                        / self.binner.fps
-                        / 60,  # in minutes
+                        "DURATION": durations[i] / self.binner.fps / 60,  # min
                     }
                 )
 
@@ -238,7 +228,8 @@ class DataFrameConstructor:
                 df = pd.concat([df, processed_df], ignore_index=True)
 
         if df is None:
-            raise ValueError("Unable to create a dataframe")
+            print("Unable to create the event dataframe")
+            return None
 
         return self.sort_rfid_as_category(df)
 
@@ -363,7 +354,8 @@ class DataFrameConstructor:
                 df = pd.concat([df, processed_df], ignore_index=True)
 
         if df is None:
-            raise ValueError("Unable to create a dataframe")
+            print("Unable to create the activity dataframe")
+            return None
 
         return self.sort_rfid_as_category(df)
 

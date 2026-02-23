@@ -5,7 +5,7 @@
 import plotly.express as px
 
 from dim_c_brains.scripts.reports_manager import HTMLReportManager
-from dim_c_brains.scripts.data_extractor import DataFrameConstructor
+from dim_c_brains.scripts.dataframe_constructor import DataFrameConstructor
 from dim_c_brains.scripts.plotting_functions import (
     str_h_min,
     floor_power10,
@@ -209,7 +209,7 @@ def generic_reports(
     #######################################
     #   TABLE   #
     #######################################
-    report_manager.add_table(name=f"complete table", df=df)
+    report_manager.add_table_headers(name="complete table", df=df)
 
     #######################################
     #   Return   #

@@ -9,7 +9,7 @@ import plotly.express as px
 import pandas as pd
 
 from dim_c_brains.scripts.reports_manager import HTMLReportManager
-from dim_c_brains.scripts.data_extractor import DataFrameConstructor
+from dim_c_brains.scripts.dataframe_constructor import DataFrameConstructor
 from dim_c_brains.scripts.plotting_functions import (
     str_h_min,
     draw_nights,
@@ -48,7 +48,7 @@ def generic_reports(
 
     NB_ANIMALS = df_animals["RFID"].nunique()
 
-    EXP_START, EXP_END = df_constructor.get_analysis_limits("TIME")
+    EXP_START, EXP_END = df_constructor.get_processing_limits("TIME")
     EXP_DURATION = EXP_END - EXP_START
     NB_DAYS = EXP_DURATION.total_seconds() / 3600 / 24
 

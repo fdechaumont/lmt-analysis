@@ -1,5 +1,4 @@
 """
-@creation: 15-01-2026
 @author: xmousset
 """
 
@@ -7,12 +6,14 @@ import sys
 import traceback
 from pathlib import Path
 
-# CREATE APP
-APP_CREATION = False
+#######################################
+#   APP Creation Parameters   #
+#######################################
+APP_CREATION = True
 APP_VERSION = "1.0"
-APP_DATE = "2026-02-18"
+APP_LAST_UPDATE = "2026-02-20"
 # command for executable creation (run in terminal at project root):
-# pyinstaller -p LMT --onefile --icon=LMT/dim_c_brains/res/lmt_icon.png --add-data "LMT/dim_c_brains/res/template;dim_c_brains/res/template" --add-data "LMT/dim_c_brains/res/assets;dim_c_brains/res/assets" LMT\dim_c_brains\analysis_app.py
+# pyinstaller -p LMT --onefile --icon=LMT/dim_c_brains/res/lmt_eye_icon.png --add-data "LMT/dim_c_brains/res/template;dim_c_brains/res/template" --add-data "LMT/dim_c_brains/res/assets;dim_c_brains/res/assets" LMT/dim_c_brains/lmt_eye_app.py
 
 if APP_CREATION:
     print("Starting LMT-EYE...")
@@ -43,6 +44,7 @@ from PyQt6.QtWidgets import (
     QLabel,
     QLineEdit,
     QMessageBox,
+    QProgressBar,
     QPushButton,
     QScrollArea,
     QSpinBox,
@@ -53,24 +55,29 @@ from PyQt6.QtWidgets import (
 )
 
 from dim_c_brains.scripts.events_and_modules import ALL_EVENTS
-from LMT.dim_c_brains.lmt_eye import LMTEYEDataAnalyzer, LMTEYESettings
+from LMT.dim_c_brains.lmt_eye_data_analysis import LMTEYEDataAnalyzer
+from dim_c_brains.lmt_eye_settings import LMTEYESettings
 from dim_c_brains.scripts.pyqt6_tools import YesNoQuestion, get_btn_style
 
 from lmtanalysis.Animal import AnimalType
 
 
 class AnalysisAppWindow(QWidget):
+    """Main application window for LMT-EYE."""
+
     def __init__(self):
+        """Initialize the main application window."""
         super().__init__()
         self.setWindowTitle("LMT-EYE - v" + APP_VERSION)
         self.setFixedSize(550, 400)
-        self.setWindowIcon(QIcon("LMT/dim_c_brains/res/app_icon.png"))
+        self.setWindowIcon(QIcon("LMT/dim_c_brains/res/lmt_icon.png"))
 
         self.database_path = None
 
         self._init_ui()
 
     def _init_ui(self):
+        """Initialize the UI elements of the main application window."""
         main_layout = QVBoxLayout()
 
         #######################################
@@ -139,6 +146,7 @@ class AnalysisAppWindow(QWidget):
         self.setLayout(main_layout)
 
     def update_info(self):
+        """Update database information displayed in the main window."""
         infos = {}
         if self.database_path is not None:
             t_format = "%Y %B - %A %d - %H:%M"
@@ -212,6 +220,25 @@ class AnalysisAppWindow(QWidget):
             print("Process cancelled.")
             return
 
+        msg = """
+        <p align="justify">
+        The analysis process is about to start. This may take a while
+        depending on the database size and your computer performance.<br><br>
+        Please, do not close the logs window and wait until the analysis is
+        finished. When finishded, the app window will come back and it will
+        display the following message:
+        </p>
+        <p style="text-align:center;"><b>*** PROCESS FINISHED ***</b></p>
+        """
+
+        QMessageBox.information(
+            self,
+            "Process Starting",
+            msg,
+        )
+
+        self.hide()  # Hide main window during processing
+
         analyzer = LMTEYEDataAnalyzer(self.database_path, settings)
         print("Rebuilding database...")
         analyzer.rebuild_database()
@@ -219,10 +246,16 @@ class AnalysisAppWindow(QWidget):
         print("Starting analysis...")
         analyzer.run_analysis()
         print("Analysis finished.")
+        print("\n*** PROCESS FINISHED ***\n")
 
         print(f"Process for {self.database_path.stem} finished.")
 
+        self.show()  # Show main window again after processing
+
         if analyzer.settings.output_folder is None:
+            # analyzer.settings.output_folder = self.database_path.parent / (
+            #     self.database_path.stem + " - analysis"
+            # )
             raise ValueError(
                 "Output folder is not defined after running analysis. "
                 "This should not happen."
@@ -244,7 +277,7 @@ class AnalysisAppWindow(QWidget):
             <b>LMT-EYE</b> - <i>Explore Your Experiments !</i><br>
             <br>
             Version: {APP_VERSION}<br>
-            Last update: {APP_DATE}<br>
+            Last update: {APP_LAST_UPDATE}<br>
             <br>
             To seek for help, visit LMT website:<br>
             <a href='https://micecraft.org/lmt/'>
@@ -281,7 +314,7 @@ class SettingsWindow(QDialog):
     if APP_CREATION:
         SAVING_PATH = Path.home() / "documents" / "LMT-EYE_settings"
     else:
-        SAVING_PATH = Path(__file__).parent / "res" / "saved_configs"
+        SAVING_PATH = Path(__file__).parent / "res" / "LMT-EYE_settings"
     SAVING_PATH.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
@@ -502,7 +535,7 @@ class SettingsWindow(QDialog):
         self.fps_spin.setValue(self.settings.fps)
         self.fps_spin.setMinimumWidth(75)
 
-        # sync logic for time, processing and fps
+        # functions connections
         self.time_window_frames.valueChanged.connect(
             self._on_time_frames_changed
         )
@@ -598,10 +631,14 @@ class SettingsWindow(QDialog):
         #######################################
 
         # start
-        if self.settings.analysis_limits[0] is None:
+        if self.settings.processing_limits[0] is None:
             start = None
+        elif isinstance(self.settings.processing_limits[0], pd.Timestamp):
+            start = self.settings.processing_limits[0].isoformat(
+                sep=" ", timespec="seconds"
+            )
         else:
-            start = str(self.settings.analysis_limits[0])
+            start = str(self.settings.processing_limits[0])
         self.start_edit = QLineEdit(start)
         self.start_edit.setToolTip(
             "Can be either a FRAMENUMBER (integer) "
@@ -611,10 +648,14 @@ class SettingsWindow(QDialog):
         self.start_edit.setMinimumHeight(30)
 
         # end
-        if self.settings.analysis_limits[1] is None:
+        if self.settings.processing_limits[1] is None:
             end = None
+        elif isinstance(self.settings.processing_limits[1], pd.Timestamp):
+            end = self.settings.processing_limits[1].isoformat(
+                sep=" ", timespec="seconds"
+            )
         else:
-            end = str(self.settings.analysis_limits[1])
+            end = str(self.settings.processing_limits[1])
         self.end_edit = QLineEdit(end)
         self.end_edit.setToolTip(
             "Can be either a FRAMENUMBER (integer) "
@@ -654,34 +695,36 @@ class SettingsWindow(QDialog):
         btn_style = get_btn_style(size=13)
 
         # load
-        self.load_config_btn = QPushButton("Load settings")
-        self.load_config_btn.setToolTip("Load settings from a JSON file.")
-        self.load_config_btn.setStyleSheet(btn_style)
-        self.load_config_btn.setFixedWidth(120)
-        self.load_config_btn.clicked.connect(self.on_load_config)
+        self.load_settings_btn = QPushButton("Load settings")
+        self.load_settings_btn.setToolTip("Load settings from a JSON file.")
+        self.load_settings_btn.setStyleSheet(btn_style)
+        self.load_settings_btn.setFixedWidth(120)
+        self.load_settings_btn.clicked.connect(self.on_load_settings)
 
         # save
-        self.save_config_btn = QPushButton("Save settings")
-        self.save_config_btn.setToolTip(
+        self.save_settings_btn = QPushButton("Save settings")
+        self.save_settings_btn.setToolTip(
             "Save current settings to a JSON file."
         )
-        self.save_config_btn.setStyleSheet(btn_style)
-        self.save_config_btn.setFixedWidth(120)
-        self.save_config_btn.clicked.connect(self.on_save_config)
+        self.save_settings_btn.setStyleSheet(btn_style)
+        self.save_settings_btn.setFixedWidth(120)
+        self.save_settings_btn.clicked.connect(self.on_save_settings)
 
         # default
-        self.default_config_btn = QPushButton("Define as default")
-        self.default_config_btn.setToolTip("Save current settings as default.")
-        self.default_config_btn.setStyleSheet(btn_style)
-        self.default_config_btn.setFixedWidth(120)
-        self.default_config_btn.clicked.connect(self.on_define_default)
+        self.default_settings_btn = QPushButton("Define as default")
+        self.default_settings_btn.setToolTip(
+            "Save current settings as default."
+        )
+        self.default_settings_btn.setStyleSheet(btn_style)
+        self.default_settings_btn.setFixedWidth(120)
+        self.default_settings_btn.clicked.connect(self.on_default_settings)
 
         # row layout
         settings_row = QHBoxLayout()
         settings_row.addStretch(1)
-        settings_row.addWidget(self.load_config_btn)
-        settings_row.addWidget(self.save_config_btn)
-        settings_row.addWidget(self.default_config_btn)
+        settings_row.addWidget(self.load_settings_btn)
+        settings_row.addWidget(self.save_settings_btn)
+        settings_row.addWidget(self.default_settings_btn)
         settings_row.addStretch(1)
 
         form.addRow(settings_row)
@@ -715,6 +758,7 @@ class SettingsWindow(QDialog):
 
         self.setLayout(form)
         ok_btn.setFocus()
+        self._update_ui_from_settings()
 
     #######################################
     #   UI x Settings   #
@@ -722,12 +766,12 @@ class SettingsWindow(QDialog):
 
     def _update_ui_from_settings(self):
         """Update UI elements based on LMT-EYE settings."""
-        output_text = (
-            str(self.settings.output_folder)
-            if self.settings.output_folder is not None
-            else ""
-        )
-        self.output_folder_edit.setText(output_text)
+        settings = self.settings.get_as_str_dict()
+
+        self.start_edit.setText(settings["processing_limits"][0])
+        self.end_edit.setText(settings["processing_limits"][1])
+        self.output_folder_edit.setText(settings["output_folder"])
+
         self.animal_type_box.setCurrentText(self.settings.animal_type.name)
         self.flickering_cb.setChecked(self.settings.filter_flickering)
         self.stop_cb.setChecked(self.settings.filter_stop)
@@ -738,19 +782,6 @@ class SettingsWindow(QDialog):
         self.fps_spin.setValue(self.settings.fps)
         self.night_begin_spin.setValue(self.settings.night_begin)
         self.night_duration_spin.setValue(self.settings.night_duration)
-
-        start = (
-            str(self.settings.analysis_limits[0])
-            if self.settings.analysis_limits[0] is not None
-            else ""
-        )
-        end = (
-            str(self.settings.analysis_limits[1])
-            if self.settings.analysis_limits[1] is not None
-            else ""
-        )
-        self.start_edit.setText(start)
-        self.end_edit.setText(end)
         self.rebuild_box.setChecked(self.settings.rebuild_events)
 
     def _update_settings_from_ui(self):
@@ -779,7 +810,11 @@ class SettingsWindow(QDialog):
         elif start_text.isdigit():
             start = int(start_text)
         else:
-            start = start_text
+            try:
+                start = pd.Timestamp(start_text)
+            except:
+                print("Invalid timestamp format. Setting start to None.")
+                start = None
 
         end_text = self.end_edit.text()
         if not end_text:
@@ -787,11 +822,15 @@ class SettingsWindow(QDialog):
         elif end_text.isdigit():
             end = int(end_text)
         else:
-            end = end_text
+            try:
+                end = pd.Timestamp(end_text)
+            except:
+                print("Invalid timestamp format. Setting end to None.")
+                end = None
 
         limits = (start, end)
 
-        self.settings.analysis_limits = limits
+        self.settings.processing_limits = limits
 
     #######################################
     #   UPDATE FUNCTIONS   #
@@ -931,11 +970,11 @@ class SettingsWindow(QDialog):
         else:
             self.output_folder_edit.setText(None)
 
-    def on_save_config(self):
+    def on_save_settings(self):
         """Save current settings from UI to a JSON file."""
         save_str, _ = QFileDialog.getSaveFileName(
             self,
-            "Select Config",
+            "Select Settings File",
             str(SettingsWindow.SAVING_PATH),
             "JSON Files (*.json)",
         )
@@ -946,11 +985,11 @@ class SettingsWindow(QDialog):
         self._update_settings_from_ui()
         self.settings.save(save_path)
 
-    def on_load_config(self):
+    def on_load_settings(self):
         """Load settings from a JSON file and update UI."""
         load_str, _ = QFileDialog.getOpenFileName(
             self,
-            "Select Config",
+            "Select Settings File",
             str(SettingsWindow.SAVING_PATH),
             "JSON Files (*.json)",
         )
@@ -961,7 +1000,7 @@ class SettingsWindow(QDialog):
         self.settings.load(load_path)
         self._update_ui_from_settings()
 
-    def on_define_default(self):
+    def on_default_settings(self):
         """Save current settings as the default settings
         (default_settings.json in the same directory)."""
         save_path = SettingsWindow.SAVING_PATH / "default_settings.json"
@@ -1436,6 +1475,42 @@ class SQLTypeDialog(QDialog):
     def get_choosen_type(self):
         """Return the selected SQL type as a string."""
         return self.combo.currentText()
+
+
+class ProgressDialog(QDialog):
+    """A modal progress dialog with a label and progress bar."""
+
+    def __init__(
+        self,
+        title="Processing...",
+        label_text="Please wait...",
+        parent=None,
+        maximum=0,
+    ):
+        super().__init__(parent)
+        self.setWindowTitle(title)
+        self.setModal(True)
+        self.setFixedSize(350, 120)
+        layout = QVBoxLayout(self)
+        self.label = QLabel(label_text)
+        self.progress = QProgressBar()
+        self.progress.setRange(0, maximum)
+        layout.addWidget(self.label)
+        layout.addWidget(self.progress)
+        self.setLayout(layout)
+
+    def set_label(self, text):
+        self.label.setText(text)
+
+    def set_progress(self, value):
+        self.progress.setValue(value)
+
+    def set_maximum(self, maximum):
+        self.progress.setMaximum(maximum)
+
+    # def closeEvent(self, event):
+    #     # Prevent closing if desired (optional)
+    #     event.accept()
 
 
 def exception_hook(type_, value, tb):

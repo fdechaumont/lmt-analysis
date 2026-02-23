@@ -5,7 +5,7 @@
 import plotly.express as px
 
 from dim_c_brains.scripts.reports_manager import HTMLReportManager
-from dim_c_brains.scripts.data_extractor import DataFrameConstructor
+from dim_c_brains.scripts.dataframe_constructor import DataFrameConstructor
 from dim_c_brains.scripts.plotting_functions import (
     str_h_min,
     floor_power10,
@@ -48,6 +48,15 @@ def generic_reports(
         kwargs.get("filter_stop", False),
     )
 
+    if df is None:
+        report_manager.add_title(
+            name="Analysis of mice activity",
+            content="""
+            No data available for the selected time interval. Please adjust
+            the processing limits or check the database connection.""",
+        )
+        return None
+
     #######################################
     #   Constants & Parameters   #
     #######################################
@@ -56,7 +65,7 @@ def generic_reports(
 
     NB_ANIMALS = df["RFID"].nunique()
 
-    exp_start_time, exp_end_time = df_constructor.get_analysis_limits("TIME")
+    exp_start_time, exp_end_time = df_constructor.get_processing_limits("TIME")
     NB_DAYS = (exp_end_time - exp_start_time).total_seconds() / 3600 / 24
 
     if kwargs.get("first_value_in_graph", True):
@@ -341,7 +350,7 @@ def generic_reports(
     #######################################
     #   TABLE   #
     #######################################
-    report_manager.add_table(name=f"complete table", df=df)
+    report_manager.add_table_headers(name="complete table", df=df)
 
     #######################################
     #   Return   #
