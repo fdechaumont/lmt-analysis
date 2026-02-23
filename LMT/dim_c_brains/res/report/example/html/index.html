@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+
+        <title>Micecraft experiment browser</title>
+        <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+        <link href="styles.css" rel="stylesheet" />
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/virtual-webgl@1.0.6/src/virtual-webgl.js"></script>
+    </head>
+    <body class="sb-nav-fixed">
+        <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+            <!-- Navbar Brand-->
+            <a class="navbar-brand ps-3" href="index.html">Experiment browser</a>
+            <!-- Sidebar Toggle-->
+            <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+            <!-- Navbar Search-->
+            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+                <div class="input-group">
+                <div class="navbar-brand ps-3" style="margin-right:50px;" ></div>                    
+                    <!-- <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
+                     -->
+                </div>
+            </form>            
+        </nav>
+        <div id="layoutSidenav">
+            <div id="layoutSidenav_nav">
+                <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+                    <div class="sb-sidenav-menu">
+                        <div class="nav">
+<!--                             <div class="sb-sidenav-menu-heading">Global</div> -->
+                            
+
+                            
+<!--                             <a class="nav-link" href="index.html"> -->
+<!--                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div> -->
+<!--                                 Collaboration -->
+<!--                             </a> -->
+<!--                             <a class="nav-link" href="index.html"> -->
+<!--                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div> -->
+<!--                                 Altruism -->
+<!--                             </a> -->
+<!--                             <a class="nav-link" href="index.html"> -->
+<!--                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-flask"></i></div> -->
+<!--                                 Touchscreen -->
+<!--                             </a> -->
+                            
+                            
+                            <div class="sb-sidenav-menu-heading">Version
+                            <!-- <a class="nav-link" href="../report3/index.html" >Server 3</a>  -->
+                            
+                            </div>
+                            
+                            
+                            <a class="nav-link" href="exp_verylongtestpage.html">
+                                <div class="sb-nav-link-icon"><i class="fa-solid fa-flask"></i></div>
+                                verylongtestpage
+                            </a>
+                            
+                            
+<!--                             <div class="sb-sidenav-menu-heading">Details</div> -->
+                            
+<!-- 	                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts"> -->
+<!-- 	                                <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div> -->
+<!-- 	                                Collaboration -->
+<!-- 	                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div> -->
+<!-- 	                            </a> -->
+<!-- 	                            <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion"> -->
+<!-- 	                                <nav class="sb-sidenav-menu-nested nav"> -->
+<!-- 	                                    <a class="nav-link" href="layout-static.html">Static Navigation</a> -->
+<!-- 	                                    <a class="nav-link" href="layout-sidenav-light.html">Light Sidenav</a> -->
+<!-- 	                                </nav> -->
+<!-- 	                            </div> -->
+	                            
+<!-- 	                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts2" aria-expanded="false" aria-controls="collapseLayouts2"> -->
+<!-- 	                                <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div> -->
+<!-- 	                                Altruism -->
+<!-- 	                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div> -->
+<!-- 	                            </a> -->
+<!-- 	                            <div class="collapse" id="collapseLayouts2" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion"> -->
+<!-- 	                                <nav class="sb-sidenav-menu-nested nav"> -->
+<!-- 	                                    <a class="nav-link" href="layout-static.html">Static Navigation</a> -->
+<!-- 	                                    <a class="nav-link" href="layout-sidenav-light.html">Light Sidenav</a> -->
+<!-- 	                                </nav> -->
+<!--                             </div> -->
+	                                
+<!-- 	                              -->
+<!-- 	                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts{'name': 'verylongtestpage', 'url': 'exp_verylongtestpage.html'}" aria-expanded="false" aria-controls="collapseLayouts{'name': 'verylongtestpage', 'url': 'exp_verylongtestpage.html'}"> -->
+<!-- 	                                <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div> -->
+<!-- 	                                {'name': 'verylongtestpage', 'url': 'exp_verylongtestpage.html'} -->
+<!-- 	                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div> -->
+<!-- 	                            </a> -->
+<!-- 	                            <div class="collapse" id="collapseLayouts{'name': 'verylongtestpage', 'url': 'exp_verylongtestpage.html'}" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion"> -->
+<!-- 	                                <nav class="sb-sidenav-menu-nested nav"> -->
+<!-- 	                                    <a class="nav-link" href="layout-static.html">Static Navigation</a> -->
+<!-- 	                                    <a class="nav-link" href="layout-sidenav-light.html">Light Sidenav</a> -->
+<!-- 	                                </nav> -->
+<!--                             </div> -->
+	                             
+<!-- 	                              -->
+	                              
+                            
+                            
+<!--                             <div class="sb-sidenav-menu-heading">Addons</div> -->
+<!--                             <a class="nav-link" href="charts.html"> -->
+<!--                                 <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div> -->
+<!--                                 Charts -->
+<!--                             </a> -->
+<!--                             <a class="nav-link" href="tables.html"> -->
+<!--                                 <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div> -->
+<!--                                 Tables -->
+<!--                             </a> -->
+                            
+                        </div>
+                    </div>
+                    <div class="sb-sidenav-footer">
+                        <div class="small">Logged in as:</div>
+                        Guest
+                    </div>
+                </nav>
+            </div>
+            
+            
+            <div id="layoutSidenav_content">
+                <main>
+                    <div class="container-fluid px-4">
+                        <h1 class="mt-4">Overview</h1>
+                        
+                        
+                       
+                        
+                        
+                        <div class="card mb-4">
+	<div class="card-header">
+	<i class="fas fa-table me-1"></i>
+	#0 - First report test
+	</div>
+	
+	<div class="card-body">
+	My content
+	</div>
+</div><div class='row'>
+                                <div class="mb-4">
+        <div class="card bg-primary text-white mb-4">
+            <div class="card-body" style="font-size:30px;font-weight:bold;text-align:center;">My splitter/header</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                My title         
+            </div>
+        </div>
+    </div>
+    </div><div class="card mb-4">
+	<div class="card-header">
+	<i class="fas fa-table me-1"></i>
+	#2 - First report test
+	</div>
+	
+	<div class="card-body">
+	My content
+	</div>
+</div><div class="card mb-4">
+	<div class="card-header">
+	<i class="fas fa-table me-1"></i>
+	#3 - First report test
+	</div>
+	
+	<div class="card-body">
+	<div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.0.0.min.js"></script>                <div id="f7bc7e82-7797-4614-a540-59e305f0bdfd" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("f7bc7e82-7797-4614-a540-59e305f0bdfd")) {                    Plotly.newPlot(                        "f7bc7e82-7797-4614-a540-59e305f0bdfd",                        [{"hovertemplate":"year=%{x}\u003cbr\u003elifeExp=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","line":{"color":"#636efa","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines","name":"","orientation":"v","showlegend":false,"x":{"dtype":"i2","bdata":"oAelB6oHrwe0B7kHvgfDB8gHzQfSB9cH"},"xaxis":"x","y":{"dtype":"f8","bdata":"AAAAAAAwUUA9CtejcH1RQDMzMzMz01FAuB6F61EIUkC4HoXrUThSQD0K16NwjVJAcT0K16PwUkDXo3A9CjdTQM3MzMzMfFNA16NwPQqnU0DhehSuR\u002fFTQG8Sg8DKKVRA"},"yaxis":"y","type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"year"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"lifeExp"}},"legend":{"tracegroupgap":0},"title":{"text":"Life expectancy in Canada"}},                        {"displaylogo": false, "responsive": true}                    )                };            </script>        </div>
+	</div>
+</div><div class="card mb-4">
+    
+    
+    <!--
+    <div class="card-header">
+        <i class="fas fa-table me-1"></i>
+        #4 - First dataframe test
+    </div>
+    -->
+    
+    <div class="card-header">
+                                        <div style="display: flex;">
+                                        <div style="flex-grow: 1;">
+                                        <i class="fas fa-chart-area me-1"></i>
+                                        #4 - First dataframe test
+                                        </div>
+                                        <div>
+                                        <a href="main_First_dataframe_test.xlsx" >Xlsx data</a>
+                                        </div>
+                                        </div>
+    </div>
+    
+    <div class="card-body">
+        <table id="datatablesSimple#4 - First dataframe test">
+            <thead>
+                <tr>
+                                
+                    <th>calories</th>
+                                
+                    <th>duration</th>
+                
+                </tr>
+            </thead>
+            
+            <tbody>
+                
+                    
+            	<tr>
+            	
+                <td>420</td>                
+                
+                <td>50</td>                
+                
+                </tr>
+                    
+            	<tr>
+            	
+                <td>380</td>                
+                
+                <td>40</td>                
+                
+                </tr>
+                    
+            	<tr>
+            	
+                <td>390</td>                
+                
+                <td>45</td>                
+                
+                </tr>
+                
+        
+                
+                
+            </tbody>
+        </table>
+        <script>
+        window.addEventListener('DOMContentLoaded', event => {
+
+    	const datatablesSimple = document.getElementById('datatablesSimple#4 - First dataframe test');
+    		if (datatablesSimple) {
+        		new simpleDatatables.DataTable(datatablesSimple);
+    		}
+		});
+		
+        </script>
+    </div>
+    
+</div><div class='row'>    <div class="col-xl-3 col-md-6">
+        <div class="card bg-success text-white mb-4">
+            <div class="card-body">First minicard</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                ok            
+            </div>
+        </div>
+    </div>
+
+                        
+                            <div class="col-xl-3 col-md-6">
+        <div class="card bg-danger text-white mb-4">
+            <div class="card-body">First minicard</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                problem here and there            
+            </div>
+        </div>
+    </div>
+
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </main>
+        
+        
+        
+        
+        
+                <footer class="py-4 bg-light mt-auto">
+                    <div class="container-fluid px-4">
+                        <div class="d-flex align-items-center justify-content-between small">
+                            <div class="text-muted">Experiment browser</div>
+                            <div>page generation date: 04 Apr 2025 13:04:29 - Page generation: 0.6 seconds -
+                                Mouse GHFC / 2025
+                            
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+        
+        
+        
+        
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="scripts.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+        <script src="assets/demo/chart-area-demo.js"></script>
+        <script src="assets/demo/chart-bar-demo.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+        <!-- <script src="js/datatables-simple-demo.js"></script> -->
+    </body>
+</html>

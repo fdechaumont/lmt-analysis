@@ -1,0 +1,59 @@
+<div class="card mb-4">
+    
+    
+    <!--
+    <div class="card-header">
+        <i class="fas fa-table me-1"></i>
+        {{title}}
+    </div>
+    -->
+    
+    <div class="card-header">
+                                        <div style="display: flex;">
+                                        <div style="flex-grow: 1;">
+                                        <i class="fas fa-chart-area me-1"></i>
+                                        {{title}}
+                                        </div>
+                                        <div>
+                                        <a href="{{fileNameXLS}}" >Xlsx data</a>
+                                        </div>
+                                        </div>
+    </div>
+    
+    <div class="card-body">
+        <table id="datatablesSimple{{title}}">
+            <thead>
+                <tr>
+                {% for name in content.columns %}                
+                    <th>{{name}}</th>
+                {% endfor %}
+                </tr>
+            </thead>
+            
+            <tbody>
+                
+                {% for index, row in content.iterrows() %}    
+            	<tr>
+            	{% for i in range( row|length ) %}
+                <td>{{ row[i] }}</td>                
+                {% endfor %}
+                </tr>
+                {% endfor %}
+        
+                
+                
+            </tbody>
+        </table>
+        <script>
+        window.addEventListener('DOMContentLoaded', event => {
+
+    	const datatablesSimple = document.getElementById('datatablesSimple{{title}}');
+    		if (datatablesSimple) {
+        		new simpleDatatables.DataTable(datatablesSimple);
+    		}
+		});
+		
+        </script>
+    </div>
+    
+</div>
