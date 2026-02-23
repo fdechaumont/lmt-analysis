@@ -9,9 +9,9 @@ from pathlib import Path
 #######################################
 #   APP Creation Parameters   #
 #######################################
-APP_CREATION = True
+APP_CREATION = False
 APP_VERSION = "1.0"
-APP_LAST_UPDATE = "2026-02-20"
+APP_RELEASE = "2026-02-23"
 # command for executable creation (run in terminal at project root):
 # pyinstaller -p LMT --onefile --icon=LMT/dim_c_brains/res/lmt_eye_icon.png --add-data "LMT/dim_c_brains/res/template;dim_c_brains/res/template" --add-data "LMT/dim_c_brains/res/assets;dim_c_brains/res/assets" LMT/dim_c_brains/lmt_eye_app.py
 
@@ -55,7 +55,7 @@ from PyQt6.QtWidgets import (
 )
 
 from dim_c_brains.scripts.events_and_modules import ALL_EVENTS
-from LMT.dim_c_brains.lmt_eye_data_analysis import LMTEYEDataAnalyzer
+from dim_c_brains.lmt_eye_data_analysis import LMTEYEDataAnalyzer
 from dim_c_brains.lmt_eye_settings import LMTEYESettings
 from dim_c_brains.scripts.pyqt6_tools import YesNoQuestion, get_btn_style
 
@@ -277,7 +277,9 @@ class AnalysisAppWindow(QWidget):
             <b>LMT-EYE</b> - <i>Explore Your Experiments !</i><br>
             <br>
             Version: {APP_VERSION}<br>
-            Last update: {APP_LAST_UPDATE}<br>
+            Release date: {APP_RELEASE}<br>
+            Github: <a href='https://github.com/xmousset/lmt-analysis'>
+            LMT-EYE repository</a><br>
             <br>
             To seek for help, visit LMT website:<br>
             <a href='https://micecraft.org/lmt/'>
@@ -286,7 +288,7 @@ class AnalysisAppWindow(QWidget):
             You can also go on the LMT Discord server to ask LMT creators and
             other users about your problems to have a quick answer:<br>
             <a href='https://discord.com/invite/zWDHNf9eHM'>
-            https://discord.com/invite/zWDHNf9eHM</a>
+            Join LMT Discord server</a>
         """
         dlg = QDialog(self)
         dlg.setWindowTitle("Help")
