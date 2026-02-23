@@ -10,7 +10,7 @@ from pathlib import Path
 #   APP Creation Parameters   #
 #######################################
 APP_CREATION = False
-APP_VERSION = "1.0"
+APP_VERSION = "1.0.0"
 APP_RELEASE = "2026-02-23"
 APP_ICON = Path(__file__).parent / "res" / "lmt_eye_icon.png"
 # command for executable creation (run in terminal at project root):
