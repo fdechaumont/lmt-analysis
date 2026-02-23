@@ -110,7 +110,8 @@ def computeProfile(file, minT, maxT, behaviouralEventList):
         COMPUTE_TOTAL_DISTANCE = True
         if ( COMPUTE_TOTAL_DISTANCE == True ):
             animalObject.loadDetection( start=minT, end=maxT, lightLoad = True )
-            animalData[rfid]["totalDistance"] = animalObject.getDistance( tmin=minT,tmax=maxT)/100
+            #animalData[rfid]["totalDistance"] = animalObject.getDistance( tmin=minT,tmax=maxT)/100
+            animalData[rfid]["totalDistance"] = animalObject.getDistance( tmin=minT,tmax=maxT, filter_flickering=True, filter_stop=True)/100
         else:
             animalData[rfid]["totalDistance"] = "totalDistance"
 
@@ -216,7 +217,9 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
         COMPUTE_TOTAL_DISTANCE = True
         if COMPUTE_TOTAL_DISTANCE == True:
             animalObject.loadDetection(start=minT, end=maxT, lightLoad=True)
-            animalData[rfid]["totalDistance"] = animalObject.getDistance(tmin=minT, tmax=maxT) / 100
+            #animalData[rfid]["totalDistance"] = animalObject.getDistance(tmin=minT, tmax=maxT) / 100
+            animalData[rfid]["totalDistance"] = animalObject.getDistance( tmin=minT,tmax=maxT, filter_flickering=True, filter_stop=True)/100
+
         else:
             animalData[rfid]["totalDistance"] = "totalDistance"
 
@@ -356,7 +359,9 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
         COMPUTE_TOTAL_DISTANCE = True
         if COMPUTE_TOTAL_DISTANCE == True:
             animalObject.loadDetection(start=minT, end=maxT, lightLoad=True)
-            animalData[rfid]["totalDistance"] = animalObject.getDistance(tmin=minT, tmax=maxT) / 100
+            #animalData[rfid]["totalDistance"] = animalObject.getDistance(tmin=minT, tmax=maxT) / 100
+            animalData[rfid]["totalDistance"] = animalObject.getDistance( tmin=minT,tmax=maxT, filter_flickering=True, filter_stop=True)/100
+
         else:
             animalData[rfid]["totalDistance"] = "totalDistance"
 
@@ -1303,7 +1308,7 @@ def plotProfileDataDurationPairsDiffGeno( axes, row, col, profileData, night, va
 
     axes[row, col].set_xlim(-0.5, 1.5)
     axes[row, col].set_ylim(min(y) - 0.2 * max(y), max(y) + 0.2 * max(y))
-    sns.boxplot(x=x, y=y, ax=axes[row, col], order=genotypeCat, linewidth=0.5, showmeans=True,
+    sns.boxplot(x=x, y=y, ax=axes[row, col], hue=x, legend=False, order=genotypeCat, linewidth=0.5, showmeans=True,
                 meanprops={"marker": 'o',
                            "markerfacecolor": 'white',
                            "markeredgecolor": 'black',
@@ -1975,7 +1980,7 @@ if __name__ == '__main__':
                     profileData[file][n] = computeProfilePair(file = file, minT=minT, maxT=maxT, behaviouralEventListSingle=behaviouralEventOneMouseSingle, behaviouralEventListSocial=behaviouralEventOneMouseSocial)
                     
                     
-                if nightComputation == "Y":
+                elif nightComputation == "Y":
                     connection = sqlite3.connect(file)
                     nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=tmin, maxFrame=tmax )
                     connection.close()

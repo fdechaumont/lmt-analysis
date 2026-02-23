@@ -474,6 +474,25 @@ class EventTimeLine:
 
         return durationEventInBinProportionList
     
+    def getNumberOfEventPerBin(self, tmin=0, tmax=None, binSize=1*oneMinute):
+        '''
+        compute the number of events within a given time bin; return a list of number of events
+        '''
+        if ( tmax == None ):
+            tmax = self.getMaxT()
+        
+        numberOfEventsList = []
+        
+        startTime = tmin
+        numberOfBins = np.round((tmax - tmin) / binSize)
+        for k in range(0, int(numberOfBins)):
+            nbEvents = self.getNumberOfEvent(minFrame=startTime, maxFrame=startTime+binSize-1)
+            numberOfEventsList.append(nbEvents)
+            startTime = startTime+binSize
+        
+        return numberOfEventsList
+        
+    
     def getIntervalBetweenEventsList(self):
         '''
         Extract the list of intervals between events of the timeline
