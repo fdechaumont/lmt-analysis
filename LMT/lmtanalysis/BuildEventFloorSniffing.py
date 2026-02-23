@@ -127,7 +127,7 @@ def reBuildEvent(
             # OPTION 2
             if f_str not in stop_frames:
                 continue
-            frame_result = check_body_size(
+            frame_result = check_body_length(
                 animal.detectionDictionary.get(f_str)
             )
             if not frame_result:
@@ -198,7 +198,7 @@ def check_body_slope(detection: Detection):
     return False
 
 
-def check_body_size(
+def check_body_length(
     detection: Detection,
 ):
     """
