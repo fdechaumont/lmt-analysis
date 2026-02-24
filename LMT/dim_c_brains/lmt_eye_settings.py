@@ -63,8 +63,8 @@ class LMTEYESettings:
         default_settings = {
             "animal_type": AnimalType.MOUSE,
             "events": set(),
-            "filter_flickering": False,
-            "filter_stop": False,
+            "filter_flickering": True,
+            "filter_stop": True,
             "fps": 30,
             "night_begin": 20,
             "night_duration": 12,
