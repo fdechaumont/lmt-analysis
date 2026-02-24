@@ -153,7 +153,14 @@ def generic_reports(
     their duration in minutes (DURATION) for each animal (RFID).
     <br>
     This graph allows a visualization of the number of events each animal has
-    done and the time spent in this event.
+    done and the time spent in this event.<br>
+    <br>
+    <div style="color: #DE9BDE"><i>
+    <b>Note:</b> Data for each animal is always valid.<br>
+    However, if an event involves N animals simultaneously and is symmetrical
+    (e.g., an 'Oral-oral contact' event), the total number of events is
+    obtained by dividing the sum of the number of events for each animal by N.
+    </i></div>
     """
     report_manager.add_multi_fig_report(
         name=f"Event overview",
@@ -325,7 +332,7 @@ def generic_reports(
     #   Event counts   #
     #######################################
 
-    fig = px.bar(
+    fig = px.line(
         df[MASK],
         x=TIME,
         y="EVENT_COUNT",
@@ -340,15 +347,7 @@ def generic_reports(
     animal (RFID) over time ({TIME}) during the interval time window.
     <br>
     This graph allows a visualization of the time spent by each animal in this
-    event over time.<br>
-    <br>
-    <div style="color: #DE9BDE">
-    <i><b>Note:</b> Data for each animal is always valid.<br>
-    However, if an event involves N animals simultaneously and is symmetrical
-    (e.g. 'Oral-oral contact' event), the total (cumulative) values summed
-    across all RFIDs should be divided by N to obtain the total number of
-    events.</i>
-    </div>
+    event over time.
     """
 
     report_manager.add_report(
@@ -362,7 +361,7 @@ def generic_reports(
     #   Event duration   #
     #######################################
 
-    fig = px.bar(
+    fig = px.line(
         df[MASK],
         x=TIME,
         y="DURATION",
@@ -378,15 +377,7 @@ def generic_reports(
     animal (RFID) over time ({TIME}) during the interval time window.
     <br>
     This graph allows a visualization of the time spent by each animal in this
-    event over time.<br>
-    <br>
-    <div style="color: #DE9BDE">
-    <i><b>Note:</b> Data for each animal is always valid.<br>
-    However, if an event involves N animals simultaneously and is symmetrical
-    (e.g. 'Oral-oral contact' event), the total (cumulative) values summed
-    across all RFIDs should be divided by N to obtain the total number of
-    events.</i>
-    </div>
+    event over time.
     """
 
     report_manager.add_report(
