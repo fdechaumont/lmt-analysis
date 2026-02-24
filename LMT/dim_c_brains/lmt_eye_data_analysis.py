@@ -183,7 +183,8 @@ class LMTEYEDataAnalyzer:
             events_df = None
         else:
             events_df = pd.DataFrame()
-            for event_name in self.settings.events:
+            sorted_events = sorted(self.settings.events)
+            for event_name in sorted_events:
                 events_df = pd.concat(
                     [
                         events_df,
