@@ -5,13 +5,14 @@
 import sys
 import traceback
 from pathlib import Path
+from datetime import datetime
 
 #######################################
 #   APP Creation Parameters   #
 #######################################
 APP_CREATION = False
-APP_VERSION = "1.0.1"
-APP_RELEASE = "pre-release"  # "2026-02-23"
+APP_VERSION = ["1.0.1", "1.0.0"]  # decreasing orders
+APP_RELEASE = ["2026-02-27", "2026-02-23"]  # decreasing orders
 APP_ICON = Path(__file__).parent / "res" / "lmt_eye_icon.png"
 # command for executable creation (run in terminal at project root):
 # pyinstaller -p LMT --onefile --icon=LMT/dim_c_brains/res/lmt_eye_icon.png --add-data "LMT/dim_c_brains/res/template;dim_c_brains/res/template" --add-data "LMT/dim_c_brains/res/assets;dim_c_brains/res/assets" LMT/dim_c_brains/lmt_eye_app.py
@@ -69,7 +70,7 @@ class AnalysisAppWindow(QWidget):
     def __init__(self):
         """Initialize the main application window."""
         super().__init__()
-        self.setWindowTitle("LMT-EYE - v" + APP_VERSION)
+        self.setWindowTitle("LMT-EYE - v" + APP_VERSION[0])
         self.setFixedSize(550, 400)
         self.setWindowIcon(QIcon(str(APP_ICON)))
 
@@ -84,10 +85,6 @@ class AnalysisAppWindow(QWidget):
         #######################################
         #   Help button   #
         #######################################
-        help_row = QHBoxLayout()
-        help_row.addStretch(1)
-        help_btn = QPushButton("?")
-        help_btn.setFixedSize(42, 42)
         btn_style = get_btn_style(
             size=18,
             bold=True,
@@ -95,9 +92,14 @@ class AnalysisAppWindow(QWidget):
             bg_color="#EA2A94",
             radius=15,
         )
+        help_btn = QPushButton("?")
+        help_btn.setFixedSize(42, 42)
         help_btn.setStyleSheet(btn_style)
         help_btn.setToolTip("Help / About")
         help_btn.clicked.connect(self.show_help_dialog)
+
+        help_row = QHBoxLayout()
+        help_row.addStretch(1)
         help_row.addWidget(help_btn)
         main_layout.addLayout(help_row)
 
@@ -107,7 +109,10 @@ class AnalysisAppWindow(QWidget):
         self.info_label = QLabel()
         self.info_label.setTextFormat(Qt.TextFormat.RichText)
         self.info_label.setText("<b>No loaded database.</b>")
-        main_layout.addWidget(self.info_label)
+
+        db_info_row = QHBoxLayout()
+        db_info_row.addWidget(self.info_label)
+        main_layout.addLayout(db_info_row)
 
         #######################################
         #   Buttons row   #
@@ -146,29 +151,77 @@ class AnalysisAppWindow(QWidget):
 
         self.setLayout(main_layout)
 
-    def update_info(self):
+    def update_database_info(self):
         """Update database information displayed in the main window."""
         infos = {}
         if self.database_path is not None:
             t_format = "%Y %B - %A %d - %H:%M"
             infos = LMTEYEDataAnalyzer.get_informations(self.database_path)
-            info_html = (
-                "<table style='font-size:13px;'>"
-                f"<tr><td><b>Database:</b></td><td>{infos["database_name"]}</td></tr>"
-                f"<tr><td><b>Animals:</b></td><td>{infos["n_animals"]}</td></tr>"
-                f"<tr><td><b>Start:</b></td><td>{infos["start_time"].strftime(t_format)}</td></tr>"
-                f"<tr><td><b>End:</b></td><td>{infos["end_time"].strftime(t_format)}</td></tr>"
-                f"<tr><td><b>Duration:</b></td><td>{infos["duration"].days} days, {infos["duration"].seconds // 3600} hours and {(infos["duration"].seconds // 60) % 60} minutes</td></tr>"
-                f"<tr><td><b>FPS:</b></td><td>{infos["fps"]:.1f}</td></tr>"
-                "</table>"
-            )
+
+            local_time = datetime.now().astimezone()
+            utc_offset = local_time.utcoffset()
+            utc_offset_name = local_time.tzname()
+            if utc_offset is None:
+                print("Warning: UTC offset is None, setting to 0.")
+                utc_offset = pd.Timedelta(0)
+                utc_offset_str = "?"
+            else:
+                utc_hours = utc_offset.total_seconds() / 3600
+                if utc_hours == int(utc_hours):
+                    utc_offset_str = f"{int(utc_hours):+.0f}"
+                elif (utc_hours * 10) == int(utc_hours * 10):
+                    utc_offset_str = f"{utc_hours:+.1f}"
+                else:
+                    utc_offset_str = f"{utc_hours:+.2f}"
+
+            start_time = (infos["start_time"] + utc_offset).strftime(t_format)
+            end_time = (infos["end_time"] + utc_offset).strftime(t_format)
+            d = infos["duration"].days
+            h = infos["duration"].seconds // 3600
+            m = (infos["duration"].seconds // 60) % 60
+            info_html = f"""
+                <table style='font-size:13px;'>
+                <tr>
+                    <td><b>Database:</b></td>
+                    <td>{infos["database_name"]}</td>
+                </tr>
+                <tr>
+                    <td><b>Animals:</b></td>
+                    <td>{infos["n_animals"]}</td>
+                </tr>
+                <tr>
+                    <td><b>Start:</b></td>
+                    <td>{start_time}</td>
+                </tr>
+                <tr>
+                    <td><b>End:</b></td>
+                    <td>{end_time}</td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="color: gray; font-family: Calibri;">
+                        <center><i>
+                            <span>&#11169;</span>&nbsp;
+                            UTC{utc_offset_str} - {utc_offset_name}
+                        </i></center>
+                    </td>
+                </tr>
+                <tr>
+                    <td><b>Duration:</b></td>
+                    <td>{d} days, {h} hours and {m} minutes</td>
+                </tr>
+                <tr>
+                    <td><b>FPS:</b></td>
+                    <td>{infos["fps"]:.1f}</td>
+                </tr>
+                </table>
+            """
             self.info_label.setText(info_html)
         else:
-            info_html = (
-                "<table style='font-size:13px;'>"
-                "<tr><td><b>Database:</b></td><td>No loaded database.</td></tr>"
-                "</table>"
-            )
+            info_html = f"""
+                <table style='font-size:13px;'>
+                <tr><td><b>Database:</b></td><td>No loaded database.</td></tr>
+                </table>
+            """
 
         self.info_label.setText(info_html)
 
@@ -183,7 +236,7 @@ class AnalysisAppWindow(QWidget):
         if not file_path:
             return
         self.database_path = Path(file_path)
-        self.update_info()
+        self.update_database_info()
 
         btn_style = get_btn_style(size=15, bold=True)
         self.load_db_btn.setStyleSheet(btn_style)
@@ -274,8 +327,8 @@ class AnalysisAppWindow(QWidget):
         info_msg = f"""
             <b>LMT-EYE</b> - <i>Explore Your Experiments !</i><br>
             <br>
-            Version: {APP_VERSION}<br>
-            Release date: {APP_RELEASE}<br>
+            Version: {APP_VERSION[0]}<br>
+            Release date: {APP_RELEASE[0]}<br>
             Github: <a href='https://github.com/xmousset/lmt-analysis'>
             LMT-EYE repository</a><br>
             <br>
@@ -346,6 +399,8 @@ class SettingsWindow(QDialog):
         #######################################
         #   Output folder   #
         #######################################
+
+        # output_folder
         if self.settings.output_folder is None:
             output_text = ""
         else:
@@ -374,6 +429,8 @@ class SettingsWindow(QDialog):
         #######################################
         #   Animal Type   #
         #######################################
+
+        # animal_type
         self.animal_type_box = QComboBox()
         self.animal_type_box.setToolTip(
             "Type of animals used in the experiment."
@@ -399,7 +456,7 @@ class SettingsWindow(QDialog):
         #   EVENTS   #
         #######################################
 
-        # Events button
+        # events (known)
         btn_style = get_btn_style(size=15, bold=True, bg_color="#1976D2")
         self.select_events_btn = QPushButton("Select Events")
         self.select_events_btn.setToolTip(
@@ -409,7 +466,7 @@ class SettingsWindow(QDialog):
         self.select_events_btn.setFixedWidth(150)
         self.select_events_btn.clicked.connect(self.on_select_events)
 
-        # Custom event text zone
+        # events (custom)
         self.custom_event_edit = QLineEdit()
         self.custom_event_edit.setPlaceholderText("no custom events")
         self.custom_event_edit.setToolTip(
@@ -417,9 +474,8 @@ class SettingsWindow(QDialog):
             "Separate multiple events with commas.\n"
             "(e.g.: Event1, Event2, Event3)"
         )
-        self.custom_event_edit.textChanged.connect(self._update_custom_events)
 
-        # Rebuild events checkbox
+        # rebuild_events
         self.rebuild_box = QCheckBox()
         self.rebuild_box.setToolTip(
             "Wether to rebuild all selected events in the database before "
@@ -447,7 +503,7 @@ class SettingsWindow(QDialog):
         #   ANALYSIS FILTERS   #
         #######################################
 
-        # flickering
+        # filter_flickering
         self.flickering_cb = QCheckBox()
         self.flickering_cb.setToolTip(
             "Whether to filter the 'Flickering' event for animal activity.\n"
@@ -456,7 +512,7 @@ class SettingsWindow(QDialog):
         )
         self.flickering_cb.setChecked(self.settings.filter_flickering)
 
-        # stop
+        # filter_stop
         self.stop_cb = QCheckBox()
         self.stop_cb.setToolTip(
             "Whether to filter the 'Stop' event for animal activity.\n"
@@ -535,7 +591,7 @@ class SettingsWindow(QDialog):
         self.fps_spin.setValue(self.settings.fps)
         self.fps_spin.setMinimumWidth(75)
 
-        # functions connections
+        # updates frames when times are changed, and vice versa
         self.time_window_frames.valueChanged.connect(
             self._on_time_frames_changed
         )
@@ -583,7 +639,7 @@ class SettingsWindow(QDialog):
         #######################################
         #   NIGHT TIME   #
         #######################################
-        # night begin
+        # night_begin
         self.night_begin_spin = QSpinBox()
         self.night_begin_spin.setToolTip(
             "Define when the night cycle began (in hours, 0-23).\n"
@@ -593,7 +649,7 @@ class SettingsWindow(QDialog):
         self.night_begin_spin.setValue(self.settings.night_begin)
         self.night_begin_spin.setMinimumWidth(75)
 
-        # night duration
+        # night_duration
         self.night_duration_spin = QSpinBox()
         self.night_duration_spin.setToolTip(
             "Define the night cycle duration (in hours, 0-24).\n"
@@ -624,13 +680,34 @@ class SettingsWindow(QDialog):
         night_row.addStretch(1)
 
         form.addRow("Nights", night_row)
+
+        #######################################
+        #   UTC TIME ZONE   #
+        #######################################
+        # UTC_offset
+        self.utc_offset_spin = QDoubleSpinBox()
+        self.utc_offset_spin.setToolTip(
+            "Define the UTC offset in hours for correct timezone conversion.\n"
+            "For example, +1 for Paris, +9 for Tokyo or +5.75 for Kathmandu."
+        )
+        self.utc_offset_spin.setRange(-12.0, 14.0)
+        self.utc_offset_spin.setValue(self.settings.UTC_offset)
+        self.utc_offset_spin.setMinimumWidth(75)
+
+        utc_row = QHBoxLayout()
+        utc_row.addStretch(1)
+        utc_row.addWidget(QLabel("UTC offset (h):"))
+        utc_row.addWidget(self.utc_offset_spin)
+        utc_row.addStretch(1)
+
+        form.addRow("Time Zone", utc_row)
         form.addRow(self.Qhline())
 
         #######################################
         #   ANALYSIS LIMITS (start, end)   #
         #######################################
 
-        # start
+        # processing_limits (start)
         if self.settings.processing_limits[0] is None:
             start = None
         elif isinstance(self.settings.processing_limits[0], pd.Timestamp):
@@ -647,7 +724,7 @@ class SettingsWindow(QDialog):
         self.start_edit.setPlaceholderText("first frame")
         self.start_edit.setMinimumHeight(30)
 
-        # end
+        # processing_limits (end)
         if self.settings.processing_limits[1] is None:
             end = None
         elif isinstance(self.settings.processing_limits[1], pd.Timestamp):
@@ -694,14 +771,14 @@ class SettingsWindow(QDialog):
         #######################################
         btn_style = get_btn_style(size=13)
 
-        # load
+        # load settings
         self.load_settings_btn = QPushButton("Load settings")
         self.load_settings_btn.setToolTip("Load settings from a JSON file.")
         self.load_settings_btn.setStyleSheet(btn_style)
         self.load_settings_btn.setFixedWidth(120)
         self.load_settings_btn.clicked.connect(self.on_load_settings)
 
-        # save
+        # save settings
         self.save_settings_btn = QPushButton("Save settings")
         self.save_settings_btn.setToolTip(
             "Save current settings to a JSON file."
@@ -710,7 +787,7 @@ class SettingsWindow(QDialog):
         self.save_settings_btn.setFixedWidth(120)
         self.save_settings_btn.clicked.connect(self.on_save_settings)
 
-        # default
+        # set default settings
         self.default_settings_btn = QPushButton("Define as default")
         self.default_settings_btn.setToolTip(
             "Save current settings as default."
@@ -733,14 +810,14 @@ class SettingsWindow(QDialog):
         #######################################
         #   VALIDATION BUTTONS   #
         #######################################
-        # process button
+        # process
         btn_style = get_btn_style(size=15, bold=True, bg_color="#1976D2")
         ok_btn = QPushButton("Process")
         ok_btn.setFixedWidth(100)
         ok_btn.setStyleSheet(btn_style)
         ok_btn.clicked.connect(self.on_accept)
 
-        # cancel button
+        # cancel
         btn_style = get_btn_style(size=15, bold=True)
         cancel_btn = QPushButton("Cancel")
         cancel_btn.setFixedWidth(100)
@@ -787,6 +864,7 @@ class SettingsWindow(QDialog):
         self.night_begin_spin.setValue(self.settings.night_begin)
         self.night_duration_spin.setValue(self.settings.night_duration)
         self.rebuild_box.setChecked(self.settings.rebuild_events)
+        self.utc_offset_spin.setValue(self.settings.UTC_offset)
 
     def _update_settings_from_ui(self):
         """Update LMT-EYE settings based on current UI values."""
@@ -806,9 +884,10 @@ class SettingsWindow(QDialog):
         self.settings.night_begin = self.night_begin_spin.value()
         self.settings.night_duration = self.night_duration_spin.value()
         self.settings.rebuild_events = self.rebuild_box.isChecked()
+        self.settings.UTC_offset = self.utc_offset_spin.value()
         self._update_custom_events()
 
-        start_text = self.start_edit.text()
+        start_text = self.start_edit.text().strip()
         if not start_text:
             start = None
         elif start_text.isdigit():
@@ -1537,7 +1616,7 @@ def exception_hook(type_, value, tb):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
-    app.setApplicationVersion(APP_VERSION)
+    app.setApplicationVersion(APP_VERSION[0])
     app.setApplicationName("LMT-EYE")
 
     sys.excepthook = exception_hook

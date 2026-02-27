@@ -3,7 +3,9 @@
 """
 
 import sqlite3
+from typing import Any
 from pathlib import Path
+from datetime import datetime
 
 import pandas as pd
 
@@ -62,7 +64,7 @@ class LMTEYEDataAnalyzer:
 
         connection.close()
 
-        info = {
+        info: dict[str, Any] = {
             "database_name": database_path.stem,
             "n_animals": n_animals,
             "start_time": start_time,
@@ -134,6 +136,7 @@ class LMTEYEDataAnalyzer:
             self.settings.processing_limits[1],
             self.settings.fps,
             self.settings.processing_window,
+            self.settings.UTC_offset,
         )
 
         self.settings.logic_update()
@@ -173,6 +176,7 @@ class LMTEYEDataAnalyzer:
             self.settings.processing_limits[0],
             self.settings.processing_limits[1],
             self.settings.fps,
+            self.settings.UTC_offset,
         )
 
         activity_df = activity_reports.generic_reports(

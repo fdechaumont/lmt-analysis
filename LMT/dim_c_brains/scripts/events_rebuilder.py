@@ -38,6 +38,7 @@ class EventsRebuilder:
         end: int | pd.Timestamp | None = None,
         fps: int = 30,
         processing_window: int = oneDay,
+        UTC_offset: float = 1.0,
     ):
         """Class to handle the rebuilding of events in the database.
 
@@ -53,6 +54,8 @@ class EventsRebuilder:
                 Default is 30.
             processing_window (int): Processing window size in frames.
                 Default is one day (in frames).
+            UTC_offset (float, optional): UTC offset in hours for correct
+                timezone conversion (e.g. *+9.0* for Tokyo). Defaults to *1.0*.
         """
         self.conn = connection
         self.database_path = database_path
@@ -66,6 +69,7 @@ class EventsRebuilder:
             start=start,
             end=end,
             fps=fps,
+            UTC_offset=UTC_offset,
         )
 
     def get_events_in_database(self) -> set[str]:

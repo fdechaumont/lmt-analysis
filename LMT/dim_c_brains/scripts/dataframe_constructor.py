@@ -30,6 +30,7 @@ class DataFrameConstructor:
         start: int | pd.Timestamp | None = None,
         end: int | pd.Timestamp | None = None,
         fps: int = 30,
+        UTC_offset: float = 1.0,
     ):
         """
         instanciate pandas dataframes constructor. All datas will be binned
@@ -50,6 +51,8 @@ class DataFrameConstructor:
                 timestamp for data processing. If None, it will process until
                 the end of the dataset. Defaults to None.
             fps (int, optional): Frames per second. Defaults to 30.
+            UTC_offset (float, optional): UTC offset in hours for correct
+                timezone conversion (e.g. *+9.0* for Tokyo). Defaults to *1.0*.
         """
         self.animal_pool = AnimalPool()
         self.animal_pool.loadAnimals(connection)
@@ -62,6 +65,7 @@ class DataFrameConstructor:
             start=start,
             end=end,
             fps=fps,
+            UTC_offset=UTC_offset,
         )
         self.processing_window = processing_window
 

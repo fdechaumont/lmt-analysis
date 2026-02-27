@@ -55,6 +55,17 @@ class LMTEYESettings:
     time_window : int, optional
         Time window for data binning in *frames*. Defaults to *27 000 (= 15
         min)*.
+    UTC_offset : float, optional
+        UTC offset in hours for correct timezone conversion (e.g. +9.0 for
+        Tokyo time, default is +1.0 for Paris time). Defaults to 1.0.
+
+    To add another parameter, simply add it in both the `get_default_settings`
+    and the `reset` methods of the class, all other methods will automatically
+    handle it.
+    If the parameter is not of type int, float, bool, None or str, (or list
+    with these sub-types) you will need to add the conversion of the parameter
+    in the `convert_in_str` and `convert_from_str` methods for saving and
+    loading the settings in a JSON file.
     """
 
     @staticmethod
@@ -73,6 +84,7 @@ class LMTEYESettings:
             "processing_window": oneDay,
             "rebuild_events": False,
             "time_window": 15 * oneMinute,
+            "UTC_offset": 1.0,
         }
         return default_settings
 
@@ -152,6 +164,7 @@ class LMTEYESettings:
         ] = default_settings["processing_limits"]
         self.rebuild_events: bool = default_settings["rebuild_events"]
         self.time_window: int = default_settings["time_window"]
+        self.UTC_offset: float = default_settings["UTC_offset"]
 
     def logic_update(self):
         """Update the settings values based on the current settings. Useful,
@@ -198,6 +211,7 @@ class LMTEYESettings:
 
         settings = self.get_as_str_dict()
 
+        self._saver.reset()
         self._saver.set_values(settings)
         if file_path:
             self._saver.save(file_path)
@@ -211,7 +225,7 @@ class LMTEYESettings:
             raise ValueError(
                 "No saver defined for LMT-EYE settings. Cannot load settings."
             )
-
+        self.reset()
         self._saver.load(file_path)
         settings = self._saver.get_parameters()
         settings = LMTEYESettings.convert_from_str(settings)
