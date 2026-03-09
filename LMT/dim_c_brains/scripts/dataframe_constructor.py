@@ -27,9 +27,11 @@ class DataFrameConstructor:
         connection: Connection,
         bin_window: int = 15 * oneMinute,
         processing_window: int | pd.Timedelta = oneDay,
-        start: int | pd.Timestamp | None = None,
-        end: int | pd.Timestamp | None = None,
+        processing_limits: tuple[
+            int | pd.Timestamp | None, int | pd.Timestamp | None
+        ] = (None, None),
         fps: int = 30,
+        UTC_offset: float = 1.0,
     ):
         """
         instanciate pandas dataframes constructor. All datas will be binned
@@ -38,11 +40,12 @@ class DataFrameConstructor:
 
         Args:
             connection (Connection): SQLite database connection.
-            bin_window (int | pd.Timedelta, optional): The bin window (in frames or pandas.Timedelta) for
-                binning data. Defaults to 15 minutes.
+            bin_window (int | pd.Timedelta, optional): The bin window (in
+                frames or pandas.Timedelta) for binning data.
+                Defaults to 15 minutes.
             processing_window (int | pd.Timedelta, optional): The size (in
-            frames or pandas.Timedelta) of each
-                data chunk to load into memory. Defaults to 1 day.
+                frames or pandas.Timedelta) of each data chunk to load into
+                memory. Defaults to 1 day.
             start (int | pd.Timestamp | None, optional): The starting frame or
                 timestamp for data processing. If None, it will start from the
                 beginning of the dataset. Defaults to None.
@@ -50,6 +53,8 @@ class DataFrameConstructor:
                 timestamp for data processing. If None, it will process until
                 the end of the dataset. Defaults to None.
             fps (int, optional): Frames per second. Defaults to 30.
+            UTC_offset (float, optional): UTC offset in hours for correct
+                timezone conversion (e.g. *+9.0* for Tokyo). Defaults to *1.0*.
         """
         self.animal_pool = AnimalPool()
         self.animal_pool.loadAnimals(connection)
@@ -59,9 +64,10 @@ class DataFrameConstructor:
             last_framenumber,
             last_timestamp,
             bin_size=bin_window,
-            start=start,
-            end=end,
+            start=processing_limits[0],
+            end=processing_limits[1],
             fps=fps,
+            UTC_offset=UTC_offset,
         )
         self.processing_window = processing_window
 
@@ -103,7 +109,15 @@ class DataFrameConstructor:
         end: int | pd.Timestamp | None = None,
     ):
         """Set the processing limits for data processing from frames or
-        timestamps."""
+        timestamps.
+        Args:
+            start (int | pd.Timestamp | None, optional): The starting frame or
+                timestamp for data processing. If None, it will start from the
+                beginning.
+            end (int | pd.Timestamp | None, optional): The ending frame or
+                timestamp for data processing. If None, it will end at the last
+                frame.
+        """
         self.binner.set_parameters(start=start, end=end)
 
     def get_processing_limits(

@@ -44,6 +44,7 @@ class Binner:
         start: int | pd.Timestamp | None = None,
         end: int | pd.Timestamp | None = None,
         fps: int = 30,  # frames per second
+        UTC_offset: float = 1.0,
     ):
         """
         Initialize Binner with last FRAMENUMBER and TIMESTAMP of a
@@ -52,16 +53,24 @@ class Binner:
         Args:
             last_frame (int): last FRAMENUMBER value in LMT FRAME table.
             last_timestamp (int): TIMESTAMP value of 'last_frame' (in *ms*).
-            fps (int): frames per second of the experiment (default is *30*).
             bin_size (int | pd.Timedelta | None): binning value (in *frames* or
-                *timedelta*). (default is *15 min* at *30 FPS*).
+                *timedelta*). Default to *15 min* at *30 FPS*.
             start (int | pd.Timestamp | None): starting frame number or
                 timestamp for binning.
             end (int | pd.Timestamp | None): ending frame number or timestamp
                 for binning.
+            fps (int, optional): frames per second of the experiment. Defaults
+                to *30*.
+            UTC_offset (float, optional): UTC offset in hours for correct
+                timezone conversion (e.g. *+9.0* for Tokyo). Defaults to *1.0*.
+
+        Note that the UTC offset is only used for the conversion of frame
+        numbers to timestamps and vice versa, and does not affect the actual
+        binning process.
         """
         self.last_frame = last_frame
         self.last_timestamp = last_timestamp
+        self.UTC_offset = pd.Timedelta(hours=UTC_offset)
         self.set_parameters(bin_size, start, end, fps)
 
         print(f"Binner initialized with:")
@@ -71,14 +80,13 @@ class Binner:
 
     def frame_to_time(self, framenumber: int) -> pd.Timestamp:
         """Convert a frame number to a pandas Timestamp."""
-        timestamp = self.bin_0["TIMESTAMP"] + (framenumber / self.fps * 1000)
-        return pd.to_datetime(timestamp, unit="ms")
+        time_delta = pd.to_timedelta(framenumber / self.fps, unit="s")
+        return self.time_0 + time_delta
 
-    def time_to_frame(self, pd_datetime: pd.Timestamp) -> int:
+    def time_to_frame(self, time: pd.Timestamp) -> int:
         """Convert a pandas Timestamp to a frame number."""
-        return round(
-            (pd_datetime - self.bin_0["DATETIME"]).total_seconds() * self.fps
-        )
+        time_delta = time - self.time_0
+        return round(time_delta.total_seconds() * self.fps)
 
     def timedelta_to_frames(self, delta: pd.Timedelta) -> int:
         """Convert a pandas Timedelta to number of frames."""
@@ -96,20 +104,21 @@ class Binner:
         fps: int | None = None,
     ):
         """Set bin size (in *frames*), frame limits (in *frames*), and FPS
-        (*frames/second*).
+        (*frames/second*) and save the reference bin (bin_0).
+        Also initialize the reference time (time_0) that correspond to bin_0
+        with appropriate timezone offset and the bin dataframe (bin_df).
         """
         if fps is not None:
             if fps < 1:
                 raise ValueError("FPS must be at least 1")
             self.fps = fps
 
+        timestamp_0 = self.last_timestamp - (self.last_frame / self.fps * 1000)
         self.bin_0: Dict[str, Any] = {
             "FRAMENUMBER": 0,
-            "TIMESTAMP": self.last_timestamp
-            - (self.last_frame / self.fps * 1000),
-            "DATETIME": None,
+            "TIMESTAMP": timestamp_0 + self.UTC_offset.total_seconds() * 1000,
         }
-        self.bin_0["DATETIME"] = self.frame_to_time(0)
+        self.time_0 = pd.to_datetime(timestamp_0, unit="ms") + self.UTC_offset
 
         if isinstance(bin_size, pd.Timedelta):
             bin_size = self.timedelta_to_frames(bin_size)

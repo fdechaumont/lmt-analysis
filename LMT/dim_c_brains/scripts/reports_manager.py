@@ -38,10 +38,7 @@ class HTMLReportManager:
     def open_local_output(output_folder: Path):
         """Open the generated local HTML output in the default web browser."""
         if not (output_folder / "index.html").exists():
-            print(
-                """Error: index.html not found in the specified output folder.
-                Please generate the local output first."""
-            )
+            print("HTMLReportManager did not find index.html.")
         else:
             webbrowser.open(str(output_folder / "index.html"))
 
@@ -228,7 +225,11 @@ class HTMLReportManager:
         headers_info: dict[str, str] | None = None,
     ):
         """Add a report from a pandas DataFrame displaying only the headers and
-        the header's information if provided."""
+        the header's information if provided.
+
+        headers_info is a dict where keys are column names and values are the
+        description of the column to display in the report.
+        """
 
         html = """
             The complete table used to make all the reports on this page. It

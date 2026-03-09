@@ -27,7 +27,8 @@ def generic_reports(
     Other Parameters
     ----------------
     time : str, optional
-        The time column to use (default: "START_TIME").
+        The time column to use (i.e. "START_TIME" or "END_TIME",
+        default: "START_TIME").
     night_begin : int, optional
         The hour when the night begins (default: 20).
     night_duration : int, optional
@@ -37,8 +38,8 @@ def generic_reports(
     filter_stop : bool, optional
         Whether to filter stop activity (default: False).
     first_value_in_graph : bool, optional
-        Whether to ignore the first value in plots. It impacts the
-        rendering of columns graphs and so is ignored by default
+        Whether to include the first value in plots. It impacts the
+        rendering of columns graphs. By default, the first value is included.
         (default: True).
     """
 
@@ -61,7 +62,7 @@ def generic_reports(
     #   Constants & Parameters   #
     #######################################
 
-    TIME = kwargs.get("time", "START_TIME")
+    TIME: str = kwargs.get("time", "START_TIME")
 
     NB_ANIMALS = df["RFID"].nunique()
 
@@ -69,9 +70,9 @@ def generic_reports(
     NB_DAYS = (exp_end_time - exp_start_time).total_seconds() / 3600 / 24
 
     if kwargs.get("first_value_in_graph", True):
-        MASK = df["START_FRAME"] != df["START_FRAME"].iloc[0]
-    else:
         MASK = df.index == df.index
+    else:
+        MASK = df["START_FRAME"] != df["START_FRAME"].iloc[0]
 
     nights_parameters = {
         "start_time": df["START_TIME"].min(),
@@ -129,7 +130,7 @@ def generic_reports(
     #   Distance   #
     #######################################
 
-    fig = px.bar(
+    fig = px.line(
         df[MASK],
         TIME,
         "DISTANCE",
@@ -157,7 +158,7 @@ def generic_reports(
     #   Event: Stop   #
     #######################################
 
-    fig = px.bar(
+    fig = px.line(
         df[MASK],
         TIME,
         "STOP_DURATION",
@@ -185,7 +186,7 @@ def generic_reports(
     #   Event: Move   #
     #######################################
 
-    fig = px.bar(
+    fig = px.line(
         df[MASK],
         TIME,
         "MOVE_DURATION",
@@ -213,7 +214,7 @@ def generic_reports(
     #   Event: Undetected   #
     #######################################
 
-    fig = px.bar(
+    fig = px.line(
         df[MASK],
         TIME,
         "UNDETECTED_DURATION",
@@ -321,7 +322,7 @@ def generic_reports(
     # )
 
     #######################################
-    #   Speed mean and std   #
+    #   Speed mean and min max   #
     #######################################
 
     fig = line_with_shade(
@@ -329,16 +330,27 @@ def generic_reports(
         TIME,
         "SPEED_MEAN",
         y_std_col="SPEED_STD",
+        # y_min_col="SPEED_MIN",
+        # y_max_col="SPEED_MAX",
         **plot_parameters,
     )
+    fig.update_yaxes(range=[0, None])
     fig.update_layout(yaxis_title="SPEED_MEAN (<i>cm/s</i>)")
     fig = draw_nights(fig, **nights_parameters)
 
+    # description for STD
     report_title = f"Mean speed with std"
     report_description = f"""
     Mean speed (SPEED_MEAN) with the standard deviation (SPEED_STD) for each
     animal (RFID) over time ({TIME}).
     """
+
+    # description for min max
+    # report_title = f"Mean speed with min and max"
+    # report_description = f"""
+    # Mean speed (SPEED_MEAN) with the minimum (SPEED_MIN) and maximum
+    # (SPEED_MAX) speeds for each animal (RFID) over time ({TIME}).
+    # """
 
     report_manager.add_report(
         name=report_title,
@@ -352,7 +364,7 @@ def generic_reports(
     #######################################
     report_manager.add_table_headers(name="complete table", df=df)
 
-    #######################################
+    ################
     #   Return   #
-    #######################################
+    ################
     return df

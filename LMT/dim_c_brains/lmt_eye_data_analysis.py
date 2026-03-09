@@ -3,7 +3,9 @@
 """
 
 import sqlite3
+from typing import Any, Callable
 from pathlib import Path
+from datetime import datetime
 
 import pandas as pd
 
@@ -62,7 +64,7 @@ class LMTEYEDataAnalyzer:
 
         connection.close()
 
-        info = {
+        info: dict[str, Any] = {
             "database_name": database_path.stem,
             "n_animals": n_animals,
             "start_time": start_time,
@@ -117,9 +119,18 @@ class LMTEYEDataAnalyzer:
             return
         self.settings.output_folder = output_folder
 
-    def rebuild_database(self):
+    def rebuild_database(
+        self, progress_callback: Callable[[int, int], None] | None = None
+    ):
         """Rebuild events in the database according to the selected rebuild
-        option."""
+        option.
+
+        If progress_callback is provided, it should be a function that takes
+        two integer arguments: the current progress value and the total value.
+        The function will be called periodically during the rebuilding process
+        to update the progress. Otherwise, progress will be printed to the
+        console.
+        """
 
         if self.database_path is None:
             raise ValueError("No database path provided for analysis.")
@@ -128,12 +139,12 @@ class LMTEYEDataAnalyzer:
 
         rebuilder = EventsRebuilder(
             connection,
-            self.database_path,
             self.settings.animal_type,
             self.settings.processing_limits[0],
             self.settings.processing_limits[1],
             self.settings.fps,
             self.settings.processing_window,
+            self.settings.UTC_offset,
         )
 
         self.settings.logic_update()
@@ -144,12 +155,20 @@ class LMTEYEDataAnalyzer:
                 self.settings.events - rebuilder.get_events_in_database()
             )
 
-        rebuilder.rebuild(events_to_rebuild)
+        rebuilder.rebuild(events_to_rebuild, progress_callback)
         connection.close()
 
-    def run_analysis(self):
+    def run_analysis(
+        self, progress_callback: Callable[[int, int], None] | None = None
+    ):
         """Run the analysis workflow, generating dataframes and HTML reports.
-        Save the reports to the selected output folder."""
+        Save the reports to the selected output folder.
+
+        If progress_callback is provided, it should be a function that takes
+        two integer arguments: the current progress value and the total value.
+        The function will be called periodically during the rebuilding process
+        to update the progress. Otherwise, progress will be printed to the
+        console."""
 
         if self.database_path is None:
             raise ValueError("No database path provided for analysis.")
@@ -170,20 +189,42 @@ class LMTEYEDataAnalyzer:
             connection,
             self.settings.time_window,
             self.settings.processing_window,
-            self.settings.processing_limits[0],
-            self.settings.processing_limits[1],
+            self.settings.processing_limits,
             self.settings.fps,
-        )
-
-        activity_df = activity_reports.generic_reports(
-            repo_manager, df_constructor, **dic_settings
+            self.settings.UTC_offset,
         )
 
         if not self.settings.events:
             events_df = None
+            sorted_events = []
         else:
             events_df = pd.DataFrame()
-            for event_name in self.settings.events:
+            sorted_events = sorted(self.settings.events)
+
+        max_progression = 3 + len(sorted_events)
+        current_progression = 0
+        if progress_callback:
+            progress_callback(current_progression, max_progression)
+        else:
+            print(
+                f"Progress: {current_progression}/{max_progression} "
+                f"({(current_progression/max_progression)*100:.1f}%)"
+            )
+
+        activity_df = activity_reports.generic_reports(
+            repo_manager, df_constructor, **dic_settings
+        )
+        current_progression += 1
+        if progress_callback:
+            progress_callback(current_progression, max_progression)
+        else:
+            print(
+                f"Progress: {current_progression}/{max_progression} "
+                f"({(current_progression/max_progression)*100:.1f}%)"
+            )
+
+        if events_df is not None:
+            for event_name in sorted_events:
                 events_df = pd.concat(
                     [
                         events_df,
@@ -195,10 +236,26 @@ class LMTEYEDataAnalyzer:
                         ),
                     ]
                 )
+                current_progression += 1
+                if progress_callback:
+                    progress_callback(current_progression, max_progression)
+                else:
+                    print(
+                        f"Progress: {current_progression}/{max_progression} "
+                        f"({(current_progression/max_progression)*100:.1f}%)"
+                    )
 
         sensors_df = sensors_reports.generic_reports(
             repo_manager, df_constructor, **dic_settings
         )
+        current_progression += 1
+        if progress_callback:
+            progress_callback(current_progression, max_progression)
+        else:
+            print(
+                f"Progress: {current_progression}/{max_progression} "
+                f"({(current_progression/max_progression)*100:.1f}%)"
+            )
 
         animal_df = overview_reports.generic_reports(
             repo_manager,
@@ -208,6 +265,14 @@ class LMTEYEDataAnalyzer:
             df_sensors=sensors_df,
             **dic_settings,
         )
+        current_progression += 1
+        if progress_callback:
+            progress_callback(current_progression, max_progression)
+        else:
+            print(
+                f"Progress: {current_progression}/{max_progression} "
+                f"({(current_progression/max_progression)*100:.1f}%)"
+            )
 
         if self.settings.output_folder is None:
             self.settings.output_folder = self.database_path.parent / (
@@ -228,14 +293,20 @@ class LMTEYEDataAnalyzer:
 
     def open_analysis_output(self):
         """Open the generated analysis output in the default web browser."""
-        if self.settings.output_folder is None:
-            raise ValueError(
-                "Output folder is not defined. Please run the analysis first "
-                "to generate the output folder."
-            )
 
-        index_file = self.settings.output_folder / "index.html"
-        if index_file.exists():
-            HTMLReportManager.open_local_output(self.settings.output_folder)
+        if self.settings.output_folder is None:
+            if self.database_path is None:
+                raise ValueError(
+                    "No Database path, cannot determine output folder."
+                )
+            else:
+                output_folder = self.database_path.parent / (
+                    self.database_path.stem + " - analysis"
+                )
         else:
-            print(f"Output file not found: {index_file}")
+            output_folder = self.settings.output_folder
+
+        if output_folder.is_dir():
+            HTMLReportManager.open_local_output(output_folder)
+        else:
+            print(f"Output folder not found: {output_folder}")
