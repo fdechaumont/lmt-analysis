@@ -8,7 +8,7 @@
 import json
 from pathlib import Path
 from tkinter import filedialog
-from typing import Any, Dict, List
+from typing import Any
 
 
 class ParameterSaver(object):
@@ -17,13 +17,13 @@ class ParameterSaver(object):
     def __init__(self):
         self.reset()
 
-    def set_parameters(self, data: Dict[str, Any]):
+    def set_parameters(self, data: dict[str, Any]):
         """Set multiple parameters at once."""
         self.data = data
 
     def reset(self):
         """Reset all saved parameters."""
-        self.data: Dict[str, Any] = {}
+        self.data: dict[str, Any] = {}
 
     def get_parameters(self):
         """Get all saved parameters."""
@@ -33,7 +33,7 @@ class ParameterSaver(object):
         """Get a single parameter by key."""
         return self.data.get(key)
 
-    def get_values(self, keys: List[str]) -> List[Any]:
+    def get_values(self, keys: list[str]) -> list[Any]:
         """Get multiple parameters by keys."""
         return [self.data.get(key) for key in keys]
 
@@ -41,7 +41,7 @@ class ParameterSaver(object):
         """Set a single parameter by key."""
         self.data[key] = value
 
-    def set_values(self, data: Dict[str, Any]):
+    def set_values(self, data: dict[str, Any]):
         """Set multiple parameters with dict."""
         self.data.update(data)
 

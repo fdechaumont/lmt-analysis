@@ -5,9 +5,10 @@
 
 import sys
 import traceback
+from pathlib import Path
 from types import ModuleType
 from sqlite3 import Connection
-from typing import Any, Literal
+from typing import Any, Callable, Literal
 
 import pandas as pd
 
@@ -32,7 +33,6 @@ class EventsRebuilder:
     def __init__(
         self,
         connection: Connection,
-        database_path: Any,
         animal_type: AnimalType = AnimalType.MOUSE,
         start: int | pd.Timestamp | None = None,
         end: int | pd.Timestamp | None = None,
@@ -44,7 +44,6 @@ class EventsRebuilder:
 
         Args:
             connection (Connection): SQLite database connection.
-            database_path (Any): The path to the database file.
             animal_type (AnimalType): Type of animal for event processing.
             start (int | pd.Timestamp | None): Start limit for analysis.
                 Can be in frames (int) or timestamps (pd.Timestamp).
@@ -58,7 +57,6 @@ class EventsRebuilder:
                 timezone conversion (e.g. *+9.0* for Tokyo). Defaults to *1.0*.
         """
         self.conn = connection
-        self.database_path = database_path
         self.animal_type = animal_type
 
         last_framenumber, last_timestamp = Binner.get_last_frame(self.conn)
@@ -132,10 +130,19 @@ class EventsRebuilder:
             disableEventTimeLineCache()
 
     def _rebuild_window(
-        self, modules: set[ModuleType], window: tuple[int, int]
+        self,
+        modules: set[ModuleType],
+        window: tuple[int, int],
+        progress_callback: Callable[[int, int], None] | None = None,
+        window_progress: tuple[int, int] = (0, 1),
     ):
         """Rebuild events in the specified time window using the specified
-        modules."""
+        modules.
+
+        If a progress_callback is provided, it will be called with progress
+        messages (used for updating the UI in app). Otherwise, progress will be
+        printed to the console.
+        """
 
         if not modules:
             print("Empty module list. Flushing not necessary.")
@@ -151,7 +158,19 @@ class EventsRebuilder:
         animalPool.loadDetection(start=window[0], end=window[1])
         print("Caching load of animal detection done.")
 
-        for build_event_module in modules:
+        nb_modules = len(modules)
+        current_progression = nb_modules * window_progress[0]
+        max_progression = nb_modules * window_progress[1]
+
+        if progress_callback:
+            progress_callback(current_progression, max_progression)
+        else:
+            print(
+                f"Progress: {current_progression}/{max_progression} "
+                f"({(current_progression/max_progression)*100:.1f}%)"
+            )
+
+        for i, build_event_module in enumerate(modules):
 
             event_chrono = Chronometer(str(build_event_module))
             build_event_module.reBuildEvent(
@@ -164,17 +183,36 @@ class EventsRebuilder:
             )
             event_chrono.printTimeInS()
 
-    def rebuild(self, events: list[str] | set[str]):
+            current_progression = i + 1 + nb_modules * window_progress[0]
+            if progress_callback:
+                progress_callback(current_progression, max_progression)
+            else:
+                print(
+                    f"Progress: {current_progression}/{max_progression} "
+                    f"({(current_progression/max_progression)*100:.1f}%)"
+                )
+
+    def rebuild(
+        self,
+        events: list[str] | set[str],
+        progress_callback: Callable[[int, int], None] | None = None,
+    ):
         """Rebuild events in the database from 'self.start' to 'self.end' using
-        the specified modules."""
+        the specified modules.
+
+        If a progress_callback is provided, it will be called with progress
+        messages (used for updating the UI in app). Otherwise, progress will be
+        printed to the console.
+        """
         if not events:
             print("No events to rebuild.")
+            if progress_callback:
+                progress_callback(1, 1)
             return
 
         modules = get_modules(events)
 
         self.check_memory()
-        chrono = Chronometer("ReBuild events")
 
         # update missing fields
         try:
@@ -193,20 +231,15 @@ class EventsRebuilder:
                 module.flush(self.conn)
             chrono.printTimeInS()
 
-            for window in self.binner.get_bin_iterator():
-                window_chrono = Chronometer(
-                    "File "
-                    + str(self.database_path)
-                    + " from "
-                    + str(window[0])
-                    + " to "
-                    + str(window[1])
+            processing_windows = self.binner.get_bin_iterator()
+            nb_windows = len(processing_windows)
+            for i, window in enumerate(processing_windows):
+                self._rebuild_window(
+                    modules,
+                    window,
+                    progress_callback,
+                    window_progress=(i, nb_windows),
                 )
-                self._rebuild_window(modules, window)
-                window_chrono.printTimeInS()
-
-            print("Full file process time: ")
-            chrono.printTimeInS()
 
         except:
             exc_type, exc_value, exc_traceback = sys.exc_info()

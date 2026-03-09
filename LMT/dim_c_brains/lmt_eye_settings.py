@@ -88,10 +88,10 @@ class LMTEYESettings:
         }
         return default_settings
 
-    @staticmethod
-    def get_all_keys():
+    @classmethod
+    def get_all_keys(cls):
         """Get all settings names."""
-        return [key for key in LMTEYESettings.get_default_settings()]
+        return [key for key in cls.get_default_settings()]
 
     @staticmethod
     def convert_in_str(initial_dict: dict[str, Any]) -> dict[str, Any]:
@@ -179,6 +179,10 @@ class LMTEYESettings:
         self.events.add("Stop isolated")
         self.events.add("Move isolated")
         self.events.add("Move in contact")
+
+        # if processing_limits is defined, force inclusion of first value
+        if self.processing_limits[0] is not None:
+            self.first_value_in_graph: bool = True
 
     def get_as_dict(self) -> dict[str, Any]:
         """Get the settings as a dictionary."""

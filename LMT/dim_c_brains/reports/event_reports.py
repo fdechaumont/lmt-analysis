@@ -34,8 +34,8 @@ def generic_reports(
     night_duration : int, optional
         The duration of the night in hours (default: 12).
     first_value_in_graph : bool, optional
-        Whether to ignore the first value in plots. It impacts the
-        rendering of columns graphs and so is ignored by default
+        Whether to include the first value in plots. It impacts the
+        rendering of columns graphs. By default, the first value is included.
         (default: True).
     """
 
@@ -63,9 +63,9 @@ def generic_reports(
     NB_DAYS = (exp_end_time - exp_start_time).total_seconds() / 3600 / 24
 
     if kwargs.get("first_value_in_graph", True):
-        MASK = df["START_FRAME"] != df["START_FRAME"].iloc[0]
-    else:
         MASK = df.index == df.index
+    else:
+        MASK = df["START_FRAME"] != df["START_FRAME"].iloc[0]
 
     nights_parameters = {
         "start_time": df["START_TIME"].min(),
