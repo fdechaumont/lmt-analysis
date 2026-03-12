@@ -12,7 +12,7 @@ import json
 import matplotlib.pyplot as plt
 from Activity.ComputeActivityExperiment import completeDicoFromValues
 from Animal_LMTtoolkit import *
-from FileUtil import getFilesToProcess
+from FileUtil import getFilesToProcess, getJsonFilesToProcess
 import pandas as pd
 
 
@@ -104,12 +104,15 @@ def plotNightTimeLine(nights, timebin, ax):
                 fontsize=8, ha='center')
 
 
-def plotActivityPerTimebin(meanAndSEM, timeLine, nights, title):
+def plotActivityPerTimebin(meanAndSEM, timeLine, nights, title, unit = "cm"):
     fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(14, 9))
     # females
     ax = axes[0]
-    ax.title.set_text(f'{title} - male')
+    ax.title.set_text(f'{title} - female')
     ax.set_xlabel("time")
+    ax.set_ylabel("{} ({})".format(title, unit), fontsize=14)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
 
     for treatment in meanAndSEM['female']:
         print("plot female")
@@ -133,6 +136,9 @@ def plotActivityPerTimebin(meanAndSEM, timeLine, nights, title):
     ax = axes[1]
     ax.title.set_text(f'{title} - male')
     ax.set_xlabel("time")
+    ax.set_ylabel("{} ({})".format(title, unit), fontsize=14)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
 
     for treatment in meanAndSEM['male']:
         print("plot male")
@@ -148,19 +154,20 @@ def plotActivityPerTimebin(meanAndSEM, timeLine, nights, title):
                             color=getColorGenoTreatment(treatment, genotype),
                             alpha=0.2)
 
-    ax.legend(loc="upper center")
-
+    ax.legend().set_visible(False)
     ax.xaxis.set_major_locator(plt.MaxNLocator(10))
     plotNightTimeLine(nights, timeBin, ax)
 
     plt.show()
     fig.savefig(f"{title}.pdf")
+    fig.savefig(f"{title}.png")
 
 
 if __name__ == '__main__':
     # Data from ICS
 
-    files = getFilesToProcess()
+    # files = getFilesToProcess()
+    files = getJsonFilesToProcess()
     filterList = ["sex", "treatment", "genotype"]
     reorganizedResults = exportResultsSortedBy(files, filterList)
 
@@ -199,8 +206,11 @@ if __name__ == '__main__':
     plotActivityPerTimebin(meanAndSEM, timeLine, nights, "GO-DS21 activity ICS timebin 10min")
 
     # Data from HMGU
-    files = getFilesToProcess()
+    files = getJsonFilesToProcess()
     reorganizedResults = exportResultsSortedBy(files, filterList)
+
+    nights = getNightsFromJson(files[0])
+    timeBin = getTimebinFromJson(files[0])
 
     meanAndSEM = {}
     timeLine = []
