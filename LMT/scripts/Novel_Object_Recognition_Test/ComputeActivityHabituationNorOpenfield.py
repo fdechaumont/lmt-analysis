@@ -7,12 +7,12 @@ import numpy as np; np.random.seed(0)
 from lmtanalysis.FileUtil import *
 
 from scripts.Novel_Object_Recognition_Test.ConfigurationNOR import *
-from scripts.Novel_Object_Recognition_Test.ComputeActivityHabituationNorTestRedCage import buildFigTrajectoryPerSetup,\
-    plotVariablesHabituationNorBoxplotsPerSetup, plotVariablesHabituationNorBoxplotsPerGenotype, \
-    getCumulDistancePerTimeBinRedCage, plotDistancePerBinRedCage
+# from scripts.Novel_Object_Recognition_Test.ComputeActivityHabituationNorTestRedCage import buildFigTrajectoryPerSetup,\
+#     plotVariablesHabituationNorBoxplotsPerSetup, plotVariablesHabituationNorBoxplotsPerGenotype, \
+#     getCumulDistancePerTimeBinRedCage, plotDistancePerBinRedCage
 import matplotlib.pyplot as plt
 import sqlite3
-from lmtanalysis.Animal import AnimalPool
+from experimental.Animal_LMTtoolkit import AnimalPoolToolkit
 from scripts.Novel_Object_Recognition_Test.ComputeActivityHabituationNorTest import plotTrajectorySingleAnimal
 from scripts.Rebuild_All_Events import processAll
 from lmtanalysis.Event import EventTimeLine
@@ -30,7 +30,7 @@ def buildFigTrajectoryPerGenotype(files, tmin, tmax, figName, title, xa = 111, x
     for file in files:
         connection = sqlite3.connect(file)  # connection to the database
 
-        pool = AnimalPool()
+        pool = AnimalPoolToolkit()
         pool.loadAnimals(connection)  # upload all the animals from the database
         animal = pool.animalDictionary[1]
 
@@ -122,7 +122,7 @@ if __name__ == '__main__':
             for file in files:
                 connection = sqlite3.connect(file)
 
-                pool = AnimalPool()
+                pool = AnimalPoolToolkit()
                 pool.loadAnimals(connection)
                 animal = pool.animalDictionary[1]
                 animal.loadDetection( tminHab, tmaxHab )
@@ -189,7 +189,7 @@ if __name__ == '__main__':
             data = {}
             for val in variableList:
                 data[val] = {}
-                for sex in ['male', 'female']:
+                for sex in ['M', 'F']:
                     data[val][sex] = {}
                     for geno in genoList:
                         data[val][sex][geno] = {}
@@ -199,7 +199,7 @@ if __name__ == '__main__':
             for file in files:
                 connection = sqlite3.connect(file)
 
-                pool = AnimalPool()
+                pool = AnimalPoolToolkit()
                 pool.loadAnimals(connection)
                 animal = pool.animalDictionary[1]
                 animal.loadDetection( tminHab, tmaxHab )

@@ -251,7 +251,7 @@ def getFigureBehaviouralEventsLabelsFrench(event):
                          "FollowZone Isolated": 'poursuite',
                          "FollowZone": 'poursuite',
                          "Train2": 'train2'
-                         # , "longChase": 'long chase'
+                         , "longChase": 'long chase'
                          }
     return behaviouralEventsLabels[event]
 
@@ -280,7 +280,7 @@ def getFigureBehaviouralEventsLabels(event):
                          "seq oral geni - oral oral": 'nose-anogenital & nose-nose',
                          "FollowZone Isolated": 'follow0',
                          "FollowZone": 'follow',
-                         "Train2": 'train2',
+                         "Train2": 'follow in contact',
                          "Group 3 make": 'make group 3',
                          "Group 4 make": 'make group 4',
                          "Break contact": 'break contact',
@@ -290,7 +290,8 @@ def getFigureBehaviouralEventsLabels(event):
                          "Fast escape contact" : 'escape', 
                          "Single Wheel Zone" : 'wheel zone (single)',
                          "longChase" : 'long chase',
-                         
+                         "urination" : "urination",
+                                                  
                          'Oral-oral Contact exclusive': 'nose-nose (x)',
                            'Side by side Contact exclusive': 'side-side (x)',
                            'Oral-genital Contact exclusive': 'nose-anogenital (x)',
@@ -320,7 +321,7 @@ def getExtensionLabelForCat( cat ):
 
 behaviouralEventOneMouse = ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
-    "Train2", "FollowZone",
+    "Train2", "FollowZone", "longChase",
     "Social approach", "Approach contact",
     "Group 3 make", "Group 4 make", "Break contact",
     "Group 3 break", "Group 4 break"
@@ -328,7 +329,7 @@ behaviouralEventOneMouse = ["Move isolated", "Move in contact", "Stop isolated",
 
 behaviouralEventOneRat = ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
-    "Train2", "FollowZone",
+    "Train2", "FollowZone", "longChase",
     "Social approach", "Approach contact",
     "Group 3 make", "Group 4 make", "Break contact",
     "Group 3 break", "Group 4 break",
@@ -351,33 +352,33 @@ behaviouralEventOneRatDic = {' TotalLen': ["Move isolated", "Stop isolated", "Re
 
 behaviouralEventOneMouseDic = {' TotalLen': ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
-    "Train2", "FollowZone"],
+    "Train2", "FollowZone", "longChase"],
     
     ' Nb': ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
-    "Train2", "FollowZone",
+    "Train2", "FollowZone", "longChase",
     "Approach contact",
     "Group 3 make", "Group 4 make", "Break contact",
     "Group 3 break", "Group 4 break"],
     
     ' MeanDur': ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
     "Contact", "Group2", "Group3", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
-    "Train2", "FollowZone",
+    "Train2", "FollowZone", "longChase",
     "Approach contact",
     "Break contact"
     ]
     }
 
 behaviouralSocialEventOneMouseDic = {' TotalLen': ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
-    "Train2", "FollowZone"],
+    "Train2", "FollowZone", "longChase"],
     
     ' Nb': ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
-    "Train2", "FollowZone",
+    "Train2", "FollowZone", "longChase",
     "Approach contact",
     "Break contact"],
     
     ' MeanDur': ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way",
-    "Train2", "FollowZone",
+    "Train2", "FollowZone", "longChase",
     "Approach contact",
     "Break contact"
     ]
@@ -388,9 +389,9 @@ behaviouralEventContactTypesOneMouseDic = {' TotalLen': ["Contact", "Group2", "O
     ' MeanDur': ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way"]
     }
 
-behaviouralEventComplexSocialOneMouseDic = {' TotalLen': ["Train2", "FollowZone"],
-    ' Nb': ["Train2", "FollowZone", "Approach contact", "Break contact"],
-    ' MeanDur': ["Train2", "FollowZone", "Approach contact", "Break contact"]
+behaviouralEventComplexSocialOneMouseDic = {' TotalLen': ["Train2", "FollowZone", "longChase"],
+    ' Nb': ["Train2", "FollowZone", "longChase", "Approach contact", "Break contact"],
+    ' MeanDur': ["Train2", "FollowZone", "longChase", "Approach contact", "Break contact"]
     }
 
 behaviouralEventActivityOneMouseDic = {" TotalLen": ["totalDistance", "Move isolated", "Stop isolated"],
@@ -404,14 +405,14 @@ behaviouralEventOneMousePairDic = {' TotalLen': ["Move isolated", "Move in conta
     
     ' Nb': ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
     "Oral-genital Contact", 
-    "Train2", "FollowZone",
+    "Train2", "FollowZone", "longChase",
     "Approach contact",
     "Break contact"
     ],
     
     ' MeanDur': ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact",
     "Oral-genital Contact", 
-    "Train2", "FollowZone",
+    "Train2", "FollowZone", "longChase",
     "Approach contact",
     "Break contact"
     ]
@@ -431,13 +432,10 @@ behaviouralEventSymetricPairDic = {' TotalLen': ['Contact', 'Oral-oral Contact',
     ' MeanDur': ['Contact', 'Oral-oral Contact', "Side by side Contact", "Side by side Contact, opposite way", 'Group2']
     }
 
-behaviouralEventOneMouseSingle = ["Move isolated", "Move in contact", "Stop isolated", "Rear isolated", "Rear in contact", "Oral-genital Contact", "Train2", "FollowZone",
-                                "Social approach", "Approach contact", "Break contact"]
+behaviouralEventOneMouseSingle = ["Move isolated", "Stop isolated", "Rear isolated", "Oral-genital Contact", "Train2", "FollowZone", "longChase",
+                                "Approach contact", "Break contact"]
 behaviouralEventOneMouseSocial = ["Contact", "Group2", "Oral-oral Contact", "Oral-genital Contact",
-                            "Side by side Contact", "Side by side Contact, opposite way",
-                            "Train2", "FollowZone",
-                            "Social approach", "Approach contact",
-                            "Break contact"]
+                            "Side by side Contact", "Side by side Contact, opposite way", "Train2", "FollowZone", "longChase", "Approach contact", "Break contact"]
 
 categoryList = [' TotalLen', ' Nb', ' MeanDur']
 
@@ -452,6 +450,21 @@ def getEventListForTest(cat):
     
     return eventListForTest, eventListForLabels
 
+def getShorterGenoNames(longGenoName):
+    shortGenoName = "unknown"
+    if longGenoName == "DlxCre Tg ; Dyrk1acKO/+":
+        shortGenoName = "Tg"
+    if longGenoName == "Baseline_DlxCre Tg ; Dyrk1acKO/+":
+        shortGenoName = "Tg+B6"
+    if longGenoName == "DlxCre wt ; Dyrk1acKO/+":
+        shortGenoName = "wt"
+    if longGenoName == "Baseline_DlxCre wt ; Dyrk1acKO/+":
+        shortGenoName = "wt+B6"
+    if longGenoName == "Baseline":
+        shortGenoName = "B6"
+    
+    return shortGenoName
+            
 def getSpecificEventListForTest(cat, eventListDic):
     
     # the list of events to be plotted is determined:
@@ -511,9 +524,10 @@ def getBehaviouralTraitsPerCategory(category):
                                     "Group2 TotalLen", "Group2 Nb", "Group2 MeanDur", 
                                     "Group3 TotalLen", "Group3 Nb", "Group3 MeanDur"]
             
-    if category == 'follow': #6
+    if category == 'follow': #9
         listBehavioursOfInterest = ["Train2 TotalLen", "Train2 Nb", "Train2 MeanDur", 
-                                    "FollowZone TotalLen", "FollowZone Nb", "FollowZone MeanDur"]
+                                    "FollowZone TotalLen", "FollowZone Nb", "FollowZone MeanDur",
+                                    "longChase TotalLen", "longChase Nb", "longChase MeanDur"]
         
     if category == 'approach': #4
         listBehavioursOfInterest = ["Approach contact Nb", "Approach contact MeanDur", "Group 3 make Nb", "Group 4 make Nb" ]
@@ -521,9 +535,10 @@ def getBehaviouralTraitsPerCategory(category):
     if category == 'escape': #4
         listBehavioursOfInterest = ["Break contact Nb", "Break contact MeanDur", "Group 3 break Nb", "Group 4 break Nb"]
     
-    if category == 'follow, approach & escape': #14
+    if category == 'follow, approach & escape': #17
         listBehavioursOfInterest = ["Train2 TotalLen", "Train2 Nb", "Train2 MeanDur", 
                                     "FollowZone TotalLen", "FollowZone Nb", "FollowZone MeanDur",
+                                    "longChase TotalLen", "longChase Nb", "longChase MeanDur",
                                     "Approach contact Nb", "Approach contact MeanDur", "Group 3 make Nb", "Group 4 make Nb",
                                     "Break contact Nb", "Break contact MeanDur", "Group 3 break Nb", "Group 4 break Nb" ]
         
@@ -541,8 +556,8 @@ def getBehaviouralTraitsPerCategoryForPCA(category):
     if category == 'social': #26
         listBehavioursOfInterest = ["Contact TotalLen", "Group2 TotalLen", "Group3 TotalLen", "Oral-oral Contact TotalLen", "Oral-genital Contact TotalLen", "Side by side Contact TotalLen", "Side by side Contact, opposite way TotalLen",
                                     "Contact Nb", "Group2 Nb", "Group3 Nb", "Oral-oral Contact Nb", "Oral-genital Contact Nb", "Side by side Contact Nb", "Side by side Contact, opposite way Nb",
-                                    "Train2 TotalLen", "FollowZone TotalLen",
-                                    "Train2 Nb", "FollowZone Nb",
+                                    "Train2 TotalLen", "FollowZone TotalLen", "longChase TotalLen",
+                                    "Train2 Nb", "FollowZone Nb", "longChase Nb",
                                     "Approach contact Nb", "Group 3 make Nb", "Group 4 make Nb", "Approach contact MeanDur",
                                     "Break contact Nb", "Group 3 break Nb", "Group 4 break Nb", "Break contact MeanDur"]
     
@@ -551,8 +566,8 @@ def getBehaviouralTraitsPerCategoryForPCA(category):
                                     "Contact Nb", "Group2 Nb", "Group3 Nb", "Oral-oral Contact Nb", "Oral-genital Contact Nb", "Side by side Contact Nb", "Side by side Contact, opposite way Nb"]
         
     if category == 'social dynamic': #12
-        listBehavioursOfInterest = ["Train2 TotalLen", "FollowZone TotalLen",
-                                    "Train2 Nb", "FollowZone Nb",
+        listBehavioursOfInterest = ["Train2 TotalLen", "FollowZone TotalLen", "longChase TotalLen",
+                                    "Train2 Nb", "FollowZone Nb", "longChase Nb",
                                     "Approach contact Nb", "Group 3 make Nb", "Group 4 make Nb", "Approach contact MeanDur",
                                     "Break contact Nb", "Group 3 break Nb", "Group 4 break Nb", "Break contact MeanDur"]
         

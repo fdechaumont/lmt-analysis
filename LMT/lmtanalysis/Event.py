@@ -473,7 +473,47 @@ class EventTimeLine:
             frame = frame + binSize
 
         return durationEventInBinProportionList
-
+    
+    def getNumberOfEventPerBin(self, tmin=0, tmax=None, binSize=1*oneMinute):
+        '''
+        compute the number of events within a given time bin; return a list of number of events
+        '''
+        if ( tmax == None ):
+            tmax = self.getMaxT()
+        
+        numberOfEventsList = []
+        
+        startTime = tmin
+        numberOfBins = np.round((tmax - tmin) / binSize)
+        for k in range(0, int(numberOfBins)):
+            nbEvents = self.getNumberOfEvent(minFrame=startTime, maxFrame=startTime+binSize-1)
+            numberOfEventsList.append(nbEvents)
+            startTime = startTime+binSize
+        
+        return numberOfEventsList
+        
+    
+    def getIntervalBetweenEventsList(self):
+        '''
+        Extract the list of intervals between events of the timeline
+        '''
+        intervalList = []
+        eventList = self.getEventList()
+        #if no event or only one event in the timeline:
+        if len(eventList) <= 1:
+            print('No or only one event in timeline')
+            
+        #if there are events in the timeline
+        else:
+            endFrameEvent1 = eventList[0].endFrame 
+            for event in eventList[1:]:
+                startFrameEvent2 = event.startFrame
+                interval = startFrameEvent2 - endFrameEvent1
+                intervalList.append(interval)
+                endFrameEvent1 = event.endFrame
+        
+        return intervalList
+    
     def getMeanIntervalLengthBetweenEvents(self):
         '''
         Compute the mean time interval (in frames) between the events of the timeline
@@ -513,7 +553,7 @@ class EventTimeLine:
         #if no event or only one event in the timeline:
         if len(eventList) <= 1:
             print('No or only one event in timeline')
-            stdIntervalLength = NaN
+            stdIntervalLength = np.nan
         else:
             #if there are events in the timeline
             endFrameEvent1 = eventList[0].endFrame 
@@ -907,6 +947,14 @@ class EventTimeLine:
         #fig.show()
         plt.show()
 
+    def drawEventTimeLineOnActivityTimeLine( self, ax, addThickness, line, color ):
+        lineData = []
+        
+        for event in self.eventList:                                
+            lineData.append( ( event.startFrame-addThickness , event.duration()+addThickness ))
+        
+        ax.broken_barh( lineData , ( line-3, 3 ), facecolors = color )
+    
     def endRebuildEventTimeLine( self, connection , deleteExistingEvent = False ):
         '''
         delete the old event timeline and save the new calculated one in the lmtanalysis
