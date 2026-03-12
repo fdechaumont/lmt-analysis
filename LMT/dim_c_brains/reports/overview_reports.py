@@ -187,7 +187,7 @@ def generic_reports(
     #######################################
     #   TABLE   #
     #######################################
-    report_manager.add_table(name="complete table", df=df)
+    report_manager.add_table_headers(name="complete table", df=df)
 
     #######################################
     #   Return   #
