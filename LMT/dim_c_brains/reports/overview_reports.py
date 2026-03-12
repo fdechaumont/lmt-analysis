@@ -40,13 +40,13 @@ def generic_reports(
     """
 
     report_manager.reports_creation_focus("main")
-    df_animals = df_constructor.get_df_animals()
+    df = df_constructor.get_df_animals()
 
     #######################################
     #   Constants   #
     #######################################
 
-    NB_ANIMALS = df_animals["RFID"].nunique()
+    NB_ANIMALS = df["RFID"].nunique()
 
     EXP_START, EXP_END = df_constructor.get_processing_limits("TIME")
     EXP_DURATION = EXP_END - EXP_START
@@ -88,7 +88,7 @@ def generic_reports(
                 font-weight: bold;
             }}
         </style>
-        <center>{df_animals.to_html(index=False, border=1)}</center>
+        <center>{df.to_html(index=False, border=1)}</center>
         """,
     )
 
@@ -185,9 +185,14 @@ def generic_reports(
         )
 
     #######################################
+    #   TABLE   #
+    #######################################
+    report_manager.add_table(name="complete table", df=df)
+
+    #######################################
     #   Return   #
     #######################################
-    return df_animals
+    return df
 
 
 def get_activity_card(

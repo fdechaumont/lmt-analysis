@@ -12,7 +12,7 @@ from datetime import datetime
 #   APP Creation Parameters   #
 #######################################
 APP_CREATION = False
-APP_VERSION = "1.0.1"
+APP_VERSION = "1.0.2"
 APP_RELEASE = "2026-03-09"
 APP_ICON = Path(__file__).parent / "res" / "lmt_eye_icon.png"
 # command for executable creation (run in terminal at project root):
@@ -30,7 +30,7 @@ import numpy as np
 import pandas as pd
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QIcon, QMovie
 from PyQt6.QtWidgets import (
     QApplication,
     QCheckBox,
@@ -402,22 +402,23 @@ class DatabaseAnalysisWindow(QWidget):
             print("Process cancelled.")
             return
 
-        msg = """
-        <p align="justify">
-        The analysis process is about to start. This may take a while
-        depending on the database size and your computer performance.<br><br>
-        Please, do not close the logs window and wait until the analysis is
-        finished. When finishded, the app window will come back and it will
-        display the following message:
-        </p>
-        <p style="text-align:center;"><b>*** PROCESS FINISHED ***</b></p>
-        """
+        # msg = """
+        # <p align="justify">
+        # The analysis process is about to start. If an analysis is already
+        # running, this one will be queued and will start automatically after the
+        # current one.
+        # <br><br>
+        # Please, do not close the logs window and wait until the analysis is
+        # finished. When finished, the following message will be displayed:
+        # </p>
+        # <p style="text-align:center;"><b>*** PROCESS FINISHED ***</b></p>
+        # """
 
-        QMessageBox.information(
-            self,
-            "Process Starting",
-            msg,
-        )
+        # QMessageBox.information(
+        #     self,
+        #     "Process Starting",
+        #     msg,
+        # )
 
         # self.hide()  # Hide main window during processing
 
@@ -447,11 +448,13 @@ class DatabaseAnalysisWindow(QWidget):
         progress_bar.show()
         self.threadpool.start(worker)
 
-        print(f"Process for {self.database_path.stem} started.")
+        print(f"Process for {self.database_path.stem} queued/started.")
 
     def handle_open_analysis(self, analyzer: LMTEYEDataAnalyzer):
-        # self.show()  # Show main window again if it was hidden
-        # Handle post-analysis logic (open results, show message, etc.)
+        """Ask user if they want to open the processed results when the
+        analysis is finished.
+        Automatically close the window after 5 minutes if the user does not
+        answer."""
         if analyzer is not None:
             print("*** PROCESS FINISHED ***")
 
@@ -460,7 +463,19 @@ class DatabaseAnalysisWindow(QWidget):
                 return
 
             name = analyzer.database_path.stem
-            dlg = YesNoQuestion(self, f"Open analysis of {name}?")
+            output = analyzer.get_output_folder()
+            text = f"""
+            LMT-EYE has finished to analyse the following database:
+            {name}\n
+            Results are saved in:
+            {output}\n
+            Do you want to open the results ?
+            """
+            dlg = YesNoQuestion(
+                parent=self,
+                question=text,
+                timeout_s=300,  # 5 minutes
+            )
             if dlg.exec():
                 analyzer.open_analysis_output()
         else:
@@ -513,20 +528,28 @@ class DatabaseAnalysisProgressBar(QDialog):
         super().__init__(parent)
         self.setWindowTitle(title)
         self.setModal(False)
-        self.setFixedSize(350, 120)
+        self.setFixedSize(350, 220)
         self._init_ui(database_name)
 
     def _init_ui(self, database_name: str | None):
         form = QFormLayout()
 
         if database_name is None:
-            label_text = "Processing..."
+            label_text = "Processing. Please wait."
         else:
-            label_text = f"Processing {database_name}."
+            label_text = f"{database_name}\nis being processed, please wait."
 
         process_label = QLabel(label_text)
         process_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         process_label.setStyleSheet("font-size: 15px;")
+
+        movie_label = QLabel()
+        movie_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        gif_path = Path(__file__).parent / "res" / "mouse_run.gif"
+        movie = QMovie(str(gif_path))
+        if movie.isValid():
+            movie_label.setMovie(movie)
+            movie.start()
 
         self.rebuild_progress = QProgressBar()
         self.rebuild_progress.setMinimum(0)
@@ -534,6 +557,7 @@ class DatabaseAnalysisProgressBar(QDialog):
         self.analyse_progress.setMinimum(0)
 
         form.addRow(process_label)
+        form.addRow(movie_label)
         form.addRow("Rebuild Progress", self.rebuild_progress)
         form.addRow("Analyse Progress", self.analyse_progress)
 
