@@ -1077,8 +1077,11 @@ class AnimalPool():
         elif ( nbField == 8 ):
             query+="ID,RFID,NAME,GENOTYPE,AGE,SEX,STRAIN,SETUP"
         elif ( nbField == 9 ):
-            query+="ID,RFID,NAME,GENOTYPE,AGE,SEX,STRAIN,SETUP,IND"
-
+            if "IND" in field_names:
+                query+="ID,RFID,NAME,GENOTYPE,AGE,SEX,STRAIN,SETUP,IND"
+            if "TREATMENT" in field_names:
+                query+="ID,RFID,NAME,GENOTYPE,AGE,SEX,STRAIN,SETUP,TREATMENT"
+            
         query += " FROM ANIMAL ORDER BY GENOTYPE"
         print ( "SQL Query: " + query )
 
