@@ -13,7 +13,7 @@ from datetime import datetime
 #######################################
 APP_CREATION = False
 APP_VERSION = "1.2"
-APP_RELEASE = "2026-03-12"
+APP_RELEASE = "2026-03-16"
 APP_ICON = Path(__file__).parent / "res" / "lmt_eye_icon.png"
 # command for executable creation (run in terminal at project root):
 # pyinstaller -p LMT --onefile --icon=LMT/dim_c_brains/res/lmt_eye_icon.png --add-data "LMT/dim_c_brains/res/template;dim_c_brains/res/template" --add-data "LMT/dim_c_brains/res/assets;dim_c_brains/res/assets" LMT/dim_c_brains/lmt_eye_app.py
