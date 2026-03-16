@@ -274,13 +274,8 @@ class LMTEYEDataAnalyzer:
                 f"({(current_progression/max_progression)*100:.1f}%)"
             )
 
-        if self.settings.output_folder is None:
-            self.settings.output_folder = self.database_path.parent / (
-                self.database_path.stem + " - analysis"
-            )
-
-        print(f"Saving in \n{self.settings.output_folder}")
-        repo_manager.generate_local_output(self.settings.output_folder)
+        output_folder = self.get_output_folder()
+        repo_manager.generate_local_output(output_folder)
 
         results_df: list[pd.DataFrame | None] = [
             activity_df,
@@ -291,20 +286,30 @@ class LMTEYEDataAnalyzer:
 
         return results_df
 
+    def get_output_folder(self) -> Path:
+        """Get the output folder for the analysis reports. If no output folder
+        is set, return the default output folder based on the database path."""
+
+        if self.database_path is None:
+            raise ValueError(
+                "No database path provided, cannot determine output folder."
+            )
+
+        if self.settings.output_folder is not None:
+            output_folder = self.settings.output_folder
+        else:
+            output_folder = self.database_path.parent
+
+        output_folder = output_folder / (
+            self.database_path.stem + " - analysis"
+        )
+
+        return output_folder
+
     def open_analysis_output(self):
         """Open the generated analysis output in the default web browser."""
 
-        if self.settings.output_folder is None:
-            if self.database_path is None:
-                raise ValueError(
-                    "No Database path, cannot determine output folder."
-                )
-            else:
-                output_folder = self.database_path.parent / (
-                    self.database_path.stem + " - analysis"
-                )
-        else:
-            output_folder = self.settings.output_folder
+        output_folder = self.get_output_folder()
 
         if output_folder.is_dir():
             HTMLReportManager.open_local_output(output_folder)

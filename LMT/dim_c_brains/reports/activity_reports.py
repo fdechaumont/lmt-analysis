@@ -95,7 +95,7 @@ def generic_reports(
         content=f"""
         This section presents the analysis of mice Activity recorded in the
         dataset. You can download the underlying data used for the plots
-        in Excel format by clicking on the '<i>Download .xlsx</i>' link on the
+        in Excel format by clicking on the '<i>Download data</i>' link in the
         top-right hand corner.""",
     )
 

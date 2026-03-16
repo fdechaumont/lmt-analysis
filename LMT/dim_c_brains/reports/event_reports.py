@@ -89,7 +89,7 @@ def generic_reports(
         This section presents the analysis of <i>{event_name}</i> events
         recorded in the dataset.<br>
         You can download the underlying data used for the plots in Excel format
-        by clicking on the '<i>Download .xlsx</i>' link on the top-right hand
+        by clicking on the '<i>Download data</i>' link in the top-right hand
         corner.""",
     )
 

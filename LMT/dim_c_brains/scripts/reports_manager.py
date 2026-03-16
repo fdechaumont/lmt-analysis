@@ -98,7 +98,7 @@ class HTMLReportManager:
         report = Report(name, html, experimentName=self.exp_name)
 
         if graph_datas is not None:
-            report.setDownloadableContent("Download .xlsx", graph_datas)
+            report.setDownloadableContent("Download data", graph_datas)
 
         self.reports.append(report)
 
@@ -161,7 +161,7 @@ class HTMLReportManager:
         report = Report(name, html, experimentName=self.exp_name)
 
         if graph_datas is not None:
-            report.setDownloadableContent("Download .xlsx", graph_datas)
+            report.setDownloadableContent("Download data", graph_datas)
 
         self.reports.append(report)
 
@@ -215,7 +215,7 @@ class HTMLReportManager:
             experimentName=self.exp_name,
             template="table.html",
         )
-        report.setDownloadableContent("Download .xlsx", df)
+        report.setDownloadableContent("Download data", df)
         self.reports.append(report)
 
     def add_table_headers(
@@ -234,7 +234,7 @@ class HTMLReportManager:
         html = """
             The complete table used to make all the reports on this page. It
             can be downloaded in Excel format by clicking on the '<i>Download
-            .xlsx</i>' link on the top-right hand corner.<br><br>
+            data</i>' link on the top-right hand corner.<br><br>
             <strong>Table headers</strong><br>
         """
 
@@ -254,7 +254,7 @@ class HTMLReportManager:
             html,
             experimentName=self.exp_name,
         )
-        report.setDownloadableContent("Download .xlsx", df)
+        report.setDownloadableContent("Download data", df)
         self.reports.append(report)
 
     def generate_local_output(
@@ -276,6 +276,4 @@ class HTMLReportManager:
             webSite.addReport(report)
 
         webSite.generateWebSite()
-        print(
-            "Local output generated at:\n" + str(output_folder / "index.html")
-        )
+        print("Local output generated at:\n" + str(output_folder))

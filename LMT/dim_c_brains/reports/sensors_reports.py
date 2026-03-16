@@ -99,7 +99,7 @@ def generic_reports(
         content=f"""
         This section presents the visualization of the sensors data recorded in
         the dataset. All sensors data can be downloaded in Excel format by
-        clicking on the '<i>Download .xlsx</i>' link on the top-right hand
+        clicking on the '<i>Download data</i>' link in the top-right hand
         corner of the last report (<i>complete table</i>).""",
     )
 

@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from typing import Literal
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QMovie
 from PyQt6.QtWidgets import (
     QApplication,
@@ -163,10 +163,21 @@ class UserSelector(QDialog):
 
 
 class YesNoQuestion(QDialog):
-    def __init__(self, parent: QWidget, question: str):
+    def __init__(
+        self,
+        parent: QWidget | None,
+        question: str,
+        timeout_s: int | None = None,
+    ):
         super().__init__(parent)
         self.question = question
         self.init_ui()
+
+        if timeout_s is not None:
+            self.timer = QTimer(self)
+            self.timer.setSingleShot(True)
+            self.timer.timeout.connect(self.no_clicked)
+            self.timer.start(timeout_s * 1_000)
 
     def yes_clicked(self):
         self.accept()
@@ -176,7 +187,8 @@ class YesNoQuestion(QDialog):
 
     def init_ui(self):
         self.setWindowTitle("Yes/No Question Window")
-        self.setFixedSize(400, 180)
+        self.setMinimumSize(400, 180)
+
         layout = QVBoxLayout()
         layout.setContentsMargins(30, 20, 30, 20)
         layout.setSpacing(20)
@@ -184,7 +196,7 @@ class YesNoQuestion(QDialog):
         label = QLabel(self.question)
         label.setWordWrap(True)
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        label.setStyleSheet("font-size: 16px; font-weight: bold;")
+        label.setStyleSheet("font-size: 16px;")
         layout.addWidget(label)
 
         btn_layout = QHBoxLayout()
