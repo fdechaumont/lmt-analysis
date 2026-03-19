@@ -14,7 +14,7 @@ from Activity.ComputeActivityExperiment import completeDicoFromValues
 from Animal_LMTtoolkit import *
 from FileUtil import getFilesToProcess, getJsonFilesToProcess
 import pandas as pd
-
+from matplotlib import rc
 
 
 
@@ -104,13 +104,13 @@ def plotNightTimeLine(nights, timebin, ax):
                 fontsize=8, ha='center')
 
 
-def plotActivityPerTimebin(meanAndSEM, timeLine, nights, title, unit = "cm"):
+def plotActivityPerTimebin(meanAndSEM, timeLine, timeBin, nights, night_hours, title, unit = "cm"):
     fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(14, 9))
     # females
-    ax = axes[0]
+    ax = axes[1]
     ax.title.set_text(f'{title} - female')
     ax.set_xlabel("time")
-    ax.set_ylabel("{} ({})".format(title, unit), fontsize=14)
+    ax.set_ylabel(f"Distance in 10 min ({unit})", fontsize=14)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
 
@@ -128,15 +128,25 @@ def plotActivityPerTimebin(meanAndSEM, timeLine, nights, title, unit = "cm"):
                             color=getColorGenoTreatment(treatment, genotype),
                             alpha=0.2)
 
-    ax.legend(loc="upper center")
+    ax.legend().set_visible(False)
     ax.xaxis.set_major_locator(plt.MaxNLocator(10))
+    x_ticks = []
+    x_labels = []
+    for night in nights:
+        if night['startFrame']:
+            x_ticks.append(convertFrameNumberForTimeBinTimeline(night['startFrame'], timeBin))
+            x_labels.append(night_hours[0])
+        if night['endFrame']:
+            x_ticks.append(convertFrameNumberForTimeBinTimeline(night['endFrame'], timeBin))
+            x_labels.append(night_hours[1])
+    ax.set_xticks(x_ticks, labels=x_labels)
     plotNightTimeLine(nights, timeBin, ax)
 
     # males
-    ax = axes[1]
+    ax = axes[0]
     ax.title.set_text(f'{title} - male')
     ax.set_xlabel("time")
-    ax.set_ylabel("{} ({})".format(title, unit), fontsize=14)
+    ax.set_ylabel(f"Distance in 10 min ({unit})", fontsize=14)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
 
@@ -154,16 +164,43 @@ def plotActivityPerTimebin(meanAndSEM, timeLine, nights, title, unit = "cm"):
                             color=getColorGenoTreatment(treatment, genotype),
                             alpha=0.2)
 
-    ax.legend().set_visible(False)
+    ax.legend(loc="best")
     ax.xaxis.set_major_locator(plt.MaxNLocator(10))
+    x_ticks = []
+    x_labels = []
+    for night in nights:
+        if night['startFrame']:
+            x_ticks.append(convertFrameNumberForTimeBinTimeline(night['startFrame'], timeBin))
+            x_labels.append(night_hours[0])
+        if night['endFrame']:
+            x_ticks.append(convertFrameNumberForTimeBinTimeline(night['endFrame'], timeBin))
+            x_labels.append(night_hours[1])
+    ax.set_xticks(x_ticks, labels=x_labels)
     plotNightTimeLine(nights, timeBin, ax)
 
     plt.show()
     fig.savefig(f"{title}.pdf")
-    fig.savefig(f"{title}.png")
+    fig.savefig(f"{title}.png", dpi=300)
+
+
+def getDistanceDuringDayAndNight(data, nights, timebin):
+    distance_during_night = 0
+    dataList = []
+    for item in data:
+        dataList.append(data[item])
+    for nightEvent in nights:
+        start_night = int(round(convertFrameNumberForTimeBinTimeline(nightEvent['startFrame'], timebin), 0))
+        end_night = int(round(convertFrameNumberForTimeBinTimeline(nightEvent['endFrame'], timebin), 0))
+        distance_during_night += sum(dataList[start_night:end_night])
+    distance_during_day = sum(dataList) - distance_during_night
+
+    return {'distance_during_day': distance_during_day, 'distance_during_night': distance_during_night}
 
 
 if __name__ == '__main__':
+    #set font
+    rc('font', **{'family': 'serif', 'serif': ['Arial']})
+
     # Data from ICS
 
     # files = getFilesToProcess()
@@ -177,16 +214,20 @@ if __name__ == '__main__':
     meanAndSEM = {}
     timeLine = []
     timeLineDone = False
+    activity_day_night_ics = {}
     for sex in reorganizedResults:
         if sex not in meanAndSEM:
             meanAndSEM[sex] = {}
+            activity_day_night_ics[sex] = {}
         for treatment in reorganizedResults[sex]:
             if treatment not in meanAndSEM[sex]:
                 meanAndSEM[sex][treatment] = {}
+                activity_day_night_ics[sex][treatment] = {}
             for genotype in reorganizedResults[sex][treatment]:
                 timeLineAsIndexCompleted = False
                 if genotype not in meanAndSEM[sex][treatment]:
                     meanAndSEM[sex][treatment][genotype] = pd.DataFrame()
+                    activity_day_night_ics[sex][treatment][genotype] = {}
                 for animal in reorganizedResults[sex][treatment][genotype]:
                     print(f"Animal: {animal}")
                     activity = []
@@ -201,9 +242,12 @@ if __name__ == '__main__':
                         for item in listToAppend:
                             activity.append(item)
                     meanAndSEM[sex][treatment][genotype][animal] = activity
+                    activity_day_night_ics[sex][treatment][genotype][animal] = getDistanceDuringDayAndNight(reorganizedResults[sex][treatment][genotype][animal]["results"], nights, timeBin)
+    with open('activity_day_night_ics.json', 'w') as f:
+        json.dump(activity_day_night_ics, f, indent=4)
 
 
-    plotActivityPerTimebin(meanAndSEM, timeLine, nights, "GO-DS21 activity ICS timebin 10min")
+    plotActivityPerTimebin(meanAndSEM, timeLine, timeBin, nights, ("07:00", "19:00"), "ICS")
 
     # Data from HMGU
     files = getJsonFilesToProcess()
@@ -215,16 +259,20 @@ if __name__ == '__main__':
     meanAndSEM = {}
     timeLine = []
     timeLineDone = False
+    activity_day_night_hmgu = {}
     for sex in reorganizedResults:
         if sex not in meanAndSEM:
             meanAndSEM[sex] = {}
+            activity_day_night_hmgu[sex] = {}
         for treatment in reorganizedResults[sex]:
             if treatment not in meanAndSEM[sex]:
                 meanAndSEM[sex][treatment] = {}
+                activity_day_night_hmgu[sex][treatment] = {}
             for genotype in reorganizedResults[sex][treatment]:
                 timeLineAsIndexCompleted = False
                 if genotype not in meanAndSEM[sex][treatment]:
                     meanAndSEM[sex][treatment][genotype] = pd.DataFrame()
+                    activity_day_night_hmgu[sex][treatment][genotype] = {}
                 for animal in reorganizedResults[sex][treatment][genotype]:
                     print(f"Animal: {animal}")
                     activity = []
@@ -239,5 +287,9 @@ if __name__ == '__main__':
                         for item in listToAppend:
                             activity.append(item)
                     meanAndSEM[sex][treatment][genotype][animal] = activity
+                    activity_day_night_hmgu[sex][treatment][genotype][animal] = getDistanceDuringDayAndNight(reorganizedResults[sex][treatment][genotype][animal]["results"], nights, timeBin)
+    with open('activity_day_night_hmgu.json', 'w') as f:
+        json.dump(activity_day_night_hmgu, f, indent=4)
 
-    plotActivityPerTimebin(meanAndSEM, timeLine, nights, "GO-DS21 activity HMGU timebin 10min")
+    plotActivityPerTimebin(meanAndSEM, timeLine, timeBin, nights, ("06:00", "18:00"), "HMGU")
+
