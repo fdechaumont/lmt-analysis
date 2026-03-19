@@ -3,18 +3,24 @@ Created on 25-11-2025
 @author: Xavier Mousset
 """
 
+from re import match
 import sqlite3
 import numpy as np
 from typing import Any
 
-from lmtanalysis.Animal import AnimalPool, EventTimeLine
+from lmtanalysis.Animal import AnimalPool, AnimalType, EventTimeLine
 from lmtanalysis.Event import deleteEventTimeLineInBase
 from lmtanalysis.TaskLogger import TaskLogger
 
 
+# name of the event to build (should correspond to the file name)
+EVENT_NAME = "Flickering"
+
+
+# DO NOT MODIFY THIS PART, UNLESS YOU KNOW WHAT YOU ARE DOING
 def flush(connection):
-    """Flush 'Flickering' event in database"""
-    deleteEventTimeLineInBase(connection, "Flickering")
+    """Flush event in database"""
+    deleteEventTimeLineInBase(connection, EVENT_NAME)
 
 
 def reBuildEvent(
@@ -23,9 +29,10 @@ def reBuildEvent(
     tmin: int | None = None,
     tmax: int | None = None,
     pool: AnimalPool | None = None,
-    animalType: Any = None,
+    animalType: AnimalType | None = AnimalType.MOUSE,
     window: int = 19,
-    few_frames_is_flicker: bool = False,
+    event_min_frames: int = 6,
+    flick_when_few_frames: bool = False,
 ):
     """
     Rebuilds the 'Flickering' events for all animals in the database within a
@@ -55,31 +62,51 @@ def reBuildEvent(
     window : int, optional
         The size of the rolling window (in frames) used to compute flickering
         events. Must be at least 7. Default is 19 (0.6 second).
-    few_frames_is_flicker : bool, optional
-        Define if it is a flickering or not when there are not enough frames
-        available (<7) for flickering calculation. Default is False, so not a
-        flickering event.
+    event_min_frames : int, optional
+        The minimum number of frames required to consider a flickering event.
+        Default is 6.
+    flick_when_few_frames : bool, optional
+        When the minimum number of frames is not reached (< event_min_frames),
+        define if it must be considered as a flickering or not. Default is
+        False (i.e., small numbers of frames are not considered a flickering
+        event).
 
     Returns
     -------
     None
     """
 
+    # Inputs errors
+    # ----------------
     if window < 7:
         raise ValueError("Minimum window size for flickering is 7 frames.")
 
+    # DO NOT MODIFY
+    # ----------------
     if pool is None:
         pool = AnimalPool()
         pool.loadAnimals(connection)
         pool.loadDetection(start=tmin, end=tmax)
 
-    # flickering detection criteria (for mouse)
-    # 81 (px/frame)² = 9 px/frame ~ 1.6 cm/frame minimum max_speed
-    # 16 (px/frame)² = 4 px/frame ~ 0.70 cm/frame minimum speed difference
-    criteria = {
-        "min_speed": 81,
-        "speed_displacement_diff": 16,
-    }
+    # Flickering Criteria
+    # ----------------
+    match animalType:
+        case AnimalType.MOUSE:
+            # 81 (px/frame)² = 9 px/frame ~ 1.6 cm/frame minimum max_speed
+            # 16 (px/frame)² = 4 px/frame ~ 0.70 cm/frame min speed difference
+            criteria = {
+                "min_speed": 81,
+                "speed_displacement_diff": 16,
+            }
+        case AnimalType.RAT:
+            # 81 (px/frame)² = 9 px/frame ~ 1.6 cm/frame minimum max_speed
+            # 16 (px/frame)² = 4 px/frame ~ 0.70 cm/frame min speed difference
+            criteria = {
+                "min_speed": 81,
+                "speed_displacement_diff": 16,
+            }
+        case _:
+            raise ValueError("Animal type not supported for flickering event.")
 
     half_w = window // 2
     left_w = half_w
@@ -88,13 +115,25 @@ def reBuildEvent(
         right_w = right_w - 1
 
     for animal_key in pool.animalDictionary.keys():
-        eventName = "Flickering"
 
         flickeringTimeLine = EventTimeLine(
-            None, eventName, animal_key, None, None, None, loadEvent=False
+            conn=connection,
+            eventName=EVENT_NAME,
+            idA=animal_key,
+            idB=None,
+            idC=None,
+            idD=None,
+            loadEvent=False,
+            minFrame=tmin,
+            maxFrame=tmax,
         )
 
+        result = {}
+
         animal = pool.animalDictionary[animal_key]
+
+        # ================ Flickering logic ================
+
         animal_frames = np.array(sorted(animal.detectionDictionary.keys()))
         if animal_frames.size == 0:
             continue
@@ -114,7 +153,6 @@ def reBuildEvent(
         vy[1:] = np.diff(massY) / frame_gaps
 
         # detect flickering
-        result = {}
         for idx, f in enumerate(animal_frames[left_w:-right_w], start=left_w):
             f_key = int(f)
 
@@ -134,8 +172,8 @@ def reBuildEvent(
                 local_rw -= 1
 
             # minimum number of frames required
-            if local_lw + local_rw < 6:
-                if few_frames_is_flicker:
+            if local_lw + local_rw < event_min_frames:
+                if flick_when_few_frames:
                     result[f_key] = True
                 continue
 
@@ -157,10 +195,16 @@ def reBuildEvent(
             ):
                 result[f_key] = True
 
+        # ================ End of Flickering logic ================
+
+        # DO NOT MODIFY
+        # ----------------
         flickeringTimeLine.reBuildWithDictionary(result)
         flickeringTimeLine.endRebuildEventTimeLine(connection)
 
-    # log process
+    # DO NOT MODIFY
+    # ----------------
+    # log process for debugging and record keeping
     t = TaskLogger(connection)
     if tmin is None or tmax is None:
         t.addLog("Build Event Flickering (tmin or tmax is None)")

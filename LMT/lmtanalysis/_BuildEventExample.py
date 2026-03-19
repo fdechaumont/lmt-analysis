@@ -13,23 +13,27 @@ from lmtanalysis.Event import deleteEventTimeLineInBase
 from lmtanalysis.TaskLogger import TaskLogger
 
 
-# name of the event to build (should correspond to the file name)
-EVENT_NAME = "your_event"
+# EVENT NAME (should correspond to the file name)
+# ----------------
+EVENT_NAME = "Your_event"
 
 
-# DO NOT MODIFY THIS PART, UNLESS YOU KNOW WHAT YOU ARE DOING
+# DO NOT MODIFY
+# ----------------
 def flush(connection):
     """Flush event in database"""
     deleteEventTimeLineInBase(connection, EVENT_NAME)
 
 
+# YOUR EVENT
+# ----------------
 def reBuildEvent(
     connection: sqlite3.Connection,
     file: Any | None = None,
     tmin: int | None = None,
     tmax: int | None = None,
     pool: AnimalPool | None = None,
-    animalType: AnimalType | None = AnimalType.MOUSE,
+    animalType: AnimalType | None = None,
     # your variables here
 ):
     """
@@ -44,9 +48,11 @@ def reBuildEvent(
         Can be used by EventTimeLineCached to cache event loading.
         Default is None.
     tmin : int or None, optional
-        Start time for detections (in frame).
+        Start time for detections (in frame). If None, it will load all
+        detections from the start.
     tmax : int or None, optional
-        End time for detections (in frame).
+        End time for detections (in frame). If None, it will load all
+        detections until the end.
     pool : AnimalPool or None, optional
         AnimalPool instance (create new one if None using tmin and tmax).
     animalType : AnimalType or None, optional
@@ -59,7 +65,8 @@ def reBuildEvent(
     None
     """
 
-    # DO NOT MODIFY THIS PART, UNLESS YOU KNOW WHAT YOU ARE DOING
+    # DO NOT MODIFY
+    # ----------------
     if pool is None:
         pool = AnimalPool()
         pool.loadAnimals(connection)
@@ -78,6 +85,8 @@ def reBuildEvent(
             idC=None,
             idD=None,
             loadEvent=False,
+            minFrame=tmin,
+            maxFrame=tmax,
         )
 
         # prepare a dictionary to store the result of your event detection
@@ -92,9 +101,7 @@ def reBuildEvent(
         # get the animal object from the pool with the animal key (id)
         animal = pool.animalDictionary[animal_key]
 
-        #######################################
-        #   YOUR CODE HERE   #
-        #######################################
+        # ================ YOUR CODE HERE ================
 
         # example of how to get the frames of the animal detections
         animal_frames = np.array(sorted(animal.detectionDictionary.keys()))
@@ -119,16 +126,16 @@ def reBuildEvent(
             idA=animal_key,
         ).getDictionary()
 
-        #######################################
-        #   END OF YOUR CODE   #
-        #######################################
+        # ================ END OF YOUR CODE ================
 
-        # DO NOT MODIFY THIS PART, UNLESS YOU KNOW WHAT YOU ARE DOING
+        # DO NOT MODIFY
+        # ----------------
         # store your result in the event timeline and save it in database
         your_event_TimeLine.reBuildWithDictionary(result)
         your_event_TimeLine.endRebuildEventTimeLine(connection)
 
-    # DO NOT MODIFY THIS PART, UNLESS YOU KNOW WHAT YOU ARE DOING
+    # DO NOT MODIFY
+    # ----------------
     # log process for debugging and record keeping
     t = TaskLogger(connection)
     if tmin is None or tmax is None:
