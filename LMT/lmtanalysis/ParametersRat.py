@@ -16,26 +16,21 @@ class ParametersRat():
     SPEED_THRESHOLD_LOW = 5
     SPEED_THRESHOLD_HIGH = 10
     
-    MAX_SPEED_LIMIT = 360
-    
     ''' threshold for a mean speed over a time period '''
     AVERAGE_HIGH_SPEED_THRESHOLD = 19
     
     ''' speed threshold to define high speed movements '''
-    HIGH_SPEED_MOVE_THRESHOLD =  25 #18
+    HIGH_SPEED_MOVE_THRESHOLD = 18
     MAXIMUM_SPEED_THRESHOLD = 300
     
     ''' slope of the body between the nose and the tail basis '''
-    BODY_SLOPE_THRESHOLD = 33
-    
-    ''' slope of the body between the center of mass and the tail basis '''
-    BACK_SLOPE_THRESHOLD = 95
+    BODY_SLOPE_THRESHOLD = 40
     
     ''' threshold for the distance contact using mass center between two detection '''
     DISTANCE_CONTACT_MASS_CENTER = 8/scaleFactor
     
     ''' threshold for the maximum distance allowed between two points '''
-    MAX_DISTANCE_THRESHOLD = 140/scaleFactor
+    MAX_DISTANCE_THRESHOLD = 71/scaleFactor
     
     '''distance between the two animals to compute the follow behaviour'''
     FOLLOW_DISTANCE_MAX_PIX = 8.5/scaleFactor # numeric value in cm to obtain pixels
@@ -113,9 +108,6 @@ class ParametersRat():
     
     ''' Minimum duration for the animal to stop at the gate point to be classified as drinking '''
     MIN_GATE_STOP_DURATION = 2*oneSecond
-    
-    '''High number of particles in the cage to be classified as high particles number'''
-    HIGH_PARTICLES_NUMBER_THRESHOLD = 100
      
     ''' Cage center in 100x100cm area'''
     cageCenterCoordinatesOpenFieldArea = Point( 256, 208 )
@@ -127,45 +119,15 @@ class ParametersRat():
     CENTER_MARGIN = 14.64
     
     ''' Corner Coordinates in 100x100cm area '''
-    """cornerCoordinatesOpenFieldArea = [
-                            (114,63), #upper left
-                            (398,63), #upper right
-                            (398,353), #lower right
-                            (114,353) #upper right
-                            ]"""
-    
-    #LRT + VBS
     cornerCoordinatesOpenFieldArea = [
-                            (232.64,88.646), #upper left
-                            (467.15,88.646), #upper right
-                            (467.74,318.47), #lower right
-                            (232.64,318.47) #lower left
+                            (114,63),
+                            (398,63),
+                            (398,353),
+                            (114,353)
                             ]
-    
-    cornerCoordinatesVbs1 = [
-                            (88, 106), #upper left
-                            (210, 106), #upper right
-                            (210, 174), #lower right
-                            (88, 174) #lower left
-                            ]
-    
-    cornerCoordinatesVbs2 = [
-                            (88, 174), #upper left
-                            (210, 174), #upper right
-                            (210, 248), #lower right
-                            (88, 248) #lower left
-                            ]
-    
-    cornerCoordinatesVbs3 = [
-                            (88, 248), #upper left
-                            (210, 248), #upper right
-                            (210, 322), #lower right
-                            (88, 322) #lower left
-                            ]
-    
+
     ''' Margin to define whole cage area without a border in cm '''
     # TODO check value for the rat
     CAGE_MARGIN = 6
 
-    ''' minimal fight duration to remove false positive in fights '''
-    MINIMAL_FIGHT_DURATION = 1*oneSecond
+
