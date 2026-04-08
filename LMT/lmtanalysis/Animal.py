@@ -767,6 +767,39 @@ class Animal():
         else:
             distanceToPoint = math.hypot( self.detectionDictionary[t].massX - xPoint, self.detectionDictionary[t].massY - yPoint )
             return distanceToPoint
+    
+    def getMeanDistanceToPoint (self, startFrame, endFrame, xPoint, yPoint):
+        '''
+        determine the distance (cm) between the focal animal and a point specified in arguments during a specific time interval
+        '''
+        distanceList = []
+        
+        for t in range( startFrame, endFrame+1 ):
+            dist = self.getDistanceToPoint(t, xPoint, yPoint) #computed in cm already
+            distanceList.append( dist )
+        
+        for position in range(len(distanceList)):
+            if distanceList[position] == None:
+                distanceList[position] = np.nan
+                
+        meanDistance = np.nanmean( distanceList)
+        
+        return meanDistance
+    
+    def getMeanDistanceToPointPerBin(self , binFrameSize, startFrame, endFrame, xPoint, yPoint ):
+        if ( endFrame==None ):
+            endFrame= self.getMaxDetectionT()
+
+        distanceList = []
+        t = startFrame
+        while ( t < endFrame ):
+            print(t)
+            distanceBin = self.getMeanDistanceToPoint( t , t+binFrameSize, xPoint, yPoint ) #computed in cm already
+            print( "Distance to point in bin n:{} value:{}".format ( t , distanceBin ) )
+            distanceList.append( distanceBin )
+            t=t+binFrameSize
+
+        return distanceList
 
     def getDistanceNoseToPoint (self, t, xPoint, yPoint):
         '''
