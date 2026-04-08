@@ -759,14 +759,18 @@ class Animal():
         distanceToPoint = None
         
         if ( not ( t in self.detectionDictionary ) ):
+            print("not detected")
             return None
 
         if (math.hypot( self.detectionDictionary[t].massX - xPoint, self.detectionDictionary[t].massY - yPoint ) > self.parameters.MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
+            print("distance too large", math.hypot( self.detectionDictionary[t].massX - xPoint, self.detectionDictionary[t].massY - yPoint ))
             return None
 
         else:
             distanceToPoint = math.hypot( self.detectionDictionary[t].massX - xPoint, self.detectionDictionary[t].massY - yPoint )
-            return distanceToPoint
+            print("distance computed", distanceToPoint)
+            
+            return distanceToPoint*self.parameters.scaleFactor
     
     def getMeanDistanceToPoint (self, startFrame, endFrame, xPoint, yPoint):
         '''
