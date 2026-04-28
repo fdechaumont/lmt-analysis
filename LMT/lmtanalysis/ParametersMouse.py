@@ -20,6 +20,8 @@ class ParametersMouse():
     SPEED_THRESHOLD_LOW = 5
     SPEED_THRESHOLD_HIGH = 10
     
+    MAX_SPEED_LIMIT = 360
+    
     ''' threshold for a mean speed over a time period '''
     AVERAGE_HIGH_SPEED_THRESHOLD = 11
     
@@ -30,11 +32,17 @@ class ParametersMouse():
     ''' slope of the body between the nose and the tail basis '''
     BODY_SLOPE_THRESHOLD = 40
     
+    ''' slope of the body between the center of mass and the tail basis '''
+    BACK_SLOPE_THRESHOLD = 50
+    
     ''' threshold for the distance contact using mass center between two detection '''
     DISTANCE_CONTACT_MASS_CENTER = 8/scaleFactor
     
-    ''' threshold for the maximum distance allowed between two points '''
+    ''' threshold for the maximum distance allowed between two points (in pixels) '''
     MAX_DISTANCE_THRESHOLD = 71/scaleFactor
+    
+    ''' threshold for the maximum distance allowed between the animal and a specific point '''
+    MAX_DISTANCE_THRESHOLD_TO_POINT = 71/scaleFactor
     
     '''distance between the two animals to compute the follow behaviour'''
     FOLLOW_DISTANCE_MAX_PIX = 2.5/scaleFactor # numeric value in cm to obtain pixels #2.5
@@ -86,6 +94,9 @@ class ParametersMouse():
     ''' Minimum duration of stay in a corner to be considered as a corner event (frames)'''
     MIN_DURATION_IN_CORNER = 180
     
+    '''High number of particles in the cage to be classified as high particles number'''
+    HIGH_PARTICLES_NUMBER_THRESHOLD = 100
+    
     ''' Cage center in 100x100cm area'''
     cageCenterCoordinatesOpenFieldArea = Point( 256, 208 )
     
@@ -105,4 +116,6 @@ class ParametersMouse():
 
     ''' Margin to define whole cage area without a border in cm '''
     CAGE_MARGIN = 3
-
+    
+    ''' minimal fight duration to remove false positive in fights '''
+    MINIMAL_FIGHT_DURATION = 1*oneSecond

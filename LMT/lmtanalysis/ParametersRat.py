@@ -32,6 +32,9 @@ class ParametersRat():
     ''' threshold for the maximum distance allowed between two points '''
     MAX_DISTANCE_THRESHOLD = 71/scaleFactor
     
+    ''' threshold for the maximum distance allowed between the animal and a specific point '''
+    MAX_DISTANCE_THRESHOLD_TO_POINT = 180/scaleFactor
+    
     '''distance between the two animals to compute the follow behaviour'''
     FOLLOW_DISTANCE_MAX_PIX = 8.5/scaleFactor # numeric value in cm to obtain pixels
     FOLLOW_CORRIDOR_DURATION = 50 # in frames
