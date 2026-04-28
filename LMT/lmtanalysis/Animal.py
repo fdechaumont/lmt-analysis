@@ -762,13 +762,13 @@ class Animal():
             print("not detected")
             return None
 
-        if (math.hypot( self.detectionDictionary[t].massX - xPoint, self.detectionDictionary[t].massY - yPoint ) > self.parameters.MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
-            print("distance too large", math.hypot( self.detectionDictionary[t].massX - xPoint, self.detectionDictionary[t].massY - yPoint ))
+        if (math.hypot( self.detectionDictionary[t].massX - xPoint, self.detectionDictionary[t].massY - yPoint ) > self.parameters.MAX_DISTANCE_THRESHOLD_TO_POINT): #if the distance calculated is too large, discard
+            #print("distance too large", math.hypot( self.detectionDictionary[t].massX - xPoint, self.detectionDictionary[t].massY - yPoint ))
             return None
 
         else:
             distanceToPoint = math.hypot( self.detectionDictionary[t].massX - xPoint, self.detectionDictionary[t].massY - yPoint )
-            print("distance computed", distanceToPoint)
+            #print("distance computed", distanceToPoint)
             
             return distanceToPoint*self.parameters.scaleFactor
     
@@ -799,7 +799,7 @@ class Animal():
         while ( t < endFrame ):
             print(t)
             distanceBin = self.getMeanDistanceToPoint( t , t+binFrameSize, xPoint, yPoint ) #computed in cm already
-            print( "Distance to point in bin n:{} value:{}".format ( t , distanceBin ) )
+            #print( "Distance to point in bin n:{} value:{}".format ( t , distanceBin ) )
             distanceList.append( distanceBin )
             t=t+binFrameSize
 
@@ -815,7 +815,7 @@ class Animal():
             return None
         if (self.detectionDictionary[t].frontX < 0):
             return None
-        if (math.hypot( self.detectionDictionary[t].massX - xPoint, self.detectionDictionary[t].massY - yPoint ) > self.parameters.MAX_DISTANCE_THRESHOLD): #if the distance calculated is too large, discard
+        if (math.hypot( self.detectionDictionary[t].massX - xPoint, self.detectionDictionary[t].massY - yPoint ) > self.parameters.MAX_DISTANCE_THRESHOLD_TO_POINT): #if the distance calculated is too large, discard
             return None
 
         else:
