@@ -37,6 +37,7 @@ from pickle import NONE
 from lmtanalysis.AnimalType import AnimalType
 from lmtanalysis.ParametersMouse import ParametersMouse
 from lmtanalysis.ParametersRat import ParametersRat
+from lmtanalysis import ParametersHamster
 
 
 idAnimalColor = [ None, "red","green","purple","orange"]
@@ -76,6 +77,10 @@ class Animal():
         if self.animalType == AnimalType.RAT:
             print("Animal type = RAT")
             self.parameters = ParametersRat()
+        
+        if self.animalType == AnimalType.HAMSTER:
+            print("Animal type = HAMSTER")
+            self.parameters = ParametersHamster()
 
         if self.parameters == None:
             self.parameters = ParametersMouse()
@@ -769,7 +774,6 @@ class Animal():
         else:
             distanceToPoint = math.hypot( self.detectionDictionary[t].massX - xPoint, self.detectionDictionary[t].massY - yPoint )
             #print("distance computed", distanceToPoint)
-            
             return distanceToPoint*self.parameters.scaleFactor
     
     def getMeanDistanceToPoint (self, startFrame, endFrame, xPoint, yPoint):
