@@ -6,6 +6,7 @@ Created on 20 dec. 2022
 from lmtanalysis.AnimalType import AnimalType
 from lmtanalysis.ParametersMouse import ParametersMouse
 from lmtanalysis.ParametersRat import ParametersRat
+from lmtanalysis.ParametersHamster import ParametersHamster
 
 def getAnimalTypeParameters( animalType ):
 
@@ -14,6 +15,9 @@ def getAnimalTypeParameters( animalType ):
 
     if animalType == AnimalType.RAT:
         return ParametersRat()
+    
+    if animalType == AnimalType.HAMSTER:
+        return ParametersHamster()
 
     print("Error: animal type is None")
     quit()
