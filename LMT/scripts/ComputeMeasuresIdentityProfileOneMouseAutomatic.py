@@ -154,7 +154,8 @@ def computeProfilePair(file, minT, maxT, behaviouralEventListSingle, behavioural
     if sex[0] == sex[1]:
         sexPair = sex[0]
     else:
-        sexPair = 'mixed'
+        sex.sort()
+        sexPair = f"{sex[0]} - {sex[1]}"
     print('pair: ', pairName, genoPair, sexPair)
 
     if strain[0] == strain[1]:
@@ -293,7 +294,8 @@ def computeProfilePairFromPause(file, experimentDuration, behaviouralEventListSi
     if sex[0] == sex[1]:
         sexPair = sex[0]
     else:
-        sexPair = 'mixed'
+        sex.sort()
+        sexPair = f"{sex[0]} - {sex[1]}"
     print('pair: ', pairName, genoPair, sexPair)
     
     #treatmentPair = ('{}_{}'.format(treatment[0], treatment[1]))
