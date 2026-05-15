@@ -64,6 +64,19 @@ class Detection():
         
         return bodySlope
     
+    
+    def getBackSlope(self):
+        '''
+        calculate the instantaneous slope of the animal between center of mass and tail basis
+        '''
+        
+        if (self.massZ==0 or self.backZ==0):
+            return None
+        else:  
+            backSlope = (self.massZ - self.backZ)
+        
+        return backSlope
+    
     def getMassCenterPoint(self):
         return Point( self.massX , self.massY )
 
