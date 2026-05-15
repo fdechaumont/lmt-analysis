@@ -105,6 +105,13 @@ def reBuildEvent(
                 "min_speed": 81,
                 "speed_displacement_diff": 16,
             }
+        case AnimalType.HAMSTER:
+            # 81 (px/frame)² = 9 px/frame ~ 1.6 cm/frame minimum max_speed
+            # 16 (px/frame)² = 4 px/frame ~ 0.70 cm/frame min speed difference
+            criteria = {
+                "min_speed": 81,
+                "speed_displacement_diff": 16,
+            }
         case _:
             raise ValueError("Animal type not supported for flickering event.")
 
