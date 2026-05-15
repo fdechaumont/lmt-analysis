@@ -491,7 +491,24 @@ class EventTimeLine:
             startTime = startTime+binSize
         
         return numberOfEventsList
+    
+    def getDurationOfEventPerBin(self, tmin=0, tmax=None, binSize=1*oneMinute):
+        '''
+        compute the duration of events within a given time bin; return a list of durations of events
+        '''
+        if ( tmax == None ):
+            tmax = self.getMaxT()
         
+        durationOfEventsList = []
+        
+        startTime = tmin
+        numberOfBins = np.round((tmax - tmin) / binSize)
+        for k in range(0, int(numberOfBins)):
+            durEvents = self.getTotalDurationEvent(tmin=startTime, tmax=startTime+binSize-1)
+            durationOfEventsList.append(durEvents)
+            startTime = startTime+binSize
+        
+        return durationOfEventsList    
     
     def getIntervalBetweenEventsList(self):
         '''
