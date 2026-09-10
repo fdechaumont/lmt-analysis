@@ -19,6 +19,8 @@ from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 from scripts.ComputeMeasuresIdentityProfileOneMouseAutomatic import computeProfile
 from collections import Counter
+from lmtanalysis.EventTimeLineCache import EventTimeLineCached
+
 
 if __name__ == '__main__':
     """
@@ -35,19 +37,22 @@ if __name__ == '__main__':
     while True:
 
         question = "Do you want to:"
-        question += "\n\t [1] compute profile data per time bin for the beginning of the exp (save json file)?"
+        question += "\n\t [1] compute profile data per time bin from the beginning of the exp (save json file)?"
+        question += "\n\t [1a] compute profile data per time bin starting one hour before the first night (save json file)?"
+        question += "\n\t [1b] compute distance per time bin starting xx hours before the night"
         question += "\n\t [2] plot the profile per time bins for the beginning of the exp"
+        question += "\n\t [2a] plot the distance travelled per time bin?"
+        question += "\n\t [3] evaluate the area under the curve"
         question += "\n"
         answer = input(question)
 
         if answer == "1":
-            """compute profile per time bin for the beginning of the experiments """
+            """compute profile per time bin from the beginning of the experiments """
             files = getFilesToProcess()
             questionTimeBin = "Choose the time bin you want to use"
             timeBinDuration = getFrameInput(questionTimeBin)
             questionDuration = "How long do you want to compute the profile per time bin starting from the beginning of the exp?"
             recordingDuration = getFrameInput(questionDuration)
-            maxDurationOfRecording = 71*oneHour
             numberOfTimeBinsToCompute = np.round( recordingDuration / timeBinDuration, 0 )
             print("Number of time bins to compute: ", numberOfTimeBinsToCompute)
             
@@ -72,7 +77,107 @@ if __name__ == '__main__':
             
             print("Job done.")
             break
+        
+        if answer == "1a":
+            """ compute profile per time bin starting xx hours before the night """
+            files = getFilesToProcess()
+            hoursBeforeNight = 3
+            questionTimeBin = "Choose the time bin you want to use"
+            timeBinDuration = getFrameInput(questionTimeBin)
+            questionDuration = f"How long do you want to compute the profile per time bin starting from {hoursBeforeNight} hours before the first night?"
+            recordingDuration = getFrameInput(questionDuration)
+            numberOfTimeBinsToCompute = np.round( recordingDuration / timeBinDuration, 0 )
+            print("Number of time bins to compute: ", numberOfTimeBinsToCompute)
+            
+            for file in files:
+                #initialize the result dic
+                profileData = {}
                 
+                #determine the starting time according to the position of the night event
+                connection = sqlite3.connect( file )
+                pool = AnimalPool( )
+                pool.loadAnimals( connection )
+                nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=0, maxFrame=None )
+                firstNightEvent = nightEventTimeLine.getEventList()[0]
+                minT = firstNightEvent.startFrame - hoursBeforeNight*oneHour
+                
+                print(file)
+                #get the path and the name of file
+                head, tail = os.path.split(file)
+                profileData[file] = {}
+                tmin = minT
+                for timeBin in range(int(numberOfTimeBinsToCompute)):
+                    tmax = tmin + timeBinDuration
+                    profileData[file][tmin] = computeProfile(file=file, minT=tmin, maxT=tmax, behaviouralEventList=[""])
+                    #profileData[file][tmin] = computeProfile(file=file, minT=tmin, maxT=tmax, behaviouralEventList=behaviouralEventOneMouse)
+                    tmin += timeBinDuration
+                    
+                # Create a json file to store the computation
+                with open( f"{head}/{tail}_distance_from_first_night_{recordingDuration}_{timeBinDuration}timeBins.json", 'w') as fp:
+                    json.dump(profileData, fp, indent=4)
+                print("json file with profile measurements created.")
+            
+            
+            break
+        
+        if answer == "1b":
+            """ compute distance per time bin starting xx hours before the night """
+            files = getFilesToProcess()
+            hoursBeforeNight = 2
+            questionTimeBin = "Choose the time bin you want to use"
+            timeBinDuration = getFrameInput(questionTimeBin)
+            questionDuration = f"How long do you want to compute the profile per time bin starting from {hoursBeforeNight} hours before the first night?"
+            recordingDuration = getFrameInput(questionDuration)
+            numberOfTimeBinsToCompute = np.round( recordingDuration / timeBinDuration, 0 )
+            print("Number of time bins to compute: ", numberOfTimeBinsToCompute)
+            
+            for file in files:
+                #initialize the result dic
+                profileData = {}
+                
+                #determine the starting time according to the position of the night event
+                connection = sqlite3.connect( file )
+                pool = AnimalPool( )
+                pool.loadAnimals( connection )
+                nightEventTimeLine = EventTimeLineCached( connection, file, "night", minFrame=0, maxFrame=None )
+                firstNightEvent = nightEventTimeLine.getEventList()[0]
+                minT = firstNightEvent.startFrame - hoursBeforeNight*oneHour
+                
+                #load animal detections
+                for animalObject in pool.getAnimalList():
+                    animalObject.loadDetection( start=minT, end=minT+recordingDuration, lightLoad = True )
+                
+                print(file)
+                #get the path and the name of file
+                head, tail = os.path.split(file)
+                profileData[file] = {}
+                tmin = minT
+                for timeBin in range(int(numberOfTimeBinsToCompute)):
+                    tmax = tmin + timeBinDuration
+                    profileData[file][tmin] = {}
+                    for animalObject in pool.getAnimalList():
+                        rfid = animalObject.RFID
+                        profileData[file][tmin][rfid] = {}
+                        genotype = animalObject.genotype
+                        profileData[file][tmin][rfid]["genotype"] = genotype
+                        strain = animalObject.strain
+                        profileData[file][tmin][rfid]["strain"] = strain
+                        age = animalObject.age
+                        profileData[file][tmin][rfid]["age"] = age
+                        sex = animalObject.sex
+                        profileData[file][tmin][rfid]["sex"] = sex
+                        distanceInBin = animalObject.getDistance( tmin=tmin,tmax=tmax, filter_flickering=True, filter_stop=True)/100
+                        profileData[file][tmin][rfid]["totalDistance"] = distanceInBin
+                    
+                    tmin += timeBinDuration
+                    
+                # Create a json file to store the computation
+                with open( f"{head}/{tail}_distance_from_first_night_{recordingDuration}_{timeBinDuration}timeBins.json", 'w') as fp:
+                    json.dump(profileData, fp, indent=4)
+                print("json file with profile measurements created.")
+            
+            
+            break                
                 
         if answer == "2":
             """plot profile per time bin for the beginning of the experiments """
@@ -105,11 +210,82 @@ if __name__ == '__main__':
                     ax.spines['right'].set_visible(False)
                     ax.spines['top'].set_visible(False)
                     ax.set_ylabel(event)
-                    sns.lineplot(data = df.loc[df['event']==event], x='timebin', y='value', hue='genotype', palette=my_pal, ax=ax, ci="sd" )
+                    sns.lineplot(data = df.loc[df['event']==event], x='timebin', y='value', hue='rfid', ax=ax, ci="sd" )
+                    #sns.lineplot(data = df.loc[df['event']==event], x='timebin', y='value', hue='genotype', palette=my_pal, ax=ax, ci="sd" )
                     #sns.lineplot(data = df.loc[df['event']==event], x='timebin', y='value', hue='genotype', units='rfid', style='group', estimator=None, lw=1, palette=my_pal, ax=ax )
                     row += 1
                     
                 fig.savefig( f"fig_timebin_beginning_{behaviouralCategory}.pdf" ,dpi=100)
                 
-            print("Job done.")
+            
             break
+        
+        if answer == "2a":
+            """plot profile per time bin for the beginning of the experiments """
+            files = getJsonFilesToProcess()
+            dataDic = mergeJsonFilesForProfiles(files)
+            
+            for behaviouralCategory in ['activity', 'exploration', 'general contacts', 'specific contacts', 'follow', 'approach', 'escape']:
+                
+                df = pd.DataFrame({'file': [], 'group': [], 'rfid': [], 'sex': [], 'genotype': [], 'strain': [], 'timebin': [], 'event': [], 'value': []})
+                for file in dataDic.keys():
+                    print("New file: ", file)
+                    for timebin in dataDic[file].keys():
+                        for rfid in dataDic[file][timebin].keys():
+                            event = "totalDistance"
+                            new_row = pd.Series({'file': file, 'group': file,
+                                            'rfid': rfid, 'sex': dataDic[file][timebin][rfid]['sex'],
+                                            'genotype': dataDic[file][timebin][rfid]['genotype'], 'strain': dataDic[file][timebin][rfid]['strain'],
+                                            'timebin': timebin, 'event': event, 'value': dataDic[file][timebin][rfid][event]})
+                            df = pd.concat([df, new_row.to_frame().T], ignore_index = True)
+            
+                fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(14, 3*2))
+                row=0
+                
+                
+                genotypeList = list(Counter(df['genotype']).keys())
+                my_pal = {genotypeList[0]: getColorGeno(genotypeList[0]), genotypeList[1]: getColorGeno(genotypeList[1])}
+                
+                ax=axes[row]
+                ax.spines['right'].set_visible(False)
+                ax.spines['top'].set_visible(False)
+                ax.set_ylabel(event)
+                #sns.lineplot(data = df.loc[df['event']==event], x='timebin', y='value', hue='rfid', ax=ax, errorbar='sd' )
+                sns.lineplot(data = df.loc[df['event']==event], x='timebin', y='value', hue='genotype', palette=my_pal, ax=ax, errorbar='sd' )
+                #sns.lineplot(data = df.loc[df['event']==event], x='timebin', y='value', hue='genotype', units='rfid', style='group', estimator=None, lw=1, palette=my_pal, ax=ax )
+                row += 1
+                    
+                fig.savefig( f"fig_timebin_beginning_{event}.pdf" ,dpi=100)
+                
+            break
+        
+        if answer == "3":
+            """compute the area under the curve """
+            """
+            area for one time bin = ((x2-x1) * (min(y1,y2) - 0) + ((x2-x1) * (max(y1, y2) - min(y1, y2)) )/2
+            """
+            
+            files = getJsonFilesToProcess()
+            dataDic = mergeJsonFilesForProfiles(files)
+            
+            for behaviouralCategory in ['activity', 'exploration', 'general contacts', 'specific contacts', 'follow', 'approach', 'escape']:
+                
+                df = pd.DataFrame({'file': [], 'group': [], 'rfid': [], 'sex': [], 'genotype': [], 'strain': [], 'timebin': [], 'event': [], 'value': []})
+                for file in dataDic.keys():
+                    print("New file: ", file)
+                    for timebin in dataDic[file].keys():
+                        for rfid in dataDic[file][timebin].keys():
+                            for event in getBehaviouralTraitsPerCategory(behaviouralCategory):
+                                new_row = pd.Series({'file': file, 'group': dataDic[file][timebin][rfid]['group'],
+                                                'rfid': rfid, 'sex': dataDic[file][timebin][rfid]['sex'],
+                                                'genotype': dataDic[file][timebin][rfid]['genotype'], 'strain': dataDic[file][timebin][rfid]['strain'],
+                                                'timebin': timebin, 'event': event, 'value': dataDic[file][timebin][rfid][event]})
+                                df = pd.concat([df, new_row.to_frame().T], ignore_index = True)
+            
+            
+            
+            
+            
+            break
+    
+    print("Job done.")
