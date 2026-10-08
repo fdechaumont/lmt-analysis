@@ -5,7 +5,8 @@ Created on 6 sept. 2023
 '''
 from lmtanalysis.FileUtil import getFilesToProcess, behaviouralEventOneMouse,\
     getJsonFilesToProcess, mergeJsonFilesForProfiles, categoryList,\
-    getBehaviouralTraitsPerCategory
+    getBehaviouralTraitsPerCategory, getFigureBehaviouralEventsLabels,\
+    extractPValueFromLMMResult
 from lmtanalysis.Util import getMinTMaxTInput
 from lmtanalysis.Measure import oneMinute, oneHour
 import os
@@ -20,7 +21,26 @@ from lmtanalysis.Measure import *
 from scripts.ComputeMeasuresIdentityProfileOneMouseAutomatic import computeProfile
 from collections import Counter
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
+from scripts.PlotTimeLineActivity import frameToTimeTicker
+import statsmodels.formula.api as smf
 
+def getDayNightPeriodPerTimeBin(timeBinNb, binNight1, binNight2, binNight3, binDay1, binDay2):
+    timePeriod = "day3"
+    if timeBinNb in binNight1:
+        timePeriod = "night1"
+    elif timeBinNb in binNight2:
+        timePeriod = "night2"
+    elif timeBinNb in binNight3:
+        timePeriod = "night3"
+    elif timeBinNb in binDay0:
+        timePeriod = "day0"
+    elif timeBinNb in binDay1:
+        timePeriod = "day1"
+    elif timeBinNb in binDay2:
+        timePeriod = "day2"
+        
+    return timePeriod
+                    
 
 if __name__ == '__main__':
     """
@@ -33,6 +53,7 @@ if __name__ == '__main__':
     from matplotlib import rc, gridspec
     pd.set_option("display.max_columns", None)
     rc('font', **{'family': 'serif', 'serif': ['Arial']})
+    letterList = list(string.ascii_uppercase)
     
     while True:
 
@@ -42,6 +63,7 @@ if __name__ == '__main__':
         question += "\n\t [1b] compute distance per time bin starting xx hours before the night"
         question += "\n\t [2] plot the profile per time bins for the beginning of the exp"
         question += "\n\t [2a] plot the distance travelled per time bin?"
+        question += "\n\t [2b] plot distance traveled per time bin from a synchronised beginning?"
         question += "\n\t [3] evaluate the area under the curve"
         question += "\n"
         answer = input(question)
@@ -210,8 +232,8 @@ if __name__ == '__main__':
                     ax.spines['right'].set_visible(False)
                     ax.spines['top'].set_visible(False)
                     ax.set_ylabel(event)
-                    sns.lineplot(data = df.loc[df['event']==event], x='timebin', y='value', hue='rfid', ax=ax, ci="sd" )
-                    #sns.lineplot(data = df.loc[df['event']==event], x='timebin', y='value', hue='genotype', palette=my_pal, ax=ax, ci="sd" )
+                    sns.lineplot(data = df.loc[df['event']==event], x='timebin', y='value', hue='rfid', ax=ax, errorbar="sd" )
+                    #sns.lineplot(data = df.loc[df['event']==event], x='timebin', y='value', hue='genotype', palette=my_pal, ax=ax, errorbar="sd" )
                     #sns.lineplot(data = df.loc[df['event']==event], x='timebin', y='value', hue='genotype', units='rfid', style='group', estimator=None, lw=1, palette=my_pal, ax=ax )
                     row += 1
                     
@@ -255,8 +277,175 @@ if __name__ == '__main__':
                 #sns.lineplot(data = df.loc[df['event']==event], x='timebin', y='value', hue='genotype', units='rfid', style='group', estimator=None, lw=1, palette=my_pal, ax=ax )
                 row += 1
                     
-                fig.savefig( f"fig_timebin_beginning_{event}.pdf" ,dpi=100)
+                fig.savefig( f"fig_timebin_beginning_{event}.png" ,dpi=100)
                 
+            break
+        
+        if answer == "2b":
+            """plot distance traveled per time bin from a synchronised beginning """
+            files = getJsonFilesToProcess()
+            dataDic = mergeJsonFilesForProfiles(files)
+            
+            event = "totalDistance"
+            
+            binNight1 = range(12, 83+1)
+            binNight2 = range(156, 227+1)
+            binNight3 = range(300, 371+1)
+            binDay0 = range(0, 11+1)
+            binDay1 = range(84, 155+1)
+            binDay2 = range(228, 299+1)
+    
+            
+            df = pd.DataFrame({'file': [], 'group': [], 'rfid': [], 'sex': [], 'genotype': [], 'strain': [], 'timebin': [], 'timePeriod': [], 'event': [], 'value': []})
+            for file in dataDic.keys():
+                print("New file: ", file)
+                timeBinNb = 0
+                for timebin in dataDic[file].keys():
+                    for rfid in dataDic[file][timebin].keys():
+                        timePeriod = getDayNightPeriodPerTimeBin(timeBinNb, binNight1, binNight2, binNight3, binDay1, binDay2)
+                        new_row = pd.Series({'file': file, 'group': file,
+                                        'rfid': rfid, 'sex': dataDic[file][timebin][rfid]['sex'],
+                                        'genotype': dataDic[file][timebin][rfid]['genotype'], 'strain': dataDic[file][timebin][rfid]['strain'],
+                                        'timebin': timeBinNb*10*oneMinute, 'event': event, 'timePeriod': timePeriod, 'value': dataDic[file][timebin][rfid][event]})
+                        df = pd.concat([df, new_row.to_frame().T], ignore_index = True)
+                        
+                    timeBinNb += 1
+            
+            #compute activity per time period
+            dfPeriod = pd.DataFrame({'file': [], 'group': [], 'rfid': [], 'sex': [], 'genotype': [], 'strain': [], 'timePeriod': [], 'event': [], 'value': []})
+            rfidList = list(Counter(df['rfid']).keys())
+            timePeriodList = list(Counter(df['timePeriod']).keys())
+            
+            for rfid in rfidList:
+                for period in timePeriodList:
+                    selectedDf = df.loc[(df['rfid']==rfid) &  (df['timePeriod']==period)]
+                    
+                    new_row = pd.Series({'file': list(selectedDf['file'])[0], 'group': list(selectedDf['file'])[0],
+                                        'rfid': list(selectedDf['rfid'])[0], 'sex': list(selectedDf['sex'])[0],
+                                        'genotype': list(selectedDf['genotype'])[0], 'strain': list(selectedDf['strain'])[0],
+                                        'event': event, 'timePeriod': period, 'value': sum(list(selectedDf['value']))})
+                    dfPeriod = pd.concat([dfPeriod, new_row.to_frame().T], ignore_index = True)
+                    
+            
+            
+            #draw plots
+            nRow=2
+            nCol=5
+            k = 0
+            gs = gridspec.GridSpec(nrows=nRow, ncols=nCol)
+            fig = plt.figure( figsize=(nCol*3, nRow*3) )     
+            
+            row=0
+            genotypeList = list(Counter(df['genotype']).keys())
+            my_pal = {genotypeList[0]: getColorGeno(genotypeList[0]), genotypeList[1]: getColorGeno(genotypeList[1])}
+               
+            for sex in ["male", "female"]:
+                print(f"####### {sex} row={row}")
+                #timeline of activity
+                dfPerSex = df.loc[df['sex']==sex]
+                print(dfPerSex)
+                ax=fig.add_subplot(gs[row, 0:4])
+                
+                ax.spines['right'].set_visible(False)
+                ax.spines['top'].set_visible(False)
+                ax.set_ylim(0, 35)
+                ax.set_ylabel(f"{getFigureBehaviouralEventsLabels(event)} (m/10 min)")
+                ax.set_xlim(0, 71*oneHour)
+                ax.set_xlabel("time")
+                                
+                ''' set x axis '''
+                formatter = matplotlib.ticker.FuncFormatter( frameToTimeTicker )
+                ax.xaxis.set_major_formatter(formatter)
+                ax.tick_params(labelsize=10 )
+                ax.xaxis.set_major_locator(ticker.MultipleLocator( 30 * 60 * 60 * 12 ))
+                ax.xaxis.set_minor_locator(ticker.MultipleLocator( 30 * 60 * 60 ))
+        
+                #add night grey rectangles
+                nightStart = 11*10*oneMinute
+                for night in ["night 1", "night 2", "night 3"]:
+                    nightPatch = matplotlib.patches.Rectangle( xy=(nightStart, 0) , width=72*10*oneMinute, height=36, facecolor = "lightgrey", alpha=0.2 )
+                    ax.add_patch(nightPatch)
+                    ax.text(x=nightStart+36*10*oneMinute, y=32, s=night, fontsize=12, c="grey", ha='center')
+                    nightStart += 24*6*10*oneMinute
+                
+                #draw the activity lines    
+                #sns.lineplot(data = dfPerSex.loc[dfPerSex['event']==event], x='timebin', y='value', hue='rfid', ax=ax, errorbar='sd' )
+                sns.lineplot(data = dfPerSex.loc[dfPerSex['event']==event], x='timebin', y='value', hue='genotype', palette=my_pal, ax=ax, errorbar='sd' )
+                #sns.lineplot(data = dfPerSex.loc[dfPerSex['event']==event], x='timebin', y='value', hue='genotype', units='rfid', style='group', estimator=None, lw=1, palette=my_pal, ax=ax )
+                ax.legend().set_visible(False)
+                ax.set_title(f"{sex}s", fontdict={'fontsize': 16, 'fontweight': "bold"})
+                ax.text(-0.05, 1.05, letterList[k], fontsize=18, horizontalalignment='center', color='black', weight='bold', transform=ax.transAxes)
+                k += 2
+                row += 1
+            
+               
+            row1 = 0
+            k = 1
+            for sex in ["male", "female"]:    
+                #distance computation per time period
+                ax=fig.add_subplot(gs[row1, 4])
+                ax.spines['right'].set_visible(False)
+                ax.spines['top'].set_visible(False)
+                ax.set_ylim(0, 1200)
+                ax.set_ylabel(f"{getFigureBehaviouralEventsLabels(event)} (m)")
+                
+                ax.set_xlabel("time periods")
+                selectedDfPeriod = dfPeriod.loc[(dfPeriod['sex']==sex) & ((dfPeriod['timePeriod']=="night1") | (dfPeriod['timePeriod']=="night2") | (dfPeriod['timePeriod']=="night3") | (dfPeriod['timePeriod']=="day1") | (dfPeriod['timePeriod']=="day2"))]
+                sns.boxplot(data=selectedDfPeriod, x='timePeriod', y='value', hue='genotype', order=["night1", "day1", "night2", "day2", "night3"], hue_order=reversed(genotypeList), ax=ax, linewidth=0.5, showmeans=True,
+                meanprops={"marker": 'o',
+                           "markerfacecolor": 'white',
+                           "markeredgecolor": 'black',
+                           "markersize": '8'}, showfliers=False, width=0.8, palette=my_pal, dodge=True)
+                
+                sns.stripplot(data=selectedDfPeriod, x='timePeriod', y='value', hue='genotype', order=["night1", "day1", "night2", "day2", "night3"], hue_order=reversed(genotypeList), jitter=True, palette='dark:black', s=3,
+                              dodge=True, ax=ax)
+                ax.legend().set_visible(False)
+                ax.set_title(f"{sex}s", fontdict={'fontsize': 16, 'fontweight': "bold"})
+                ax.text(-0.3, 1.05, letterList[k], fontsize=18, horizontalalignment='center', color='black', weight='bold', transform=ax.transAxes)
+                k += 2
+                
+                #statistics
+                pos=0
+                for timePeriod in ["night1", "day1", "night2", "day2", "night3"]:
+                    data = dfPeriod.loc[(dfPeriod['sex']==sex) & (dfPeriod['timePeriod']==timePeriod)]
+                    print(data)
+                    dic = {}
+                    dic["value"] = list(data["value"])
+                    dic["genotype"] = list(data["genotype"])
+                    dic["group"] = list(data["group"])
+                    print("########################")
+                    dataSimple = pd.DataFrame.from_dict(dic)
+                    print(dataSimple.dtypes)
+                    # create model:
+                    model = smf.mixedlm("value ~ genotype", dataSimple, groups=data["group"])
+                    # run model:
+                    result = model.fit()
+                    # print summary
+                    print(event, timePeriod)
+                    print(result.summary())
+                    p, sign = extractPValueFromLMMResult(result=result, keyword='wt')
+                    #add p-values on the plot
+                    ax.text(pos, 1150, getStarsFromPvalues(p, 1), fontsize=11, horizontalalignment='center', color='black', weight='bold')
+                    pos+=1
+        
+                               
+                row1 += 1
+            
+            # add legend
+            wtPoint = matplotlib.lines.Line2D([0], [0], marker='o', color='w',
+                                              markerfacecolor=getColorGeno(genotypeList[0]), markersize=8, alpha=0.9,
+                                              label=f"17q21.31 {genotypeList[0]}")
+            koPoint = matplotlib.lines.Line2D([0], [0], marker='o', color='w',
+                                              markerfacecolor=getColorGeno(genotypeList[1]), markersize=8, alpha=0.9,
+                                              label=f"17q21.31 {genotypeList[1]}")
+            ax=plt.subplot(gs[0, 0:4])
+            ax.legend(handles=[koPoint, wtPoint], frameon=True, fontsize=10, bbox_to_anchor=(0.35, 0.8))
+            
+            fig.tight_layout()
+            print ("Saving figure..." )   
+            fig.savefig( f"suppl_fig_actiivty_timeline.png" ,dpi=200)
+            fig.savefig( f"suppl_fig_actiivty_timeline.pdf" ,dpi=100)
+            
             break
         
         if answer == "3":
