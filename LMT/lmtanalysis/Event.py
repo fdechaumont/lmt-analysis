@@ -525,7 +525,10 @@ class EventTimeLine:
             endFrameEvent1 = eventList[0].endFrame 
             for event in eventList[1:]:
                 startFrameEvent2 = event.startFrame
-                interval = startFrameEvent2 - endFrameEvent1
+                interval = startFrameEvent2 - endFrameEvent1 - 1
+                #if the two events are together (event1 finishes frame 10 and event2 starts frame 10), it will be -1
+                #if the two events are in successive frames (event1 finishes frame 10 and event2 starts frame 11), it will be 0
+                #other negative cases mean that there are overlap between events
                 intervalList.append(interval)
                 endFrameEvent1 = event.endFrame
         
@@ -542,17 +545,10 @@ class EventTimeLine:
         #if no event or only one event in the timeline:
         if len(eventList) <= 1:
             print('No or only one event in timeline')
-            meanIntervalLength = NaN
+            meanIntervalLength = np.nan
         #if there are events in the timeline
         else:
-            endFrameEvent1 = eventList[0].endFrame 
-            for event in eventList[1:]:
-                startFrameEvent2 = event.startFrame
-                interval = startFrameEvent2 - endFrameEvent1
-                #print('#### ', endFrameEvent1, startFrameEvent2, interval)
-                intervalList.append(interval)
-                endFrameEvent1 = event.endFrame
-            
+            intervalList = self.getIntervalBetweenEventsList()
             meanIntervalLength = np.mean(intervalList)
         
         print(intervalList, meanIntervalLength)
